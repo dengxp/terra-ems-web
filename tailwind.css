@@ -1,0 +1,145 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px white inset;
+  box-shadow: 0 0 0 1000px white inset;
+  -webkit-text-fill-color: #000;
+}
+
+:where(.css-dev-only-do-not-override-11byv8t).ant-pro-page-container :where(.css-dev-only-do-not-override-11byv8t).ant-pro-page-container-warp-page-header .ant-page-header-heading {
+  padding-block-start: 0;
+}
+
+:where(.css-dev-only-do-not-override-11byv8t).ant-pro-page-container :where(.css-dev-only-do-not-override-11byv8t).ant-pro-page-container-warp-page-header .ant-page-header-breadcrumb {
+  padding-block-start: 4px;
+}
+
+.ant-pro-table-list-toolbar-left {
+  flex: 0 !important;
+}
+.ant-pro-table-list-toolbar-left > * {
+  flex-shrink: 0; /* 防止元素缩小 */
+}
+
+.ant-pro-table-list-toolbar-left > div {
+  white-space: nowrap; /* 防止文本换行 */
+}
+
+:where(.custom).ant-pro-table-list-toolbar-filter:not(:last-child) {
+   margin-inline-end: 0;
+}
+
+
+/*:where(.css-dev-only-do-not-override-11byv8t).ant-pro-page-container :where(.css-dev-only-do-not-override-11byv8t).ant-pro-page-container-warp-page-header {*/
+/*  padding-block-start: 0;*/
+/*  padding-block-end: 8px;*/
+/*  padding-inline-start: 16px;*/
+/*  padding-inline-end: 16px;*/
+/*}*/
+
+.ant-pro-page-container .ant-pro-page-container-warp-page-header {
+  padding-block-start: 0;
+  padding-block-end: 8px;
+  padding-inline-start: 16px;
+  padding-inline-end: 16px;
+}
+
+/*:where(.css-dev-only-do-not-override-11byv8t).ant-pro-page-container-children-container {*/
+/*  padding-block-start: 8px;*/
+/*  padding-block-end: 16px;*/
+/*  padding-inline: 16px;*/
+/*}*/
+
+.ant-pro-page-container-children-container {
+  padding-block-start: 8px;
+  padding-block-end: 16px;
+  padding-inline: 16px;
+}
+
+/*:where(.css-dev-only-do-not-override-tt3no2).ant-pro-form-login-page {*/
+/*  display: flex;*/
+/*  width: 100%;*/
+/*  height: calc(100vh - 90px);*/
+/*  background-size: cover;*/
+/*  background-position: center;*/
+/*  background-repeat: no-repeat;*/
+/*}*/
+
+.ant-pro-form-login-page {
+  display: flex;
+  width: 100%;
+  height: calc(100vh - 90px);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/*:where(.css-dev-only-do-not-override-tt3no2).ant-pro-form-login-page-left {*/
+/*  display: flex;*/
+/*  flex: 1;*/
+/*  z-index: 99;*/
+/*  flex-direction: column;*/
+/*  max-width: 36%;*/
+/*  min-width: 500px;*/
+/*  padding-inline: 0;*/
+/*  padding-block: 32px;*/
+/*  overflow: auto;*/
+/*  align-items: start;*/
+/*  justify-content: center;*/
+/*  padding: 24px;*/
+/*  height: max-content;*/
+/*  margin-top: calc((100vh - 478px) / 3);*/
+/*}*/
+
+.ant-pro-form-login-page-left {
+  display: flex;
+  flex: 1;
+  z-index: 99;
+  flex-direction: column;
+  max-width: 38%;
+  min-width: 500px;
+  padding-inline: 0;
+  padding-block: 32px;
+  overflow: auto;
+  align-items: start;
+  justify-content: center;
+  padding: 24px;
+  height: max-content;
+  margin-top: calc((100vh - 478px) / 3);
+}
+
+/*.custom .css-dev-only-do-not-override-11byv8t .ant-pro-table-list-toolbar-filter:not(:last-child) {*/
+/*  margin-inline-end: 0 !important; !* 你想要设置的新值 *!*/
+/*}*/
+
+.custom .ant-pro-table-list-toolbar-filter:not(:last-child) {
+  margin-inline-end: 0 !important; /* 你想要设置的新值 */
+}
+
+
+.custom .ant-pro-card .ant-pro-card-body {
+  display: block;
+  box-sizing: border-box;
+  height: 100%;
+  padding-inline: 0;
+  padding-block: 16px;
+}
+
+.ant-tree .ant-tree-node-content-wrapper.ant-tree-node-selected, .ant-tree .ant-tree-checkbox+span.ant-tree-node-selected {
+  background-color: #13C2C2;
+  color: #fff;
+}
+
+ .ant-btn-primary.ant-btn-solid {
+  color: #fff;
+  background: #13C2C2;
+}
+
+.ant-pro-form-login-page-title {
+  font-size: 20px;
+}
