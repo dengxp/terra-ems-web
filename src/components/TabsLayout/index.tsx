@@ -1,15 +1,15 @@
-import React from 'react';
-import {Tabs, Dropdown, Button} from 'antd';
-import type {MenuProps} from 'antd';
+import React, {useEffect} from 'react';
+import type {MenuProps, TabPaneProps} from 'antd';
+import {Button, Dropdown, Space, Tabs} from 'antd';
 import {
-  EllipsisOutlined,
-  VerticalRightOutlined,
-  VerticalLeftOutlined,
   CloseOutlined,
-  ReloadOutlined
+  EllipsisOutlined,
+  ReloadOutlined,
+  VerticalLeftOutlined,
+  VerticalRightOutlined
 } from '@ant-design/icons';
 import {useIntl} from '@umijs/max';
-import type {TabPaneProps} from 'antd';
+import {TAB_STORAGE_KEY} from "@/config/constants";
 
 export interface TabConfig extends TabPaneProps {
   icon?: React.ReactNode;
@@ -35,7 +35,7 @@ export interface TabsLayoutProps {
   tabNameMap: Record<string, number>;
 }
 
-const TabsLayout: React.FC<TabsLayoutProps> = (props) => {
+const Index: React.FC<TabsLayoutProps> = (props) => {
   const {
     isKeep,
     keepElements,
@@ -155,12 +155,14 @@ const TabsLayout: React.FC<TabsLayoutProps> = (props) => {
             }}
             {...tabProps}
             items={Object.entries(keepElements.current).map(
-              ([pathname, {name, icon, closable, ...other}]: any) => ({
+              ([pathname, {name, icon, closable, children, ...other}]: any) => ({
                 label: (
-                  <>
-                    {icon}
-                    {name}
-                  </>
+                  <Dropdown menu={{items, onClick: selectAction}} trigger={['contextMenu']}>
+                    <Space align={'center'} size={4}>
+                      {icon}
+                      {name}
+                    </Space>
+                  </Dropdown>
                 ),
                 key: `${pathname?.toLowerCase()}::${tabNameMap[pathname?.toLowerCase()]}`,
                 closable: Object.entries(keepElements.current).length === 1 ? false : closable,
@@ -173,4 +175,4 @@ const TabsLayout: React.FC<TabsLayoutProps> = (props) => {
   );
 };
 
-export default TabsLayout;
+export default Index;

@@ -1,4 +1,4 @@
-import {request} from "@@/exports";
+import {request} from "@umijs/max";
 
 export async function login(data: LoginParams) {
   return request(

@@ -22,6 +22,7 @@ input:-webkit-autofill:active {
 .ant-pro-table-list-toolbar-left {
   flex: 0 !important;
 }
+
 .ant-pro-table-list-toolbar-left > * {
   flex-shrink: 0; /* 防止元素缩小 */
 }
@@ -31,7 +32,7 @@ input:-webkit-autofill:active {
 }
 
 :where(.custom).ant-pro-table-list-toolbar-filter:not(:last-child) {
-   margin-inline-end: 0;
+  margin-inline-end: 0;
 }
 
 
@@ -130,16 +131,24 @@ input:-webkit-autofill:active {
   padding-block: 16px;
 }
 
-.ant-tree .ant-tree-node-content-wrapper.ant-tree-node-selected, .ant-tree .ant-tree-checkbox+span.ant-tree-node-selected {
+.ant-tree .ant-tree-node-content-wrapper.ant-tree-node-selected, .ant-tree .ant-tree-checkbox + span.ant-tree-node-selected {
   background-color: #13C2C2;
   color: #fff;
 }
 
- .ant-btn-primary.ant-btn-solid {
+.ant-btn-primary.ant-btn-solid {
   color: #fff;
   background: #13C2C2;
 }
 
 .ant-pro-form-login-page-title {
   font-size: 20px;
+}
+
+.ant-pro-query-filter-row {
+  row-gap: 12px;
+}
+
+.custom .ant-form-item {
+  margin-bottom: 0;
 }

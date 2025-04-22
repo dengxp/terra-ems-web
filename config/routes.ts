@@ -22,7 +22,8 @@ export default [
     name: '首页',
     path: '/home',
     icon: 'home',
-    component: './Home'
+    component: './Home',
+    closable: false
   },
   {
     path: '/',
@@ -57,7 +58,7 @@ export default [
         name: '用户管理',
         path: '/system/user',
         icon: 'user',
-        component: './system/User'
+        component: './system/User',
       },
       {
         title: '角色管理',

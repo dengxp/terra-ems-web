@@ -12,8 +12,8 @@ import {generateAvatar} from "@/utils/avatar";
 import {getInfo} from '@/apis/login';
 import {removeToken} from "@/utils/auth";
 import {LOGIN_PATH} from "@/config/constants";
-// import TabsView, {TabsViewPropsData} from "@/components/TabsView";
-import TabsLayout, {TabsLayoutProps} from "@/components/TabsView/TabsLayout";
+import TabsLayout, {TabsLayoutProps} from "@/components/TabsLayout";
+import {Space} from "antd";
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -98,8 +98,6 @@ export const layout: RunTimeLayoutConfig = ({initialState, setInitialState}) => 
     onPageChange: () => {
       const {location} = history;
       // 如果没有登录，重定向到 login
-      console.log("currentUser: ", initialState?.currentUser);
-
       if (!initialState?.currentUser && location.pathname !== LOGIN_PATH) {
         removeToken();
         history.push(LOGIN_PATH);
@@ -158,17 +156,17 @@ export const layout: RunTimeLayoutConfig = ({initialState, setInitialState}) => 
         </>
       );
     },
-    // menuItemRender: (menuItemProps, defaultDom, props) => {
-    //   if (menuItemProps.isUrl || !menuItemProps.path || (!menuItemProps.children && menuItemProps.parentId === 'max-tabs')) {
-    //     return defaultDom;
-    //   }
-    //   return <Link to={menuItemProps.path}>
-    //     <Space>
-    //       <span>{menuItemProps.icon}</span>
-    //       <span className={'ml-1'}>{menuItemProps.name}</span>
-    //     </Space>
-    //   </Link>
-    // },
+    menuItemRender: (menuItemProps, defaultDom) => {
+      if (menuItemProps.isUrl || !menuItemProps.path || (!menuItemProps.children && menuItemProps.parentId === 'max-tabs')) {
+        return defaultDom;
+      }
+      return <Link to={menuItemProps.path}>
+        <Space size={4}>
+          <span>{menuItemProps.icon}</span>
+          <span className={'ml-1'}>{menuItemProps.name}</span>
+        </Space>
+      </Link>
+    },
     menuDataRender,
 
     ...initialState?.layoutSettings,

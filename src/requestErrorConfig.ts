@@ -1,9 +1,9 @@
 ﻿import type {RequestConfig, RequestOptions} from '@umijs/max';
+import {history} from "@umijs/max";
 import {message, notification} from 'antd';
 import {ContentType} from '@/enums';
 import qs from 'qs';
 import {EXPIRATION_CODE, LOGIN_PATH, WHITE_LIST} from "./config/constants";
-import {history} from "@umijs/max";
 import {getToken, removeToken} from "@/utils/auth";
 
 // 错误处理方案： 错误类型
@@ -33,6 +33,32 @@ const dataConvert = (data: any, contentType: any) => {
     default:
       return data;
   }
+}
+
+/**
+ * 参数处理
+ * @param {*} params  参数
+ */
+export function tansParams(params: Record<string, string>) {
+  let result = ''
+  for (const propName of Object.keys(params)) {
+    const value = params[propName];
+    const part = encodeURIComponent(propName) + "=";
+    if (value !== null && value !== "" && typeof (value) !== "undefined") {
+      if (typeof value === 'object') {
+        for (const key of Object.keys(value)) {
+          if (value[key] !== null && value[key] !== "" && typeof (value[key]) !== 'undefined') {
+            let params = propName + '[' + key + ']';
+            const subPart = encodeURIComponent(params) + "=";
+            result += subPart + encodeURIComponent(value[key]) + "&";
+          }
+        }
+      } else {
+        result += part + encodeURIComponent(value) + "&";
+      }
+    }
+  }
+  return result
 }
 
 /**
@@ -111,17 +137,29 @@ export const errorConfig: RequestConfig = {
       const newData = dataConvert(data, headers?.['Content-Type']);
 
       const isToken = (headers || {}).isToken === false;
-      if(getToken() && !isToken) {
+      if (getToken() && !isToken) {
         headers['Authorization'] = 'Bearer ' + getToken();
       }
 
-      // 自定义参数序列化逻辑
+      // // 自定义参数序列化逻辑
+      // if (config.method === 'get' && config.params) {
+      //   for (const key in config.params) {
+      //     if (Array.isArray(config.params[key])) {
+      //       config.params[key] = config.params[key].join(',');
+      //     }
+      //     // 如果值是对象（例如 params 需要传递的 Map 或对象），则转为 JSON 字符串
+      //     else if (typeof config.params[key] === 'object' && config.params[key] !== null) {
+      //       config.params[key] = JSON.stringify(config.params[key]);
+      //     }
+      //   }
+      // }
+
+      // get请求映射params参数
       if (config.method === 'get' && config.params) {
-        for (const key in config.params) {
-          if (Array.isArray(config.params[key])) {
-            config.params[key] = config.params[key].join(',');
-          }
-        }
+        let url = config.url + '?' + tansParams(config.params);
+        url = url.slice(0, -1);
+        config.params = {};
+        config.url = url;
       }
 
       // 拦截请求配置，进行个性化处理

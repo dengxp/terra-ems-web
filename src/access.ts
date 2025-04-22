@@ -16,6 +16,7 @@ export default function access(initialState: { currentUser?: CurrentUser } | und
   const hasPermission = (permissionNeed: string | Array<string>): boolean => {
     const permissions = currentUser?.permissions;
     if(!permissions || permissions.length === 0) return false;
+    if(permissions.includes('*:*:*')) return true;
 
     if(typeof (permissionNeed) === 'string') {
       return permissions.includes(permissionNeed);

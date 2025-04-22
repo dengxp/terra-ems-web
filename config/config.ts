@@ -136,7 +136,7 @@ export default defineConfig({
   tabsLayout: {
     hasDropdown: true,
     hasFixedHeader: true,  //吸顶效果
-    hasCustomTabs: true,
+    hasCustomTabs: true
   },
 
   //================ pro 插件配置 =================
