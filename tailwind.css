@@ -142,7 +142,7 @@ input:-webkit-autofill:active {
 }
 
 .ant-pro-form-login-page-title {
-  font-size: 20px;
+  font-size: 24px;
 }
 
 .ant-pro-query-filter-row {
@@ -151,4 +151,15 @@ input:-webkit-autofill:active {
 
 .custom .ant-form-item {
   margin-bottom: 0;
+}
+
+/*:where(.css-dev-only-do-not-override-18rko05).ant-pro-table-list-toolbar-container {*/
+/*  display: flex;*/
+/*  justify-content: space-between;*/
+/*  padding-block: 8px;*/
+/*  padding-inline: 0;*/
+/*}*/
+
+.custom .ant-pro-table-list-toolbar-container {
+  padding-block: 8px;
 }

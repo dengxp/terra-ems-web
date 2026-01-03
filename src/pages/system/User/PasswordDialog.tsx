@@ -13,7 +13,7 @@ function PasswordDialog(props: Props) {
   const {
     form,
     getState
-  } = useCrud<User>({
+  } = useCrud<SysUser>({
     pathname: '/system/user',
     entityName: '用户',
     baseUrl: '/api/system/user',

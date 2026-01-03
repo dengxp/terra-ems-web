@@ -6,15 +6,18 @@ import {ProFormSelect, ProFormText, ProFormTextArea} from "@ant-design/pro-compo
 import ProFormDictRadioGroup from "@/components/radio/ProFormDictRadioGroup";
 import {OperationEnum} from "@/enums";
 import ProFormDeptSelect from "@/components/select/ProFormDeptSelect";
-import {getPostListAll, getRoleListAll, getUser} from "@/apis";
+import {findUserById, getPostListAll, getRoleListAll} from "@/apis";
+import {SysUser} from "@/types";
+import {findOptions as findPositionOptions} from "@/apis/position";
 
 type Props = ProModalFormProps;
 
 const defaultValue = {
   username: '',
-  password: 'ZGetzx0915',
+  password: '',
   name: '',
-  gender: undefined,
+  gender: 0,
+  status: 0,
   phone: '',
   email: '',
   departmentId: undefined,
@@ -29,7 +32,7 @@ const UserDetailDialog = (props: Props) => {
     handleSave,
     handleUpdate,
     getState
-  } = useCrud<User>({
+  } = useCrud<SysUser>({
     pathname: '/system/user',
     entityName: '用户',
     baseUrl: '/api/system/user',
@@ -48,14 +51,22 @@ const UserDetailDialog = (props: Props) => {
   }
 
   useEffect(() => {
-    getUser(state.editData?.userId)
-      .then(res => {
-        setPostList(res.posts);
-        setRoleList(res.roles);
-        if (state.operation === OperationEnum.EDIT) {
-          form.setFieldsValue({...res.data, postIds: res.postIds, roleIds: res.roleIds});
-        }
-      })
+    if(props.open) {
+      if(state.operation === OperationEnum.EDIT) {
+        findUserById(state.editData?.id)
+          .then(res => {
+            debugger;
+            setPostList(res.posts);
+            setRoleList(res.roles);
+            if (state.operation === OperationEnum.EDIT) {
+              form.setFieldsValue({...res.data, postIds: res.postIds, roleIds: res.roleIds});
+            }
+          })
+      } else {
+        form.setFieldsValue({...defaultValue});
+      }
+
+    }
     // form.setFieldsValue({...state.editData});
   }, [props.open, state.operation]);
 
@@ -90,13 +101,13 @@ const UserDetailDialog = (props: Props) => {
                   labelCol={{span: 6}}
                   loading={state.loading} onFinish={onFinish}>
       <ProFormText label={'ID'}
-                   name={'userId'}
+                   name={'id'}
                    hidden={true}/>
       {
         state.operation === OperationEnum.CREATE &&
         <>
           <ProFormText label={'用户名称'}
-                       name={'userName'}
+                       name={'username'}
                        placeholder={'请输入用户名称'}
                        colProps={{span: 12}}
                        rules={[
@@ -122,7 +133,7 @@ const UserDetailDialog = (props: Props) => {
         </>
       }
       <ProFormText label={'用户昵称'}
-                   name={'nickName'}
+                   name={'nickname'}
                    placeholder={'请输入用户昵称'}
                    colProps={{span: 12}}
                    rules={[
@@ -136,7 +147,7 @@ const UserDetailDialog = (props: Props) => {
                          colProps={{span: 12}}
       />
       <ProFormText label={'手机号'}
-                   name={'phonenumber'}
+                   name={'phoneNumber'}
                    placeholder={'请输入手机号'}
                    colProps={{span: 12}}
       />
@@ -148,23 +159,26 @@ const UserDetailDialog = (props: Props) => {
       <ProFormDictRadioGroup label={'性别'}
                              name={'gender'}
                              initialValue={'2'}
-                             dictKey={'sys_user_sex'}
+                             dictKey={'gender'}
                              colProps={{span: 12}}
       />
-      <ProFormDictRadioGroup dictKey={'sys_normal_disable'}
+      <ProFormDictRadioGroup dictKey={'status'}
                              label={'状态'}
-                             initialValue={'0'}
                              name={'status'}
                              colProps={{span: 12}}
       />
       <ProFormSelect label={'岗位'}
-                     name={'postIds'}
+                     name={'positions'}
                      mode={'multiple'}
                      colProps={{span: 12}}
                      placeholder={'请选择岗位'}
-                     fieldProps={{
-                       options: postList.map(item => ({key: item.postId, value: item.postId, label: item.postName}))
+                     request={ async () => {
+                       const result = await findPositionOptions();
+                       return result.data;
                      }}
+                     // fieldProps={{
+                     //   options: postList.map(item => ({key: item.postId, value: item.postId, label: item.postName}))
+                     // }}
         // request={async () => {
         //   const result = await getPostListAll();
         //   if (result.success) {
@@ -178,7 +192,7 @@ const UserDetailDialog = (props: Props) => {
         // }}
       />
       <ProFormSelect label={'角色'}
-                     name={'roleIds'}
+                     name={'roles'}
                      mode={'multiple'}
                      colProps={{span: 12}}
                      fieldProps={{

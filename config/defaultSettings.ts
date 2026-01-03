@@ -15,7 +15,7 @@ const Settings: ProLayoutProps & {
     fixedHeader: false,
     fixSiderbar: true,
     colorWeak: false,
-    title: '若依Web端（Antd版）',
+    title: '泰若能源管理系统',
     pwa: true,
     logo: 'https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg',
     iconfontUrl: '',

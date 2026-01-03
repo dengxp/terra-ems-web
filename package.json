@@ -1,8 +1,8 @@
 {
-  "name": "ruoyi-antd",
+  "name": "terra-ems",
   "version": "6.0.0",
   "private": true,
-  "description": "基于Ant Design 框架的若依Web端",
+  "description": "泰若能源管理系统前端",
   "scripts": {
     "analyze": "cross-env ANALYZE=1 max build",
     "build": "max build",

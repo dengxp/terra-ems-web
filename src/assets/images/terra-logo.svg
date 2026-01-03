@@ -1,0 +1,46 @@
+<svg width="300" height="300" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Circular outline -->
+  <circle cx="150" cy="150" r="140" stroke="#2d5016" stroke-width="8" fill="none"/>
+  
+  <!-- Gradient definitions -->
+  <defs>
+    <linearGradient id="leafGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#52c41a"/>
+      <stop offset="50%" stop-color="#3ba016"/>
+      <stop offset="100%" stop-color="#237804"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Stylized leaf shape -->
+  <path d="M 150 70 Q 100 95, 90 130 Q 85 155, 95 180 Q 110 210, 140 225 Q 150 230, 160 225 Q 190 210, 205 180 Q 215 155, 210 130 Q 200 95, 150 70 Z" 
+        fill="url(#leafGradient)" 
+        opacity="0.95"/>
+  
+  <!-- Leaf vein detail -->
+  <path d="M 150 75 Q 150 120, 150 220" 
+        stroke="#1a5c0a" 
+        stroke-width="3" 
+        fill="none" 
+        opacity="0.5"/>
+  
+  <!-- Side veins -->
+  <path d="M 150 120 Q 120 140, 110 160" 
+        stroke="#1a5c0a" 
+        stroke-width="2" 
+        fill="none" 
+        opacity="0.3"/>
+  <path d="M 150 120 Q 180 140, 190 160" 
+        stroke="#1a5c0a" 
+        stroke-width="2" 
+        fill="none" 
+        opacity="0.3"/>
+  
+  <!-- Bold italic TE letters -->
+  <text x="150" y="185" 
+        font-family="Arial Black, Arial, sans-serif" 
+        font-size="85" 
+        font-weight="900" 
+        fill="#ffffff" 
+        text-anchor="middle"
+        style="font-style: italic;">TE</text>
+</svg>

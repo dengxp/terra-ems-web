@@ -1,9 +1,9 @@
 
-<h1 style="text-align: center">RuoYi-Antd v1.0</h1>
+<h1 style="text-align: center">泰若能源管理系统前端 v1.0</h1>
 <h4 style="text-align: center">基于React+Antd的若依Web前端快速框架</h4>
 
 ## 平台简介
-* 本仓库为基于若依的React + UmiJS + Antd的Web前端，后端请使用若依RuoYi-Vue
+* 本仓库为基于React + UmiJS + Antd的泰若能源系统前端
 * 前端技术栈：
   * React
   * TypeScript
@@ -23,7 +23,7 @@
 ```angular2html
 # 克隆项目
 # 进入项目目录
-cd RuoYi-Antd
+cd terra-ems-react
 
 # 安装依赖
 pnpm install

@@ -1,0 +1,561 @@
+/**
+ * Terra EMS - 左右布局登录样式
+ * 保留精致的输入框设计
+ */
+
+.split-layout-login {
+  display: flex;
+  min-height: 100vh;
+
+  // 左侧：品牌展示
+  .login-left {
+    flex: 1;
+    background: linear-gradient(135deg, #0d9488 0%, #10b981 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px;
+    position: relative;
+    overflow: hidden;
+
+    // 背景动画
+    &::before {
+      content: '';
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      top: -100px;
+      right: -100px;
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      bottom: -80px;
+      left: 10%;
+    }
+
+    .left-content {
+      position: relative;
+      z-index: 1;
+      max-width: 500px;
+      color: white;
+
+      .brand-section {
+        margin-bottom: 60px;
+        text-align: center;
+
+        .logo {
+          display: block;
+          width: 100px;
+          height: 100px;
+          margin: 0 auto 28px;
+          filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.15));
+          transition: all 0.3s ease;
+
+          &:hover {
+            transform: scale(1.08);
+            filter: drop-shadow(0 12px 32px rgba(0, 0, 0, 0.25));
+          }
+        }
+
+        h1 {
+          font-size: 32px;
+          font-weight: 700;
+          margin: 0 0 6px 0;
+          text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        p {
+          font-size: 14px;
+          opacity: 0.9;
+          letter-spacing: 1px;
+          margin: 0;
+        }
+      }
+
+      .features {
+        margin-bottom: 50px;
+
+        .feature {
+          display: flex;
+          align-items: center;
+          margin-bottom: 24px;
+          padding: 20px;
+          background: rgba(255, 255, 255, 0.08);
+          border-radius: 12px;
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          transition: all 0.3s;
+
+          &:hover {
+            background: rgba(255, 255, 255, 0.12);
+            transform: translateX(8px);
+          }
+
+          .icon {
+            font-size: 28px;
+            margin-right: 16px;
+          }
+
+          .text {
+            h3 {
+              font-size: 16px;
+              font-weight: 600;
+              margin: 0 0 4px 0;
+            }
+
+            p {
+              font-size: 13px;
+              opacity: 0.8;
+              margin: 0;
+            }
+          }
+        }
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+
+        .stat {
+          text-align: center;
+          padding: 16px;
+          background: rgba(255, 255, 255, 0.08);
+          border-radius: 10px;
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+
+          .value {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 6px;
+          }
+
+          .label {
+            font-size: 11px;
+            opacity: 0.8;
+          }
+        }
+      }
+    }
+  }
+
+  // 右侧：登录表单
+  .login-right {
+    width: 480px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    padding: 60px 50px;
+    box-shadow: -10px 0 40px rgba(0, 0, 0, 0.1);
+
+    .form-wrapper {
+      width: 100%;
+      max-width: 380px;
+
+      .form-header {
+        margin-bottom: 32px;
+
+        h2 {
+          font-size: 28px;
+          font-weight: 700;
+          color: #111827;
+          margin: 0 0 8px 0;
+        }
+
+        p {
+          font-size: 13px;
+          color: #6b7280;
+          margin: 0;
+        }
+      }
+
+      .login-form {
+        min-height: 380px;
+
+        .ant-form-item {
+          margin-bottom: 16px;
+        }
+
+        // 普通输入框
+        .ant-input {
+          height: 44px;
+          border: none;
+          background: #f9fafb;
+          border-radius: 8px;
+          font-size: 14px;
+          padding: 10px 12px;
+          transition: all 0.2s;
+
+          &::placeholder {
+            color: #9ca3af;
+          }
+
+          .anticon {
+            color: #10b981;
+          }
+
+          &:hover {
+            background: #f3f4f6;
+          }
+
+          &:focus {
+            background: #fff;
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1);
+          }
+        }
+
+        // Password 输入框
+        .ant-input-affix-wrapper {
+          height: 44px;
+          border: none;
+          background: #f9fafb;
+          border-radius: 8px;
+          padding: 0 12px;
+          transition: all 0.2s;
+
+          &:hover {
+            background: #f3f4f6;
+          }
+
+          &.ant-input-affix-wrapper-focused {
+            background: #fff;
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1);
+          }
+
+          input {
+            height: 42px;
+            background: transparent;
+            font-size: 14px;
+
+            &::placeholder {
+              color: #9ca3af;
+            }
+          }
+
+          .ant-input-prefix {
+            color: #10b981;
+            margin-right: 8px;
+          }
+
+          .ant-input-suffix {
+            .anticon {
+              color: #10b981;
+            }
+          }
+        }
+
+        // 验证码行
+        .captcha-row {
+          display: flex;
+          gap: 10px;
+          margin-bottom: 16px;
+
+          .ant-form-item {
+            flex: 1;
+            margin-bottom: 0;
+          }
+
+          .captcha-box {
+            flex-shrink: 0;
+            width: 90px;
+            height: 44px;
+            border-radius: 8px;
+            border: none;
+            background: #f9fafb;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.2s;
+
+            &:hover {
+              background: #f3f4f6;
+            }
+
+            img {
+              width: 100%;
+              height: 100%;
+              object-fit: cover;
+            }
+
+            .captcha-loading {
+              width: 100%;
+              height: 100%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+
+              .loading-spinner {
+                width: 14px;
+                height: 14px;
+                border: 2px solid #10b981;
+                border-top-color: transparent;
+                border-radius: 50%;
+                animation: spin 0.8s linear infinite;
+              }
+            }
+          }
+        }
+
+        // 表单额外选项
+        .form-extra {
+          .ant-checkbox-wrapper {
+            color: #6b7280;
+            font-size: 13px;
+
+            .ant-checkbox-checked .ant-checkbox-inner {
+              background-color: #10b981;
+              border-color: #10b981;
+            }
+          }
+        }
+
+        // 登录按钮
+        .ant-btn-primary {
+          height: 40px;
+          border: none;
+          border-radius: 8px;
+          background: linear-gradient(135deg, #10b981, #059669);
+          font-size: 15px;
+          font-weight: 600;
+          box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+          transition: all 0.25s;
+
+          &:hover:not(:disabled) {
+            background: linear-gradient(135deg, #059669, #047857);
+            box-shadow: 0 6px 18px rgba(16, 185, 129, 0.4);
+            transform: translateY(-1px);
+          }
+
+          &:active:not(:disabled) {
+            transform: translateY(0);
+          }
+        }
+      }
+
+      .form-footer {
+        margin-top: 24px;
+        text-align: center;
+
+        p {
+          font-size: 12px;
+          color: #10b981;
+          font-weight: 500;
+          margin: 0;
+        }
+      }
+    }
+  }
+
+  // Tab切换样式
+  .login-tabs {
+    margin-bottom: 24px;
+
+    :global {
+      .ant-tabs-nav {
+        margin-bottom: 0;
+
+        &::before {
+          border-bottom: 2px solid #f0f0f0;
+        }
+      }
+
+      .ant-tabs-tab {
+        padding: 12px 0;
+        font-size: 16px;
+        font-weight: 500;
+        color: #8c8c8c;
+        transition: all 0.3s;
+
+        &:hover {
+          color: #10b981;
+        }
+
+        &.ant-tabs-tab-active {
+          .ant-tabs-tab-btn {
+            color: #10b981;
+            font-weight: 600;
+          }
+        }
+      }
+
+      .ant-tabs-ink-bar {
+        background: linear-gradient(90deg, #0d9488 0%, #10b981 100%);
+        height: 3px;
+        border-radius: 3px 3px 0 0;
+      }
+    }
+  }
+
+  // 手机登录特殊样式
+  .sms-code-btn {
+    margin-left: 12px;
+    min-width: 120px;
+    font-size: 14px;
+    background: linear-gradient(135deg, #0d9488 0%, #10b981 100%);
+    border: none;
+    color: white;
+    font-weight: 500;
+    transition: all 0.3s;
+
+    &:hover:not(:disabled) {
+      opacity: 0.9;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    &:disabled {
+      background: #d9d9d9;
+      color: rgba(0, 0, 0, 0.25);
+      cursor: not-allowed;
+    }
+  }
+
+  .phone-login-tip {
+    margin-top: 16px;
+    margin-bottom: 24px;
+    text-align: center;
+
+    p {
+      font-size: 13px;
+      color: #8c8c8c;
+      margin: 0;
+      line-height: 1.5;
+    }
+  }
+}
+
+// 全局覆盖 Ant Design 默认蓝色主题为绿色
+.split-layout-login {
+
+  // 链接
+  :global {
+    .ant-btn-link {
+      color: #10b981 !important;
+
+      &:hover {
+        color: #059669 !important;
+      }
+    }
+
+    // Checkbox hover
+    .ant-checkbox-wrapper:hover .ant-checkbox-inner,
+    .ant-checkbox:hover .ant-checkbox-inner {
+      border-color: #10b981 !important;
+    }
+
+    .ant-checkbox-input:focus+.ant-checkbox-inner {
+      border-color: #10b981 !important;
+    }
+
+    // Input focus (额外确保)
+    .ant-input:focus,
+    .ant-input-focused,
+    .ant-input-affix-wrapper:focus,
+    .ant-input-affix-wrapper-focused {
+      border-color: #10b981 !important;
+      box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1) !important;
+    }
+
+    // Switch
+    .ant-switch-checked {
+      background-color: #10b981 !important;
+    }
+
+    // Radio
+    .ant-radio-checked .ant-radio-inner {
+      border-color: #10b981 !important;
+      background-color: #10b981 !important;
+    }
+
+    .ant-radio-wrapper:hover .ant-radio-inner,
+    .ant-radio:hover .ant-radio-inner {
+      border-color: #10b981 !important;
+    }
+
+    // Select dropdown
+    .ant-select-item-option-selected {
+      background-color: rgba(16, 185, 129, 0.1) !important;
+      color: #10b981 !important;
+    }
+
+    .ant-select-item-option-active {
+      background-color: rgba(16, 185, 129, 0.05) !important;
+    }
+
+    // 按钮 hover
+    .ant-btn:not(.ant-btn-primary):hover {
+      color: #10b981 !important;
+      border-color: #10b981 !important;
+    }
+  }
+}
+
+// 动画
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// 响应式
+@media (max-width: 1024px) {
+  .split-layout-login {
+    .login-left {
+      display: none;
+    }
+
+    .login-right {
+      width: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .split-layout-login {
+    .login-right {
+      padding: 40px 24px;
+
+      .form-wrapper {
+        max-width: 100%;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .split-layout-login {
+    .login-right {
+      padding: 32px 20px;
+
+      .form-wrapper {
+        .form-header {
+          h2 {
+            font-size: 24px;
+          }
+        }
+
+        .login-form {
+          .captcha-row {
+            flex-direction: column;
+
+            .captcha-box {
+              width: 100%;
+              height: 48px;
+            }
+          }
+        }
+      }
+    }
+  }
+}

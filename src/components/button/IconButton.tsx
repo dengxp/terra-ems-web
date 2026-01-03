@@ -3,12 +3,12 @@ import {Tooltip, Button} from 'antd';
 
 const IconButton = (props: any) => {
 
-    const {type, tooltip, icon, size, ...rest} = props;
+    const {variant, color, tooltip, icon, size, ...rest} = props;
 
     return (
         <Tooltip title={tooltip ? tooltip : '配置'}>
-            <Button type={type || 'text'}
-                    shape='circle'
+            <Button variant={variant || 'text'}
+                    color={color || 'default'}
                     size={size || 'small'}
                     icon={icon}
                     {...rest}

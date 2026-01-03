@@ -1,10 +1,11 @@
-﻿import type {RequestConfig, RequestOptions} from '@umijs/max';
-import {history} from "@umijs/max";
-import {message, notification} from 'antd';
-import {ContentType} from '@/enums';
+﻿import type { RequestConfig, RequestOptions } from '@umijs/max';
+import { history } from "@umijs/max";
+import { message, notification } from 'antd';
+import { ContentType } from '@/enums';
 import qs from 'qs';
-import {EXPIRATION_CODE, LOGIN_PATH, WHITE_LIST} from "./config/constants";
-import {getToken, removeToken} from "@/utils/auth";
+import { EXPIRATION_CODE, LOGIN_PATH, TOKEN_HEADER_NAME, WHITE_LIST, X_TERRA_SESSION_ID } from "./config/constants";
+import { getSessionId, getToken, removeToken } from "@/utils/auth";
+import storage from "store";
 
 // 错误处理方案： 错误类型
 enum ErrorShowType {
@@ -27,7 +28,7 @@ interface ResponseStructure {
 const dataConvert = (data: any, contentType: any) => {
   switch (contentType) {
     case ContentType.URL_ENCODED:
-      return qs.stringify(data, {arrayFormat: 'brackets'});
+      return qs.stringify(data, { arrayFormat: 'brackets' });
     case ContentType.JSON:
       return JSON.stringify(data);
     default:
@@ -71,11 +72,11 @@ export const errorConfig: RequestConfig = {
   errorConfig: {
     // 错误抛出
     errorThrower: (res) => {
-      const {data, code, msg} = res;
-      const error: any = new Error(msg);
+      const { data, code, message } = res;
+      const error: any = new Error(message);
       const showType = res.showType || 2;
       error.name = 'BizError';
-      error.info = {errorCode: code, errorMessage: msg, showType, data};
+      error.info = { errorCode: code, errorMessage: message, showType, data };
       throw error; // 抛出自制的错误
     },
     // 错误接收及处理
@@ -85,7 +86,7 @@ export const errorConfig: RequestConfig = {
       if (error.name === 'BizError') {
         const errorInfo: ResponseStructure | undefined = error.info;
         if (errorInfo) {
-          const {errorMessage, errorCode} = errorInfo;
+          const { errorMessage, errorCode } = errorInfo;
           const showType = opts.showType || errorInfo.showType;
           switch (showType) {
             case ErrorShowType.SILENT:
@@ -113,7 +114,7 @@ export const errorConfig: RequestConfig = {
       } else if (error.response) {
         // Axios 的错误
         // 请求成功发出且服务器也响应了状态码，但状态代码超出了 2xx 的范围
-        const {message: errorMessage, data} = error.response;
+        const { message: errorMessage, data } = error.response;
         const msg = (data && data.message) || errorMessage || '操作失败!';
         void message.error(msg);
         // message.error(`Response status:${error.response.status}`);
@@ -132,13 +133,22 @@ export const errorConfig: RequestConfig = {
   // 请求拦截器
   requestInterceptors: [
     (config: RequestOptions) => {
-      const {data} = config;
+      const { data } = config;
       const headers: any = config.headers || {};
       const newData = dataConvert(data, headers?.['Content-Type']);
 
       const isToken = (headers || {}).isToken === false;
-      if (getToken() && !isToken) {
-        headers['Authorization'] = 'Bearer ' + getToken();
+
+      const sessionId = getSessionId();
+      if (sessionId) {
+        headers[X_TERRA_SESSION_ID] = sessionId;
+      }
+
+      const token = getToken();
+
+      if (token && !isToken) {
+        headers['Authorization'] = 'Bearer ' + token;
+        headers[TOKEN_HEADER_NAME] = token;
       }
 
       // // 自定义参数序列化逻辑
@@ -165,7 +175,7 @@ export const errorConfig: RequestConfig = {
       // 拦截请求配置，进行个性化处理
       return {
         ...config,
-        headers: {...headers},
+        headers: { ...headers },
         data: newData
       }
     },
@@ -175,7 +185,7 @@ export const errorConfig: RequestConfig = {
   responseInterceptors: [
     (response) => {
       // 拦截响应数据，进行个性化处理
-      const {data} = response as unknown as ResponseStructure;
+      const { data } = response as unknown as ResponseStructure;
 
       // 处理文件下载
       if (data instanceof Blob) {
@@ -189,7 +199,7 @@ export const errorConfig: RequestConfig = {
         return response;
       }
 
-      data.success = data.code >= 200 && data.code < 300;
+      data.success = data.code >= 20000 && data.code < 30000;
 
       return response;
     },

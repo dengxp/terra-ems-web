@@ -1,17 +1,13 @@
 import React from 'react';
-import { Tooltip, Button } from 'antd';
-import { EditFilled } from '@ant-design/icons';
+import {EditFilled} from '@ant-design/icons';
+import {IconButton} from "@/components/button/index";
 
-const EditButton = (props: any) => (
-    <Tooltip title={'编辑'} key={'edit'}>
-        <Button
-            type='text'
-            shape='circle'
-            icon={<EditFilled />}
-            size={'small'}
-            {...props}
-        />
-    </Tooltip>
-);
+const EditButton = (props: any) => {
+  const {tooltip, ...rest} = props;
+  return <IconButton tooltip={tooltip ? tooltip : '编辑'}
+                     icon={<EditFilled />}
+                     {...rest}
+  />
+}
 
 export default EditButton;

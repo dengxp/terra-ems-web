@@ -2,10 +2,11 @@ import {OperationEnum} from "@/enums";
 import {history, useModel} from "@umijs/max";
 import {useCallback, useEffect, useRef} from "react";
 import {request} from "@@/exports";
-import {Form, message, PaginationProps} from "antd";
+import {Form, message} from "antd";
 import {ActionType, ProFormInstance} from "@ant-design/pro-components";
 import ModalConfirm from "@/components/ModalConfirm";
 import {wrapperResult} from '@/utils';
+import {Entity, Page, Result} from "@/types";
 
 type Props = {
   entityName?: string;
@@ -112,7 +113,7 @@ export default function useCrud<T extends Entity>({entityName, pathname, baseUrl
       try {
         updateState(pathname, {loading: true});
         const result = await saveOrUpdate(values);
-        void message.success(result.msg || '保存成功');
+        void message.success(result.message || '保存成功');
         updateState(pathname, { loading: false, shouldRefresh: true });
         onOpenChange?.(false);
         resolve();
@@ -129,7 +130,7 @@ export default function useCrud<T extends Entity>({entityName, pathname, baseUrl
       try {
         updateState(pathname, {loading: true});
         const result = await save(values);
-        void message.success(result.msg || '保存成功');
+        void message.success(result.message || '保存成功');
         updateState(pathname, { loading: false, shouldRefresh: true });
         onOpenChange?.(false);
         resolve();
@@ -146,7 +147,7 @@ export default function useCrud<T extends Entity>({entityName, pathname, baseUrl
       try {
         updateState(pathname, {loading: true});
         const result = await update(values);
-        void message.success(result.msg || '保存成功');
+        void message.success(result.message || '保存成功');
         updateState(pathname, { loading: false, shouldRefresh: true });
         onOpenChange?.(false);
         resolve();
@@ -166,13 +167,17 @@ export default function useCrud<T extends Entity>({entityName, pathname, baseUrl
     })
   }, [entityName, pathname, updateState]);
 
-  const toEdit = useCallback((editData: T) => {
+  const toEdit = useCallback((editData?: T) => {
     updateState(pathname, {
       operation: OperationEnum.EDIT,
       dialogTitle: '编辑' + entityName,
-      dialogVisible: true,
-      editData: {...editData}
-    })
+      dialogVisible: true
+    });
+    if(editData) {
+      updateState(pathname, {
+        editData: {...editData}
+      });
+    }
   }, [entityName, pathname, updateState]);
 
   const toPage = useCallback((editData: T, pathname: string) => {

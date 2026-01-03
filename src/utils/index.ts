@@ -1,14 +1,17 @@
+import {AntdResult, Page, Result} from "@/types";
+
 export * from './auth';
 export * from './uuid';
 export * from './avatar';
 export * from './validate';
 export * from './tree';
 
-export const wrapperResult = <T>(result: Result<T>): AntdResult => {
+export const wrapperResult = <T>(result: Result<Page<T>>): AntdResult => {
+  const data = result.data;
   return {
-    data: result?.rows || [],
-    success: result.success,
-    total: result?.total
+    data: data?.content || [],
+    success: result.status ? (result.status >= 200 && result.status < 300) : false,
+    total: data?.totalElement || 0
   }
 }
 

@@ -1,19 +1,42 @@
 import Cookie from 'js-cookie';
-import {TOKEN_HEADER_NAME} from "@/config/constants";
-import {history} from "@umijs/max";
+import { TOKEN_HEADER_NAME, X_TERRA_SESSION_ID } from "@/config/constants";
 
+export function getSessionId() {
+  return Cookie.get(X_TERRA_SESSION_ID) || '';
+}
+
+export function setSessionId(sessionId: string) {
+  Cookie.set(X_TERRA_SESSION_ID, sessionId);
+}
+
+/**
+ * 获取 Token
+ */
 export function getToken(): string {
-  return Cookie.get(TOKEN_HEADER_NAME) || '';
+  const token = localStorage.getItem(TOKEN_HEADER_NAME);
+  console.log("token: " + token);
+  return localStorage.getItem(TOKEN_HEADER_NAME) || '';
 }
 
+/**
+ * 设置 Token（使用 localStorage 存储）
+ */
 export function setToken(token: string) {
-  Cookie.set(TOKEN_HEADER_NAME, token);
+  localStorage.setItem(TOKEN_HEADER_NAME, token);
 }
 
+/**
+ * 移除 Token
+ */
 export function removeToken() {
-  Cookie.remove(TOKEN_HEADER_NAME);
+  const token = getToken();
+  console.log("token: " + token);
+  localStorage.removeItem(TOKEN_HEADER_NAME);
 }
 
+/**
+ * 判断用户是否已登录
+ */
 export function isUserLoggedIn(): boolean {
   const token = getToken();
   return !!token;

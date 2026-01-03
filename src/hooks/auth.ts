@@ -1,10 +1,11 @@
-import {useModel} from "@umijs/max";
-import {login as loginApi, logout as logoutApi} from '@/apis/login';
-import {removeToken, setToken} from "@/utils/auth";
-import {history} from "@@/core/history";
+import { useModel } from "@umijs/max";
+import { login as loginApi, logout as logoutApi } from '@/apis/login';
+import { removeToken, setToken } from "@/utils/auth";
+import { history } from "@@/core/history";
+import type { LoginParams } from "@/types";
 
 export default function useAuth() {
-  const {setInitialState} = useModel('@@initialState');
+  const { setInitialState } = useModel('@@initialState');
 
   const redirect = () => {
     const urlParams = new URL(window.location.href).searchParams;
@@ -22,8 +23,11 @@ export default function useAuth() {
 
   const login = async (userInfo: LoginParams) => {
     const res = await loginApi(userInfo);
-    setToken(res.token);
-    setInitialState(s => ({...s, currentUser: {...s?.currentUser, token: res.token}}))
+    if (res.success) {
+      const data = res.data;
+      setToken(data.token);
+      setInitialState(s => ({ ...s, currentUser: { ...s?.currentUser, token: data.token, name: data.username } }))
+    }
   }
 
   const logout = async () => {
@@ -31,7 +35,7 @@ export default function useAuth() {
       await logoutApi();
     } finally {
       removeToken();
-      setInitialState(s => ({...s, currentUser: undefined}));
+      setInitialState(s => ({ ...s, currentUser: undefined }));
       redirect();
     }
   }

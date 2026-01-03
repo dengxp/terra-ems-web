@@ -8,7 +8,7 @@ import {
   MenuProps,
   message,
   Space,
-  Splitter, Switch,
+  Splitter,
   Tree,
   TreeDataNode,
   TreeProps
@@ -17,15 +17,14 @@ import Icon, {
   DeleteOutlined, EditOutlined, ExportOutlined,
   LockFilled,
   MoreOutlined,
-  PlusOutlined, TeamOutlined, UploadOutlined,
+  PlusOutlined, UploadOutlined,
 } from "@ant-design/icons";
-import {changeUserStatus, exportUser, getDeptTree} from "@/apis";
+import {changeUserStatus, exportUser, findDeptTree} from "@/apis";
 import {generateList, getParentKey, getTreeKeys} from "@/utils/tree";
 import {ProColumns, ProTable} from "@ant-design/pro-components";
 import useCrud from "@/hooks/common/useCrud";
 import {DeleteButton, EditButton} from "@/components/button";
 import {MenuInfo} from "rc-menu/lib/interface";
-import {useDict} from "@/hooks/common/useDict";
 import ModalConfirm from "@/components/ModalConfirm";
 import UserDetailDialog from "@/pages/system/User/UserDetailDialog";
 import {useAccess} from '@umijs/max';
@@ -34,6 +33,9 @@ import {ReactComponent as RoleIcon} from "@/icons/svg/role.svg";
 import RoleDialog from "@/pages/system/User/RoleDialog";
 import UserImportDialog from "@/pages/system/User/UserImportDialog";
 import {downloadFailed, downloadSuccess} from "@/utils/download";
+import {SysUser} from "@/types";
+import {useModel} from "@umijs/max";
+import StatusIcon from "@/components/icons/StatusIcon";
 
 const Index = () => {
   const [deptTree, setDeptTree] = useState<any[]>([]);
@@ -48,7 +50,7 @@ const Index = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [roleVisible, setRoleVisible] = useState(false);
   const [userImportVisible, setUserImportVisible] = useState(false);
-  const dictMap = useDict('sys_normal_disable', 'sys_user_sex');
+  const {optionMap} = useModel('constantModel');
 
   const {
     getState,
@@ -61,9 +63,9 @@ const Index = () => {
     setDialogVisible,
     setShouldRefresh,
     updateState
-  } = useCrud<User>({
-    entityName: '用户',
+  } = useCrud<SysUser>({
     pathname: '/system/user',
+    entityName: '用户',
     baseUrl: '/api/system/user'
   });
 
@@ -71,7 +73,7 @@ const Index = () => {
 
   const state = getState('/system/user');
 
-  const onMenuClick = ({key}: MenuInfo, user: User) => {
+  const onMenuClick = ({key}: MenuInfo, user: SysUser) => {
     if (!user.userId) {
       void message.error('未获取到用户信息');
       return;
@@ -96,59 +98,63 @@ const Index = () => {
     }
   }
 
-  const onStatusChange = (record: any) => {
-    const action = record.status === '0' ? '禁用' : '启用';
-    ModalConfirm({
-      title: '启用/禁用',
-      content: `您确定要${action}用户[${record.userName}]么？`,
-      onOk() {
-        const status = record.status === '0' ? '1' : '0';
-        changeUserStatus(record.userId, status)
-          .then(res => {
-            void message.success(res.msg || `${action}用户[${record.userName}]成功`);
-            actionRef.current?.reload();
-          })
-          .catch(err => {
-            void message.error(err.message || `${action}用户[${record.userName}]失败`);
-          });
-      }
-    });
-  }
+  // const onStatusChange = (record: any) => {
+  //   const action = record.status === '0' ? '禁用' : '启用';
+  //   ModalConfirm({
+  //     title: '启用/禁用',
+  //     content: `您确定要${action}用户[${record.userName}]么？`,
+  //     onOk() {
+  //       const status = record.status === '0' ? '1' : '0';
+  //       changeUserStatus(record.userId, status)
+  //         .then(res => {
+  //           void message.success(res.msg || `${action}用户[${record.userName}]成功`);
+  //           actionRef.current?.reload();
+  //         })
+  //         .catch(err => {
+  //           void message.error(err.message || `${action}用户[${record.userName}]失败`);
+  //         });
+  //     }
+  //   });
+  // }
 
   const columns: ProColumns[] = [
     {
       title: '用户编号',
-      dataIndex: 'userId',
-      key: 'userId',
+      dataIndex: 'id',
+      key: 'id',
       hideInSearch: true
     },
     {
       title: '用户名称',
-      dataIndex: 'userName',
-      key: 'userName',
+      dataIndex: 'keyword',
+      key: 'keyword',
       fieldProps: {
         placeholder: '请输入用户名称'
-      }
+      },
+      hideInTable: true
+    },
+    {
+      title: '用户名称',
+      dataIndex: 'username',
+      key: 'username',
+      hideInSearch: true
     },
     {
       title: '用户昵称',
-      dataIndex: 'nickName',
-      key: 'nickName',
+      dataIndex: 'nickname',
+      key: 'nickname',
       hideInSearch: true
     },
     {
       title: '部门',
-      dataIndex: 'dept',
-      key: 'deptName',
-      hideInSearch: true,
-      render: (col: any) => {
-        return col.deptName
-      }
+      dataIndex: 'departmentName',
+      key: 'departmentName',
+      hideInSearch: true
     },
     {
       title: '手机号',
-      dataIndex: 'phonenumber',
-      key: 'phonenumber',
+      dataIndex: 'phoneNumber',
+      key: 'phoneNumber',
       fieldProps: {
         placeholder: '请输入手机号码'
       }
@@ -156,23 +162,9 @@ const Index = () => {
     {
       title: '邮箱',
       dataIndex: 'email',
-      key: 'mail',
+      key: 'email',
       hideInSearch: true
     },
-    // {
-    //   title: '角色',
-    //   dataIndex: 'role',
-    //   key: 'role',
-    //   render: (_: any, row: any) => {
-    //     let roleListStr = '-';
-    //     if (row.roles && row.roles.length > 0) {
-    //       roleListStr = row.roles
-    //         .map((role: API.Role) => role.name)
-    //         .join(", ");
-    //     }
-    //     return <span>{roleListStr}</span>
-    //   }
-    // },
     {
       title: '状态',
       dataIndex: 'status',
@@ -180,13 +172,10 @@ const Index = () => {
       valueType: 'select',
       fieldProps: {
         placeholder: '请选择状态',
-        options: dictMap.sys_normal_disable
+        options: optionMap.status
       },
-      // render: (value: any) => <StatusIcon value={value}/>
       render: (_, record) => {
-        const status = Number(record.status);
-        const value = status === 0;
-        return <Switch size={'small'} value={value} onChange={() => onStatusChange(record)}/>
+        return <StatusIcon value={record.status} />
       }
     },
     {
@@ -198,8 +187,8 @@ const Index = () => {
     },
     {
       title: '创建时间',
-      dataIndex: 'createTime',
-      key: 'createTime',
+      dataIndex: 'createdAt',
+      key: 'createdAt',
       hideInSearch: true
     },
     {
@@ -299,14 +288,14 @@ const Index = () => {
     void toDelete(selectedRowKeys, true);
   }
 
-  const toResetPassword = (user: User) => {
+  const toResetPassword = (user: SysUser) => {
     updateState('/system/user', {
       editData: {...user}
     });
     setPasswordVisible(true);
   }
 
-  const toAssignRole = (user: User) => {
+  const toAssignRole = (user: SysUser) => {
     updateState('/system/user', {
       editData: {...user}
     });
@@ -378,9 +367,9 @@ const Index = () => {
   }, [selectedRowKeys]);
 
   useEffect(() => {
-    getDeptTree()
+    findDeptTree()
       .then(res => {
-        if (res.success) {
+        if (res.success && res.data) {
           setDeptTree(res.data);
           const keys = getTreeKeys(res.data);
           setExpandedKeys(keys);
@@ -406,18 +395,17 @@ const Index = () => {
               />
               <Tree defaultExpandAll
                     defaultExpandParent
-                    autoExpandParent={autoExpandParent}
+                    // autoExpandParent={autoExpandParent}
                     expandedKeys={expandedKeys}
                     className={'mt-2 overflow-y-auto flex-grow'}
                     onSelect={onSelect}
                     treeData={treeData}
-                    fieldNames={{title: 'label'}}
               />
             </Flex>
           </Splitter.Panel>
           <Splitter.Panel>
             <ProTable columns={columns}
-                      rowKey={'userId'}
+                      rowKey={'id'}
                       formRef={formRef}
                       actionRef={actionRef}
                       params={params}
@@ -441,7 +429,7 @@ const Index = () => {
                         title:
                           <Space>
                             {
-                              hasPermission('system:user:add') &&
+                              // hasPermission('system:user:add') &&
                               <Button color={'primary'}
                                       icon={<PlusOutlined/>}
                                       variant={'outlined'}
@@ -450,7 +438,7 @@ const Index = () => {
                               >新建</Button>
                             }
                             {
-                              hasPermission('system:user:edit') &&
+                              // hasPermission('system:user:edit') &&
                               <Button color={"green"}
                                       icon={<EditOutlined/>}
                                       disabled={editDisabled}
@@ -460,7 +448,7 @@ const Index = () => {
                               >修改</Button>
                             }
                             {
-                              hasPermission('system:user:remove') &&
+                              // hasPermission('system:user:remove') &&
                               <Button color={"danger"}
                                       icon={<DeleteOutlined/>}
                                       disabled={deleteDisabled}
@@ -471,7 +459,7 @@ const Index = () => {
                             }
 
                             {
-                              hasPermission('system:user:import') &&
+                              // hasPermission('system:user:import') &&
                               <Button color={"purple"}
                                       icon={<UploadOutlined/>}
                                       size={'small'}
@@ -480,7 +468,7 @@ const Index = () => {
                               >导入</Button>
                             }
                             {
-                              hasPermission('system:user:export') &&
+                              // hasPermission('system:user:export') &&
                               <Button color={"orange"}
                                       icon={<ExportOutlined/>}
                                       size={'small'}
@@ -496,7 +484,7 @@ const Index = () => {
                           const {createTimeRange, ...rest} = params;
                           if (createTimeRange) {
                             const [beginTime, endTime] = createTimeRange;
-                            params = {...rest, params: {beginTime, endTime}};
+                            params = {...rest, beginTime, endTime};
                           }
                           return fetchPageWithParams(params);
                         }

@@ -1,0 +1,423 @@
+.split-screen-login {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+    background: #ffffff;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+    // 左侧：品牌与视觉区域
+    .visual-side {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 60px;
+        background-color: #f0fdf4;
+        // 恢复 Unsplash 背景图，叠加深绿色渐变以保证文字可读性
+        background-image:
+            linear-gradient(rgba(16, 185, 129, 0.85), rgba(6, 95, 70, 0.9)),
+            url('https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1600&q=80');
+        background-size: cover;
+        background-position: center;
+        position: relative;
+        color: white;
+        overflow: hidden;
+
+        // 保留几何纹理作为微妙的质感叠加
+        &::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: radial-gradient(rgba(255, 255, 255, 0.2) 1px, transparent 1px);
+            background-size: 30px 30px;
+            opacity: 0.1;
+            mask-image: linear-gradient(to bottom, transparent, black);
+            pointer-events: none;
+        }
+
+        // 移动端隐藏左侧
+        @media (max-width: 1024px) {
+            display: none;
+        }
+
+        .brand-top {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            z-index: 2;
+
+            .logo-icon {
+                font-size: 24px;
+                color: #10b981;
+                background: white;
+                width: 48px;
+                height: 48px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 12px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            }
+
+            .brand-name {
+                font-size: 26px;
+                font-weight: 800;
+                letter-spacing: -0.5px;
+                color: white;
+                text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                font-family: 'Outfit', sans-serif;
+
+                span {
+                    font-weight: 400; // 稍微加粗一点点，不要太细
+                    opacity: 0.9;
+                    margin-left: 8px;
+                    letter-spacing: 0.5px;
+                    background: none; // 确保移除背景
+                    color: white;
+                    padding: 0;
+                    box-shadow: none;
+                }
+            }
+        }
+
+        .brand-featured {
+            z-index: 2;
+            max-width: 480px;
+
+            h1 {
+                font-size: 48px;
+                font-weight: 800;
+                line-height: 1.1;
+                margin-bottom: 24px;
+                background: linear-gradient(to right, #ffffff, #94a3b8);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+
+            p {
+                font-size: 18px;
+                line-height: 1.6;
+                color: #cbd5e1; // Slate 300
+                font-weight: 400;
+            }
+        }
+
+        .feature-tags {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+
+            .tag {
+                padding: 8px 16px;
+                background: rgba(255, 255, 255, 0.1);
+                backdrop-filter: blur(10px);
+                border-radius: 100px;
+                font-size: 14px;
+                font-weight: 500;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                color: #e2e8f0;
+            }
+        }
+
+        .brand-footer {
+            z-index: 2;
+            font-size: 14px;
+            color: #64748b;
+        }
+    }
+
+    // 右侧：交互区域
+    .interaction-side {
+        width: 600px; // 调整为更宽一点的 600px
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px;
+        background: white;
+
+        @media (max-width: 1024px) {
+            width: 100%;
+        }
+
+        .login-wrapper {
+            width: 100%;
+            max-width: 380px; // 稍微收窄一点
+
+            .header {
+                margin-bottom: 40px;
+
+                h2 {
+                    font-size: 30px;
+                    font-weight: 800;
+                    color: #111827;
+                    margin-bottom: 8px;
+                    letter-spacing: -0.5px;
+                }
+
+                p {
+                    color: #6b7280;
+                    font-size: 14px;
+
+                    a {
+                        color: #10b981;
+                        font-weight: 600;
+                        margin-left: 4px;
+                        text-decoration: none;
+
+                        &:hover {
+                            text-decoration: underline;
+                        }
+                    }
+                }
+            }
+
+            // Tab 样式
+            :global {
+                .ant-tabs-nav {
+                    margin-bottom: 24px;
+
+                    &::before {
+                        border-bottom: none;
+                    }
+                }
+
+                .ant-tabs-tab {
+                    padding: 8px 20px;
+                    border-radius: 6px;
+                    transition: all 0.2s;
+                    margin: 0 !important;
+                    font-size: 14px;
+
+                    &:hover {
+                        color: #111827;
+                        background: #f3f4f6;
+                    }
+
+                    &.ant-tabs-tab-active {
+                        background: #ecfdf5;
+
+                        .ant-tabs-tab-btn {
+                            color: #059669;
+                            font-weight: 600;
+                        }
+                    }
+                }
+
+                .ant-tabs-ink-bar {
+                    display: none;
+                }
+            }
+
+            // 确保表单高度一致，防止切换Tab时跳动
+            form {
+                min-height: 480px;
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start; // 改为顶部对齐，通过margin控制分布
+            }
+
+            .ant-form-item {
+                margin-bottom: 24px;
+
+                // 关键修复：隐藏所有 Label，实现真正的极简风格，并解决对齐问题
+                .ant-form-item-label {
+                    display: none;
+                }
+            }
+
+            // 极简输入框风格 - 高度调整为 40px (与原Login保持一致)
+            .ant-input-affix-wrapper {
+                height: 40px;
+                padding-left: 12px; // 稍微减小内边距
+                border-radius: 6px; // 圆角也相应减小一点，更协调
+                border: 1px solid #e5e7eb;
+                background: #fff;
+                font-size: 14px;
+                transition: all 0.2s;
+                box-shadow: none !important;
+                display: flex;
+                align-items: center; // 垂直居中
+
+                &:hover {
+                    border-color: #d1d5db;
+                }
+
+                &:focus,
+                &.ant-input-affix-wrapper-focused {
+                    border-color: #10b981 !important;
+                    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1) !important; // 光晕减小
+                }
+
+                .anticon {
+                    color: #9ca3af;
+                }
+
+                // 关键修复：去掉内部 input 的所有边框和背景
+                input.ant-input {
+                    background: transparent !important;
+                    border: none !important;
+                    box-shadow: none !important;
+                    height: 100%;
+                }
+            }
+
+            // 单独的 input 元素
+            .ant-input:not(.ant-input-affix-wrapper) {
+                height: 40px;
+                border-radius: 6px;
+                border: 1px solid #e5e7eb;
+            }
+
+            // 验证码行 - 强制对齐
+            .captcha-row {
+                display: flex;
+                gap: 12px;
+                align-items: flex-start; // Form.Item 默认有marginBottom，所以我们要顶部对齐或者处理那个margin
+
+                .ant-form-item {
+                    flex: 1;
+                    margin-bottom: 0 !important; // 强制移除 Form.Item 自身的 margin
+
+                    :global {
+                        .ant-form-item-control {
+                            line-height: 1; // 重置行高干扰
+                        }
+
+                        .ant-form-item-control-input {
+                            min-height: 40px; // 调整为 40px
+                        }
+
+                        .ant-form-item-control-input-content {
+                            height: 40px; // 调整为 40px
+                            display: flex;
+                            align-items: center;
+                        }
+                    }
+                }
+
+                .captcha-box {
+                    width: 90px; // 调整宽度适配 40px 高度 (约 2.25:1 比例，接近后端)
+                    height: 40px; // 调整为 40px
+                    flex-shrink: 0;
+                    border-radius: 6px;
+                    overflow: hidden;
+                    cursor: pointer;
+                    background: #f3f4f6;
+                    border: 1px solid #e5e7eb;
+                    margin-top: 0; // 确保没有顶部外边距
+
+                    img {
+                        width: 100%;
+                        height: 100%;
+                        object-fit: cover;
+                        display: block;
+                    }
+                }
+
+                .sms-code-btn {
+                    height: 40px; // 调整为 40px
+                    border-radius: 6px;
+                    font-weight: 500;
+                    font-size: 13px;
+                    border: 1px solid #e5e7eb;
+                    color: #374151;
+                    padding: 0 12px;
+                    display: inline-flex; // 改为 inline-flex
+                    align-items: center;
+                    justify-content: center;
+                    line-height: normal; // 重置行高
+                    margin-top: 0;
+
+                    &:hover:not(:disabled) {
+                        color: #10b981;
+                        border-color: #10b981;
+                        background: #fff;
+                    }
+                }
+            }
+
+            .form-actions {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 24px;
+                margin-top: 8px; // 增加顶部间距，让 "30天免登录" 与上方输入框保持呼吸感
+                font-size: 13px;
+
+                a {
+                    color: #6b7280;
+
+                    &:hover {
+                        color: #111827;
+                    }
+                }
+            }
+
+            // 提交按钮 - 高度调整为 40px
+            .submit-btn {
+                height: 40px;
+                border-radius: 6px;
+                font-size: 15px;
+                font-weight: 600;
+                background: #111827;
+                border: none;
+                letter-spacing: 0.5px;
+
+                &:hover {
+                    background: #000;
+                    transform: translateY(-1px);
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                }
+
+                &:active {
+                    transform: translateY(0);
+                }
+            }
+
+            .divider {
+                margin: 24px 0 16px; // 间距也相应缩小一点
+                text-align: center;
+                border-bottom: 1px solid #e5e7eb;
+                line-height: 0.1em;
+
+                span {
+                    background: #fff;
+                    padding: 0 12px;
+                    color: #9ca3af;
+                    font-size: 12px;
+                }
+            }
+
+            .social-login {
+                display: flex;
+                justify-content: center;
+                gap: 12px;
+
+                button {
+                    flex: 1;
+                    height: 40px; // 调整为 40px
+                    border: 1px solid #e5e7eb;
+                    background: #fff;
+                    border-radius: 6px;
+                    color: #4b5563;
+                    font-size: 13px;
+                    font-weight: 500;
+                    transition: all 0.2s;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+
+                    &:hover {
+                        background: #f9fafb;
+                        border-color: #d1d5db;
+                        color: #111827;
+                    }
+                }
+            }
+        }
+    }
+}

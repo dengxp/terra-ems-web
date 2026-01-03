@@ -21,3 +21,10 @@ export enum DictKeyEnum {
   GENDER = 'gender',
   CAMPUS_TYPE = "campusType",
 }
+
+export enum DataItemStatus {
+  ENABLE,
+  FORBIDDEN,
+  LOCKING,
+  EXPIRED
+}

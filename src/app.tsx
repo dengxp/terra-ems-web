@@ -1,19 +1,20 @@
-import {Footer, Question, SelectLang, AvatarDropdown, AvatarName, IconMap} from '@/components';
-import Icon, {LinkOutlined} from '@ant-design/icons';
-import type {MenuDataItem, Settings as LayoutSettings} from '@ant-design/pro-components';
-import {SettingDrawer} from '@ant-design/pro-components';
-import type {RunTimeLayoutConfig} from '@umijs/max';
-import {history, Link} from '@umijs/max';
+import { Footer, Question, SelectLang, AvatarDropdown, AvatarName, IconMap } from '@/components';
+import Icon, { LinkOutlined } from '@ant-design/icons';
+import type { MenuDataItem, Settings as LayoutSettings } from '@ant-design/pro-components';
+import { SettingDrawer } from '@ant-design/pro-components';
+import type { RunTimeLayoutConfig } from '@umijs/max';
+import { history, Link } from '@umijs/max';
 import defaultSettings from '../config/defaultSettings';
-import {errorConfig} from './requestErrorConfig';
+import { errorConfig } from './requestErrorConfig';
 
 import React from 'react';
-import {generateAvatar} from "@/utils/avatar";
-import {getInfo} from '@/apis/login';
-import {removeToken} from "@/utils/auth";
-import {LOGIN_PATH} from "@/config/constants";
-import TabsLayout, {TabsLayoutProps} from "@/components/TabsLayout";
-import {Space} from "antd";
+import { generateAvatar } from "@/utils/avatar";
+import { getToken, removeToken } from "@/utils/auth";
+import { LOGIN_PATH } from "@/config/constants";
+import TabsLayout, { TabsLayoutProps } from "@/components/TabsLayout";
+import { Space } from "antd";
+import { fetchCurrentUser } from "@/apis";
+import { CurrentUser } from "@/types";
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -23,7 +24,7 @@ export const getCustomTabs = () => (props: TabsLayoutProps) => {
 
 const handleIcon = (icon?: React.ReactNode) => {
   return typeof icon === 'string' && icon.includes('|svg')
-    ? <Icon component={IconMap[icon.replace('|svg', '')]}/>
+    ? <Icon component={IconMap[icon.replace('|svg', '')]} />
     : icon;
 };
 
@@ -49,28 +50,38 @@ export async function getInitialState(): Promise<{
 }> {
   const fetchUserInfo = async () => {
     try {
-      const result = await getInfo({
+      console.log('[getInitialState] fetchUserInfo called, token:', getToken());
+      const result = await fetchCurrentUser({
         skipErrorHandler: true,
         showType: 1
       });
-      const user = result.user;
+      const user = result.data; // UserDTO
       let avatar = user.avatar || generateAvatar();
-      const roles = result.roles?.length > 0 ? result.roles : ['ROLE_DEFAULT'];
+
+      // 从 user.roles 提取角色代码
+      const roles = user.roles?.map((role: { code?: string }) => role.code || '').filter(Boolean) || ['ROLE_DEFAULT'];
+
+      // TODO: 后端UserDTO暂未返回permissions，需要后续添加
+      const permissions: string[] = [];
 
       return {
-        id: user.userId,
-        name: user.userName,
+        id: user.id?.toString(),
+        name: user.username,
+        nickname: user.nickname,
         avatar,
         roles,
-        permissions: result.permissions || []
+        permissions
       }
     } catch (error) {
+      console.log(error);
       removeToken();
       return undefined;
     }
   };
-  // 如果不是登录页面，执行
-  const currentUser = await fetchUserInfo();
+  // 如果不是登录页且有 Token，才获取用户信息
+  const { location } = history;
+  const isLoginPage = location.pathname === LOGIN_PATH;
+  const currentUser = (!isLoginPage && getToken()) ? await fetchUserInfo() : undefined;
 
   return {
     fetchUserInfo,
@@ -80,13 +91,13 @@ export async function getInitialState(): Promise<{
 }
 
 // ProLayout 支持的api https://procomponents.ant.design/components/layout
-export const layout: RunTimeLayoutConfig = ({initialState, setInitialState}) => {
+export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) => {
 
   return {
-    actionsRender: () => [<Question key="doc"/>, <SelectLang key="SelectLang"/>],
+    actionsRender: () => [<Question key="doc" />, <SelectLang key="SelectLang" />],
     avatarProps: {
       src: initialState?.currentUser?.avatar || generateAvatar(),
-      title: <AvatarName/>,
+      title: <AvatarName />,
       render: (_, avatarChildren) => {
         return <AvatarDropdown menu={true}>{avatarChildren}</AvatarDropdown>;
       },
@@ -94,9 +105,9 @@ export const layout: RunTimeLayoutConfig = ({initialState, setInitialState}) => 
     waterMarkProps: {
       content: initialState?.currentUser?.name,
     },
-    footerRender: () => <Footer/>,
+    footerRender: () => <Footer />,
     onPageChange: () => {
-      const {location} = history;
+      const { location } = history;
       // 如果没有登录，重定向到 login
       if (!initialState?.currentUser && location.pathname !== LOGIN_PATH) {
         removeToken();
@@ -126,7 +137,7 @@ export const layout: RunTimeLayoutConfig = ({initialState, setInitialState}) => 
     links: isDev
       ? [
         <Link key="openapi" to="/umi/plugin/openapi" target="_blank">
-          <LinkOutlined/>
+          <LinkOutlined />
           <span>OpenAPI 文档</span>
         </Link>,
       ]

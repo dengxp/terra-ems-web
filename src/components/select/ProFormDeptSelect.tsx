@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {getDeptTree} from "@/apis";
+import {findDeptTree} from "@/apis";
 import {ProFormTreeSelect} from "@ant-design/pro-components";
 import {getTreeKeys} from "@/utils";
 
@@ -13,7 +13,7 @@ function ProFormDeptSelect(props: Props) {
   return (
     <ProFormTreeSelect {...rest}
                        request={async () => {
-                         const result = await getDeptTree();
+                         const result = await findDeptTree();
                          const treeData = result.data && result.data.length ? result.data : [];
                          const keys = getTreeKeys(treeData);
                          setExpandedKeys(keys);
@@ -25,16 +25,18 @@ function ProFormDeptSelect(props: Props) {
                          allowClear: true,
                          treeDefaultExpandAll: true,
                          treeExpandedKeys: expandedKeys,
+                         onTreeExpand: (keys) => setExpandedKeys(keys),
+                         listHeight: 400, // 显式设置虚拟滚动高度（如果用了 virtual）
                          showSearch: true,
                          filterTreeNode: (inputValue, treeNode) => {
                            if(!inputValue) return true;
 
-                           const label = treeNode.label;
-                           if(typeof label === 'string') {
-                             return label.toLowerCase().includes(inputValue.toLowerCase());
+                           const title = treeNode.title;
+                           if(typeof title === 'string') {
+                             return title.toLowerCase().includes(inputValue.toLowerCase());
                            }
-                           if(typeof label === 'number') {
-                             return label.toString().includes(inputValue);
+                           if(typeof title === 'number') {
+                             return title.toString().includes(inputValue);
                            }
                            return false;
                          }

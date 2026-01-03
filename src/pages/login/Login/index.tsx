@@ -1,65 +1,68 @@
-import {
-  LockOutlined, SafetyOutlined,
-  UserOutlined,
-} from '@ant-design/icons';
-import {
-  LoginFormPage,
-  ProConfigProvider,
-  ProFormCheckbox,
-  ProFormText,
-} from '@ant-design/pro-components';
-import {message, theme, ConfigProvider, Form, Input, Space} from 'antd';
-import React, {useEffect, useState} from 'react';
-import {Helmet, useIntl, useModel} from "@umijs/max";
-import {Footer} from "@/components";
-import {flushSync} from "react-dom";
-import defaultSettings from "../../../../config/defaultSettings";
-import {getCodeImg} from "@/apis/login";
-import Cookie from "js-cookie";
-import useAuth from "@/hooks/auth";
-import {isUserLoggedIn} from "@/utils/auth";
+/**
+ * Terra EMS - 登录页面
+ * 左右布局 + 精致输入框 + Tab切换登录方式
+ */
 
-const Page = () => {
-  const {initialState, setInitialState} = useModel('@@initialState');
+import { LockOutlined, MobileOutlined, SafetyOutlined, UserOutlined } from '@ant-design/icons';
+import { Button, Checkbox, Form, Input, message, Tabs } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Helmet, useIntl, useModel } from '@umijs/max';
+import { flushSync } from 'react-dom';
+import Cookie from 'js-cookie';
+import useAuth from '@/hooks/auth';
+import { getSessionId, isUserLoggedIn, setSessionId } from '@/utils/auth';
+import { generateUUID } from '@/utils';
+import { createCaptcha, sendSmsCode, loginBySms } from '@/apis/login';
+import { CAPTCHA_CATEGORY } from '@/config/constants';
+import defaultSettings from '../../../../config/defaultSettings';
+// import terraLogo from '@/assets/images/terra-logo.svg?url';
+import './index.less';
+
+type LoginType = 'account' | 'phone';
+
+const LoginPage: React.FC = () => {
+  const { initialState, setInitialState } = useModel('@@initialState');
+  const [loginType, setLoginType] = useState<LoginType>('account');
+  const [captchaLoading, setCaptchaLoading] = useState(false);
   const [codeUrl, setCodeUrl] = useState('');
-  const [captchaEnabled, setCaptchaEnabled] = useState(true);
   const [uuid, setUuid] = useState('');
-  const {token} = theme.useToken();
+  const [loading, setLoading] = useState(false);
+  const [countdown, setCountdown] = useState(0);
   const intl = useIntl();
   const [messageApi, contextHolder] = message.useMessage();
   const [form] = Form.useForm();
+  const { login, redirect } = useAuth();
 
-  const {login, redirect} = useAuth();
-
-  interface LoginValues {
-    username: string;
-    password: string;
-    code: string;
-    rememberMe: boolean;
-  }
-
-  const getCode = () => {
-    getCodeImg()
-      .then(res => {
-        const enabled = res.captchaEnabled === undefined ? true : res.captchaEnabled;
-        setCaptchaEnabled(enabled);
-        if (enabled) {
-          setCodeUrl('data:image/gif;base64,' + res.img);
-          setUuid(res.uuid);
+  const getCaptcha = () => {
+    setCaptchaLoading(true);
+    const identity = getSessionId();
+    createCaptcha(identity, CAPTCHA_CATEGORY)
+      .then((res) => {
+        if (res.success) {
+          setCodeUrl(res.data.graphicImageBase64);
+          setUuid(res.data.uuid);
         }
       })
-  }
+      .catch((err) => {
+        messageApi.error(err.message || '获取验证码失败');
+      })
+      .finally(() => {
+        setCaptchaLoading(false);
+      });
+  };
 
   const getCookie = () => {
     const username = Cookie.get('username');
     const password = Cookie.get('password');
     const rememberMe = Cookie.get('rememberMe');
+    const phone = Cookie.get('phone');
     form.setFieldsValue({
-      username: username === undefined ? 'admin' : username,
-      password: password === undefined ? 'admin123' : password,
-      rememberMe: rememberMe === undefined ? false : Boolean(rememberMe)
+      username: username || 'admin',
+      password: password || 'admin123',
+      rememberMe: rememberMe ? Boolean(rememberMe) : false,
+      phone: phone || '',
     });
-  }
+  };
 
   const fetchUserInfo = async () => {
     const userInfo = await initialState?.fetchUserInfo?.();
@@ -73,175 +76,277 @@ const Page = () => {
     }
   };
 
-  const handleSubmit = async (values: LoginValues) => {
+  // 发送短信验证码
+  const handleSendSmsCode = async () => {
     try {
-      // 登录
-      const {username, password, code, rememberMe} = values;
-      const userInfo = {username, password, code, uuid};
-      await login(userInfo);
-      const defaultLoginSuccessMessage = intl.formatMessage({
-        id: 'pages.login.success',
-        defaultMessage: '登录成功！',
-      });
-      messageApi.success(defaultLoginSuccessMessage);
+      const phone = form.getFieldValue('phone');
+      if (!phone) {
+        messageApi.error('请输入手机号');
+        return;
+      }
 
-      if(rememberMe) {
-        Cookie.set('username', username, {expires: 30});
-        Cookie.set('password', password, {expires: 30});
-        Cookie.set('rememberMe', String(rememberMe), {expires: 30});
+      // 验证手机号格式
+      if (!/^1[3-9]\d{9}$/.test(phone)) {
+        messageApi.error('请输入正确的手机号');
+        return;
+      }
+
+      await sendSmsCode(phone);
+      messageApi.success('验证码已发送');
+
+      // 开始倒计时
+      setCountdown(60);
+      const timer = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    } catch (error: any) {
+      messageApi.error(error.message || '发送验证码失败');
+    }
+  };
+
+  const handleSubmit = async (values: any) => {
+    try {
+      setLoading(true);
+
+      if (loginType === 'phone') {
+        // 手机号登录
+        const { phone, smsCode } = values;
+
+        // 保存手机号到Cookie
+        Cookie.set('phone', phone, { expires: 30 });
+
+        await loginBySms({ phone, code: smsCode });
+        messageApi.success('登录成功！');
       } else {
-        Cookie.remove("username");
-        Cookie.remove("password");
-        Cookie.remove("rememberMe");
+        // 账号密码登录
+        const { username, password, captcha, rememberMe } = values;
+        await login({ username, password, captcha, uuid });
+
+        messageApi.success('登录成功！');
+
+        if (rememberMe) {
+          Cookie.set('username', username, { expires: 30 });
+          Cookie.set('password', password, { expires: 30 });
+          Cookie.set('rememberMe', String(rememberMe), { expires: 30 });
+        } else {
+          Cookie.remove('username');
+          Cookie.remove('password');
+          Cookie.remove('rememberMe');
+        }
       }
 
       await fetchUserInfo();
       redirect();
-
-      return;
     } catch (error: any) {
-      if (captchaEnabled) {
-        getCode();
+      if (loginType === 'account') {
+        getCaptcha();
       }
-      // const defaultLoginFailureMessage = intl.formatMessage({
-      //   id: 'pages.login.failure',
-      //   defaultMessage: '登录失败，请重试！',
-      // });
-      console.log(error);
-      // messageApi.error(defaultLoginFailureMessage);
-      // messageApi.error(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    getCode();
+    const sessionId = generateUUID();
+    setSessionId(sessionId);
+    getCaptcha();
     getCookie();
 
-    if(isUserLoggedIn()) {
+    if (isUserLoggedIn()) {
       redirect();
     }
   }, []);
 
+  const tabItems = [
+    {
+      key: 'account',
+      label: '账号登录',
+    },
+    {
+      key: 'phone',
+      label: '手机登录',
+    },
+  ];
+
   return (
-    <div
-      style={{
-        backgroundColor: 'white',
-        height: '100vh',
-      }}
-    >
+    <div className="split-layout-login">
       {contextHolder}
       <Helmet>
-        <title>
-          {intl.formatMessage({id: 'menu.login', defaultMessage: '登录页',})} - {defaultSettings.title}
-        </title>
+        <title>登录 - {defaultSettings.title}</title>
       </Helmet>
-      <LoginFormPage title={'若依Web端（Antd版）'}
-        // backgroundImageUrl="https://mdn.alipayobjects.com/huamei_gcee1x/afts/img/A*y0ZTS6WLwvgAAAAAAAAAAAAADml6AQ/fmt.webp"
-                     backgroundImageUrl="https://mdn.alipayobjects.com/yuyan_qk0oxh/afts/img/V-_oS6r-i7wAAAAAAAAAAAAAFl94AQBr"
-                     logo="https://github.githubassets.com/favicons/favicon.png"
-        // backgroundVideoUrl="https://gw.alipayobjects.com/v/huamei_gcee1x/afts/video/jXRBRK_VAwoAAAAAAAAAAAAAK4eUAQBr"
-                     containerStyle={{
-                       // backgroundColor: 'rgba(0, 128, 0,1)',
-                       // backgroundColor: '#13C2C2',
-                       backdropFilter: 'blur(4px)',
-                       padding: '48px 32px'
-                     }}
-                     mainStyle={{width: 280}}
-                     subTitle="RuoYi Management System"
-                     onFinish={async (values) => {
-                       await handleSubmit(values);
-                     }}
-                     form={form}
-                     submitter={{
-                       submitButtonProps: {
-                         shape: 'round'
-                       }
-                     }}
-      >
-        <>
-          <ProFormText name="username"
-                       fieldProps={{
-                         size: 'large',
-                         autoComplete: "off",
-                         prefix: (
-                           <UserOutlined
-                             style={{
-                               color: token.colorText,
-                             }}
-                             className={'prefixIcon'}
-                           />
-                         ),
-                       }}
-                       placeholder={'用户名'}
-                       rules={[
-                         {
-                           required: true,
-                           message: '请输入用户名',
-                         },
-                       ]}
-          />
-          <ProFormText.Password name="password"
-                                initialValue={'admin123'}
-                                fieldProps={{
-                                  size: 'large',
-                                  prefix: (
-                                    <LockOutlined
-                                      style={{
-                                        color: token.colorText,
-                                      }}
-                                      className={'prefixIcon'}
-                                    />
-                                  ),
-                                }}
-                                placeholder={'密码'}
-                                rules={[
-                                  {
-                                    required: true,
-                                    message: '请输入密码',
-                                  },
-                                ]}
-          />
-          <Form.Item noStyle>
-            <Space.Compact>
-              <Form.Item name={'code'} className={'mb-2'}
-              rules={[
-                {required: true, message: '请输入验证码'}
-              ]}
-              >
-                <Input prefix={<SafetyOutlined/>} size={'large'}
-                       placeholder={'验证码'}
-                />
-              </Form.Item>
-              <img src={codeUrl} alt={'captcha'} onClick={getCode} style={{height: 40}} className={'rounded-r-lg'}/>
-            </Space.Compact>
-          </Form.Item>
-        </>
-        <div
-          style={{
-            marginBlockEnd: 32,
-          }}
-        >
-          <ProFormCheckbox noStyle name="rememberMe">记住密码</ProFormCheckbox>
-          {/*<a style={{float: 'right', color: defaultSettings.colorPrimary}}>*/}
-          {/*  忘记密码*/}
-          {/*</a>*/}
+
+      {/* 左侧：品牌展示 */}
+      <div className="login-left">
+        <div className="left-content">
+          <div className="brand-section">
+            {/*<img src={terraLogo} alt="Terra Logo" className="logo" />*/}
+            <h1>泰若能源管理系统</h1>
+            <p>Terra Energy Management System</p>
+          </div>
+
+          <div className="features">
+            <div className="feature">
+              <div className="icon">🌱</div>
+              <div className="text">
+                <h3>绿色低碳</h3>
+                <p>助力实现碳中和目标</p>
+              </div>
+            </div>
+            <div className="feature">
+              <div className="icon">⚡</div>
+              <div className="text">
+                <h3>智能监控</h3>
+                <p>实时能耗数据分析</p>
+              </div>
+            </div>
+            <div className="feature">
+              <div className="icon">📊</div>
+              <div className="text">
+                <h3>数据可视</h3>
+                <p>直观的能源管理看板</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="stats">
+            <div className="stat">
+              <div className="value">99.9%</div>
+              <div className="label">系统可用性</div>
+            </div>
+            <div className="stat">
+              <div className="value">30%+</div>
+              <div className="label">节能效果</div>
+            </div>
+            <div className="stat">
+              <div className="value">24/7</div>
+              <div className="label">实时监控</div>
+            </div>
+          </div>
         </div>
-      </LoginFormPage>
-      <Footer/>
+      </div>
+
+      {/* 右侧：登录表单 */}
+      <div className="login-right">
+        <div className="form-wrapper">
+          <div className="form-header">
+            <h2>欢迎回来</h2>
+            <p>登录以继续访问能源管理系统</p>
+          </div>
+
+          <Tabs
+            activeKey={loginType}
+            onChange={(key) => setLoginType(key as LoginType)}
+            items={tabItems}
+            className="login-tabs"
+          />
+
+          <Form form={form} onFinish={handleSubmit} className="login-form">
+            {loginType === 'account' ? (
+              <>
+                <Form.Item name="username" rules={[{ required: true, message: '请输入用户名' }]}>
+                  <Input
+                    size="large"
+                    prefix={<UserOutlined />}
+                    placeholder="用户名"
+                    autoComplete="off"
+                  />
+                </Form.Item>
+
+                <Form.Item name="password" rules={[{ required: true, message: '请输入密码' }]}>
+                  <Input.Password size="large" prefix={<LockOutlined />} placeholder="密码" />
+                </Form.Item>
+
+                <div className="captcha-row">
+                  <Form.Item
+                    name="captcha"
+                    rules={[{ required: true, message: '请输入验证码' }]}
+                    style={{ marginBottom: 0, flex: 1 }}
+                  >
+                    <Input size="large" prefix={<SafetyOutlined />} placeholder="验证码" />
+                  </Form.Item>
+                  <div className="captcha-box" onClick={getCaptcha}>
+                    {captchaLoading ? (
+                      <div className="captcha-loading">
+                        <div className="loading-spinner"></div>
+                      </div>
+                    ) : (
+                      <img src={codeUrl} alt="captcha" />
+                    )}
+                  </div>
+                </div>
+
+                <Form.Item>
+                  <div className="form-extra">
+                    <Form.Item name="rememberMe" valuePropName="checked" noStyle>
+                      <Checkbox>记住我</Checkbox>
+                    </Form.Item>
+                  </div>
+                </Form.Item>
+              </>
+            ) : (
+              <>
+                <Form.Item
+                  name="phone"
+                  rules={[
+                    { required: true, message: '请输入手机号' },
+                    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号' },
+                  ]}
+                >
+                  <Input
+                    size="large"
+                    prefix={<MobileOutlined />}
+                    placeholder="手机号"
+                    autoComplete="off"
+                  />
+                </Form.Item>
+
+                <div className="captcha-row">
+                  <Form.Item
+                    name="smsCode"
+                    rules={[
+                      { required: true, message: '请输入验证码' },
+                      { len: 6, message: '验证码必须为6位数字' },
+                    ]}
+                    style={{ marginBottom: 0, flex: 1 }}
+                  >
+                    <Input size="large" prefix={<SafetyOutlined />} placeholder="短信验证码" />
+                  </Form.Item>
+                  <Button
+                    size="large"
+                    className="sms-code-btn"
+                    onClick={handleSendSmsCode}
+                    disabled={countdown > 0}
+                  >
+                    {countdown > 0 ? `${countdown}s后重试` : '获取验证码'}
+                  </Button>
+                </div>
+
+                <div className="phone-login-tip">
+                  <p>首次使用手机号登录请联系管理员绑定账号</p>
+                </div>
+              </>
+            )}
+
+            <Form.Item style={{ marginBottom: 0 }}>
+              <Button type="primary" htmlType="submit" loading={loading} block size="large">
+                登录
+              </Button>
+            </Form.Item>
+          </Form>
+
+          <div className="form-footer">
+            <p>🌿 绿色能源 · 智慧管理</p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
 
-export default () => {
-  return (
-    <ProConfigProvider>
-      <ConfigProvider theme={{
-        token: {
-          colorPrimary: defaultSettings.colorPrimary
-        }
-      }}>
-        <Page/>
-      </ConfigProvider>
-    </ProConfigProvider>
-  );
-};
+export default LoginPage;

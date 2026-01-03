@@ -1,13 +1,13 @@
 // https://umijs.org/config/
-import {defineConfig} from "@umijs/max";
-import {join} from "path";
+import { defineConfig } from "@umijs/max";
+import { join } from "path";
 import defaultSettings from "./defaultSettings";
 import proxy from "./proxy";
 import routes from "./routes";
 import storage from 'store';
 import path from 'path';
 
-const {REACT_APP_ENV = "dev"} = process.env;
+const { REACT_APP_ENV = "dev" } = process.env;
 
 export default defineConfig({
   /**
@@ -79,7 +79,7 @@ export default defineConfig({
    * layout 插件
    * @doc https://umijs.org/docs/max/layout-menu
    */
-  title: "RuoYi-Antd",
+  title: "泰若能源管理系统",
   layout: {
     locale: false,
     ...defaultSettings,
@@ -130,7 +130,7 @@ export default defineConfig({
    */
   headScripts: [
     // 解决首次加载时白屏的问题
-    {src: "/scripts/loading.js", async: true},
+    { src: "/scripts/loading.js", async: true },
   ],
   keepalive: [/./],
   tabsLayout: {
@@ -168,21 +168,4 @@ export default defineConfig({
   esbuildMinifyIIFE: true,
   requestRecord: {},
   tailwindcss: {},
-  chainWebpack(memo: any) {
-    const svgRule = memo.module.rule('svg');
-    svgRule.uses.clear();
-    svgRule.test(/\.svg(\?v=\d+\.\d+\.\d+)?$/)
-      .include.add(path.resolve('src/icons/svg')).end()
-      .use('svgr')
-      .loader('@svgr/webpack')
-      .options({babel: false, icon: true})
-
-    const fileRule = memo.module.rule('file');
-    fileRule.uses.clear();
-    fileRule.test(/\.svg(\?v=\d+\.\d+\.\d+)?$/)
-      .exclude.add(path.resolve('src/icons/svg'))
-      .end()
-      .use('file-loader')
-      .loader('file-loader');
-  }
 });

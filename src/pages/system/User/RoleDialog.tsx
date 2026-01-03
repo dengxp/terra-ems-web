@@ -5,6 +5,7 @@ import {getAuthRole, updateAuthRole} from "@/apis";
 import {ProModalForm} from "@/components/container";
 import {ProModalFormProps} from "@/components/container/ProModalForm";
 import {ProFormText} from "@ant-design/pro-components";
+import {SysUser} from "@/types";
 
 type Props = ProModalFormProps;
 
@@ -21,7 +22,7 @@ const RoleDialog = (props: Props) => {
   const {
     form,
     getState
-  } = useCrud<User>({
+  } = useCrud<SysUser>({
     pathname: '/system/user',
     entityName: '用户',
     baseUrl: '/api/system/user',
