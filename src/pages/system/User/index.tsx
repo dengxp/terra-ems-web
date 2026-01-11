@@ -1,5 +1,5 @@
-import React, {useEffect, useMemo, useState} from 'react';
-import {ProPageContainer} from "@/components/container";
+import React, { useEffect, useMemo, useState } from 'react';
+import { ProPageContainer } from "@/components/container";
 import {
   Button,
   Dropdown,
@@ -19,22 +19,22 @@ import Icon, {
   MoreOutlined,
   PlusOutlined, UploadOutlined,
 } from "@ant-design/icons";
-import {changeUserStatus, exportUser, findDeptTree} from "@/apis";
-import {generateList, getParentKey, getTreeKeys} from "@/utils/tree";
-import {ProColumns, ProTable} from "@ant-design/pro-components";
+import { changeUserStatus, exportUser, findDeptTree } from "@/apis";
+import { generateList, getParentKey, getTreeKeys } from "@/utils/tree";
+import { ProColumns, ProTable } from "@ant-design/pro-components";
 import useCrud from "@/hooks/common/useCrud";
-import {DeleteButton, EditButton} from "@/components/button";
-import {MenuInfo} from "rc-menu/lib/interface";
+import { DeleteButton, EditButton } from "@/components/button";
+import { MenuInfo } from "rc-menu/lib/interface";
 import ModalConfirm from "@/components/ModalConfirm";
 import UserDetailDialog from "@/pages/system/User/UserDetailDialog";
-import {useAccess} from '@umijs/max';
+import { useAccess } from '@umijs/max';
 import PasswordDialog from "@/pages/system/User/PasswordDialog";
-import {ReactComponent as RoleIcon} from "@/icons/svg/role.svg";
+import { ReactComponent as RoleIcon } from "@/icons/svg/role.svg";
 import RoleDialog from "@/pages/system/User/RoleDialog";
 import UserImportDialog from "@/pages/system/User/UserImportDialog";
-import {downloadFailed, downloadSuccess} from "@/utils/download";
-import {SysUser} from "@/types";
-import {useModel} from "@umijs/max";
+import { downloadFailed, downloadSuccess } from "@/utils/download";
+import { SysUser } from "@/types";
+import { useModel } from "@umijs/max";
 import StatusIcon from "@/components/icons/StatusIcon";
 
 const Index = () => {
@@ -50,7 +50,7 @@ const Index = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [roleVisible, setRoleVisible] = useState(false);
   const [userImportVisible, setUserImportVisible] = useState(false);
-  const {optionMap} = useModel('constantModel');
+  const { optionMap } = useModel('constantModel');
 
   const {
     getState,
@@ -59,21 +59,22 @@ const Index = () => {
     toCreate,
     toEdit,
     toDelete,
-    fetchPageWithParams,
+    search,
     setDialogVisible,
     setShouldRefresh,
     updateState
   } = useCrud<SysUser>({
+
     pathname: '/system/user',
     entityName: '用户',
     baseUrl: '/api/system/user'
   });
 
-  const {hasPermission} = useAccess();
+  const { hasPermission } = useAccess();
 
   const state = getState('/system/user');
 
-  const onMenuClick = ({key}: MenuInfo, user: SysUser) => {
+  const onMenuClick = ({ key }: MenuInfo, user: SysUser) => {
     if (!user.userId) {
       void message.error('未获取到用户信息');
       return;
@@ -216,14 +217,14 @@ const Index = () => {
           {
             label: '重置密码',
             key: 'resetPassword',
-            icon: <LockFilled/>,
+            icon: <LockFilled />,
             disabled: loading,
             permission: 'system:user:resetPwd'
           },
           {
             label: '分配角色',
             key: 'assignRole',
-            icon: <Icon component={RoleIcon}/>,
+            icon: <Icon component={RoleIcon} />,
             disabled: loading,
             permission: 'system:user:edit'
           }
@@ -234,13 +235,13 @@ const Index = () => {
 
         return (
           <Space>
-            <EditButton onClick={() => toEdit(row)}/>
+            <EditButton onClick={() => toEdit(row)} />
             <DeleteButton onClick={async () => {
               await toDelete(row.userId, true);
-            }}/>
-            <Dropdown menu={{items, onClick: (info) => onMenuClick(info, row)}}>
+            }} />
+            <Dropdown menu={{ items, onClick: (info) => onMenuClick(info, row) }}>
               <Button type={'text'} shape={'circle'} size={'small'}
-                      icon={<MoreOutlined/>}/>
+                icon={<MoreOutlined />} />
             </Dropdown>
           </Space>
         )
@@ -254,12 +255,12 @@ const Index = () => {
 
   const onSelect: TreeProps['onSelect'] = (selectedKeys, info) => {
     const deptId = selectedKeys?.[0];
-    setParams(prevState => ({...prevState, deptId}));
+    setParams(prevState => ({ ...prevState, deptId }));
   };
 
   // 输入框变化时过滤树
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const {value} = e.target;
+    const { value } = e.target;
     setSearchValue(value);
     const newExpandedKeys = dataList
       .map((item) => {
@@ -290,14 +291,14 @@ const Index = () => {
 
   const toResetPassword = (user: SysUser) => {
     updateState('/system/user', {
-      editData: {...user}
+      editData: { ...user }
     });
     setPasswordVisible(true);
   }
 
   const toAssignRole = (user: SysUser) => {
     updateState('/system/user', {
-      editData: {...user}
+      editData: { ...user }
     });
     setRoleVisible(true);
   }
@@ -330,10 +331,10 @@ const Index = () => {
           const title =
             index > -1 ? (
               <span key={item.key}>
-              {beforeStr}
+                {beforeStr}
                 <span className="text-red-500">{searchValue}</span>
                 {afterStr}
-            </span>
+              </span>
             ) : (
               <span key={item.key}>{strTitle}</span>
             );
@@ -387,116 +388,116 @@ const Index = () => {
   return (
     <>
       <ProPageContainer className={'pt-1'}>
-        <Splitter style={{height: 800, boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)'}}>
+        <Splitter style={{ height: 800, boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)' }}>
           <Splitter.Panel defaultSize="20%" min="12%" max="40%">
             <Flex vertical className={'p-2 bg-white h-full'}>
               <Input.Search placeholder={'请输入部门搜索'}
-                            onChange={onChange}
+                onChange={onChange}
               />
               <Tree defaultExpandAll
-                    defaultExpandParent
-                    // autoExpandParent={autoExpandParent}
-                    expandedKeys={expandedKeys}
-                    className={'mt-2 overflow-y-auto flex-grow'}
-                    onSelect={onSelect}
-                    treeData={treeData}
+                defaultExpandParent
+                // autoExpandParent={autoExpandParent}
+                expandedKeys={expandedKeys}
+                className={'mt-2 overflow-y-auto flex-grow'}
+                onSelect={onSelect}
+                treeData={treeData}
               />
             </Flex>
           </Splitter.Panel>
           <Splitter.Panel>
             <ProTable columns={columns}
-                      rowKey={'id'}
-                      formRef={formRef}
-                      actionRef={actionRef}
-                      params={params}
-                      tableAlertRender={false}
-                      tableAlertOptionRender={false}
-                      rowSelection={{
-                        selectedRowKeys,
-                        onChange: (selectedRowKeys, selectedRows) => {
-                          setSelectedRowKeys(selectedRowKeys);
-                          setSelectedRows(selectedRows);
-                        }
-                      }}
-                      form={{span: 8}}
-                      cardProps={{bordered: false}}
-                      search={{
-                        collapseRender: false, // 完全移除折叠按钮
-                        defaultCollapsed: false // 默认不折叠
-                      }}
-                      loading={{spinning: loading, tip}}
-                      toolbar={{
-                        title:
-                          <Space>
-                            {
-                              // hasPermission('system:user:add') &&
-                              <Button color={'primary'}
-                                      icon={<PlusOutlined/>}
-                                      variant={'outlined'}
-                                      size={'small'}
-                                      onClick={toCreate}
-                              >新建</Button>
-                            }
-                            {
-                              // hasPermission('system:user:edit') &&
-                              <Button color={"green"}
-                                      icon={<EditOutlined/>}
-                                      disabled={editDisabled}
-                                      size={'small'}
-                                      variant={'outlined'}
-                                      onClick={toEditSelected}
-                              >修改</Button>
-                            }
-                            {
-                              // hasPermission('system:user:remove') &&
-                              <Button color={"danger"}
-                                      icon={<DeleteOutlined/>}
-                                      disabled={deleteDisabled}
-                                      size={'small'}
-                                      variant={'outlined'}
-                                      onClick={toDeleteBatch}
-                              >删除</Button>
-                            }
+              rowKey={'id'}
+              formRef={formRef}
+              actionRef={actionRef}
+              params={params}
+              tableAlertRender={false}
+              tableAlertOptionRender={false}
+              rowSelection={{
+                selectedRowKeys,
+                onChange: (selectedRowKeys, selectedRows) => {
+                  setSelectedRowKeys(selectedRowKeys);
+                  setSelectedRows(selectedRows);
+                }
+              }}
+              form={{ span: 8 }}
+              cardProps={{ bordered: false }}
+              search={{
+                collapseRender: false, // 完全移除折叠按钮
+                defaultCollapsed: false // 默认不折叠
+              }}
+              loading={{ spinning: loading, tip }}
+              toolbar={{
+                title:
+                  <Space>
+                    {
+                      // hasPermission('system:user:add') &&
+                      <Button color={'primary'}
+                        icon={<PlusOutlined />}
+                        variant={'outlined'}
+                        size={'small'}
+                        onClick={toCreate}
+                      >新建</Button>
+                    }
+                    {
+                      // hasPermission('system:user:edit') &&
+                      <Button color={"green"}
+                        icon={<EditOutlined />}
+                        disabled={editDisabled}
+                        size={'small'}
+                        variant={'outlined'}
+                        onClick={toEditSelected}
+                      >修改</Button>
+                    }
+                    {
+                      // hasPermission('system:user:remove') &&
+                      <Button color={"danger"}
+                        icon={<DeleteOutlined />}
+                        disabled={deleteDisabled}
+                        size={'small'}
+                        variant={'outlined'}
+                        onClick={toDeleteBatch}
+                      >删除</Button>
+                    }
 
-                            {
-                              // hasPermission('system:user:import') &&
-                              <Button color={"purple"}
-                                      icon={<UploadOutlined/>}
-                                      size={'small'}
-                                      variant={'outlined'}
-                                      onClick={toImportUser}
-                              >导入</Button>
-                            }
-                            {
-                              // hasPermission('system:user:export') &&
-                              <Button color={"orange"}
-                                      icon={<ExportOutlined/>}
-                                      size={'small'}
-                                      variant={'outlined'}
-                                      onClick={toExportUser}
-                              >导出</Button>
-                            }
+                    {
+                      // hasPermission('system:user:import') &&
+                      <Button color={"purple"}
+                        icon={<UploadOutlined />}
+                        size={'small'}
+                        variant={'outlined'}
+                        onClick={toImportUser}
+                      >导入</Button>
+                    }
+                    {
+                      // hasPermission('system:user:export') &&
+                      <Button color={"orange"}
+                        icon={<ExportOutlined />}
+                        size={'small'}
+                        variant={'outlined'}
+                        onClick={toExportUser}
+                      >导出</Button>
+                    }
 
-                          </Space>
-                      }}
-                      request={
-                        async (params = {}) => {
-                          const {createTimeRange, ...rest} = params;
-                          if (createTimeRange) {
-                            const [beginTime, endTime] = createTimeRange;
-                            params = {...rest, beginTime, endTime};
-                          }
-                          return fetchPageWithParams(params);
-                        }
-                      }
+                  </Space>
+              }}
+              request={
+                async (params = {}) => {
+                  const { createTimeRange, ...rest } = params;
+                  if (createTimeRange) {
+                    const [beginTime, endTime] = createTimeRange;
+                    params = { ...rest, beginTime, endTime };
+                  }
+                  return search(params);
+                }
+              }
             />
           </Splitter.Panel>
         </Splitter>
       </ProPageContainer>
-      <UserDetailDialog title={state?.dialogTitle} open={state?.dialogVisible} onOpenChange={setDialogVisible}/>
-      <PasswordDialog title={'重置用户密码'} open={passwordVisible} onOpenChange={setPasswordVisible}/>
-      <RoleDialog title={'分配角色'} open={roleVisible} onOpenChange={setRoleVisible}/>
-      <UserImportDialog title={'用户导入'} open={userImportVisible} onOpenChange={setUserImportVisible}/>
+      <UserDetailDialog title={state?.dialogTitle} open={state?.dialogVisible} onOpenChange={setDialogVisible} />
+      <PasswordDialog title={'重置用户密码'} open={passwordVisible} onOpenChange={setPasswordVisible} />
+      <RoleDialog title={'分配角色'} open={roleVisible} onOpenChange={setRoleVisible} />
+      <UserImportDialog title={'用户导入'} open={userImportVisible} onOpenChange={setUserImportVisible} />
     </>
   )
 }

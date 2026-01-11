@@ -121,7 +121,7 @@ declare type SysDepartment = {
   description: string;
 }
 
-declare type SysPosition = {
+declare type SysPost = {
   id?: number;
   code: string;
   name: string;

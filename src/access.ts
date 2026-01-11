@@ -1,4 +1,6 @@
-import {Permissions} from "@/enums";
+import { Permissions } from "@/enums";
+import { PERMISSIONS } from "@/config/permissions";
+import { CurrentUser } from "@/types";
 
 /**
  * @see https://umijs.org/docs/max/access#access
@@ -15,12 +17,12 @@ export default function access(initialState: { currentUser?: CurrentUser } | und
 
   const hasPermission = (permissionNeed: string | Array<string>): boolean => {
     const permissions = currentUser?.permissions;
-    if(!permissions || permissions.length === 0) return false;
-    if(permissions.includes('*:*:*')) return true;
+    if (!permissions || permissions.length === 0) return false;
+    if (permissions.includes(PERMISSIONS.SUPER_ADMIN)) return true;
 
-    if(typeof (permissionNeed) === 'string') {
+    if (typeof (permissionNeed) === 'string') {
       return permissions.includes(permissionNeed);
-    } else if(typeof (permissionNeed) === 'object') {
+    } else if (typeof (permissionNeed) === 'object') {
       return permissionNeed.some(permission => permissions.includes(permission));
     } else {
       return false;
@@ -29,7 +31,7 @@ export default function access(initialState: { currentUser?: CurrentUser } | und
 
   const canAccess = (route: any): boolean => {
     const permissionNeed = route?.permissions;
-    if(!permissionNeed || permissionNeed.length === 0) return true;
+    if (!permissionNeed || permissionNeed.length === 0) return true;
     return hasPermission(permissionNeed);
   }
   return {

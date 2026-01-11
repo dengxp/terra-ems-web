@@ -7,7 +7,7 @@ export default {
   'menu.login': '登錄',
   'menu.register': '註冊',
   'menu.register-result': '註冊結果',
-  'menu.dashboard': 'Dashboard',
+  'menu.dashboard': '首頁',
   'menu.dashboard.analysis': '分析頁',
   'menu.dashboard.monitor': '監控頁',
   'menu.dashboard.workplace': '工作臺',

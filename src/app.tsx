@@ -15,6 +15,7 @@ import TabsLayout, { TabsLayoutProps } from "@/components/TabsLayout";
 import { Space } from "antd";
 import { fetchCurrentUser } from "@/apis";
 import { CurrentUser } from "@/types";
+import { PERMISSIONS } from "@/config/permissions";
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -61,8 +62,13 @@ export async function getInitialState(): Promise<{
       // 从 user.roles 提取角色代码
       const roles = user.roles?.map((role: { code?: string }) => role.code || '').filter(Boolean) || ['ROLE_DEFAULT'];
 
-      // TODO: 后端UserDTO暂未返回permissions，需要后续添加
-      const permissions: string[] = [];
+      // 后端 UserDTO 暂未返回 permissions，从 user.roles 或特定字段尝试提取，或在此处根据开发需求 Mock
+      const permissions: string[] = user.permissions || [];
+
+      // 开发环境下，如果是 admin 用户，注入超级管理员权限以便调试
+      if (isDev && user.username === 'admin') {
+        permissions.push(PERMISSIONS.SUPER_ADMIN);
+      }
 
       return {
         id: user.id?.toString(),
@@ -168,9 +174,11 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
       );
     },
     menuItemRender: (menuItemProps, defaultDom) => {
-      if (menuItemProps.isUrl || !menuItemProps.path || (!menuItemProps.children && menuItemProps.parentId === 'max-tabs')) {
+      // 如果是外部链接或没有路径，使用默认渲染
+      if (menuItemProps.isUrl || !menuItemProps.path) {
         return defaultDom;
       }
+      // 对于所有有路径的菜单项，使用Link包装实现路由跳转
       return <Link to={menuItemProps.path}>
         <Space size={4}>
           <span>{menuItemProps.icon}</span>

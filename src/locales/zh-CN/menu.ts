@@ -7,7 +7,8 @@ export default {
   'menu.login': '登录',
   'menu.register': '注册',
   'menu.register-result': '注册结果',
-  'menu.dashboard': 'Dashboard',
+  'menu.dashboard': '首页',
+  'menu.dashboard-v2': '首页V2',
   'menu.dashboard.analysis': '分析页',
   'menu.dashboard.monitor': '监控页',
   'menu.dashboard.workplace': '工作台',
@@ -50,5 +51,12 @@ export default {
   'menu.editor.mind': '脑图编辑器',
   'menu.editor.koni': '拓扑编辑器',
   'menu.configure.campus': '校区设置',
-  'menu.configure.organization': '组织架构'
+  'menu.configure.organization': '组织架构',
+  'menu.basic-data': '基础数据',
+  'menu.basic-data.energy-type': '能源类型',
+  'menu.production': '生产管理',
+  'menu.production.record': '产品产量管理',
+  'menu.knowledge': '知识库',
+  'menu.statistics.process-energy': '工序能耗分析',
+  'menu.statistics.unit-consumption': '单耗分析'
 };

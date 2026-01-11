@@ -8,5 +8,6 @@
 import Footer from './Footer';
 import { Question, SelectLang } from './RightContent';
 import { AvatarDropdown, AvatarName } from './RightContent/AvatarDropdown';
+import Permission from './Permission';
 export * from './icons';
-export { Footer, Question, SelectLang, AvatarDropdown, AvatarName };
+export { Footer, Question, SelectLang, AvatarDropdown, AvatarName, Permission };

@@ -30,7 +30,7 @@ export default function useCrud<T extends Entity>({entityName, pathname, baseUrl
 
   const findByPage = useCallback(async (params: Record<string, any>) => {
     return request<Result<Page<T>>>(
-      baseUrl + '/page',
+      baseUrl,
       {
         method: 'GET',
         params
@@ -38,9 +38,9 @@ export default function useCrud<T extends Entity>({entityName, pathname, baseUrl
     )
   }, [baseUrl]);
 
-  const findByPageWithParams = useCallback(async (params: Record<string, any>) => {
+  const searchByParams = useCallback(async (params: Record<string, any>) => {
     return request<Result<Page<T>>>(
-      baseUrl + '/condition',
+      baseUrl + '/search',
       {
         method: 'GET',
         params
@@ -97,16 +97,16 @@ export default function useCrud<T extends Entity>({entityName, pathname, baseUrl
 
   }, [findByPage]);
 
-  const fetchPageWithParams = useCallback(async (params: Record<string, any>) => {
+  const search = useCallback(async (params: Record<string, any>) => {
     const {current, pageSize, ...rest} = params;
-    const result = await findByPageWithParams({
-      pageNum: current,
+    const result = await searchByParams({
+      pageNumber: current,
       pageSize,
       ...rest
     });
     return wrapperResult(result);
 
-  }, [findByPageWithParams]);
+  }, [searchByParams]);
 
   const handleSaveOrUpdate = useCallback(async (values: Record<string, any>) => {
     return new Promise<void>(async (resolve, reject) => {
@@ -248,7 +248,7 @@ export default function useCrud<T extends Entity>({entityName, pathname, baseUrl
 
   return {
     fetchPage,
-    fetchPageWithParams,
+    search,
     handleSaveOrUpdate,
     handleSave,
     handleUpdate,

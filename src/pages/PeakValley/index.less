@@ -1,0 +1,77 @@
+.peak-valley-page {
+
+    /* 时段卡片容器 - 使用 flex 实现等宽布局 */
+    .period-cards-container {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+    }
+
+    .period-card-wrapper {
+        flex: 1;
+        min-width: 140px;
+        max-width: 200px;
+    }
+
+    .period-card {
+        text-align: center;
+        height: 100%;
+        transition: all 0.3s ease;
+
+        .ant-statistic-title {
+            font-size: 14px;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .ant-statistic-content {
+            font-size: 18px !important;
+        }
+
+        .ant-statistic-content-suffix {
+            font-size: 13px;
+            margin-left: 4px;
+        }
+
+        &:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+    }
+
+    .total-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-top: none !important;
+
+        .ant-statistic-title {
+            color: rgba(255, 255, 255, 0.85);
+        }
+
+        .ant-statistic-content {
+            color: #fff;
+        }
+
+        .ant-statistic-content-suffix {
+            color: rgba(255, 255, 255, 0.9);
+        }
+    }
+
+    /* 下方图表和表格对齐 */
+    .chart-table-row {
+        align-items: stretch;
+
+        .ant-card {
+            display: flex;
+            flex-direction: column;
+
+            .ant-card-body {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+            }
+        }
+    }
+}

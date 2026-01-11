@@ -1,0 +1,262 @@
+import React, { useState, useEffect } from 'react';
+import { Card, Col, Row, Tree, DatePicker, Select, Space, Tabs, Empty, Typography } from 'antd';
+import { PageContainer } from '@ant-design/pro-components';
+import { getEnabledEnergyUnitTree, EnergyUnit } from '@/apis/energyUnit';
+import {
+    getStatisticsSummary,
+    getYoYAnalysis,
+    getMoMAnalysis,
+    EnergyStatisticsSummary,
+    ComparisonAnalysis,
+} from '@/apis/statistics';
+import StatisticsCard from './components/StatisticsCard';
+import TrendChart from './components/TrendChart';
+import ComparisonTable from './components/ComparisonTable';
+import dayjs from 'dayjs';
+import { BarChartOutlined, LineChartOutlined, SwapOutlined, RetweetOutlined } from '@ant-design/icons';
+
+const StatisticsPage: React.FC = () => {
+    const [treeData, setTreeData] = useState<any[]>([]);
+    const [selectedUnitId, setSelectedUnitId] = useState<number | null>(null);
+    const [selectedUnitName, setSelectedUnitName] = useState<string>('');
+    const [timeType, setTimeType] = useState<'DAY' | 'MONTH' | 'YEAR'>('MONTH');
+    const [dataTime, setDataTime] = useState(dayjs());
+    const [loading, setLoading] = useState(false);
+
+    const { Title, Text } = Typography;
+
+    const [summary, setSummary] = useState<EnergyStatisticsSummary | null>(null);
+    const [yoyData, setYoyData] = useState<ComparisonAnalysis[]>([]);
+    const [momData, setMomData] = useState<ComparisonAnalysis[]>([]);
+
+    // 加载用能单元树
+    const fetchTree = async () => {
+        const res = await getEnabledEnergyUnitTree();
+        if (res.success) {
+            const mapTree = (data: EnergyUnit[]): any[] =>
+                data.map((item) => ({
+                    title: item.name,
+                    key: item.id,
+                    children: item.children && item.children.length > 0 ? mapTree(item.children) : undefined,
+                }));
+            setTreeData(mapTree(res.data || []));
+        }
+    };
+
+    useEffect(() => {
+        fetchTree();
+    }, []);
+
+    // 加载统计数据
+    const fetchStatistics = async () => {
+        if (!selectedUnitId) return;
+
+        setLoading(true);
+        const params = {
+            energyUnitId: selectedUnitId,
+            parentUnitId: selectedUnitId,
+            timeType,
+            dataTime: dataTime.format('YYYY-MM-DD HH:mm:ss'),
+        };
+
+        try {
+            const [summaryRes, yoyRes, momRes] = await Promise.all([
+                getStatisticsSummary(params),
+                getYoYAnalysis(params),
+                getMoMAnalysis(params),
+            ]);
+
+            if (summaryRes.success) {
+                setSummary(summaryRes.data || null);
+            }
+            if (yoyRes.success) {
+                setYoyData(yoyRes.data || []);
+            }
+            if (momRes.success) {
+                setMomData(momRes.data || []);
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchStatistics();
+    }, [selectedUnitId, timeType, dataTime]);
+
+    const handleTreeSelect = (selectedKeys: React.Key[], info: any) => {
+        if (selectedKeys.length > 0) {
+            setSelectedUnitId(selectedKeys[0] as number);
+            setSelectedUnitName(info.node.title || '');
+        }
+    };
+
+    const getPickerType = () => {
+        switch (timeType) {
+            case 'DAY':
+                return 'date';
+            case 'MONTH':
+                return 'month';
+            case 'YEAR':
+                return 'year';
+            default:
+                return 'month';
+        }
+    };
+
+    // Tab items for Ant Design 5.x
+    const tabItems = [
+        {
+            key: 'yoy',
+            label: (
+                <span>
+                    <SwapOutlined /> 同比分析
+                </span>
+            ),
+            children: (
+                <ComparisonTable
+                    data={yoyData}
+                    type="yoy"
+                    loading={loading}
+                />
+            ),
+        },
+        {
+            key: 'mom',
+            label: (
+                <span>
+                    <RetweetOutlined /> 环比分析
+                </span>
+            ),
+            children: (
+                <ComparisonTable
+                    data={momData}
+                    type="mom"
+                    loading={loading}
+                />
+            ),
+        },
+    ];
+
+    return (
+        <PageContainer ghost title={false}>
+            <div style={{ display: 'flex', gap: '16px', alignItems: 'stretch' }}>
+                {/* 左侧树 */}
+                <div style={{ width: '280px', flexShrink: 0 }}>
+                    <Card
+                        title={<Title level={5} style={{ margin: 0 }}><BarChartOutlined style={{ marginRight: 8 }} />用能单元</Title>}
+                        bordered={false}
+                        style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
+                        bodyStyle={{ padding: '12px', flex: 1, overflow: 'auto' }}
+                        className="custom-tree-card"
+                    >
+                        {treeData.length > 0 ? (
+                            <Tree
+                                treeData={treeData}
+                                onSelect={handleTreeSelect}
+                                blockNode
+                                defaultExpandAll
+                                selectedKeys={selectedUnitId ? [selectedUnitId] : []}
+                            />
+                        ) : (
+                            <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                        )}
+                    </Card>
+                </div>
+
+                {/* 右侧内容 */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                    {/* 头部过滤器卡片 */}
+                    <Card bordered={false} bodyStyle={{ padding: '16px' }} style={{ marginBottom: 16 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+                            <div>
+                                <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center' }}>
+                                    {selectedUnitName || '能耗统计分析'} <Text type="secondary" style={{ marginLeft: 12, fontSize: 14, fontWeight: 'normal' }}>多维对标分析</Text>
+                                </Title>
+                            </div>
+                            <Space size="middle">
+                                <Select
+                                    value={timeType}
+                                    onChange={setTimeType}
+                                    style={{ width: 100 }}
+                                    options={[
+                                        { label: '按日', value: 'DAY' },
+                                        { label: '按月', value: 'MONTH' },
+                                        { label: '按年', value: 'YEAR' },
+                                    ]}
+                                />
+                                <DatePicker
+                                    value={dataTime}
+                                    onChange={(date) => date && setDataTime(date)}
+                                    picker={getPickerType()}
+                                    allowClear={false}
+                                />
+                            </Space>
+                        </div>
+                    </Card>
+
+                    {!selectedUnitId ? (
+                        <Card bordered={false}>
+                            <div style={{ padding: '100px 0', textAlign: 'center' }}>
+                                <Empty description="请从左侧选择一个用能单元开始分析" />
+                            </div>
+                        </Card>
+                    ) : (
+                        <div style={{ minHeight: 'calc(100vh - 300px)' }}>
+                            {/* 统计卡片 - 固定高度确保对齐 */}
+                            <Row gutter={16} style={{ marginBottom: 16 }}>
+                                <Col span={8}>
+                                    <StatisticsCard
+                                        title="当期能耗"
+                                        value={summary?.currentTotal || 0}
+                                        unit="kWh"
+                                        loading={loading}
+                                    />
+                                </Col>
+                                <Col span={8}>
+                                    <StatisticsCard
+                                        title="同比分析"
+                                        value={summary?.currentTotal || 0}
+                                        compareValue={summary?.lastYearTotal}
+                                        compareLabel="去年同期"
+                                        changeRate={summary?.yoyRate}
+                                        unit="kWh"
+                                        loading={loading}
+                                    />
+                                </Col>
+                                <Col span={8}>
+                                    <StatisticsCard
+                                        title="环比分析"
+                                        value={summary?.currentTotal || 0}
+                                        compareValue={summary?.lastPeriodTotal}
+                                        compareLabel="上期"
+                                        changeRate={summary?.momRate}
+                                        unit="kWh"
+                                        loading={loading}
+                                    />
+                                </Col>
+                            </Row>
+
+                            {/* 趋势图表 */}
+                            <Card size="small" style={{ marginBottom: 16 }}>
+                                <TrendChart
+                                    data={summary?.trendData || []}
+                                    title={`${selectedUnitName} - 能耗趋势`}
+                                    loading={loading}
+                                    height={280}
+                                />
+                            </Card>
+
+                            {/* 对比分析表格 */}
+                            <Card size="small" bordered={false}>
+                                <Tabs defaultActiveKey="yoy" items={tabItems} />
+                            </Card>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </PageContainer>
+    );
+};
+
+export default StatisticsPage;

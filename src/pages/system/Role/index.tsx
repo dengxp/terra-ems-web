@@ -31,7 +31,7 @@ const Index = () => {
     toCreate,
     toEdit,
     toDelete,
-    fetchPageWithParams,
+    search,
     setDialogVisible,
     setShouldRefresh,
     updateState
@@ -257,7 +257,7 @@ const Index = () => {
                         const [beginTime, endTime] = createTimeRange;
                         params = {...rest, params: {beginTime, endTime}};
                       }
-                      const result = await fetchPageWithParams(params);
+                      const result = await search(params);
                       console.log("result: ", result);
                       return result;
                     }

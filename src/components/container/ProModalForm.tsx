@@ -1,5 +1,5 @@
 import React from 'react';
-import {ModalForm, ModalFormProps} from "@ant-design/pro-components";
+import { ModalForm, ModalFormProps } from "@ant-design/pro-components";
 
 export type ProModalFormProps = ModalFormProps & {
   children?: React.ReactNode | React.ReactNode[];
@@ -7,28 +7,32 @@ export type ProModalFormProps = ModalFormProps & {
 const ProModalForm = (props: ProModalFormProps) => {
 
   const formItemLayout = {
-    labelCol: {span: 6},
-    wrapperCol: {span: 14, offset: 1},
+    labelCol: { span: 6 },
+    wrapperCol: { span: 14, offset: 1 },
   }
 
-  const {title, open, children, ...rest} = props;
+  const { title, open, children, ...rest } = props;
 
   return (
     <ModalForm title={title}
-               open={open}
-               layout={'horizontal'}
-               {...rest}
-               className={'py-4'}
-               modalProps={{
-                 centered: true,
-                 destroyOnClose: true,
-                 styles: {
-                   body: {
-                     maxHeight: '80vh',
-                     overflowY: 'auto'
-                   }
-                 }
-               }}
+      open={open}
+      layout={'horizontal'}
+      {...rest}
+      className={'py-4 px-4'}
+      modalProps={{
+        centered: true,
+        destroyOnClose: true,
+        ...rest.modalProps,
+        styles: {
+          ...rest.modalProps?.styles,
+          body: {
+            maxHeight: '80vh',
+            overflowY: 'auto',
+            overflowX: 'hidden',
+            ...rest.modalProps?.styles?.body,
+          },
+        },
+      }}
     >
       {children}
     </ModalForm>

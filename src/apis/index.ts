@@ -46,9 +46,9 @@ export {
     moveDepartment,
 } from './dept';
 
-// ============ 职位相关 ============
-export { PositionApi, type PositionDTO } from './position';
-export { getPositionOptions, findOptions, exportPosition } from './position';
+// ============ 岗位相关 ============
+export { PostApi, type PostDTO } from './post';
+export { getPostOptions, findPostOptions, exportPost } from './post';
 
 // ============ 系统常量相关 ============
 export { ConstantApi, type ConstantResponse, type ConstantMapResponse } from './constant';
