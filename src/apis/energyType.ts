@@ -35,13 +35,14 @@ export const EnergyTypeCategory = {
 
 // 分页查询能源类型
 export async function getEnergyTypes(params: {
+    code?: string;
     name?: string;
     category?: string;
     status?: number;
-    page?: number;
-    size?: number;
+    pageNumber?: number;
+    pageSize?: number;
 }) {
-    return request<API.Result<API.PageResult<EnergyType>>>('/api/energy-types', {
+    return request<API.Result<API.PageResult<EnergyType>>>('/api/energy-types/search', {
         method: 'GET',
         params,
     });

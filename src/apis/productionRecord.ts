@@ -86,7 +86,7 @@ export async function getProductionRecords(params: {
     page?: number;
     size?: number;
 }) {
-    return request<API.Result<API.PageResult<ProductionRecord>>>('/api/ems/production-records', {
+    return request<API.Result<API.PageResult<ProductionRecord>>>('/api/ems/production-records/search', {
         method: 'GET',
         params,
     });

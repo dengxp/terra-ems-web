@@ -69,7 +69,7 @@ export const PeriodTypeOptions = [
  * 分页查询电价策略
  */
 export async function getPricePolicyPage(params: PricePolicyPageParams) {
-    return request<API.Result<API.PageResult<PricePolicy>>>('/api/price-policies', {
+    return request<API.Result<API.PageResult<PricePolicy>>>('/api/price-policies/search', {
         method: 'GET',
         params: {
             current: params.current || 1,
@@ -120,7 +120,7 @@ export async function getPricePoliciesByEnergyTypeId(energyTypeId: number) {
  * 创建电价策略
  */
 export async function createPricePolicy(data: CreatePricePolicyParams) {
-    return request<API.Result<PricePolicy>>('/api/price-policies', {
+    return request<API.Result<PricePolicy>>('/api/price-policies/create', {
         method: 'POST',
         data,
     });

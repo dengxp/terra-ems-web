@@ -38,10 +38,10 @@ export async function getMeters(params: {
     name?: string;
     type?: string;
     status?: number;
-    page?: number;
-    size?: number;
+    pageNumber?: number;
+    pageSize?: number;
 }) {
-    return request<API.Result<API.PageResult<Meter>>>('/api/meters', {
+    return request<API.Result<API.PageResult<Meter>>>('/api/meters/search', {
         method: 'GET',
         params,
     });

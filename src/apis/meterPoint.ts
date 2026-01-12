@@ -49,7 +49,7 @@ export interface MeterPointPageParams {
  * 分页查询采集点位
  */
 export async function getMeterPointPage(params: MeterPointPageParams) {
-    return request<API.Result<API.PageResult<MeterPoint>>>('/api/meter-points', {
+    return request<API.Result<API.PageResult<MeterPoint>>>('/api/meter-points/search', {
         method: 'GET',
         params: {
             current: params.current || 1,
@@ -113,7 +113,7 @@ export async function createMeterPoint(
     meterId?: number,
     energyTypeId?: number
 ) {
-    return request<API.Result<MeterPoint>>('/api/meter-points', {
+    return request<API.Result<MeterPoint>>('/api/meter-points/create', {
         method: 'POST',
         data,
         params: { meterId, energyTypeId },

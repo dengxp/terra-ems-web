@@ -81,7 +81,7 @@ export async function getEnergyUnitByCode(code: string) {
  * @param parentId 父节点ID（可选）
  */
 export async function createEnergyUnit(data: Partial<EnergyUnit>, parentId?: number) {
-    return request<API.Result<EnergyUnit>>('/api/energy-units', {
+    return request<API.Result<EnergyUnit>>('/api/energy-units/create', {
         method: 'POST',
         data,
         params: parentId ? { parentId } : undefined,
