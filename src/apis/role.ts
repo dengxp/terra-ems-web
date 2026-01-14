@@ -1,99 +1,101 @@
-import { ApiClient } from './client';
-import type { RoleDTO, PageData, PageParams } from '@/types';
+import { request } from '@umijs/max';
+
+const BASE_URL = '/api/system/role';
 
 /**
- * 角色相关 API
- * 提供类型安全的角色管理接口
+ * 分页查询角色列表
  */
-export class RoleApi {
-  private static readonly BASE_URL = '/api/system/role';
-
-  /**
-   * 分页查询角色列表
-   * @param params - 分页参数
-   */
-  static async findByPage(params: PageParams) {
-    return ApiClient.get<PageData<RoleDTO>>(`${this.BASE_URL}/page`, params);
-  }
-
-  /**
-   * 查询所有角色
-   */
-  static async findAll() {
-    return ApiClient.get<RoleDTO[]>(this.BASE_URL);
-  }
-
-  /**
-   * 根据ID查询角色详情
-   * @param roleId - 角色ID
-   */
-  static async findById(roleId: number | string) {
-    return ApiClient.get<RoleDTO>(`${this.BASE_URL}/${roleId}`);
-  }
-
-  /**
-   * 创建角色
-   * @param role - 角色信息
-   */
-  static async create(role: Partial<RoleDTO>) {
-    return ApiClient.post<RoleDTO>(this.BASE_URL, role);
-  }
-
-  /**
-   * 更新角色信息
-   * @param roleId - 角色ID
-   * @param role - 角色信息
-   */
-  static async update(roleId: number, role: Partial<RoleDTO>) {
-    return ApiClient.put<RoleDTO>(`${this.BASE_URL}/${roleId}`, role);
-  }
-
-  /**
-   * 删除角色
-   * @param roleId - 角色ID
-   */
-  static async delete(roleId: number) {
-    return ApiClient.delete<void>(`${this.BASE_URL}/${roleId}`);
-  }
-
-  /**
-   * 批量删除角色
-   * @param roleIds - 角色ID列表
-   */
-  static async batchDelete(roleIds: number[]) {
-    return ApiClient.delete<void>(`${this.BASE_URL}/batch`, {
-      data: { ids: roleIds },
-    });
-  }
-
-  /**
-   * 获取角色选项列表（用于下拉框）
-   */
-  static async getOptions() {
-    return ApiClient.get<Array<{ value: number; label: string }>>(`${this.BASE_URL}/options`);
-  }
-
-  /**
-   * 获取角色的权限
-   * @param roleId - 角色ID
-   */
-  static async getPermissions(roleId: number) {
-    return ApiClient.get<number[]>(`${this.BASE_URL}/${roleId}/permissions`);
-  }
-
-  /**
-   * 更新角色的权限
-   * @param roleId - 角色ID
-   * @param permissionIds - 权限ID列表
-   */
-  static async updatePermissions(roleId: number, permissionIds: number[]) {
-    return ApiClient.put<void>(`${this.BASE_URL}/${roleId}/permissions`, { permissionIds });
-  }
+export async function findRolesByPage(params: API.PageParams) {
+  return request<API.Result<API.PageResult<RoleDTO>>>(`${BASE_URL}/page`, {
+    method: 'GET',
+    params,
+  });
 }
 
-// 保持向后兼容
-export const findRoles = RoleApi.findAll.bind(RoleApi);
-export const findRoleById = RoleApi.findById.bind(RoleApi);
-export const getRole = RoleApi.findById.bind(RoleApi);
+/**
+ * 查询所有角色
+ */
+export async function findRoles() {
+  return request<API.Result<RoleDTO[]>>(BASE_URL, {
+    method: 'GET',
+  });
+}
 
-export default RoleApi;
+/**
+ * 根据ID查询角色详情
+ */
+export async function findRoleById(roleId: number | string) {
+  return request<API.Result<RoleDTO>>(`${BASE_URL}/${roleId}`, {
+    method: 'GET',
+  });
+}
+
+/**
+ * 创建角色
+ */
+export async function createRole(role: Partial<RoleDTO>) {
+  return request<API.Result<RoleDTO>>(BASE_URL, {
+    method: 'POST',
+    data: role,
+  });
+}
+
+/**
+ * 更新角色信息
+ */
+export async function updateRole(roleId: number, role: Partial<RoleDTO>) {
+  return request<API.Result<RoleDTO>>(`${BASE_URL}/${roleId}`, {
+    method: 'PUT',
+    data: role,
+  });
+}
+
+/**
+ * 删除角色
+ */
+export async function deleteRole(roleId: number) {
+  return request<API.Result<void>>(`${BASE_URL}/${roleId}`, {
+    method: 'DELETE',
+  });
+}
+
+/**
+ * 批量删除角色
+ */
+export async function batchDeleteRoles(roleIds: number[]) {
+  return request<API.Result<void>>(`${BASE_URL}/batch`, {
+    method: 'DELETE',
+    data: { ids: roleIds },
+  });
+}
+
+/**
+ * 获取角色选项列表（用于下拉框）
+ */
+export async function getRoleOptions() {
+  return request<API.Result<Array<{ value: number; label: string }>>>(`${BASE_URL}/options`, {
+    method: 'GET',
+  });
+}
+
+/**
+ * 获取角色的权限
+ */
+export async function getRolePermissions(roleId: number) {
+  return request<API.Result<number[]>>(`${BASE_URL}/${roleId}/permissions`, {
+    method: 'GET',
+  });
+}
+
+/**
+ * 更新角色的权限
+ */
+export async function updateRolePermissions(roleId: number, permissionIds: number[]) {
+  return request<API.Result<void>>(`${BASE_URL}/${roleId}/permissions`, {
+    method: 'PUT',
+    data: { permissionIds },
+  });
+}
+
+// 兼容旧名称
+export const getRole = findRoleById;

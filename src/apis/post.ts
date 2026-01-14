@@ -1,5 +1,6 @@
-import { ApiClient } from './client';
-import type { PageData, PageParams } from '@/types';
+import { request } from '@umijs/max';
+
+const BASE_URL = '/api/system/post';
 
 /**
  * 岗位信息
@@ -16,83 +17,88 @@ export interface PostDTO {
 }
 
 /**
- * 岗位相关 API
- * 提供类型安全的岗位管理接口
+ * 分页查询岗位列表
  */
-export class PostApi {
-  private static readonly BASE_URL = '/api/system/post';
-
-  /**
-   * 分页查询岗位列表
-   * @param params - 分页参数
-   */
-  static async findByPage(params: PageParams) {
-    return ApiClient.get<PageData<PostDTO>>(`${this.BASE_URL}/page`, params);
-  }
-
-  /**
-   * 查询所有岗位
-   */
-  static async findAll() {
-    return ApiClient.get<PostDTO[]>(this.BASE_URL);
-  }
-
-  /**
-   * 根据ID查询岗位详情
-   * @param postId - 岗位ID
-   */
-  static async findById(postId: number) {
-    return ApiClient.get<PostDTO>(`${this.BASE_URL}/${postId}`);
-  }
-
-  /**
-   * 创建岗位
-   * @param post - 岗位信息
-   */
-  static async create(post: Partial<PostDTO>) {
-    return ApiClient.post<PostDTO>(this.BASE_URL, post);
-  }
-
-  /**
-   * 更新岗位信息
-   * @param postId - 岗位ID
-   * @param post - 岗位信息
-   */
-  static async update(postId: number, post: Partial<PostDTO>) {
-    return ApiClient.put<PostDTO>(`${this.BASE_URL}/${postId}`, post);
-  }
-
-  /**
-   * 删除岗位
-   * @param postId - 岗位ID
-   */
-  static async delete(postId: number) {
-    return ApiClient.delete<void>(`${this.BASE_URL}/${postId}`);
-  }
-
-  /**
-   * 获取岗位选项列表（用于下拉框）
-   */
-  static async getOptions() {
-    return ApiClient.get<Array<{ value: number; label: string }>>(`${this.BASE_URL}/options`);
-  }
-
-  /**
-   * 修改岗位状态
-   * @param postId - 岗位ID
-   * @param status - 状态
-   */
-  static async changeStatus(postId: number, status: string) {
-    return ApiClient.put<void>(`${this.BASE_URL}/${postId}/status`, { status });
-  }
+export async function findPostsByPage(params: API.PageParams) {
+  return request<API.Result<API.PageResult<PostDTO>>>(`${BASE_URL}/page`, {
+    method: 'GET',
+    params,
+  });
 }
 
-// 保持向后兼容
-export const getPostOptions = PostApi.getOptions.bind(PostApi);
-export const findPostOptions = PostApi.getOptions.bind(PostApi);
-export const exportPost = () => {
+/**
+ * 查询所有岗位
+ */
+export async function findAllPosts() {
+  return request<API.Result<PostDTO[]>>(BASE_URL, {
+    method: 'GET',
+  });
+}
+
+/**
+ * 根据ID查询岗位详情
+ */
+export async function findPostById(postId: number) {
+  return request<API.Result<PostDTO>>(`${BASE_URL}/${postId}`, {
+    method: 'GET',
+  });
+}
+
+/**
+ * 创建岗位
+ */
+export async function createPost(post: Partial<PostDTO>) {
+  return request<API.Result<PostDTO>>(BASE_URL, {
+    method: 'POST',
+    data: post,
+  });
+}
+
+/**
+ * 更新岗位信息
+ */
+export async function updatePost(postId: number, post: Partial<PostDTO>) {
+  return request<API.Result<PostDTO>>(`${BASE_URL}/${postId}`, {
+    method: 'PUT',
+    data: post,
+  });
+}
+
+/**
+ * 删除岗位
+ */
+export async function deletePost(postId: number) {
+  return request<API.Result<void>>(`${BASE_URL}/${postId}`, {
+    method: 'DELETE',
+  });
+}
+
+/**
+ * 获取岗位选项列表（用于下拉框）
+ */
+export async function getPostOptions() {
+  return request<API.Result<Array<{ value: number; label: string }>>>(`${BASE_URL}/options`, {
+    method: 'GET',
+  });
+}
+
+/**
+ * 修改岗位状态
+ */
+export async function changePostStatus(postId: number, status: string) {
+  return request<API.Result<void>>(`${BASE_URL}/${postId}/status`, {
+    method: 'PUT',
+    data: { status },
+  });
+}
+
+/**
+ * 导出岗位
+ */
+export async function exportPost() {
   console.warn('exportPost not implemented yet');
   return Promise.resolve();
-};
+}
 
-export default PostApi;
+// 兼容旧名称
+export const findPostOptions = getPostOptions;

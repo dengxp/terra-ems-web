@@ -1,13 +1,8 @@
 /**
  * API 统一导出
- * 提供类型安全的 API 调用入口
  */
 
-// ============ API Client ============
-export { ApiClient } from './client';
-
 // ============ 用户相关 ============
-export { UserApi } from './user';
 export {
     findByPage,
     findUserById,
@@ -21,18 +16,33 @@ export {
     exportUser,
     findOptionsForDepartmentManager,
     findUsersWithoutDepartment,
+    createUser,
+    updateUser,
+    deleteUser,
+    batchDeleteUsers,
+    findByUsername,
 } from './user';
 
 // ============ 认证相关 ============
-export { AuthApi } from './login';
-export { login, logout, getCaptcha } from './login';
+export { login, logout, getCaptcha, createCaptcha, sendSmsCode, loginBySms, refreshToken } from './login';
 
 // ============ 角色相关 ============
-export { RoleApi } from './role';
-export { findRoles, findRoleById, getRole } from './role';
+export {
+    findRolesByPage,
+    findRoles,
+    findRoleById,
+    getRole,
+    createRole,
+    updateRole,
+    deleteRole,
+    batchDeleteRoles,
+    getRoleOptions,
+    getRolePermissions,
+    updateRolePermissions,
+} from './role';
 
 // ============ 部门相关 ============
-export { DepartmentApi, type DepartmentDTO } from './dept';
+export { type DepartmentDTO } from './dept';
 export {
     findDeptById,
     findDeptListAll,
@@ -44,18 +54,33 @@ export {
     addMembers,
     removeMembers,
     moveDepartment,
+    findDeptsByPage,
+    createDept,
+    updateDept,
+    deleteDept,
+    removeMember,
+    getDeptTreeSelect,
 } from './dept';
 
 // ============ 岗位相关 ============
-export { PostApi, type PostDTO } from './post';
-export { getPostOptions, findPostOptions, exportPost } from './post';
+export { type PostDTO } from './post';
+export {
+    getPostOptions,
+    findPostOptions,
+    exportPost,
+    findPostsByPage,
+    findAllPosts,
+    findPostById,
+    createPost,
+    updatePost,
+    deletePost,
+    changePostStatus,
+} from './post';
 
 // ============ 系统常量相关 ============
-export { ConstantApi, type ConstantResponse, type ConstantMapResponse } from './constant';
-export { getConstantOptions, getConstantMaps } from './constant';
+export { type ConstantResponse, type ConstantMapResponse } from './constant';
+export { getConstantOptions, getConstantMaps, getEnumOptions, getDictData, fetchAllOptions, fetchAllMaps } from './constant';
 
-// ============ 其他API (保持向后兼容) ============
-// 这些 API 还未重构，保持原有导出
+// ============ 其他API ============
 export * from './menu';
-export * from './post';
 export * from './data';

@@ -33,7 +33,9 @@ export const EnergyTypeCategory = {
     OTHER: '其他',
 };
 
-// 分页查询能源类型
+/**
+ * 分页查询能源类型
+ */
 export async function getEnergyTypes(params: {
     code?: string;
     name?: string;
@@ -48,21 +50,27 @@ export async function getEnergyTypes(params: {
     });
 }
 
-// 查询所有启用的能源类型
+/**
+ * 查询所有启用的能源类型
+ */
 export async function getEnabledEnergyTypes() {
     return request<API.Result<EnergyType[]>>('/api/energy-types/enabled', {
         method: 'GET',
     });
 }
 
-// 根据ID查询能源类型
+/**
+ * 根据ID查询能源类型
+ */
 export async function getEnergyTypeById(id: number) {
     return request<API.Result<EnergyType>>(`/api/energy-types/${id}`, {
         method: 'GET',
     });
 }
 
-// 创建能源类型
+/**
+ * 创建能源类型
+ */
 export async function createEnergyType(data: Partial<EnergyType>) {
     return request<API.Result<EnergyType>>('/api/energy-types', {
         method: 'POST',
@@ -70,7 +78,9 @@ export async function createEnergyType(data: Partial<EnergyType>) {
     });
 }
 
-// 更新能源类型
+/**
+ * 更新能源类型
+ */
 export async function updateEnergyType(id: number, data: Partial<EnergyType>) {
     return request<API.Result<EnergyType>>(`/api/energy-types/${id}`, {
         method: 'PUT',
@@ -78,14 +88,18 @@ export async function updateEnergyType(id: number, data: Partial<EnergyType>) {
     });
 }
 
-// 删除能源类型
+/**
+ * 删除能源类型
+ */
 export async function deleteEnergyType(id: number) {
     return request<API.Result<void>>(`/api/energy-types/${id}`, {
         method: 'DELETE',
     });
 }
 
-// 批量删除能源类型
+/**
+ * 批量删除能源类型
+ */
 export async function deleteEnergyTypesBatch(ids: (number | string)[]) {
     return request<API.Result<void>>('/api/energy-types/batch', {
         method: 'DELETE',
@@ -93,7 +107,9 @@ export async function deleteEnergyTypesBatch(ids: (number | string)[]) {
     });
 }
 
-// 修改能源类型状态
+/**
+ * 修改能源类型状态
+ */
 export async function updateEnergyTypeStatus(id: number, status: number) {
     return request<API.Result<EnergyType>>(`/api/energy-types/${id}/status`, {
         method: 'PATCH',

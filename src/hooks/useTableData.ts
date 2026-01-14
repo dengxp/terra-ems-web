@@ -1,13 +1,12 @@
 import { useState, useCallback, useEffect } from 'react';
 import { message } from 'antd';
-import type { PageData, PageParams } from '@/types';
 
 /**
  * useTableData Hook 配置选项
  */
-export interface UseTableDataOptions<T, P = PageParams> {
+export interface UseTableDataOptions<T, P = API.PageParams> {
     /** 数据获取函数 */
-    fetchData: (params: P) => Promise<{ data: PageData<T> }>;
+    fetchData: (params: P) => Promise<{ data: API.PageResult<T> }>;
     /** 默认每页大小 */
     defaultPageSize?: number;
     /** 是否立即加载 */
@@ -15,7 +14,7 @@ export interface UseTableDataOptions<T, P = PageParams> {
     /** 默认查询参数 */
     defaultParams?: Partial<P>;
     /** 成功回调 */
-    onSuccess?: (data: PageData<T>) => void;
+    onSuccess?: (data: API.PageResult<T>) => void;
     /** 错误回调 */
     onError?: (error: Error) => void;
 }
@@ -46,7 +45,7 @@ export interface UseTableDataOptions<T, P = PageParams> {
  * />
  * ```
  */
-export function useTableData<T, P = PageParams>(options: UseTableDataOptions<T, P>) {
+export function useTableData<T, P = API.PageParams>(options: UseTableDataOptions<T, P>) {
     const {
         fetchData,
         defaultPageSize = 10,
