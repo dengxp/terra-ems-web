@@ -173,7 +173,7 @@ export interface ConsumptionDetail {
     percentage?: number;
 }
 
-export interface CostDeviationDTO {
+export interface CostDeviation {
     electricityData?: ElectricityData;
     statisticsData?: StatisticsData;
     consumptionDetails?: ConsumptionDetail[];
@@ -187,7 +187,7 @@ export async function getCostDeviationAnalysis(params: {
     timeType: string;
     dataTime: string;
 }) {
-    return request<API.Result<CostDeviationDTO>>('/api/ems/energy-cost-records/deviation', {
+    return request<API.Result<CostDeviation>>('/api/ems/energy-cost-records/deviation', {
         method: 'GET',
         params,
     });
@@ -206,7 +206,7 @@ export interface TrendChartData {
     consumptionValues?: number[];
 }
 
-export interface CostTrendDTO {
+export interface CostTrend {
     tableItems?: any[];
     chartData?: TrendChartData[];
 }
@@ -219,7 +219,7 @@ export async function getCostTrendAnalysis(params: {
     timeType: string;
     dataTime: string;
 }) {
-    return request<API.Result<CostTrendDTO>>('/api/ems/energy-cost-records/trend', {
+    return request<API.Result<CostTrend>>('/api/ems/energy-cost-records/trend', {
         method: 'GET',
         params,
     });

@@ -1,13 +1,12 @@
-import React, {useEffect, useState} from 'react';
-import {ProPageContainer} from "@/components/container";
-import {Flex, Splitter, Tree, TreeDataNode, message} from "antd";
-import {findDeptTree} from "@/apis";
-import {filterTree, findNode, getTreeKeys} from "@/utils";
-import {IconButton} from "@/components/button";
-import Icon, {DeleteOutlined, EditOutlined, PlusOutlined} from "@ant-design/icons";
-import {ReactComponent as MoveTo} from '@/icons/svg/move-to.svg'
+import React, { useEffect, useState } from 'react';
+import { ProPageContainer } from "@/components/container";
+import { Flex, Splitter, Tree, TreeDataNode, message } from "antd";
+import { findDeptTree } from "@/apis";
+import { filterTree, findNode, getTreeKeys } from "@/utils";
+import { IconButton } from "@/components/button";
+import Icon, { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
+import { ReactComponent as MoveTo } from '@/icons/svg/move-to.svg'
 import useCrud from "@/hooks/common/useCrud";
-import {SysDepartment} from "@/types";
 import DetailPanel from "@/pages/system/Org/DetailPanel";
 import DepartmentPanel from "@/pages/system/Org/DepartmentPanel";
 import MoveDepartmentDialog from "@/pages/system/Org/MoveDepartmentDialog";
@@ -17,7 +16,7 @@ const Index = (props: Props) => {
   const [departmentId, setDepartmentId] = useState<number | undefined>();
   const [selectedKeys, setSelectedKeys] = useState<React.Key[]>([]);
   const [expandedKeys, setExpandedKeys] = useState<React.Key[]>([]);
-  const [deptTree, setDeptTree] = useState<TreeDataNode[]>([]);
+  const [deptTree, setDeptTree] = useState<SysDept[]>([]);
   const [department, setDepartment] = useState<Record<string, any> | undefined>();
   const [messageApi, contextHolder] = message.useMessage();
   const [moveVisible, setMoveVisible] = useState(false);
@@ -29,7 +28,7 @@ const Index = (props: Props) => {
     toEdit,
     toDelete,
     setShouldRefresh
-  } = useCrud<SysDepartment>({
+  } = useCrud<SysDept>({
     pathname: '/system/org',
     entityName: '部门',
     baseUrl: '/api/system/dept'
@@ -39,7 +38,7 @@ const Index = (props: Props) => {
 
   const handleCreate = () => {
     updateState('/system/org', {
-      editData: {id: departmentId}
+      editData: { id: departmentId }
     });
     toCreate();
   }
@@ -64,14 +63,14 @@ const Index = (props: Props) => {
       })
   }
 
-  const onSelect = (keys: React.Key[], {selectedNodes}: any) => {
+  const onSelect = (keys: React.Key[], { selectedNodes }: any) => {
     setSelectedKeys(keys);
     if (keys && keys.length > 0) {
       setDepartmentId(keys[0] as number);
       updateState('/system/org', {
-        editData: {...selectedNodes[0]}
+        editData: { ...selectedNodes[0] }
       });
-      setDepartment({...selectedNodes[0]});
+      setDepartment({ ...selectedNodes[0] });
     }
   }
 
@@ -87,15 +86,15 @@ const Index = (props: Props) => {
             if (node) {
               setSelectedKeys([node.key]);
               setDepartmentId(node.key);
-              setDepartment({...node});
+              setDepartment({ ...node });
               resolve(undefined);
               return;
             }
           }
           if (res.data) {
-            setSelectedKeys(res.data[0].value);
-            setDepartmentId(res.data[0].value);
-            setDepartment({...res.data[0]});
+            setSelectedKeys([res.data[0].id as React.Key]);
+            setDepartmentId(res.data[0].id);
+            setDepartment({ ...res.data[0] });
           }
 
           resolve(undefined);
@@ -123,65 +122,66 @@ const Index = (props: Props) => {
     <>
       <ProPageContainer className={'pt-1'}>
         {contextHolder}
-        <Splitter style={{height: 640, boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)'}}>
+        <Splitter style={{ height: 640, boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)' }}>
           <Splitter.Panel defaultSize="24%" min="12%" max="40%"
-                          style={{
-                            backgroundColor: '#fff',
-                            display: 'flex',
-                            flexGrow: 1,
-                            flexDirection: 'column',
-                            height: '100%'
-                          }}>
+            style={{
+              backgroundColor: '#fff',
+              display: 'flex',
+              flexGrow: 1,
+              flexDirection: 'column',
+              height: '100%'
+            }}>
             <Tree.DirectoryTree selectedKeys={selectedKeys}
-                                expandedKeys={expandedKeys}
-                                defaultExpandAll={true}
-                                autoExpandParent={true}
-                                selectable
-                                showLine
-                                onExpand={(keys) => setExpandedKeys(keys)}
-                                treeData={deptTree}
-                                onSelect={onSelect}
-                                rootClassName={'overflow-y-auto flex-1 p-2'}
+              expandedKeys={expandedKeys}
+              defaultExpandAll={true}
+              autoExpandParent={true}
+              selectable
+              showLine
+              onExpand={(keys) => setExpandedKeys(keys)}
+              treeData={deptTree as any}
+              fieldNames={{ title: 'name', key: 'id', children: 'children' }}
+              onSelect={onSelect}
+              rootClassName={'overflow-y-auto flex-1 p-2'}
             />
             <Flex align={'center'} justify={'space-around'} rootClassName={'py-2 border-t bg-gray-100'}>
               <IconButton color={'primary'} variant={'solid'}
-                          shape={'circle'} icon={<PlusOutlined/>}
-                          disabled={state.dialogVisible}
-                          size={'middle'}
-                          onClick={handleCreate}
-                          tooltip={'新增'}/>
+                shape={'circle'} icon={<PlusOutlined />}
+                disabled={state.dialogVisible}
+                size={'middle'}
+                onClick={handleCreate}
+                tooltip={'新增'} />
               <IconButton color={'primary'} variant={'solid'}
-                          shape={'circle'} icon={<EditOutlined/>}
-                          size={'middle'}
-                          onClick={() => toEdit(department as SysDepartment)}
-                          disabled={state.dialogVisible || !departmentId}
-                          tooltip={'编辑'}/>
+                shape={'circle'} icon={<EditOutlined />}
+                size={'middle'}
+                onClick={() => toEdit(department as SysDept)}
+                disabled={state.dialogVisible || !departmentId}
+                tooltip={'编辑'} />
               <IconButton color={'primary'} variant={'solid'}
-                          shape={'circle'} icon={<Icon component={MoveTo}/>}
-                          size={'middle'}
-                          disabled={state.dialogVisible || !departmentId}
-                          onClick={handleMove}
-                          tooltip={'移动到...'}/>
+                shape={'circle'} icon={<Icon component={MoveTo} />}
+                size={'middle'}
+                disabled={state.dialogVisible || !departmentId}
+                onClick={handleMove}
+                tooltip={'移动到...'} />
               <IconButton color={'danger'} variant={'solid'}
-                          shape={'circle'} icon={<DeleteOutlined/>}
-                          size={'middle'}
-                          onClick={handleDelete}
-                          tooltip={'删除'}/>
+                shape={'circle'} icon={<DeleteOutlined />}
+                size={'middle'}
+                onClick={handleDelete}
+                tooltip={'删除'} />
             </Flex>
           </Splitter.Panel>
-          <Splitter.Panel style={{backgroundColor: '#fff'}}>
+          <Splitter.Panel style={{ backgroundColor: '#fff' }}>
             <Flex vertical justify={'center'} rootClassName={'h-full'}>
               {
-                state.dialogVisible && <DetailPanel/> ||
-                <DepartmentPanel department={department as SysDepartment}/>
+                state.dialogVisible && <DetailPanel /> ||
+                <DepartmentPanel department={department as SysDept} />
               }
             </Flex>
           </Splitter.Panel>
         </Splitter>
       </ProPageContainer>
       {department &&
-        <MoveDepartmentDialog department={department as SysDepartment} treeData={deptTree}
-                              open={moveVisible} onOpenChange={setMoveVisible}
+        <MoveDepartmentDialog department={department as any} treeData={deptTree as any}
+          open={moveVisible} onOpenChange={setMoveVisible}
         />
       }
     </>

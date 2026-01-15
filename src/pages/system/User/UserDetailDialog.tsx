@@ -55,14 +55,14 @@ const UserDetailDialog = (props: Props) => {
         findUserById(state.editData?.id)
           .then(res => {
             const userData = res.data;
-            // 如果后端返回的 UserDTO 包含 roles 属性
+            // 如果后端返回的 SysUser 包含 roles 属性
             if (userData?.roles) {
               setRoleList(userData.roles);
             }
             if (state.operation === OperationEnum.EDIT) {
               form.setFieldsValue({
                 ...userData,
-                postIds: userData?.roleIds,  // 使用 UserDTO 中的字段
+                postIds: userData?.roleIds,  // 使用 SysUser 中的字段
                 roleIds: userData?.roleIds
               });
             }

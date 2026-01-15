@@ -42,7 +42,7 @@ export {
 } from './role';
 
 // ============ 部门相关 ============
-export { type DepartmentDTO } from './dept';
+export { type SysDept } from './dept';
 export {
     findDeptById,
     findDeptListAll,
@@ -63,7 +63,7 @@ export {
 } from './dept';
 
 // ============ 岗位相关 ============
-export { type PostDTO } from './post';
+export { type SysPost } from './post';
 export {
     getPostOptions,
     findPostOptions,

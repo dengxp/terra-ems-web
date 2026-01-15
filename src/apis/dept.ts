@@ -5,7 +5,7 @@ const BASE_URL = '/api/system/dept';
 /**
  * 部门信息
  */
-export interface DepartmentDTO {
+export interface SysDept {
   id?: number;
   name: string;
   managerId?: number;
@@ -13,9 +13,9 @@ export interface DepartmentDTO {
   parentId?: number;
   parentName?: string;
   memberCount?: number;
-  status?: string;
+  status?: import("@/enums").DataItemStatus;
   description?: string;
-  children?: DepartmentDTO[];
+  children?: SysDept[];
   createdAt?: string;
   updatedAt?: string;
 }
@@ -24,7 +24,7 @@ export interface DepartmentDTO {
  * 获取部门树形结构
  */
 export async function getDeptTree() {
-  return request<API.Result<DepartmentDTO[]>>(`${BASE_URL}/tree`, {
+  return request<API.Result<SysDept[]>>(`${BASE_URL}/tree`, {
     method: 'GET',
   });
 }
@@ -33,7 +33,7 @@ export async function getDeptTree() {
  * 分页查询部门列表
  */
 export async function findDeptsByPage(params: API.PageParams) {
-  return request<API.Result<API.PageResult<DepartmentDTO>>>(`${BASE_URL}/page`, {
+  return request<API.Result<API.PageResult<SysDept>>>(`${BASE_URL}/page`, {
     method: 'GET',
     params,
   });
@@ -43,7 +43,7 @@ export async function findDeptsByPage(params: API.PageParams) {
  * 查询所有部门
  */
 export async function findDeptListAll() {
-  return request<API.Result<DepartmentDTO[]>>(BASE_URL, {
+  return request<API.Result<SysDept[]>>(BASE_URL, {
     method: 'GET',
   });
 }
@@ -52,7 +52,7 @@ export async function findDeptListAll() {
  * 根据ID查询部门详情
  */
 export async function findDeptById(deptId: number) {
-  return request<API.Result<DepartmentDTO>>(`${BASE_URL}/${deptId}`, {
+  return request<API.Result<SysDept>>(`${BASE_URL}/${deptId}`, {
     method: 'GET',
   });
 }
@@ -60,8 +60,8 @@ export async function findDeptById(deptId: number) {
 /**
  * 创建部门
  */
-export async function createDept(dept: Partial<DepartmentDTO>) {
-  return request<API.Result<DepartmentDTO>>(BASE_URL, {
+export async function createDept(dept: Partial<SysDept>) {
+  return request<API.Result<SysDept>>(BASE_URL, {
     method: 'POST',
     data: dept,
   });
@@ -70,8 +70,8 @@ export async function createDept(dept: Partial<DepartmentDTO>) {
 /**
  * 更新部门信息
  */
-export async function updateDept(deptId: number, dept: Partial<DepartmentDTO>) {
-  return request<API.Result<DepartmentDTO>>(`${BASE_URL}/${deptId}`, {
+export async function updateDept(deptId: number, dept: Partial<SysDept>) {
+  return request<API.Result<SysDept>>(`${BASE_URL}/${deptId}`, {
     method: 'PUT',
     data: dept,
   });
@@ -98,9 +98,10 @@ export async function getDeptOptions() {
 /**
  * 获取部门成员列表
  */
-export async function findMembers(deptId: number) {
-  return request<API.Result<any[]>>(`${BASE_URL}/${deptId}/members`, {
+export async function findMembers(deptId: number, params?: API.PageParams) {
+  return request<API.Result<API.PageResult<any>>>(`${BASE_URL}/${deptId}/members`, {
     method: 'GET',
+    params,
   });
 }
 

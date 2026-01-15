@@ -55,13 +55,13 @@ export async function getInitialState(): Promise<{
         skipErrorHandler: true,
         showType: 1,
       });
-      const user = result.data; // UserDTO
+      const user = result.data; // SysUser
       let avatar = user.avatar || generateAvatar();
 
       // 从 user.roles 提取角色代码
       const roles = user.roles?.map((role: { code?: string }) => role.code || '').filter(Boolean) || ['ROLE_DEFAULT'];
 
-      // 后端 UserDTO 暂未返回 permissions，从 user.roles 或特定字段尝试提取，或在此处根据开发需求 Mock
+      // 后端 SysUser 暂未返回 permissions，从 user.roles 或特定字段尝试提取，或在此处根据开发需求 Mock
       const permissions: string[] = user.permissions || [];
 
       // 开发环境下，如果是 admin 用户，注入超级管理员权限以便调试

@@ -5,12 +5,12 @@ const BASE_URL = '/api/system/post';
 /**
  * 岗位信息
  */
-export interface PostDTO {
+export interface SysPost {
   id?: number;
   code: string;
   name: string;
   ranking?: number;
-  status?: string;
+  status?: import("@/enums").DataItemStatus;
   remark?: string;
   createdAt?: string;
   updatedAt?: string;
@@ -20,7 +20,7 @@ export interface PostDTO {
  * 分页查询岗位列表
  */
 export async function findPostsByPage(params: API.PageParams) {
-  return request<API.Result<API.PageResult<PostDTO>>>(`${BASE_URL}/page`, {
+  return request<API.Result<API.PageResult<SysPost>>>(`${BASE_URL}/page`, {
     method: 'GET',
     params,
   });
@@ -30,7 +30,7 @@ export async function findPostsByPage(params: API.PageParams) {
  * 查询所有岗位
  */
 export async function findAllPosts() {
-  return request<API.Result<PostDTO[]>>(BASE_URL, {
+  return request<API.Result<SysPost[]>>(BASE_URL, {
     method: 'GET',
   });
 }
@@ -39,7 +39,7 @@ export async function findAllPosts() {
  * 根据ID查询岗位详情
  */
 export async function findPostById(postId: number) {
-  return request<API.Result<PostDTO>>(`${BASE_URL}/${postId}`, {
+  return request<API.Result<SysPost>>(`${BASE_URL}/${postId}`, {
     method: 'GET',
   });
 }
@@ -47,8 +47,8 @@ export async function findPostById(postId: number) {
 /**
  * 创建岗位
  */
-export async function createPost(post: Partial<PostDTO>) {
-  return request<API.Result<PostDTO>>(BASE_URL, {
+export async function createPost(post: Partial<SysPost>) {
+  return request<API.Result<SysPost>>(BASE_URL, {
     method: 'POST',
     data: post,
   });
@@ -57,8 +57,8 @@ export async function createPost(post: Partial<PostDTO>) {
 /**
  * 更新岗位信息
  */
-export async function updatePost(postId: number, post: Partial<PostDTO>) {
-  return request<API.Result<PostDTO>>(`${BASE_URL}/${postId}`, {
+export async function updatePost(postId: number, post: Partial<SysPost>) {
+  return request<API.Result<SysPost>>(`${BASE_URL}/${postId}`, {
     method: 'PUT',
     data: post,
   });

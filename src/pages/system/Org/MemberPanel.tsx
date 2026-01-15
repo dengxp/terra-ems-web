@@ -1,22 +1,21 @@
-import React, {useEffect, useState} from 'react';
-import {ProTable} from "@ant-design/pro-components";
+import React, { useEffect, useState } from 'react';
+import { ProTable } from "@ant-design/pro-components";
 import GenderIcon from "@/components/icons/GenderIcon";
-import {IconButton} from "@/components/button";
-import {Button, message, Space} from "antd";
+import { IconButton } from "@/components/button";
+import { Button, message, Space } from "antd";
 import useCrud from "@/hooks/common/useCrud";
-import {findMembers, removeMembers} from "@/apis";
-import {DeleteFilled, DeleteOutlined, PlusOutlined} from "@ant-design/icons";
+import { findMembers, removeMembers } from "@/apis";
+import { DeleteFilled, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import AddMemberDialog from "./AddMemberDialog";
-import {TableRowSelection} from "antd/es/table/interface";
+import { TableRowSelection } from "antd/es/table/interface";
 import ModalConfirm from "@/components/ModalConfirm";
-import {SysDepartment} from "@/types";
-import {wrapperResult} from "@/utils";
+import { wrapperResult } from "@/utils";
 
 type Props = {
   departmentId: number;
 }
 
-function MemberPanel({departmentId}: Props) {
+function MemberPanel({ departmentId }: Props) {
   const [params, setParams] = useState<Record<string, any>>({});
   const [addVisible, setAddVisible] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
@@ -25,7 +24,7 @@ function MemberPanel({departmentId}: Props) {
   const {
     formRef,
     actionRef,
-  } = useCrud<SysDepartment>({
+  } = useCrud<SysDept>({
     entityName: '部门',
     pathname: '/system/org',
     baseUrl: '/api/system/department'
@@ -46,7 +45,7 @@ function MemberPanel({departmentId}: Props) {
       title: '性别',
       dataIndex: 'gender',
       key: 'gender',
-      render: (value: any) => <GenderIcon value={value}/>
+      render: (value: any) => <GenderIcon value={value} />
     },
     {
       title: '手机号',
@@ -60,7 +59,7 @@ function MemberPanel({departmentId}: Props) {
       render: (_: any, row: any) => {
         return (
           <Space>
-            <IconButton icon={<DeleteFilled/>} tooltip={'移除'} onClick={() => handleRemove([row.id])}/>
+            <IconButton icon={<DeleteFilled />} tooltip={'移除'} onClick={() => handleRemove([row.id])} />
           </Space>
         )
       }
@@ -96,8 +95,8 @@ function MemberPanel({departmentId}: Props) {
       content: '是否从部门中移除选择的成员？',
       onOk() {
         removeMembers(departmentId, memberIds as number[])
-          .then(res => {
-            void message.success(res.message);
+          .then(() => {
+            void message.success('移除成功');
             actionRef.current?.reload();
             setSelectedRowKeys([]);
             setSelectedRows([]);
@@ -114,48 +113,48 @@ function MemberPanel({departmentId}: Props) {
     <>
       <div className={'text-[1.2em] font-bold mt-2 mx-2 pb-2 border-b'}>成员列表</div>
       <ProTable columns={columns}
-                className={'custom px-2'}
-                rowKey={'id'}
-                formRef={formRef}
-                actionRef={actionRef}
-                params={params}
-                form={{span: 4}}
-                cardProps={{bordered: false}}
-                search={false}
-                pagination={{pageSize: 10}}
-                rowSelection={rowSelection}
-                tableAlertRender={false}
-                tableAlertOptionRender={false}
-                scroll={{y: 400}}
-                toolbar={{
-                  title:
-                    <Space size={8}>
-                      <Button color={'primary'} variant={'outlined'}
-                              size={'small'}
-                              icon={<PlusOutlined/>}
-                              onClick={() => setAddVisible(true)}
-                      >增加成员</Button>
-                      <Button color={'danger'} variant={'outlined'} icon={<DeleteOutlined/>}
-                              size={'small'}
-                              disabled={!selectedRowKeys || selectedRowKeys.length === 0}
-                              onClick={() => handleRemove()}
-                      >移除成员</Button>
-                    </Space>,
-                  search: {
-                    allowClear: true,
-                    placeholder: '请输入关键字搜索...',
-                    size: 'small',
-                    style: {width: 320},
-                    onSearch: (value: string) => {
-                      setParams({...params, keyword: value});
-                    },
-                  },
-                }}
-                request={async (params) => {
-                  const {current, pageSize, ...rest} = params;
-                  const result = await findMembers(departmentId, {pageNumber: current, pageSize, ...rest});
-                  return wrapperResult(result);
-                }}
+        className={'custom px-2'}
+        rowKey={'id'}
+        formRef={formRef}
+        actionRef={actionRef}
+        params={params}
+        form={{ span: 4 }}
+        cardProps={{ bordered: false }}
+        search={false}
+        pagination={{ pageSize: 10 }}
+        rowSelection={rowSelection}
+        tableAlertRender={false}
+        tableAlertOptionRender={false}
+        scroll={{ y: 400 }}
+        toolbar={{
+          title:
+            <Space size={8}>
+              <Button color={'primary'} variant={'outlined'}
+                size={'small'}
+                icon={<PlusOutlined />}
+                onClick={() => setAddVisible(true)}
+              >增加成员</Button>
+              <Button color={'danger'} variant={'outlined'} icon={<DeleteOutlined />}
+                size={'small'}
+                disabled={!selectedRowKeys || selectedRowKeys.length === 0}
+                onClick={() => handleRemove()}
+              >移除成员</Button>
+            </Space>,
+          search: {
+            allowClear: true,
+            placeholder: '请输入关键字搜索...',
+            size: 'small',
+            style: { width: 320 },
+            onSearch: (value: string) => {
+              setParams({ ...params, keyword: value });
+            },
+          },
+        }}
+        request={async (params) => {
+          const { current, pageSize, ...rest } = params;
+          const result = await findMembers(departmentId, { pageNumber: current, pageSize, ...rest });
+          return wrapperResult(result);
+        }}
       />
       {/*<div className={'-mt-10'}>*/}
       {/*  <Space>*/}
@@ -170,8 +169,8 @@ function MemberPanel({departmentId}: Props) {
       {/*  </Space>*/}
       {/*</div>*/}
       <AddMemberDialog departmentId={departmentId} open={addVisible}
-                       onAddMembers={() => onAddMembers()}
-                       onOpenChange={(setAddVisible)}/>
+        onAddMembers={() => onAddMembers()}
+        onOpenChange={(setAddVisible)} />
     </>
   );
 }

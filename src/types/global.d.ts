@@ -19,6 +19,7 @@ declare namespace API {
         status?: number;
         timestamp?: string;
         traceId?: string;
+        success?: boolean;
     };
 
     /** 分页结果 */
@@ -134,7 +135,7 @@ declare type SysPermission = {
 /**
  * 部门
  */
-declare type SysDepartment = {
+declare type SysDept = {
     id?: number;
     name: string;
     managerId?: number;
@@ -143,7 +144,7 @@ declare type SysDepartment = {
     parentName?: string;
     memberCount?: number;
     status?: import("@/enums").DataItemStatus;
-    children?: SysDepartment[];
+    children?: SysDept[];
     description?: string;
 }
 

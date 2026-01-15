@@ -1,13 +1,12 @@
 import React from 'react';
 import MemberPanel from "./MemberPanel";
-import {ProDescriptions} from "@ant-design/pro-components";
-import {SysDepartment} from "@/types";
+import { ProDescriptions } from "@ant-design/pro-components";
 
 type Props = {
-  department?: SysDepartment
+  department?: SysDept
 }
 
-function DepartmentPanel({department}: Props) {
+function DepartmentPanel({ department }: Props) {
   return (
     <div className={'h-full'}>
       <ProDescriptions column={2} title={<div className={'pb-2 border-b'}>部门信息</div>} className={'px-2 py-4'}>
@@ -23,7 +22,7 @@ function DepartmentPanel({department}: Props) {
       <div className={'mt-4'}>
         {
           department?.id &&
-          <MemberPanel departmentId={department.id}/>
+          <MemberPanel departmentId={department.id} />
         }
       </div>
     </div>

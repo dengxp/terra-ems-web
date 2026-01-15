@@ -3,7 +3,7 @@ import { ProPageContainer } from '@/components/container';
 import { Card, Form, Select, DatePicker, Button, Row, Col, Statistic, Table, Space } from 'antd';
 import { SearchOutlined, ReloadOutlined } from '@ant-design/icons';
 import dayjs, { Dayjs } from 'dayjs';
-import { getCostDeviationAnalysis, CostDeviationDTO, ElectricityData, StatisticsData, ConsumptionDetail } from '@/apis/energyCostRecord';
+import { getCostDeviationAnalysis, CostDeviation, ElectricityData, StatisticsData, ConsumptionDetail } from '@/apis/energyCostRecord';
 import styles from './index.less';
 
 const timeTypeOptions = [
@@ -58,7 +58,7 @@ const PeakValleyCard: React.FC<{
 const DeviationAnalysisPage: React.FC = () => {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
-    const [data, setData] = useState<CostDeviationDTO>({});
+    const [data, setData] = useState<CostDeviation>({});
 
     const fetchData = async () => {
         const values = form.getFieldsValue();

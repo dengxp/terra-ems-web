@@ -4,7 +4,7 @@ import { Card, Form, Select, DatePicker, Button, Row, Col, Space } from 'antd';
 import { SearchOutlined, ReloadOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { Line, Column } from '@ant-design/plots';
-import { getCostTrendAnalysis, CostTrendDTO, TrendChartData } from '@/apis/energyCostRecord';
+import { getCostTrendAnalysis, CostTrend, TrendChartData } from '@/apis/energyCostRecord';
 
 const timeTypeOptions = [
     { label: '日', value: 'DAY' },
@@ -15,7 +15,7 @@ const timeTypeOptions = [
 const TrendAnalysisPage: React.FC = () => {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
-    const [data, setData] = useState<CostTrendDTO>({});
+    const [data, setData] = useState<CostTrend>({});
 
     const fetchData = async () => {
         const values = form.getFieldsValue();
