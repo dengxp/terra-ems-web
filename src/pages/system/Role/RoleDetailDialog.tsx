@@ -21,7 +21,7 @@ const RoleDetailDialog = (props: Props) => {
     handleCreate,
     handleUpdate,
     getState
-  } = useCrud<RoleDTO>({
+  } = useCrud<SysRole>({
     pathname: '/system/role',
     entityName: '角色',
     baseUrl: '/api/system/role',

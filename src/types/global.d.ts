@@ -78,13 +78,13 @@ declare type CurrentUser = {
 }
 
 // ============================================================================
-// 系统管理 DTO
+// 系统管理实体
 // ============================================================================
 
 /**
- * 用户DTO - 与后端 UserDTO 对应
+ * 系统用户 - 与后端 SysUser 对应
  */
-declare type UserDTO = {
+declare type SysUser = {
     id?: number;
     username?: string;
     nickname?: string;
@@ -95,18 +95,18 @@ declare type UserDTO = {
     employeeNo?: string;
     status?: import("@/enums").DataItemStatus;
     lastLoginAt?: string;
-    departmentId?: number;
-    departmentName?: string;
+    deptId?: number;
+    dept?: SysDept;
     roleIds?: number[];
-    roles?: RoleDTO[];
+    roles?: SysRole[];
     createdAt?: string;
     updatedAt?: string;
 }
 
 /**
- * 角色DTO - 与后端 RoleDTO 对应
+ * 系统角色 - 与后端 SysRole 对应
  */
-declare type RoleDTO = {
+declare type SysRole = {
     id?: number;
     name?: string;
     code?: string;
@@ -114,15 +114,15 @@ declare type RoleDTO = {
     permissionCount?: number;
     memberCount?: number;
     permissionIds?: number[];
-    permissions?: PermissionDTO[];
+    permissions?: SysPermission[];
     createdAt?: string;
     updatedAt?: string;
 }
 
 /**
- * 权限DTO - 与后端 PermissionDTO 对应
+ * 系统权限 - 与后端 SysPermission 对应
  */
-declare type PermissionDTO = {
+declare type SysPermission = {
     id?: number;
     name?: string;
     code?: string;

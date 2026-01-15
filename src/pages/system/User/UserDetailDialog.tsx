@@ -31,7 +31,7 @@ const UserDetailDialog = (props: Props) => {
     handleCreate,
     handleUpdate,
     getState
-  } = useCrud<UserDTO>({
+  } = useCrud<SysUser>({
     pathname: '/system/user',
     entityName: '用户',
     baseUrl: '/api/system/user',

@@ -1,6 +1,6 @@
-import React, {useEffect, useMemo, useState} from 'react';
-import {ProPageContainer} from "@/components/container";
-import {Button, Dropdown, MenuProps, message, Space, Switch} from "antd";
+import React, { useEffect, useMemo, useState } from 'react';
+import { ProPageContainer } from "@/components/container";
+import { Button, Dropdown, MenuProps, message, Space, Switch } from "antd";
 import Icon, {
   DeleteOutlined,
   EditOutlined,
@@ -9,13 +9,13 @@ import Icon, {
   PlusOutlined,
   UploadOutlined
 } from "@ant-design/icons";
-import {ProColumns, ProTable} from "@ant-design/pro-components";
-import {useDict} from "@/hooks/common/useDict";
+import { ProColumns, ProTable } from "@ant-design/pro-components";
+import { useDict } from "@/hooks/common/useDict";
 import ModalConfirm from "@/components/ModalConfirm";
-import {changeUserStatus} from "@/apis";
+import { changeUserStatus } from "@/apis";
 import useCrud from "@/hooks/common/useCrud";
-import {DeleteButton, EditButton} from "@/components/button";
-import {useAccess} from "@@/exports";
+import { DeleteButton, EditButton } from "@/components/button";
+import { useAccess } from "@@/exports";
 import RoleDetailDialog from "@/pages/system/Role/RoleDetailDialog";
 
 const Index = () => {
@@ -35,13 +35,13 @@ const Index = () => {
     setDialogVisible,
     setShouldRefresh,
     updateState
-  } = useCrud<Role>({
+  } = useCrud<SysRole>({
     entityName: '角色',
     pathname: '/system/role',
     baseUrl: '/api/system/role'
   });
 
-  const {hasPermission} = useAccess();
+  const { hasPermission } = useAccess();
   const dictMap = useDict('sys_normal_disable');
   const state = getState('/system/role');
 
@@ -101,7 +101,7 @@ const Index = () => {
       },
       render: (_, record) => {
         const value = record.status === '0';
-        return <Switch size={'small'} value={value} onChange={() => onStatusChange(record)}/>
+        return <Switch size={'small'} value={value} onChange={() => onStatusChange(record)} />
       }
     },
     {
@@ -186,85 +186,85 @@ const Index = () => {
     <>
       <ProPageContainer className={'pt-1'}>
         <ProTable columns={columns}
-                  rowKey={'roleId'}
-                  formRef={formRef}
-                  actionRef={actionRef}
-                  params={params}
-                  tableAlertRender={false}
-                  tableAlertOptionRender={false}
-                  rowSelection={{
-                    selectedRowKeys,
-                    onChange: (selectedRowKeys, selectedRows) => {
-                      setSelectedRowKeys(selectedRowKeys);
-                      setSelectedRows(selectedRows);
-                    }
-                  }}
-                  form={{span: 6}}
-                  cardProps={{bordered: false}}
-                  search={{
-                    collapseRender: false, // 完全移除折叠按钮
-                    defaultCollapsed: false // 默认不折叠
-                  }}
-                  loading={{spinning: state.loading, tip}}
-                  toolbar={{
-                    title:
-                      <Space>
-                        {
-                          hasPermission('system:role:add') &&
-                          <Button color={'primary'}
-                                  icon={<PlusOutlined/>}
-                                  variant={'outlined'}
-                                  size={'small'}
-                                  onClick={toCreate}
-                          >新建</Button>
-                        }
-                        {
-                          hasPermission('system:user:edit') &&
-                          <Button color={"green"}
-                                  icon={<EditOutlined/>}
-                                  disabled={editDisabled}
-                                  size={'small'}
-                                  variant={'outlined'}
-                                  onClick={toEditSelected}
-                          >修改</Button>
-                        }
-                        {
-                          hasPermission('system:user:remove') &&
-                          <Button color={"danger"}
-                                  icon={<DeleteOutlined/>}
-                            // disabled={deleteDisabled}
-                                  size={'small'}
-                                  variant={'outlined'}
-                            // onClick={toDeleteBatch}
-                          >删除</Button>
-                        }
-                        {
-                          hasPermission('system:user:export') &&
-                          <Button color={"orange"}
-                                  icon={<ExportOutlined/>}
-                                  size={'small'}
-                                  variant={'outlined'}
-                            // onClick={toExportUser}
-                          >导出</Button>
-                        }
+          rowKey={'roleId'}
+          formRef={formRef}
+          actionRef={actionRef}
+          params={params}
+          tableAlertRender={false}
+          tableAlertOptionRender={false}
+          rowSelection={{
+            selectedRowKeys,
+            onChange: (selectedRowKeys, selectedRows) => {
+              setSelectedRowKeys(selectedRowKeys);
+              setSelectedRows(selectedRows);
+            }
+          }}
+          form={{ span: 6 }}
+          cardProps={{ bordered: false }}
+          search={{
+            collapseRender: false, // 完全移除折叠按钮
+            defaultCollapsed: false // 默认不折叠
+          }}
+          loading={{ spinning: state.loading, tip }}
+          toolbar={{
+            title:
+              <Space>
+                {
+                  hasPermission('system:role:add') &&
+                  <Button color={'primary'}
+                    icon={<PlusOutlined />}
+                    variant={'outlined'}
+                    size={'small'}
+                    onClick={toCreate}
+                  >新建</Button>
+                }
+                {
+                  hasPermission('system:user:edit') &&
+                  <Button color={"green"}
+                    icon={<EditOutlined />}
+                    disabled={editDisabled}
+                    size={'small'}
+                    variant={'outlined'}
+                    onClick={toEditSelected}
+                  >修改</Button>
+                }
+                {
+                  hasPermission('system:user:remove') &&
+                  <Button color={"danger"}
+                    icon={<DeleteOutlined />}
+                    // disabled={deleteDisabled}
+                    size={'small'}
+                    variant={'outlined'}
+                  // onClick={toDeleteBatch}
+                  >删除</Button>
+                }
+                {
+                  hasPermission('system:user:export') &&
+                  <Button color={"orange"}
+                    icon={<ExportOutlined />}
+                    size={'small'}
+                    variant={'outlined'}
+                  // onClick={toExportUser}
+                  >导出</Button>
+                }
 
-                      </Space>
-                  }}
-                  request={
-                    async (params = {}) => {
-                      const {createTimeRange, ...rest} = params;
-                      if (createTimeRange) {
-                        const [beginTime, endTime] = createTimeRange;
-                        params = {...rest, params: {beginTime, endTime}};
-                      }
-                      const result = await search(params);
-                      console.log("result: ", result);
-                      return result;
-                    }
-                  }
+              </Space>
+          }}
+          request={
+            async (params = {}) => {
+              const { createTimeRange, ...rest } = params;
+              if (createTimeRange) {
+                const [beginTime, endTime] = createTimeRange;
+                params = { ...rest, params: { beginTime, endTime } };
+              }
+              const result = await search(params);
+              console.log("result: ", result);
+              return result;
+            }
+          }
         />
       </ProPageContainer>
-      <RoleDetailDialog title={state?.dialogTitle} open={state?.dialogVisible} onOpenChange={setDialogVisible}/>
+      <RoleDetailDialog title={state?.dialogTitle} open={state?.dialogVisible} onOpenChange={setDialogVisible} />
     </>
   )
 }
