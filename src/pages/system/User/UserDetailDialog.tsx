@@ -6,8 +6,7 @@ import { ProFormSelect, ProFormText, ProFormTextArea } from "@ant-design/pro-com
 import ProFormDictRadioGroup from "@/components/radio/ProFormDictRadioGroup";
 import { OperationEnum } from "@/enums";
 import ProFormDeptSelect from "@/components/select/ProFormDeptSelect";
-import { findUserById, getPostListAll, getRoleListAll } from "@/apis";
-import { SysUser } from "@/types";
+import { findUserById } from "@/apis";
 import { findPostOptions } from "@/apis/post";
 
 type Props = ProModalFormProps;
@@ -29,10 +28,10 @@ const UserDetailDialog = (props: Props) => {
 
   const {
     form,
-    handleSave,
+    handleCreate,
     handleUpdate,
     getState
-  } = useCrud<SysUser>({
+  } = useCrud<UserDTO>({
     pathname: '/system/user',
     entityName: '用户',
     baseUrl: '/api/system/user',
@@ -46,7 +45,7 @@ const UserDetailDialog = (props: Props) => {
       const data = { ...state.editData, ...values };
       await handleUpdate(data);
     } else {
-      await handleSave(values);
+      await handleCreate(values);
     }
   }
 
@@ -55,7 +54,7 @@ const UserDetailDialog = (props: Props) => {
       if (state.operation === OperationEnum.EDIT) {
         findUserById(state.editData?.id)
           .then(res => {
-            debugger;
+            // debugger;
             setPostList(res.posts);
             setRoleList(res.roles);
             if (state.operation === OperationEnum.EDIT) {

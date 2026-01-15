@@ -1,12 +1,11 @@
-import {OperationEnum} from "@/enums";
-import {history, useModel} from "@umijs/max";
-import {useCallback, useEffect, useRef} from "react";
-import {request} from "@@/exports";
-import {Form, message} from "antd";
-import {ActionType, ProFormInstance} from "@ant-design/pro-components";
+import { OperationEnum } from "@/enums";
+import { history, useModel } from "@umijs/max";
+import { useCallback, useEffect, useRef } from "react";
+import { request } from "@@/exports";
+import { Form, message } from "antd";
+import { ActionType, ProFormInstance } from "@ant-design/pro-components";
 import ModalConfirm from "@/components/ModalConfirm";
-import {wrapperResult} from '@/utils';
-import {Entity, Page, Result} from "@/types";
+import { wrapperResult } from '@/utils';
 
 type Props = {
   entityName?: string;
@@ -15,21 +14,40 @@ type Props = {
   onOpenChange?: (visible: boolean) => void;
 }
 
-export default function useCrud<T extends Entity>({entityName, pathname, baseUrl, onOpenChange}: Props) {
-  const {getState, initState, updateState} = useModel('crudModel');
-  // const state = getState(pathname);
+/**
+ * 通用 CRUD Hook
+ * 
+ * 提供标准的增删改查操作和 UI 状态管理
+ * 
+ * API 端点约定：
+ * - GET    baseUrl          → 分页查询
+ * - GET    baseUrl/search   → 复杂搜索
+ * - POST   baseUrl          → 简单新增/更新 (saveOrUpdate)
+ * - POST   baseUrl/create   → 复杂新增 (create)
+ * - PUT    baseUrl          → 复杂更新 (update)
+ * - DELETE baseUrl/{id}     → 删除
+ */
+export default function useCrud<T extends Entity>({ entityName, pathname, baseUrl, onOpenChange }: Props) {
+  const { getState, initState, updateState } = useModel('crudModel');
 
   const [form] = Form.useForm();
   const formRef = useRef<ProFormInstance>();
   const actionRef = useRef<ActionType | undefined>();
 
-  // 👇 这里就初始化好对应 pathname 的状态
+  // 初始化对应 pathname 的状态
   useEffect(() => {
     initState(pathname);
   }, [pathname, initState]);
 
+  // ============================================================================
+  // 纯 API 调用方法 (第 4 层)
+  // ============================================================================
+
+  /**
+   * 分页查询
+   */
   const findByPage = useCallback(async (params: Record<string, any>) => {
-    return request<Result<Page<T>>>(
+    return request<API.Result<API.PageResult<T>>>(
       baseUrl,
       {
         method: 'GET',
@@ -38,8 +56,11 @@ export default function useCrud<T extends Entity>({entityName, pathname, baseUrl
     )
   }, [baseUrl]);
 
+  /**
+   * 复杂搜索 (带条件)
+   */
   const searchByParams = useCallback(async (params: Record<string, any>) => {
-    return request<Result<Page<T>>>(
+    return request<API.Result<API.PageResult<T>>>(
       baseUrl + '/search',
       {
         method: 'GET',
@@ -48,8 +69,11 @@ export default function useCrud<T extends Entity>({entityName, pathname, baseUrl
     )
   }, [baseUrl]);
 
+  /**
+   * 简单新增或更新 (后端根据 id 判断)
+   */
   const saveOrUpdate = useCallback(async (data: any) => {
-    return request<Result<T>>(
+    return request<API.Result<T>>(
       baseUrl,
       {
         method: 'POST',
@@ -58,9 +82,12 @@ export default function useCrud<T extends Entity>({entityName, pathname, baseUrl
     )
   }, [baseUrl]);
 
-  const save = useCallback(async (data: Record<string, any>) => {
-    return request<Result<T>>(
-      baseUrl,
+  /**
+   * 复杂新增 (有特殊业务逻辑)
+   */
+  const create = useCallback(async (data: Record<string, any>) => {
+    return request<API.Result<T>>(
+      baseUrl + '/create',
       {
         method: 'POST',
         data
@@ -68,8 +95,11 @@ export default function useCrud<T extends Entity>({entityName, pathname, baseUrl
     )
   }, [baseUrl]);
 
+  /**
+   * 复杂更新 (有特殊业务逻辑)
+   */
   const update = useCallback(async (data: Record<string, any>) => {
-    return request<Result<T>>(
+    return request<API.Result<T>>(
       baseUrl,
       {
         method: 'PUT',
@@ -78,123 +108,163 @@ export default function useCrud<T extends Entity>({entityName, pathname, baseUrl
     )
   }, [baseUrl]);
 
+  /**
+   * 根据 ID 删除
+   */
   const deleteById = useCallback(async (id: any) => {
-    return request(
+    return request<API.Result<void>>(
       baseUrl + '/' + id,
       {
         method: 'DELETE'
       })
   }, [baseUrl]);
 
+  // ============================================================================
+  // 封装方法 (供 ProTable 使用)
+  // ============================================================================
+
+  /**
+   * 分页查询 (适配 ProTable request)
+   */
   const fetchPage = useCallback(async (params: Record<string, any>) => {
-    const {current, pageSize, ...rest} = params;
+    const { current, pageSize, ...rest } = params;
     const result = await findByPage({
       pageNumber: current,
       pageSize,
       ...rest
     });
     return wrapperResult(result);
-
   }, [findByPage]);
 
+  /**
+   * 搜索 (适配 ProTable request)
+   */
   const search = useCallback(async (params: Record<string, any>) => {
-    const {current, pageSize, ...rest} = params;
+    const { current, pageSize, ...rest } = params;
     const result = await searchByParams({
       pageNumber: current,
       pageSize,
       ...rest
     });
     return wrapperResult(result);
-
   }, [searchByParams]);
 
+  // ============================================================================
+  // 带 UI 交互的操作方法 (第 1 层)
+  // ============================================================================
+
+  /**
+   * 处理简单保存/更新 (带 loading、message、刷新)
+   */
   const handleSaveOrUpdate = useCallback(async (values: Record<string, any>) => {
     return new Promise<void>(async (resolve, reject) => {
       try {
-        updateState(pathname, {loading: true});
+        updateState(pathname, { loading: true });
         const result = await saveOrUpdate(values);
         void message.success(result.message || '保存成功');
         updateState(pathname, { loading: false, shouldRefresh: true });
         onOpenChange?.(false);
         resolve();
       } catch (error: any) {
-        updateState(pathname, {loading: false});
+        updateState(pathname, { loading: false });
         console.error(error);
         reject(error);
       }
     });
   }, [saveOrUpdate, pathname, updateState, onOpenChange]);
 
-  const handleSave = useCallback(async (values: Record<string, any>) => {
+  /**
+   * 处理复杂新增 (带 loading、message、刷新)
+   */
+  const handleCreate = useCallback(async (values: Record<string, any>) => {
     return new Promise<void>(async (resolve, reject) => {
       try {
-        updateState(pathname, {loading: true});
-        const result = await save(values);
-        void message.success(result.message || '保存成功');
+        updateState(pathname, { loading: true });
+        const result = await create(values);
+        void message.success(result.message || '创建成功');
         updateState(pathname, { loading: false, shouldRefresh: true });
         onOpenChange?.(false);
         resolve();
       } catch (error: any) {
-        updateState(pathname, {loading: false});
+        updateState(pathname, { loading: false });
         console.error(error);
         reject(error);
       }
     });
-  }, [saveOrUpdate, pathname, updateState, onOpenChange]);
+  }, [create, pathname, updateState, onOpenChange]);
 
+  /**
+   * 处理复杂更新 (带 loading、message、刷新)
+   */
   const handleUpdate = useCallback(async (values: Record<string, any>) => {
     return new Promise<void>(async (resolve, reject) => {
       try {
-        updateState(pathname, {loading: true});
+        updateState(pathname, { loading: true });
         const result = await update(values);
-        void message.success(result.message || '保存成功');
+        void message.success(result.message || '更新成功');
         updateState(pathname, { loading: false, shouldRefresh: true });
         onOpenChange?.(false);
         resolve();
       } catch (error: any) {
-        updateState(pathname, {loading: false});
+        updateState(pathname, { loading: false });
         console.error(error);
         reject(error);
       }
     });
-  }, [saveOrUpdate, pathname, updateState, onOpenChange]);
+  }, [update, pathname, updateState, onOpenChange]);
 
+  // ============================================================================
+  // UI 状态变化方法 (第 2 层)
+  // ============================================================================
+
+  /**
+   * 打开新建对话框
+   */
   const toCreate = useCallback(() => {
     updateState(pathname, {
       operation: OperationEnum.CREATE,
       dialogTitle: '新建' + entityName,
-      dialogVisible: true
+      dialogVisible: true,
+      editData: null
     })
   }, [entityName, pathname, updateState]);
 
+  /**
+   * 打开编辑对话框
+   */
   const toEdit = useCallback((editData?: T) => {
     updateState(pathname, {
       operation: OperationEnum.EDIT,
       dialogTitle: '编辑' + entityName,
-      dialogVisible: true
+      dialogVisible: true,
+      editData: editData ? { ...editData } : null
     });
-    if(editData) {
-      updateState(pathname, {
-        editData: {...editData}
-      });
-    }
   }, [entityName, pathname, updateState]);
 
-  const toPage = useCallback((editData: T, pathname: string) => {
-    updateState(pathname, {
+  /**
+   * 跳转到详情页面
+   */
+  const toPage = useCallback((editData: T, targetPath: string) => {
+    updateState(targetPath, {
       operation: OperationEnum.EDIT,
-      editData: {...editData}
+      editData: { ...editData }
     });
-    history.push(pathname);
-  }, [pathname, updateState]);
-
-  const toDialog = useCallback((editData: T) => {
-    updateState(pathname, {
-      editData: {...editData}
-    });
-    onOpenChange?.(true);
+    history.push(targetPath);
   }, [updateState]);
 
+  /**
+   * 打开对话框（通用）
+   */
+  const toDialog = useCallback((editData: T) => {
+    updateState(pathname, {
+      editData: { ...editData }
+    });
+    onOpenChange?.(true);
+  }, [pathname, updateState, onOpenChange]);
+
+  /**
+   * 删除确认
+   */
   const toDelete = useCallback((id: any, refresh: boolean = false) => {
     return new Promise<void>((resolve, reject) => {
       ModalConfirm({
@@ -205,68 +275,75 @@ export default function useCrud<T extends Entity>({entityName, pathname, baseUrl
             const result = await deleteById(id);
             message.success(result.message || '删除成功');
             if (refresh) {
-              updateState(pathname, {
-                shouldRefresh: true
-              });
+              updateState(pathname, { shouldRefresh: true });
             }
-            resolve(); // 成功时 resolve
+            resolve();
           } catch (error: any) {
             console.error(error.message);
-            reject(error); // 失败时 reject
+            reject(error);
           }
         },
         onCancel() {
-          // reject(new Error('取消删除')); // 如果用户取消删除，reject 一个错误
+          // 用户取消，不做处理
         }
       });
     });
-  }, [updateState, entityName, deleteById]);
+  }, [pathname, updateState, entityName, deleteById]);
+
+  // ============================================================================
+  // 状态设置方法 (第 3 层)
+  // ============================================================================
 
   const setDialogVisible = useCallback((visible: boolean) => {
-    updateState(pathname, {
-      dialogVisible: visible
-    })
-  }, [updateState]);
+    updateState(pathname, { dialogVisible: visible })
+  }, [pathname, updateState]);
 
   const setLoading = useCallback((loading: boolean) => {
-    updateState(pathname, {
-      loading: loading
-    })
-  }, [updateState]);
+    updateState(pathname, { loading })
+  }, [pathname, updateState]);
 
   const setDialogTitle = useCallback((title: string) => {
-    updateState(pathname, {
-      dialogTitle: title
-    });
-  }, [updateState]);
+    updateState(pathname, { dialogTitle: title });
+  }, [pathname, updateState]);
 
   const setShouldRefresh = useCallback((shouldRefresh: boolean) => {
-    updateState(pathname, {
-      shouldRefresh: shouldRefresh
-    });
-  }, [updateState]);
+    updateState(pathname, { shouldRefresh });
+  }, [pathname, updateState]);
+
+  const setEditData = useCallback((editData: T | null) => {
+    updateState(pathname, { editData });
+  }, [pathname, updateState]);
 
   return {
+    // 分页/搜索
     fetchPage,
     search,
+    // 带 UI 交互的操作
     handleSaveOrUpdate,
-    handleSave,
+    handleCreate,
     handleUpdate,
+    // 纯 API 调用
     saveOrUpdate,
-    save,
+    create,
     update,
+    deleteById,
+    // UI 状态变化
     toCreate,
     toEdit,
     toDialog,
     toDelete,
     toPage,
+    // 状态设置
     setDialogVisible,
     setLoading,
     setDialogTitle,
     setShouldRefresh,
+    setEditData,
+    // 表单/表格引用
     form,
     formRef,
     actionRef,
+    // 状态获取/更新
     getState,
     updateState
   }
