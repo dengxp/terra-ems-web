@@ -39,8 +39,8 @@ export async function getCostPolicyBindingPage(params: CostPolicyBindingPagePara
     return request<API.Result<API.PageResult<CostPolicyBinding>>>('/api/ems/cost-policy-bindings', {
         method: 'GET',
         params: {
-            page: (params.current || 1) - 1,
-            size: params.pageSize || 10,
+            pageNumber: (params.current || 1) - 1,
+            pageSize: params.pageSize || 10,
             energyUnitId: params.energyUnitId,
             pricePolicyId: params.pricePolicyId,
             status: params.status,

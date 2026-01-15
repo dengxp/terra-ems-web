@@ -71,8 +71,8 @@ export function useTableData<T, P = API.PageParams>(options: UseTableDataOptions
             try {
                 const mergedParams = {
                     ...searchParams,
-                    page: page - 1, // 后端分页从 0 开始
-                    size,
+                    pageNumber: page - 1, // 后端分页从 0 开始
+                    pageSize: size,
                 } as P;
 
                 const response = await fetchData(mergedParams);

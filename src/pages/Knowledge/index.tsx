@@ -251,13 +251,13 @@ const Index: React.FC = () => {
                         if (searchKeyword) {
                             res = await searchKnowledgeArticles({
                                 keyword: searchKeyword,
-                                page: (current || 1) - 1,
-                                size: pageSize,
+                                pageNumber: (current || 1) - 1,
+                                pageSize: pageSize,
                             });
                         } else {
                             res = await getKnowledgeArticles({
-                                page: (current || 1) - 1,
-                                size: pageSize,
+                                pageNumber: (current || 1) - 1,
+                                pageSize: pageSize,
                             });
                         }
                         return {

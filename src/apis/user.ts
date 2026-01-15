@@ -6,7 +6,7 @@ const BASE_URL = '/api/system/user';
  * 分页查询用户列表
  */
 export async function findByPage(params: API.PageParams) {
-  return request<API.Result<API.PageResult<UserDTO>>>(`${BASE_URL}/page`, {
+  return request<API.Result<API.PageResult<SysUser>>>(`${BASE_URL}/page`, {
     method: 'GET',
     params,
   });
@@ -16,7 +16,7 @@ export async function findByPage(params: API.PageParams) {
  * 根据ID查询用户详情
  */
 export async function findUserById(userId: number | string) {
-  return request<API.Result<UserDTO>>(`${BASE_URL}/${userId}`, {
+  return request<API.Result<SysUser>>(`${BASE_URL}/${userId}`, {
     method: 'GET',
   });
 }
@@ -24,10 +24,10 @@ export async function findUserById(userId: number | string) {
 /**
  * 获取当前登录用户信息
  */
-export async function fetchCurrentUser(options?: { skipErrorHandler?: boolean }) {
-  return request<API.Result<UserDTO>>(`${BASE_URL}/current-user`, {
+export async function fetchCurrentUser(options?: { [key: string]: any }) {
+  return request<API.Result<SysUser>>(`${BASE_URL}/current-user`, {
     method: 'GET',
-    ...options,
+    ...(options || {}),
   });
 }
 
@@ -35,7 +35,7 @@ export async function fetchCurrentUser(options?: { skipErrorHandler?: boolean })
  * 根据用户名查询用户
  */
 export async function findByUsername(username: string) {
-  return request<API.Result<UserDTO>>(`${BASE_URL}/username/${username}`, {
+  return request<API.Result<SysUser>>(`${BASE_URL}/username/${username}`, {
     method: 'GET',
   });
 }
@@ -43,8 +43,8 @@ export async function findByUsername(username: string) {
 /**
  * 创建用户
  */
-export async function createUser(user: Partial<UserDTO>) {
-  return request<API.Result<UserDTO>>(BASE_URL, {
+export async function createUser(user: Partial<SysUser>) {
+  return request<API.Result<SysUser>>(BASE_URL, {
     method: 'POST',
     data: user,
   });
@@ -53,8 +53,8 @@ export async function createUser(user: Partial<UserDTO>) {
 /**
  * 更新用户信息
  */
-export async function updateUser(userId: number, user: Partial<UserDTO>) {
-  return request<API.Result<UserDTO>>(`${BASE_URL}/${userId}`, {
+export async function updateUser(userId: number, user: Partial<SysUser>) {
+  return request<API.Result<SysUser>>(`${BASE_URL}/${userId}`, {
     method: 'PUT',
     data: user,
   });
@@ -163,7 +163,7 @@ export async function findOptionsForDepartmentManager(departmentId?: number, key
  * 查询没有部门的用户
  */
 export async function findUsersWithoutDepartment(params?: Record<string, any>) {
-  return request<API.Result<API.PageResult<UserDTO>>>(`${BASE_URL}/no-department`, {
+  return request<API.Result<API.PageResult<SysUser>>>(`${BASE_URL}/no-department`, {
     method: 'GET',
     params,
   });

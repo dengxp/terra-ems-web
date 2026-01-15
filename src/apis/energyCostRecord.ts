@@ -58,8 +58,8 @@ export async function getEnergyCostRecordPage(params: EnergyCostRecordPageParams
     return request<API.Result<API.PageResult<EnergyCostRecord>>>('/api/ems/energy-cost-records', {
         method: 'GET',
         params: {
-            page: (params.current || 1) - 1,
-            size: params.pageSize || 10,
+            pageNumber: (params.current || 1) - 1,
+            pageSize: params.pageSize || 10,
             energyUnitId: params.energyUnitId,
             energyTypeId: params.energyTypeId,
             periodType: params.periodType,

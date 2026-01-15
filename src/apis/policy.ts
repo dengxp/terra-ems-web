@@ -45,8 +45,8 @@ export async function getPolicyPage(params: PolicyPageParams) {
     return request<API.Result<API.PageResult<Policy>>>('/api/ems/policies/search', {
         method: 'GET',
         params: {
-            page: (params.current || 1) - 1,
-            size: params.pageSize || 10,
+            pageNumber: (params.current || 1) - 1,
+            pageSize: params.pageSize || 10,
             title: params.title,
             type: params.type,
             status: params.status,

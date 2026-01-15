@@ -45,7 +45,7 @@ const MeterPointForm: React.FC<MeterPointFormProps> = ({
 
     useEffect(() => {
         // 加载计量器具选项
-        getMeters({ page: 0, size: 1000 }).then((res) => {
+        getMeters({ pageNumber: 0, pageSize: 1000 }).then((res) => {
             if (res.success && res.data?.content) {
                 setMeterOptions(
                     res.data.content.map((item: Meter) => ({

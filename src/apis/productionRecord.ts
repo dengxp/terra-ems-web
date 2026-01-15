@@ -83,8 +83,8 @@ export async function getProductionRecords(params: {
     dataType?: string;
     startDate: string;
     endDate: string;
-    page?: number;
-    size?: number;
+    pageNumber?: number;
+    pageSize?: number;
 }) {
     return request<API.Result<API.PageResult<ProductionRecord>>>('/api/ems/production-records/search', {
         method: 'GET',

@@ -45,8 +45,8 @@ export async function getProjectPage(params: ProjectPageParams) {
     return request<API.Result<API.PageResult<EnergySavingProject>>>('/api/ems/saving-projects/search', {
         method: 'GET',
         params: {
-            page: (params.current || 1) - 1,
-            size: params.pageSize || 10,
+            pageNumber: (params.current || 1) - 1,
+            pageSize: params.pageSize || 10,
             name: params.name,
             status: params.status,
         },

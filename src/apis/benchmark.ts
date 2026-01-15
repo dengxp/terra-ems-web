@@ -51,8 +51,8 @@ export async function getBenchmarkPage(params: BenchmarkPageParams) {
     return request<API.Result<API.PageResult<Benchmark>>>('/api/ems/benchmarks', {
         method: 'GET',
         params: {
-            page: (params.current || 1) - 1,
-            size: params.pageSize || 10,
+            pageNumber: (params.current || 1) - 1,
+            pageSize: params.pageSize || 10,
             name: params.name,
             type: params.type,
             status: params.status,

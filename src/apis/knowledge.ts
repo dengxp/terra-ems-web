@@ -76,8 +76,8 @@ export async function getKnowledgeArticle(id: number) {
  */
 export async function getKnowledgeArticles(params: {
     energyTypeId?: number;
-    page?: number;
-    size?: number;
+    pageNumber?: number;
+    pageSize?: number;
 }) {
     return request<API.Result<API.PageResult<KnowledgeArticle>>>('/api/ems/knowledge', {
         method: 'GET',
@@ -90,8 +90,8 @@ export async function getKnowledgeArticles(params: {
  */
 export async function searchKnowledgeArticles(params: {
     keyword: string;
-    page?: number;
-    size?: number;
+    pageNumber?: number;
+    pageSize?: number;
 }) {
     return request<API.Result<API.PageResult<KnowledgeArticle>>>('/api/ems/knowledge/search', {
         method: 'GET',

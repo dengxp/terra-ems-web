@@ -249,8 +249,8 @@ const Index: React.FC = () => {
                         const { current, pageSize, ...rest } = params;
                         const res = await getMeters({
                             ...rest,
-                            page: (current || 1) - 1,
-                            size: pageSize,
+                            pageNumber: (current || 1) - 1,
+                            pageSize: pageSize,
                         });
                         return {
                             data: res.data?.content || [],

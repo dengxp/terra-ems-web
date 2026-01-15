@@ -6,7 +6,7 @@ const BASE_URL = '/api/system/role';
  * 分页查询角色列表
  */
 export async function findRolesByPage(params: API.PageParams) {
-  return request<API.Result<API.PageResult<RoleDTO>>>(`${BASE_URL}/page`, {
+  return request<API.Result<API.PageResult<SysRole>>>(`${BASE_URL}/page`, {
     method: 'GET',
     params,
   });
@@ -16,7 +16,7 @@ export async function findRolesByPage(params: API.PageParams) {
  * 查询所有角色
  */
 export async function findRoles() {
-  return request<API.Result<RoleDTO[]>>(BASE_URL, {
+  return request<API.Result<SysRole[]>>(BASE_URL, {
     method: 'GET',
   });
 }
@@ -25,7 +25,7 @@ export async function findRoles() {
  * 根据ID查询角色详情
  */
 export async function findRoleById(roleId: number | string) {
-  return request<API.Result<RoleDTO>>(`${BASE_URL}/${roleId}`, {
+  return request<API.Result<SysRole>>(`${BASE_URL}/${roleId}`, {
     method: 'GET',
   });
 }
@@ -33,8 +33,8 @@ export async function findRoleById(roleId: number | string) {
 /**
  * 创建角色
  */
-export async function createRole(role: Partial<RoleDTO>) {
-  return request<API.Result<RoleDTO>>(BASE_URL, {
+export async function createRole(role: Partial<SysRole>) {
+  return request<API.Result<SysRole>>(BASE_URL, {
     method: 'POST',
     data: role,
   });
@@ -43,8 +43,8 @@ export async function createRole(role: Partial<RoleDTO>) {
 /**
  * 更新角色信息
  */
-export async function updateRole(roleId: number, role: Partial<RoleDTO>) {
-  return request<API.Result<RoleDTO>>(`${BASE_URL}/${roleId}`, {
+export async function updateRole(roleId: number, role: Partial<SysRole>) {
+  return request<API.Result<SysRole>>(`${BASE_URL}/${roleId}`, {
     method: 'PUT',
     data: role,
   });

@@ -34,10 +34,8 @@ declare namespace API {
         number?: number;
     };
 
-    /** 分页请求参数 */
+    /** 分页请求参数 - 与后端保持一致 */
     type PageParams = {
-        page?: number;
-        size?: number;
         pageNumber?: number;
         pageSize?: number;
         sort?: string;
@@ -99,6 +97,7 @@ declare type SysUser = {
     dept?: SysDept;
     roleIds?: number[];
     roles?: SysRole[];
+    permissions?: string[];
     createdAt?: string;
     updatedAt?: string;
 }

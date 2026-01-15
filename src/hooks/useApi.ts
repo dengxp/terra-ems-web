@@ -32,7 +32,7 @@ export interface UseApiOptions<T> {
  * });
  * 
  * // 调用 API
- * await execute({ page: 0, size: 10 });
+ * await execute({ pageNumber: 0, pageSize: 10 });
  * ```
  */
 export function useApi<T, P extends any[] = any[]>(

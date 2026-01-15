@@ -308,8 +308,8 @@ const Index: React.FC = () => {
                                     dataType,
                                     startDate: dateRange[0].format('YYYY-MM-DD'),
                                     endDate: dateRange[1].format('YYYY-MM-DD'),
-                                    page: (current || 1) - 1,
-                                    size: pageSize,
+                                    pageNumber: (current || 1) - 1,
+                                    pageSize: pageSize,
                                 });
                                 return {
                                     data: res.data?.content || [],

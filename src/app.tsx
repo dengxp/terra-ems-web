@@ -14,7 +14,6 @@ import { LOGIN_PATH } from "@/config/constants";
 import TabsLayout, { TabsLayoutProps } from "@/components/TabsLayout";
 import { Space } from "antd";
 import { fetchCurrentUser } from "@/apis";
-import { CurrentUser } from "@/types";
 import { PERMISSIONS } from "@/config/permissions";
 
 const isDev = process.env.NODE_ENV === 'development';
@@ -54,7 +53,7 @@ export async function getInitialState(): Promise<{
       console.log('[getInitialState] fetchUserInfo called, token:', getToken());
       const result = await fetchCurrentUser({
         skipErrorHandler: true,
-        showType: 1
+        showType: 1,
       });
       const user = result.data; // UserDTO
       let avatar = user.avatar || generateAvatar();
