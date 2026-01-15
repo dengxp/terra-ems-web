@@ -46,11 +46,11 @@ const RoleDetailDialog = (props: Props) => {
     if (props.open && state.operation === OperationEnum.EDIT) {
       getRole(state.editData?.roleId)
         .then(res => {
-          console.log("res: ", res);
-          if (res.success) {
+          if (res.data) {
+            // 用返回的角色数据填充表单
+            form.setFieldsValue({ ...res.data });
           }
         })
-      form.setFieldsValue({ ...state.editData });
     }
   }, [props.open, state.operation]);
 

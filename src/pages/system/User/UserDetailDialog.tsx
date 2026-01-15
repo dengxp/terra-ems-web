@@ -54,11 +54,17 @@ const UserDetailDialog = (props: Props) => {
       if (state.operation === OperationEnum.EDIT) {
         findUserById(state.editData?.id)
           .then(res => {
-            // debugger;
-            setPostList(res.posts);
-            setRoleList(res.roles);
+            const userData = res.data;
+            // 如果后端返回的 UserDTO 包含 roles 属性
+            if (userData?.roles) {
+              setRoleList(userData.roles);
+            }
             if (state.operation === OperationEnum.EDIT) {
-              form.setFieldsValue({ ...res.data, postIds: res.postIds, roleIds: res.roleIds });
+              form.setFieldsValue({
+                ...userData,
+                postIds: userData?.roleIds,  // 使用 UserDTO 中的字段
+                roleIds: userData?.roleIds
+              });
             }
           })
       } else {
