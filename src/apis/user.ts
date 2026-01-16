@@ -6,7 +6,7 @@ const BASE_URL = '/api/system/user';
  * 分页查询用户列表
  */
 export async function findByPage(params: API.PageParams) {
-  return request<API.Result<API.PageResult<SysUser>>>(`${BASE_URL}/page`, {
+  return request<API.Result<API.PageResult<SysUser>>>(`${BASE_URL}`, {
     method: 'GET',
     params,
   });

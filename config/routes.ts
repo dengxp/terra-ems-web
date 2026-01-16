@@ -333,6 +333,13 @@ export default [
         component: './system/Post',
         access: 'canAccess',
         permissions: ['system:post:list']
+      },
+      {
+        title: '字典管理',
+        name: '字典管理',
+        path: '/system/dict',
+        icon: 'book',
+        component: './system/Dict'
       }
     ]
   }
