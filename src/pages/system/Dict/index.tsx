@@ -1,15 +1,28 @@
 import React, { useRef, useState } from 'react';
 import { ProTable, ProColumns, ActionType } from '@ant-design/pro-components';
 import { Button, Space, message, Modal } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined, SettingOutlined } from '@ant-design/icons';
+import { PlusOutlined, SettingFilled } from '@ant-design/icons';
 import { dictTypeApi } from '@/apis/system/dict';
 import { ProPageContainer } from '@/components/container';
-import DictDataList from './DataList'; // 稍后创建
+import { EditButton, DeleteButton, IconButton } from '@/components/button';
+import DictDataList from './DataList';
 
 const DictTypeManager: React.FC = () => {
     const actionRef = useRef<ActionType>();
     const [currentRow, setCurrentRow] = useState<any>();
     const [dataListVisible, setDataListVisible] = useState(false);
+
+    const handleDelete = (record: any) => {
+        Modal.confirm({
+            title: '删除确认',
+            content: `确定要删除字典类型 [${record.name}] 吗？`,
+            onOk: async () => {
+                await dictTypeApi.remove(record.id);
+                message.success('删除成功');
+                actionRef.current?.reload();
+            }
+        });
+    };
 
     const columns: ProColumns[] = [
         {
@@ -42,48 +55,27 @@ const DictTypeManager: React.FC = () => {
         },
         {
             title: '创建时间',
-            dataIndex: 'createTime',
+            dataIndex: 'createdAt',
             valueType: 'dateTime',
             hideInSearch: true,
         },
         {
             title: '操作',
             valueType: 'option',
-            width: 180,
+            width: 120,
+            fixed: 'right',
             render: (_, record) => (
                 <Space>
-                    <Button
-                        type="link"
-                        size="small"
-                        icon={<EditOutlined />}
-                        onClick={() => { /* TODO: 编辑逻辑 */ }}
-                    >修改</Button>
-                    <Button
-                        type="link"
-                        size="small"
-                        icon={<SettingOutlined />}
+                    <EditButton onClick={() => { /* TODO: 编辑逻辑 */ }} />
+                    <IconButton
+                        tooltip="字典项"
+                        icon={<SettingFilled />}
                         onClick={() => {
                             setCurrentRow(record);
                             setDataListVisible(true);
                         }}
-                    >列表</Button>
-                    <Button
-                        type="link"
-                        size="small"
-                        danger
-                        icon={<DeleteOutlined />}
-                        onClick={() => {
-                            Modal.confirm({
-                                title: '删除确认',
-                                content: `确定要删除字典类型 [${record.name}] 吗？`,
-                                onOk: async () => {
-                                    await dictTypeApi.remove(record.id);
-                                    message.success('删除成功');
-                                    actionRef.current?.reload();
-                                }
-                            });
-                        }}
-                    >删除</Button>
+                    />
+                    <DeleteButton onClick={() => handleDelete(record)} />
                 </Space>
             ),
         },
@@ -92,15 +84,23 @@ const DictTypeManager: React.FC = () => {
     return (
         <ProPageContainer>
             <ProTable
-                headerTitle="字典类型管理"
                 actionRef={actionRef}
                 rowKey="id"
                 search={{ labelWidth: 'auto' }}
-                toolBarRender={() => [
-                    <Button key="add" type="primary" icon={<PlusOutlined />} onClick={() => { }}>
-                        新建
-                    </Button>,
-                ]}
+                scroll={{ x: 'max-content' }}
+                toolbar={{
+                    title: (
+                        <Space>
+                            <Button
+                                color="primary"
+                                icon={<PlusOutlined />}
+                                variant="outlined"
+                                size="small"
+                                onClick={() => { }}
+                            >新建</Button>
+                        </Space>
+                    )
+                }}
                 request={async (params) => {
                     const res = await dictTypeApi.findByPage(params);
                     return {
