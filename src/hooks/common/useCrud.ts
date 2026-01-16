@@ -57,19 +57,6 @@ export default function useCrud<T extends Entity>({ entityName, pathname, baseUr
   }, [baseUrl]);
 
   /**
-   * 复杂搜索 (带条件)
-   */
-  const searchByParams = useCallback(async (params: Record<string, any>) => {
-    return request<API.Result<API.PageResult<T>>>(
-      baseUrl + '/search',
-      {
-        method: 'GET',
-        params
-      }
-    )
-  }, [baseUrl]);
-
-  /**
    * 简单新增或更新 (后端根据 id 判断)
    */
   const saveOrUpdate = useCallback(async (data: any) => {
@@ -119,6 +106,18 @@ export default function useCrud<T extends Entity>({ entityName, pathname, baseUr
       })
   }, [baseUrl]);
 
+  /**
+   * 批量删除
+   */
+  const batchDeleteByIds = useCallback(async (ids: any[]) => {
+    return request<API.Result<void>>(
+      baseUrl + '/batch',
+      {
+        method: 'DELETE',
+        data: ids
+      })
+  }, [baseUrl]);
+
   // ============================================================================
   // 封装方法 (供 ProTable 使用)
   // ============================================================================
@@ -135,19 +134,6 @@ export default function useCrud<T extends Entity>({ entityName, pathname, baseUr
     });
     return wrapperResult(result);
   }, [findByPage]);
-
-  /**
-   * 搜索 (适配 ProTable request)
-   */
-  const search = useCallback(async (params: Record<string, any>) => {
-    const { current, pageSize, ...rest } = params;
-    const result = await searchByParams({
-      pageNumber: current,
-      pageSize,
-      ...rest
-    });
-    return wrapperResult(result);
-  }, [searchByParams]);
 
   // ============================================================================
   // 带 UI 交互的操作方法 (第 1 层)
@@ -290,6 +276,40 @@ export default function useCrud<T extends Entity>({ entityName, pathname, baseUr
     });
   }, [pathname, updateState, entityName, deleteById]);
 
+  /**
+   * 批量删除确认
+   */
+  const toBatchDelete = useCallback((ids: any[], refresh: boolean = false) => {
+    return new Promise<void>((resolve, reject) => {
+      if (!ids || ids.length === 0) {
+        message.warning('请选择要删除的数据');
+        reject(new Error('未选择数据'));
+        return;
+      }
+
+      ModalConfirm({
+        title: '批量删除' + entityName,
+        content: `确定要删除选中的 ${ids.length} 条${entityName || '数据'}吗？删除后将无法恢复。`,
+        async onOk() {
+          try {
+            const result = await batchDeleteByIds(ids);
+            message.success(result.message || '批量删除成功');
+            if (refresh) {
+              updateState(pathname, { shouldRefresh: true });
+            }
+            resolve();
+          } catch (error: any) {
+            console.error(error.message);
+            reject(error);
+          }
+        },
+        onCancel() {
+          // 用户取消，不做处理
+        }
+      });
+    });
+  }, [pathname, updateState, entityName, batchDeleteByIds]);
+
   // ============================================================================
   // 状态设置方法 (第 3 层)
   // ============================================================================
@@ -315,9 +335,8 @@ export default function useCrud<T extends Entity>({ entityName, pathname, baseUr
   }, [pathname, updateState]);
 
   return {
-    // 分页/搜索
+    // 分页查询
     fetchPage,
-    search,
     // 带 UI 交互的操作
     handleSaveOrUpdate,
     handleCreate,
@@ -327,11 +346,13 @@ export default function useCrud<T extends Entity>({ entityName, pathname, baseUr
     create,
     update,
     deleteById,
+    batchDeleteByIds,
     // UI 状态变化
     toCreate,
     toEdit,
     toDialog,
     toDelete,
+    toBatchDelete,
     toPage,
     // 状态设置
     setDialogVisible,

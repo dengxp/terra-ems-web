@@ -2,7 +2,6 @@ import { useModel } from "@umijs/max";
 import { login as loginApi, logout as logoutApi } from '@/apis/login';
 import { removeToken, setToken } from "@/utils/auth";
 import { history } from "@@/core/history";
-import type { LoginParams } from "@/types";
 
 export default function useAuth() {
   const { setInitialState } = useModel('@@initialState');

@@ -1,12 +1,12 @@
-import {LockOutlined, LogoutOutlined, UserOutlined} from '@ant-design/icons';
-import {history, useModel} from '@umijs/max';
-import {Spin} from 'antd';
-import {createStyles} from 'antd-style';
-import type {MenuInfo} from 'rc-menu/lib/interface';
-import React, {useCallback} from 'react';
-import {flushSync} from 'react-dom';
+import { LockOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons';
+import { history, useModel } from '@umijs/max';
+import { Spin } from 'antd';
+import { createStyles } from 'antd-style';
+import type { MenuInfo } from 'rc-menu/lib/interface';
+import React, { useCallback } from 'react';
+import { flushSync } from 'react-dom';
 import HeaderDropdown from '../HeaderDropdown';
-import useAuth from "@/hooks/auth";
+import useAuth from "@/hooks/useAuth";
 
 export type GlobalHeaderRightProps = {
     menu?: boolean;
@@ -14,12 +14,12 @@ export type GlobalHeaderRightProps = {
 };
 
 export const AvatarName = () => {
-    const {initialState} = useModel('@@initialState');
-    const {currentUser} = initialState || {};
+    const { initialState } = useModel('@@initialState');
+    const { currentUser } = initialState || {};
     return <span className="anticon">{currentUser?.name}</span>;
 };
 
-const useStyles = createStyles(({token}) => {
+const useStyles = createStyles(({ token }) => {
     return {
         action: {
             display: 'flex',
@@ -37,23 +37,23 @@ const useStyles = createStyles(({token}) => {
     };
 });
 
-export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({menu, children}) => {
+export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu, children }) => {
     /**
      * 退出登录，并且将当前的 url 保存
      */
 
-    const {styles} = useStyles();
+    const { styles } = useStyles();
 
-    const {initialState, setInitialState} = useModel('@@initialState');
-    const {logout} = useAuth();
+    const { initialState, setInitialState } = useModel('@@initialState');
+    const { logout } = useAuth();
 
     const onMenuClick = useCallback(
         (event: MenuInfo) => {
-            const {key} = event;
+            const { key } = event;
 
             if (key === 'logout') {
                 flushSync(() => {
-                    setInitialState((s) => ({...s, currentUser: undefined}));
+                    setInitialState((s) => ({ ...s, currentUser: undefined }));
                 });
                 void logout();
                 return;
@@ -65,20 +65,20 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({menu, children
 
     const loading = (
         <span className={styles.action}>
-      <Spin size="small"
-            style={{
-                marginLeft: 8,
-                marginRight: 8,
-            }}
-      />
-    </span>
+            <Spin size="small"
+                style={{
+                    marginLeft: 8,
+                    marginRight: 8,
+                }}
+            />
+        </span>
     );
 
     if (!initialState) {
         return loading;
     }
 
-    const {currentUser} = initialState;
+    const { currentUser } = initialState;
 
     if (!currentUser || !currentUser.name) {
         return loading;
@@ -89,12 +89,12 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({menu, children
             ? [
                 {
                     key: 'info',
-                    icon: <UserOutlined/>,
+                    icon: <UserOutlined />,
                     label: '个人信息',
                 },
                 {
                     key: 'change-password',
-                    icon: <LockOutlined/>,
+                    icon: <LockOutlined />,
                     label: '修改密码',
                 },
                 {

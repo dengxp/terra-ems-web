@@ -9,7 +9,7 @@ import React, { useEffect, useState } from 'react';
 import { Helmet, useIntl, useModel, history } from '@umijs/max';
 import { flushSync } from 'react-dom';
 import Cookie from 'js-cookie';
-import useAuth from '@/hooks/auth';
+import useAuth from '@/hooks/useAuth';
 import { getSessionId, isUserLoggedIn, setSessionId } from '@/utils/auth';
 import { generateUUID } from '@/utils';
 import { createCaptcha, sendSmsCode, loginBySms } from '@/apis/login';
