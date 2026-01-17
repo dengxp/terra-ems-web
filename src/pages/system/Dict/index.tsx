@@ -143,16 +143,17 @@ const DictTypeManager: React.FC = () => {
                 columns={columns}
             />
 
-            {/* 字典数据项配置侧边抽屉 */}
-            <Drawer
+            {/* 字典数据项管理弹窗 */}
+            <Modal
                 title={`字典项配置 - ${currentRow?.name || ''}`}
                 open={dataListVisible}
-                onClose={() => setDataListVisible(false)}
-                width={800}
+                onCancel={() => setDataListVisible(false)}
+                width={1000}
+                footer={null}
                 destroyOnClose
             >
                 <DictDataList typeCode={currentRow?.type} />
-            </Drawer>
+            </Modal>
 
             {/* 新增/编辑字典类型弹窗 */}
             <ModalForm

@@ -1,34 +1,58 @@
 import React, { useRef, useState } from 'react';
-import { EditableProTable, ProColumns, ActionType } from '@ant-design/pro-components';
-import { Tag, message, Modal } from 'antd';
+import { ProTable, ProColumns, ActionType, ModalForm, ProFormText, ProFormTextArea, ProFormRadio, ProFormDigit } from '@ant-design/pro-components';
+import { Button, Space, Tag, message, Modal } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
 import { dictDataApi } from '@/apis/system/dict';
+import { EditButton, DeleteButton } from '@/components/button';
 
 interface Props {
     typeCode: string;
 }
 
-type DictDataItem = {
-    id?: number;
-    label?: string;
-    value?: string;
-    sortOrder?: number;
-    tagColor?: string;
-    status?: string;
-    remark?: string;
-    typeCode?: string;
-};
-
 const DictDataList: React.FC<Props> = ({ typeCode }) => {
     const actionRef = useRef<ActionType>();
-    const [editableKeys, setEditableRowKeys] = useState<React.Key[]>([]);
+    const [currentRow, setCurrentRow] = useState<any>();
+    const [editModalVisible, setEditModalVisible] = useState(false);
 
-    const columns: ProColumns<DictDataItem>[] = [
+    const handleDelete = (record: any) => {
+        Modal.confirm({
+            title: '删除确认',
+            content: `确定要删除字典项 [${record.label}] 吗？`,
+            onOk: async () => {
+                await dictDataApi.remove(record.id);
+                message.success('删除成功');
+                actionRef.current?.reload();
+            }
+        });
+    };
+
+    const handleEdit = (record: any) => {
+        setCurrentRow(record);
+        setEditModalVisible(true);
+    };
+
+    const handleAdd = () => {
+        setCurrentRow(undefined);
+        setEditModalVisible(true);
+    };
+
+    const handleSubmit = async (values: any) => {
+        const data = { ...values, typeCode };
+        if (currentRow?.id) {
+            await dictDataApi.update({ ...data, id: currentRow.id });
+            message.success('修改成功');
+        } else {
+            await dictDataApi.add(data);
+            message.success('新增成功');
+        }
+        actionRef.current?.reload();
+        return true;
+    };
+
+    const columns: ProColumns[] = [
         {
             title: '字典标签',
             dataIndex: 'label',
-            formItemProps: {
-                rules: [{ required: true, message: '请输入字典标签' }],
-            },
             render: (text, record) => (
                 <Tag color={record.tagColor || undefined}>
                     {text}
@@ -38,37 +62,15 @@ const DictDataList: React.FC<Props> = ({ typeCode }) => {
         {
             title: '字典键值',
             dataIndex: 'value',
-            formItemProps: {
-                rules: [{ required: true, message: '请输入字典键值' }],
-            },
         },
         {
             title: '排序',
             dataIndex: 'sortOrder',
-            valueType: 'digit',
-            width: 80,
-        },
-        {
-            title: '标签颜色',
-            dataIndex: 'tagColor',
-            width: 100,
-            valueType: 'select',
-            valueEnum: {
-                '': { text: '默认' },
-                'blue': { text: '蓝色' },
-                'green': { text: '绿色' },
-                'red': { text: '红色' },
-                'orange': { text: '橙色' },
-                'purple': { text: '紫色' },
-                'cyan': { text: '青色' },
-                'gold': { text: '金色' },
-            },
+            hideInSearch: true,
         },
         {
             title: '状态',
             dataIndex: 'status',
-            width: 80,
-            valueType: 'select',
             valueEnum: {
                 '0': { text: '正常', status: 'Success' },
                 '1': { text: '停用', status: 'Error' },
@@ -78,94 +80,112 @@ const DictDataList: React.FC<Props> = ({ typeCode }) => {
             title: '备注',
             dataIndex: 'remark',
             ellipsis: true,
+            hideInSearch: true,
         },
         {
             title: '操作',
             valueType: 'option',
-            width: 150,
-            render: (_, record, __, action) => [
-                <a
-                    key="edit"
-                    onClick={() => {
-                        action?.startEditable?.(record.id!);
-                    }}
-                >
-                    编辑
-                </a>,
-                <a
-                    key="delete"
-                    style={{ color: '#ff4d4f' }}
-                    onClick={() => {
-                        Modal.confirm({
-                            title: '删除确认',
-                            content: `确定要删除字典项 [${record.label}] 吗？`,
-                            onOk: async () => {
-                                await dictDataApi.remove(record.id!);
-                                message.success('删除成功');
-                                actionRef.current?.reload();
-                            }
-                        });
-                    }}
-                >
-                    删除
-                </a>,
-            ],
+            width: 80,
+            fixed: 'right',
+            render: (_, record) => (
+                <Space>
+                    <EditButton onClick={() => handleEdit(record)} />
+                    <DeleteButton onClick={() => handleDelete(record)} />
+                </Space>
+            ),
         },
     ];
 
     return (
-        <EditableProTable<DictDataItem>
-            rowKey="id"
-            actionRef={actionRef}
-            headerTitle={false}
-            columns={columns}
-            params={{ typeCode }}
-            request={async (params) => {
-                const res = await dictDataApi.findByPage(params);
-                return {
-                    data: res.data.content || [],
-                    success: true,
-                    total: res.data.totalElements || 0,
-                };
-            }}
-            pagination={{ pageSize: 10 }}
-            editable={{
-                type: 'single',
-                editableKeys,
-                onChange: setEditableRowKeys,
-                onSave: async (key, row) => {
-                    const data = { ...row, typeCode };
-                    if (row.id && typeof row.id === 'number') {
-                        await dictDataApi.update(data);
-                        message.success('修改成功');
-                    } else {
-                        await dictDataApi.add(data);
-                        message.success('新增成功');
-                    }
-                    actionRef.current?.reload();
-                },
-                onDelete: async (key) => {
-                    await dictDataApi.remove(key as number);
-                    message.success('删除成功');
-                },
-                actionRender: (row, config, defaultDom) => [
-                    defaultDom.save,
-                    defaultDom.cancel,
-                ],
-            }}
-            recordCreatorProps={{
-                position: 'top',
-                record: () => ({
-                    id: Date.now(),
-                    status: '0',
-                    sortOrder: 0,
-                }),
-                creatorButtonText: '新增字典项',
-            }}
-        />
+        <>
+            <ProTable
+                headerTitle={false}
+                actionRef={actionRef}
+                rowKey="id"
+                search={{ labelWidth: 'auto' }}
+                scroll={{ x: 'max-content' }}
+                toolbar={{
+                    title: (
+                        <Space>
+                            <Button
+                                color="primary"
+                                icon={<PlusOutlined />}
+                                variant="outlined"
+                                size="small"
+                                onClick={handleAdd}
+                            >新增项</Button>
+                        </Space>
+                    )
+                }}
+                params={{ typeCode }}
+                request={async (params) => {
+                    const res = await dictDataApi.findByPage(params);
+                    return {
+                        data: res.data.content,
+                        success: true,
+                        total: res.data.totalElements,
+                    };
+                }}
+                pagination={{ pageSize: 5 }}
+                columns={columns}
+            />
+
+            {/* 新增/编辑字典项弹窗 */}
+            <ModalForm
+                title={currentRow?.id ? '编辑字典项' : '新增字典项'}
+                open={editModalVisible}
+                onOpenChange={setEditModalVisible}
+                initialValues={currentRow}
+                modalProps={{ destroyOnClose: true, width: 520 }}
+                onFinish={handleSubmit}
+                layout="horizontal"
+                labelCol={{ span: 5 }}
+                wrapperCol={{ span: 19 }}
+            >
+                <ProFormText
+                    name="label"
+                    label="字典标签"
+                    placeholder="请输入字典标签"
+                    rules={[{ required: true, message: '请输入字典标签' }]}
+                />
+                <ProFormText
+                    name="value"
+                    label="字典键值"
+                    placeholder="请输入字典键值"
+                    rules={[{ required: true, message: '请输入字典键值' }]}
+                />
+                <ProFormDigit
+                    name="sortOrder"
+                    label="排序"
+                    placeholder="请输入排序"
+                    initialValue={0}
+                    fieldProps={{ precision: 0 }}
+                />
+                <ProFormText
+                    name="tagColor"
+                    label="标签颜色"
+                    placeholder="如: blue, green, red"
+                />
+                <ProFormRadio.Group
+                    name="status"
+                    label="状态"
+                    initialValue="0"
+                    options={[
+                        { label: '正常', value: '0' },
+                        { label: '停用', value: '1' },
+                    ]}
+                />
+                <ProFormTextArea
+                    name="remark"
+                    label="备注"
+                    placeholder="请输入备注"
+                />
+            </ModalForm>
+        </>
     );
 };
 
 export default DictDataList;
+
 
 
