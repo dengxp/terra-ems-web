@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { ProTable, ProColumns, ActionType, ModalForm, ProFormText, ProFormTextArea, ProFormRadio, ProFormDigit, ProForm, ProFormSelect } from '@ant-design/pro-components';
-import { Button, Space, Tag, message, Modal, Badge, Typography } from 'antd';
+import { Button, Space, Tag, message, Modal, Badge } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { dictDataApi } from '@/apis/system/dict';
 import { EditButton, DeleteButton } from '@/components/button';
@@ -166,17 +166,17 @@ const DictDataList: React.FC<Props> = ({ typeCode }) => {
                     label="标签颜色"
                     placeholder="请选择标签颜色"
                     options={[
-                        { label: <Space><Badge color="blue" />蓝色 <Typography.Text type="secondary" code>#1677ff</Typography.Text></Space>, value: 'blue' },
-                        { label: <Space><Badge color="green" />绿色 <Typography.Text type="secondary" code>#52c41a</Typography.Text></Space>, value: 'green' },
-                        { label: <Space><Badge color="red" />红色 <Typography.Text type="secondary" code>#ff4d4f</Typography.Text></Space>, value: 'red' },
-                        { label: <Space><Badge color="orange" />橙色 <Typography.Text type="secondary" code>#fa8c16</Typography.Text></Space>, value: 'orange' },
-                        { label: <Space><Badge color="purple" />紫色 <Typography.Text type="secondary" code>#722ed1</Typography.Text></Space>, value: 'purple' },
-                        { label: <Space><Badge color="cyan" />青色 <Typography.Text type="secondary" code>#13c2c2</Typography.Text></Space>, value: 'cyan' },
-                        { label: <Space><Badge color="gold" />金色 <Typography.Text type="secondary" code>#faad14</Typography.Text></Space>, value: 'gold' },
-                        { label: <Space><Badge color="magenta" />品红 <Typography.Text type="secondary" code>#eb2f96</Typography.Text></Space>, value: 'magenta' },
-                        { label: <Space><Badge color="lime" />青柠 <Typography.Text type="secondary" code>#a0d911</Typography.Text></Space>, value: 'lime' },
-                        { label: <Space><Badge color="volcano" />火山 <Typography.Text type="secondary" code>#fa541c</Typography.Text></Space>, value: 'volcano' },
-                        { label: <Space><Badge color="geekblue" />极客蓝 <Typography.Text type="secondary" code>#2f54eb</Typography.Text></Space>, value: 'geekblue' },
+                        { label: <Space><Badge color="blue" />蓝色</Space>, value: 'blue' },
+                        { label: <Space><Badge color="green" />绿色</Space>, value: 'green' },
+                        { label: <Space><Badge color="red" />红色</Space>, value: 'red' },
+                        { label: <Space><Badge color="orange" />橙色</Space>, value: 'orange' },
+                        { label: <Space><Badge color="purple" />紫色</Space>, value: 'purple' },
+                        { label: <Space><Badge color="cyan" />青色</Space>, value: 'cyan' },
+                        { label: <Space><Badge color="gold" />金色</Space>, value: 'gold' },
+                        { label: <Space><Badge color="magenta" />品红</Space>, value: 'magenta' },
+                        { label: <Space><Badge color="lime" />青柠</Space>, value: 'lime' },
+                        { label: <Space><Badge color="volcano" />火山</Space>, value: 'volcano' },
+                        { label: <Space><Badge color="geekblue" />极客蓝</Space>, value: 'geekblue' },
                         { label: '无', value: '' },
                     ]}
                 />
