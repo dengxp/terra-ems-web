@@ -36,15 +36,8 @@ const DictTypeManager: React.FC = () => {
     };
 
     const handleSubmit = async (values: any) => {
-        if (currentRow?.id) {
-            // 编辑
-            await dictTypeApi.update({ ...values, id: currentRow.id });
-            message.success('修改成功');
-        } else {
-            // 新增
-            await dictTypeApi.add(values);
-            message.success('新增成功');
-        }
+        await dictTypeApi.save({ ...values, id: currentRow?.id });
+        message.success(currentRow?.id ? '修改成功' : '新增成功');
         actionRef.current?.reload();
         return true;
     };

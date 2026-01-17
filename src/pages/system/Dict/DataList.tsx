@@ -37,14 +37,9 @@ const DictDataList: React.FC<Props> = ({ typeCode }) => {
     };
 
     const handleSubmit = async (values: any) => {
-        const data = { ...values, typeCode };
-        if (currentRow?.id) {
-            await dictDataApi.update({ ...data, id: currentRow.id });
-            message.success('修改成功');
-        } else {
-            await dictDataApi.add(data);
-            message.success('新增成功');
-        }
+        const data = { ...values, typeCode, id: currentRow?.id };
+        await dictDataApi.save(data);
+        message.success(currentRow?.id ? '修改成功' : '新增成功');
         actionRef.current?.reload();
         return true;
     };

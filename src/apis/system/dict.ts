@@ -8,12 +8,19 @@ export const dictTypeApi = {
     findByPage: (params: any) => request('/api/system/dict/type', { method: 'GET', params }),
     // 获取字典类型详细
     get: (id: number) => request(`/api/system/dict/type/${id}`, { method: 'GET' }),
+    // 保存或更新字典类型
+    save: (data: any) => request('/api/system/dict/type', { method: 'POST', data }),
     // 新增字典类型
     add: (data: any) => request('/api/system/dict/type', { method: 'POST', data }),
     // 修改字典类型
-    update: (data: any) => request('/api/system/dict/type', { method: 'PUT', data }),
+    update: (data: any) => request('/api/system/dict/type', { method: 'POST', data }),
     // 删除字典类型
-    remove: (ids: string | number) => request(`/api/system/dict/type/${ids}`, { method: 'DELETE' }),
+    remove: (ids: any) => {
+        if (Array.isArray(ids)) {
+            return request('/api/system/dict/type', { method: 'DELETE', data: ids });
+        }
+        return request(`/api/system/dict/type/${ids}`, { method: 'DELETE' });
+    }
 };
 
 /**
@@ -26,10 +33,17 @@ export const dictDataApi = {
     getByType: (type: string) => request(`/api/system/dict/data/type/${type}`, { method: 'GET' }),
     // 获取字典数据详细
     get: (id: number) => request(`/api/system/dict/data/${id}`, { method: 'GET' }),
+    // 保存或更新字典数据
+    save: (data: any) => request('/api/system/dict/data', { method: 'POST', data }),
     // 新增字典数据
     add: (data: any) => request('/api/system/dict/data', { method: 'POST', data }),
     // 修改字典数据
-    update: (data: any) => request('/api/system/dict/data', { method: 'PUT', data }),
+    update: (data: any) => request('/api/system/dict/data', { method: 'POST', data }),
     // 删除字典数据
-    remove: (ids: string | number) => request(`/api/system/dict/data/${ids}`, { method: 'DELETE' }),
+    remove: (ids: any) => {
+        if (Array.isArray(ids)) {
+            return request('/api/system/dict/data', { method: 'DELETE', data: ids });
+        }
+        return request(`/api/system/dict/data/${ids}`, { method: 'DELETE' });
+    }
 };
