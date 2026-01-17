@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
-import { ProTable, ProColumns, ActionType, ModalForm, ProFormText, ProFormTextArea, ProFormRadio, ProFormDigit } from '@ant-design/pro-components';
-import { Button, Space, Tag, message, Modal } from 'antd';
+import { ProTable, ProColumns, ActionType, ModalForm, ProFormText, ProFormTextArea, ProFormRadio, ProFormDigit, ProForm, ProFormSelect } from '@ant-design/pro-components';
+import { Button, Space, Tag, message, Modal, Badge } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { dictDataApi } from '@/apis/system/dict';
 import { EditButton, DeleteButton } from '@/components/button';
@@ -161,10 +161,24 @@ const DictDataList: React.FC<Props> = ({ typeCode }) => {
                     initialValue={0}
                     fieldProps={{ precision: 0 }}
                 />
-                <ProFormText
+                <ProFormSelect
                     name="tagColor"
                     label="标签颜色"
-                    placeholder="如: blue, green, red"
+                    placeholder="请选择标签颜色"
+                    options={[
+                        { label: <Space><Badge color="blue" />蓝色</Space>, value: 'blue' },
+                        { label: <Space><Badge color="green" />绿色</Space>, value: 'green' },
+                        { label: <Space><Badge color="red" />红色</Space>, value: 'red' },
+                        { label: <Space><Badge color="orange" />橙色</Space>, value: 'orange' },
+                        { label: <Space><Badge color="purple" />紫色</Space>, value: 'purple' },
+                        { label: <Space><Badge color="cyan" />青色</Space>, value: 'cyan' },
+                        { label: <Space><Badge color="gold" />金色</Space>, value: 'gold' },
+                        { label: <Space><Badge color="magenta" />品红</Space>, value: 'magenta' },
+                        { label: <Space><Badge color="lime" />青柠</Space>, value: 'lime' },
+                        { label: <Space><Badge color="volcano" />火山</Space>, value: 'volcano' },
+                        { label: <Space><Badge color="geekblue" />极客蓝</Space>, value: 'geekblue' },
+                        { label: '无', value: '' },
+                    ]}
                 />
                 <ProFormRadio.Group
                     name="status"
