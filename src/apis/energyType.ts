@@ -44,7 +44,7 @@ export async function getEnergyTypes(params: {
     pageNumber?: number;
     pageSize?: number;
 }) {
-    return request<API.Result<API.PageResult<EnergyType>>>('/api/energy-types/search', {
+    return request<API.Result<API.PageResult<EnergyType>>>('/api/energy-types', {
         method: 'GET',
         params,
     });

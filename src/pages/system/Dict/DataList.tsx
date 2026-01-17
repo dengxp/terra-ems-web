@@ -1,50 +1,41 @@
-import React, { useRef, useState } from 'react';
-import { ProTable, ProColumns, ActionType, ModalForm, ProFormText, ProFormTextArea, ProFormRadio, ProFormDigit, ProForm, ProFormSelect } from '@ant-design/pro-components';
-import { Button, Space, Tag, message, Modal, Badge } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
-import { dictDataApi } from '@/apis/system/dict';
-import { EditButton, DeleteButton } from '@/components/button';
+import React from 'react';
+import { ProTable, ProColumns, ModalForm, ProFormText, ProFormTextArea, ProFormRadio, ProFormDigit, ProFormSelect } from '@ant-design/pro-components';
+import { Space, Tag, Badge } from 'antd';
+import { EditButton, DeleteButton, AddButton } from '@/components/button';
+import useCrud from '@/hooks/common/useCrud';
+import { SysDictData } from '@/apis/system/dict';
 
 interface Props {
     typeCode: string;
 }
 
 const DictDataList: React.FC<Props> = ({ typeCode }) => {
-    const actionRef = useRef<ActionType>();
-    const [currentRow, setCurrentRow] = useState<any>();
-    const [editModalVisible, setEditModalVisible] = useState(false);
+    const {
+        fetchPage,
+        handleSaveOrUpdate,
+        toCreate,
+        toEdit,
+        toDelete,
+        actionRef,
+        getState,
+        setDialogVisible,
+        setShouldRefresh,
+    } = useCrud<SysDictData>({
+        entityName: '字典项',
+        pathname: `/system/dict/data/${typeCode}`,
+        baseUrl: '/api/system/dict/data',
+    });
 
-    const handleDelete = (record: any) => {
-        Modal.confirm({
-            title: '删除确认',
-            content: `确定要删除字典项 [${record.label}] 吗？`,
-            onOk: async () => {
-                await dictDataApi.remove(record.id);
-                message.success('删除成功');
-                actionRef.current?.reload();
-            }
-        });
-    };
+    const { dialogVisible, dialogTitle, editData, shouldRefresh } = getState(`/system/dict/data/${typeCode}`);
 
-    const handleEdit = (record: any) => {
-        setCurrentRow(record);
-        setEditModalVisible(true);
-    };
+    React.useEffect(() => {
+        if (shouldRefresh) {
+            actionRef.current?.reload();
+            setShouldRefresh(false);
+        }
+    }, [shouldRefresh, actionRef, setShouldRefresh]);
 
-    const handleAdd = () => {
-        setCurrentRow(undefined);
-        setEditModalVisible(true);
-    };
-
-    const handleSubmit = async (values: any) => {
-        const data = { ...values, typeCode, id: currentRow?.id };
-        await dictDataApi.save(data);
-        message.success(currentRow?.id ? '修改成功' : '新增成功');
-        actionRef.current?.reload();
-        return true;
-    };
-
-    const columns: ProColumns[] = [
+    const columns: ProColumns<SysDictData>[] = [
         {
             title: '字典标签',
             dataIndex: 'label',
@@ -84,8 +75,8 @@ const DictDataList: React.FC<Props> = ({ typeCode }) => {
             fixed: 'right',
             render: (_, record) => (
                 <Space>
-                    <EditButton onClick={() => handleEdit(record)} />
-                    <DeleteButton onClick={() => handleDelete(record)} />
+                    <EditButton onClick={() => toEdit(record)} />
+                    <DeleteButton onClick={() => toDelete(record.id, true)} />
                 </Space>
             ),
         },
@@ -93,7 +84,7 @@ const DictDataList: React.FC<Props> = ({ typeCode }) => {
 
     return (
         <>
-            <ProTable
+            <ProTable<SysDictData>
                 headerTitle={false}
                 actionRef={actionRef}
                 rowKey="id"
@@ -102,37 +93,28 @@ const DictDataList: React.FC<Props> = ({ typeCode }) => {
                 toolbar={{
                     title: (
                         <Space>
-                            <Button
-                                color="primary"
-                                icon={<PlusOutlined />}
-                                variant="outlined"
-                                size="small"
-                                onClick={handleAdd}
-                            >新增项</Button>
+                            <AddButton onClick={toCreate}>新增项</AddButton>
                         </Space>
                     )
                 }}
                 params={{ typeCode }}
-                request={async (params) => {
-                    const res = await dictDataApi.findByPage(params);
-                    return {
-                        data: res.data.content,
-                        success: true,
-                        total: res.data.totalElements,
-                    };
+                request={fetchPage}
+                pagination={{
+                    defaultPageSize: 5,
+                    showSizeChanger: true,
+                    pageSizeOptions: ['5', '10', '20', '50'],
                 }}
-                pagination={{ pageSize: 5 }}
                 columns={columns}
             />
 
             {/* 新增/编辑字典项弹窗 */}
             <ModalForm
-                title={currentRow?.id ? '编辑字典项' : '新增字典项'}
-                open={editModalVisible}
-                onOpenChange={setEditModalVisible}
-                initialValues={currentRow}
+                title={dialogTitle}
+                open={dialogVisible}
+                onOpenChange={setDialogVisible}
+                initialValues={editData || undefined}
                 modalProps={{ destroyOnClose: true, width: 520 }}
-                onFinish={handleSubmit}
+                onFinish={(values) => handleSaveOrUpdate({ ...values, typeCode })}
                 layout="horizontal"
                 labelCol={{ span: 5 }}
                 wrapperCol={{ span: 19 }}
@@ -143,6 +125,7 @@ const DictDataList: React.FC<Props> = ({ typeCode }) => {
                     placeholder="请输入字典标签"
                     rules={[{ required: true, message: '请输入字典标签' }]}
                 />
+                <ProFormText name="id" hidden />
                 <ProFormText
                     name="value"
                     label="字典键值"

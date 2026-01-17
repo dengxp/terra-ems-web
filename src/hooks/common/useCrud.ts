@@ -128,7 +128,7 @@ export default function useCrud<T extends Entity>({ entityName, pathname, baseUr
   const fetchPage = useCallback(async (params: Record<string, any>) => {
     const { current, pageSize, ...rest } = params;
     const result = await findByPage({
-      pageNumber: current,
+      pageNumber: (current || 1) - 1,
       pageSize,
       ...rest
     });
@@ -148,7 +148,7 @@ export default function useCrud<T extends Entity>({ entityName, pathname, baseUr
         updateState(pathname, { loading: true });
         const result = await saveOrUpdate(values);
         void message.success(result.message || '保存成功');
-        updateState(pathname, { loading: false, shouldRefresh: true });
+        updateState(pathname, { loading: false, shouldRefresh: true, dialogVisible: false });
         onOpenChange?.(false);
         resolve();
       } catch (error: any) {
@@ -168,7 +168,7 @@ export default function useCrud<T extends Entity>({ entityName, pathname, baseUr
         updateState(pathname, { loading: true });
         const result = await create(values);
         void message.success(result.message || '创建成功');
-        updateState(pathname, { loading: false, shouldRefresh: true });
+        updateState(pathname, { loading: false, shouldRefresh: true, dialogVisible: false });
         onOpenChange?.(false);
         resolve();
       } catch (error: any) {
@@ -188,7 +188,7 @@ export default function useCrud<T extends Entity>({ entityName, pathname, baseUr
         updateState(pathname, { loading: true });
         const result = await update(values);
         void message.success(result.message || '更新成功');
-        updateState(pathname, { loading: false, shouldRefresh: true });
+        updateState(pathname, { loading: false, shouldRefresh: true, dialogVisible: false });
         onOpenChange?.(false);
         resolve();
       } catch (error: any) {

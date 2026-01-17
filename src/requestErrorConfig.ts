@@ -114,7 +114,23 @@ export const errorConfig: RequestConfig = {
       } else if (error.response) {
         // Axios 的错误
         // 请求成功发出且服务器也响应了状态码，但状态代码超出了 2xx 的范围
-        const { message: errorMessage, data } = error.response;
+        const { message: errorMessage, data, status } = error.response;
+
+        if (status === 401) {
+          removeToken();
+          const { location } = history;
+          if (location.pathname !== LOGIN_PATH) {
+            const uri = location.pathname + location.search;
+            history.push(`${LOGIN_PATH}?redirect=${encodeURIComponent(uri)}`);
+          }
+          return;
+        }
+
+        if (status === 403) {
+          void message.error('无权访问该资源');
+          return;
+        }
+
         const msg = (data && data.message) || errorMessage || '操作失败!';
         void message.error(msg);
         // message.error(`Response status:${error.response.status}`);

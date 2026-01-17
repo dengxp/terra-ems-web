@@ -1,6 +1,37 @@
 import { request } from '@umijs/max';
 
 /**
+ * 字典类型
+ */
+export interface SysDictType {
+    id: number;
+    name?: string;
+    type?: string;
+    status?: import("@/enums").DataItemStatus;
+    remark?: string;
+    createdAt?: string;
+    updatedAt?: string;
+}
+
+/**
+ * 字典数据
+ */
+export interface SysDictData {
+    id: number;
+    sortOrder?: number;
+    label?: string;
+    value?: string;
+    typeCode?: string;
+    status?: import("@/enums").DataItemStatus;
+    tagType?: string;
+    tagColor?: string;
+    isDefault?: string;
+    remark?: string;
+    createdAt?: string;
+    updatedAt?: string;
+}
+
+/**
  * 字典类型管理接口
  */
 export const dictTypeApi = {

@@ -1,48 +1,43 @@
-import React, { useRef, useState } from 'react';
-import { ProTable, ProColumns, ActionType, ModalForm, ProFormText, ProFormTextArea, ProFormRadio } from '@ant-design/pro-components';
-import { Button, Space, message, Modal, Tag, Drawer } from 'antd';
-import { PlusOutlined, SettingFilled } from '@ant-design/icons';
-import { dictTypeApi } from '@/apis/system/dict';
+import React, { useState } from 'react';
+import { ProTable, ProColumns, ModalForm, ProFormText, ProFormTextArea, ProFormRadio } from '@ant-design/pro-components';
+import { Space, Modal, Tag } from 'antd';
+import { SettingFilled } from '@ant-design/icons';
 import { ProPageContainer } from '@/components/container';
-import { EditButton, DeleteButton, IconButton } from '@/components/button';
+import { EditButton, DeleteButton, IconButton, AddButton } from '@/components/button';
+import useCrud from '@/hooks/common/useCrud';
+import { SysDictType } from '@/apis/system/dict';
 import DictDataList from './DataList';
 
 const DictTypeManager: React.FC = () => {
-    const actionRef = useRef<ActionType>();
-    const [currentRow, setCurrentRow] = useState<any>();
     const [dataListVisible, setDataListVisible] = useState(false);
-    const [editModalVisible, setEditModalVisible] = useState(false);
+    const [currentRow, setCurrentRow] = useState<SysDictType>();
 
-    const handleDelete = (record: any) => {
-        Modal.confirm({
-            title: '删除确认',
-            content: `确定要删除字典类型 [${record.name}] 吗？`,
-            onOk: async () => {
-                await dictTypeApi.remove(record.id);
-                message.success('删除成功');
-                actionRef.current?.reload();
-            }
-        });
-    };
+    const {
+        fetchPage,
+        handleSaveOrUpdate,
+        toCreate,
+        toEdit,
+        toDelete,
+        actionRef,
+        getState,
+        setDialogVisible,
+        setShouldRefresh,
+    } = useCrud<SysDictType>({
+        entityName: '字典类型',
+        pathname: '/system/dict',
+        baseUrl: '/api/system/dict/type',
+    });
 
-    const handleEdit = (record: any) => {
-        setCurrentRow(record);
-        setEditModalVisible(true);
-    };
+    const { dialogVisible, dialogTitle, editData, shouldRefresh } = getState('/system/dict');
 
-    const handleAdd = () => {
-        setCurrentRow(undefined);
-        setEditModalVisible(true);
-    };
+    React.useEffect(() => {
+        if (shouldRefresh) {
+            actionRef.current?.reload();
+            setShouldRefresh(false);
+        }
+    }, [shouldRefresh, actionRef, setShouldRefresh]);
 
-    const handleSubmit = async (values: any) => {
-        await dictTypeApi.save({ ...values, id: currentRow?.id });
-        message.success(currentRow?.id ? '修改成功' : '新增成功');
-        actionRef.current?.reload();
-        return true;
-    };
-
-    const columns: ProColumns[] = [
+    const columns: ProColumns<SysDictType>[] = [
         {
             title: '字典名称',
             dataIndex: 'name',
@@ -90,7 +85,7 @@ const DictTypeManager: React.FC = () => {
             fixed: 'right',
             render: (_, record) => (
                 <Space>
-                    <EditButton onClick={() => handleEdit(record)} />
+                    <EditButton onClick={() => toEdit(record)} />
                     <IconButton
                         tooltip="字典项"
                         icon={<SettingFilled />}
@@ -99,7 +94,7 @@ const DictTypeManager: React.FC = () => {
                             setDataListVisible(true);
                         }}
                     />
-                    <DeleteButton onClick={() => handleDelete(record)} />
+                    <DeleteButton onClick={() => toDelete(record.id, true)} />
                 </Space>
             ),
         },
@@ -107,7 +102,7 @@ const DictTypeManager: React.FC = () => {
 
     return (
         <ProPageContainer>
-            <ProTable
+            <ProTable<SysDictType>
                 actionRef={actionRef}
                 rowKey="id"
                 search={{ labelWidth: 'auto' }}
@@ -115,23 +110,15 @@ const DictTypeManager: React.FC = () => {
                 toolbar={{
                     title: (
                         <Space>
-                            <Button
-                                color="primary"
-                                icon={<PlusOutlined />}
-                                variant="outlined"
-                                size="small"
-                                onClick={handleAdd}
-                            >新建</Button>
+                            <AddButton onClick={toCreate}>新建</AddButton>
                         </Space>
                     )
                 }}
-                request={async (params) => {
-                    const res = await dictTypeApi.findByPage(params);
-                    return {
-                        data: res.data.content,
-                        success: true,
-                        total: res.data.totalElements,
-                    };
+                request={fetchPage}
+                pagination={{
+                    defaultPageSize: 10,
+                    showSizeChanger: true,
+                    pageSizeOptions: ['10', '20', '50', '100'],
                 }}
                 columns={columns}
             />
@@ -145,17 +132,17 @@ const DictTypeManager: React.FC = () => {
                 footer={null}
                 destroyOnClose
             >
-                <DictDataList typeCode={currentRow?.type} />
+                <DictDataList typeCode={currentRow?.type || ''} />
             </Modal>
 
             {/* 新增/编辑字典类型弹窗 */}
             <ModalForm
-                title={currentRow?.id ? '编辑字典类型' : '新增字典类型'}
-                open={editModalVisible}
-                onOpenChange={setEditModalVisible}
-                initialValues={currentRow}
+                title={dialogTitle}
+                open={dialogVisible}
+                onOpenChange={setDialogVisible}
+                initialValues={editData || undefined}
                 modalProps={{ destroyOnClose: true, width: 520 }}
-                onFinish={handleSubmit}
+                onFinish={handleSaveOrUpdate}
                 layout="horizontal"
                 labelCol={{ span: 4 }}
                 wrapperCol={{ span: 20 }}
@@ -166,12 +153,13 @@ const DictTypeManager: React.FC = () => {
                     placeholder="请输入字典名称"
                     rules={[{ required: true, message: '请输入字典名称' }]}
                 />
+                <ProFormText name="id" hidden />
                 <ProFormText
                     name="type"
                     label="字典类型"
                     placeholder="请输入字典类型"
                     rules={[{ required: true, message: '请输入字典类型' }]}
-                    disabled={!!currentRow?.id}
+                    disabled={!!editData?.id}
                 />
                 <ProFormRadio.Group
                     name="status"
