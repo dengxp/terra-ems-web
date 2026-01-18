@@ -177,13 +177,8 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
       if (menuItemProps.isUrl || !menuItemProps.path) {
         return defaultDom;
       }
-      // 对于所有有路径的菜单项，使用Link包装实现路由跳转
-      return <Link to={menuItemProps.path}>
-        <Space size={4}>
-          <span>{menuItemProps.icon}</span>
-          <span className={'ml-1'}>{menuItemProps.name}</span>
-        </Space>
-      </Link>
+      // 对于所有有路径的菜单项，使用Link包装实现路由跳转，利用defaultDom处理收起状态
+      return <Link to={menuItemProps.path}>{defaultDom}</Link>
     },
     menuDataRender,
 
