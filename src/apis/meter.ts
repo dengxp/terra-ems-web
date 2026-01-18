@@ -95,8 +95,8 @@ export async function deleteMeter(id: number) {
  * @param ids 器具ID列表
  */
 export async function deleteMetersBatch(ids: (number | string)[]) {
-    return request<API.Result<void>>('/api/meters/batch', {
+    return request<API.Result<void>>('/api/meters', {
         method: 'DELETE',
-        params: { ids: ids.join(',') },
+        data: ids,
     });
 }

@@ -95,9 +95,9 @@ export async function deleteEnergyType(id: number) {
  * 批量删除能源类型
  */
 export async function deleteEnergyTypesBatch(ids: (number | string)[]) {
-    return request<API.Result<void>>('/api/energy-types/batch', {
+    return request<API.Result<void>>('/api/energy-types', {
         method: 'DELETE',
-        params: { ids: ids.join(',') },
+        data: ids,
     });
 }
 

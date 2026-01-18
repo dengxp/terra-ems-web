@@ -283,7 +283,7 @@ export default function useCrud<T extends Entity>({ entityName, pathname, baseUr
   /**
    * 批量删除确认
    */
-  const toBatchDelete = useCallback((ids: any[], refresh: boolean = false) => {
+  const toBatchDelete = useCallback((ids: (number | string)[], refresh: boolean = false) => {
     return new Promise<void>((resolve, reject) => {
       if (!ids || ids.length === 0) {
         message.warning('请选择要删除的数据');

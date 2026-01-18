@@ -26,8 +26,15 @@ trigger: always_on
     - `POST /api/path` -> 对应后端的 `saveOrUpdate`。
     - `DELETE /api/path/{id}` -> 单选删除。
     - `DELETE /api/path` (Body 传 IDs) -> 批量删除。
-3. **Hook 依赖**：
+3. **分页与排序适配**：
+    - **页码索引**：前端分页组件通常使用 1-based 索引，后端框架已统一处理偏移，前端直接传递 `current` 即可。
+    - **排序字段**：前端 `Sorter` 对象属性应与后端实体字段名保持一致。
+4. **Hook 依赖**：
     - 列表与 CRUD 场景 **强制优先** 使用 `@/hooks/common/useCrud`。
+5. **异常处理逻辑**：
+    - **401 (Unauthorized)**：用户未登录或 Token 过期，系统应自动清理状态并跳转至登录页。
+    - **403 (Forbidden)**：用户已登录但无权进行此操作，系统应弹出错误提示（Message），**禁止** 自动跳转登录页以防循环。
+    - **500/其他错误**：由全局 `request` 拦截器统一提示。
 
 ## 四、 useCrud Hook 使用规范
 
@@ -77,6 +84,7 @@ const state = getState(pathname);
     onCancel={() => setDialogVisible(false)}
     onSuccess={() => {
         setDialogVisible(false);
+        // ✅ 必须调用 actionRef 刷新当前列表
         actionRef.current?.reload();
     }}
 />
