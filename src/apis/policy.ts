@@ -42,7 +42,7 @@ export interface PolicyPageParams {
  * 分页查询政策法规
  */
 export async function getPolicyPage(params: PolicyPageParams) {
-    return request<API.Result<API.PageResult<Policy>>>('/api/ems/policies/search', {
+    return request<API.Result<API.PageResult<Policy>>>('/api/ems/policies', {
         method: 'GET',
         params: {
             pageNumber: (params.current || 1) - 1,

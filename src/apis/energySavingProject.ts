@@ -42,7 +42,7 @@ export interface ProjectPageParams {
  * 分页查询节能项目
  */
 export async function getProjectPage(params: ProjectPageParams) {
-    return request<API.Result<API.PageResult<EnergySavingProject>>>('/api/ems/saving-projects/search', {
+    return request<API.Result<API.PageResult<EnergySavingProject>>>('/api/ems/saving-projects', {
         method: 'GET',
         params: {
             pageNumber: (params.current || 1) - 1,

@@ -29,7 +29,82 @@ trigger: always_on
 3. **Hook 依赖**：
     - 列表与 CRUD 场景 **强制优先** 使用 `@/hooks/common/useCrud`。
 
-## 四、 权限与认证
+## 四、 useCrud Hook 使用规范
+
+### 4.1 基本用法
+
+标准 CRUD 页面必须使用 `useCrud` hook 管理状态和操作：
+
+```tsx
+const {
+    getState,
+    actionRef,
+    toCreate,        // 新建操作
+    toEdit,          // 编辑操作
+    toBatchDelete,   // 批量删除
+    setDialogVisible,
+} = useCrud<EntityType>({
+    pathname: '/module/page',  // 全局唯一路径标识
+    entityName: '实体名称',     // 用于提示信息
+    baseUrl: '/api/entities',
+});
+
+const state = getState('/module/page');
+```
+
+### 4.2 禁止的本地状态模式
+
+以下本地状态模式已废弃，**禁止在新代码中使用**：
+
+```tsx
+// ❌ 禁止使用
+const [formVisible, setFormVisible] = useState(false);
+const [currentRecord, setCurrentRecord] = useState<T>();
+const handleAdd = () => { setCurrentRecord(undefined); setFormVisible(true); };
+const handleEdit = (record) => { setCurrentRecord(record); setFormVisible(true); };
+
+// ✅ 应使用
+const { toCreate, toEdit, getState, setDialogVisible } = useCrud(...);
+const state = getState(pathname);
+```
+
+### 4.3 对话框组件连接
+
+```tsx
+<EntityForm
+    visible={state?.dialogVisible || false}
+    record={state?.editData as EntityType | undefined}
+    onCancel={() => setDialogVisible(false)}
+    onSuccess={() => {
+        setDialogVisible(false);
+        actionRef.current?.reload();
+    }}
+/>
+```
+
+### 4.4 批量删除实现
+
+```tsx
+const handleBatchDelete = async () => {
+    if (deleteDisabled) return;
+    try {
+        await toBatchDelete(selectedRowKeys as number[], true);
+        setSelectedRowKeys([]);
+        setSelectedRows([]);
+    } catch (error) {
+        // 错误由全局处理
+    }
+};
+```
+
+### 4.5 不适用场景
+
+以下场景不强制使用 useCrud：
+- 树形结构管理页面（如用能单元管理）
+- 多列复合布局页面（如报警配置）
+- 纯展示/分析页面
+
+## 五、 权限与认证
 
 - 权限判断使用 `Access` 组件或 `useAccess` Hook。
 - 敏感操作按钮（新增、编辑、删除）必须绑定权限标识。

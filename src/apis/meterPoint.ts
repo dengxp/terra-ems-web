@@ -49,7 +49,7 @@ export interface MeterPointPageParams {
  * 分页查询采集点位
  */
 export async function getMeterPointPage(params: MeterPointPageParams) {
-    return request<API.Result<API.PageResult<MeterPoint>>>('/api/meter-points/search', {
+    return request<API.Result<API.PageResult<MeterPoint>>>('/api/meter-points', {
         method: 'GET',
         params: {
             current: params.current || 1,

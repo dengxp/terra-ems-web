@@ -41,7 +41,7 @@ export async function getMeters(params: {
     pageNumber?: number;
     pageSize?: number;
 }) {
-    return request<API.Result<API.PageResult<Meter>>>('/api/meters/search', {
+    return request<API.Result<API.PageResult<Meter>>>('/api/meters', {
         method: 'GET',
         params,
     });
