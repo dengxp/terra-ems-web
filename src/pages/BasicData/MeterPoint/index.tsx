@@ -1,74 +1,57 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { ProPageContainer } from '@/components/container';
-import { ProTable, ActionType, ProColumns, ProFormInstance } from '@ant-design/pro-components';
-import { Button, message, Space } from 'antd';
+import { ProTable, ProColumns } from '@ant-design/pro-components';
+import { Button, Space } from 'antd';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
-import { MeterPoint, getMeterPointPage, deleteMeterPoint } from '@/apis/meterPoint';
+import { MeterPoint, getMeterPointPage } from '@/apis/meterPoint';
 import MeterPointForm from './components/MeterPointForm';
 import StatusIcon from '@/components/icons/StatusIcon';
 import { EditButton, DeleteButton } from '@/components/button';
-import ModalConfirm from '@/components/ModalConfirm';
 import useCrud from '@/hooks/common/useCrud';
 
 /**
  * 采集点位管理页面
  */
 const MeterPointPage: React.FC = () => {
-    const formRef = useRef<ProFormInstance>();
-    const actionRef = useRef<ActionType>();
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     const [selectedRows, setSelectedRows] = useState<MeterPoint[]>([]);
-    const [formVisible, setFormVisible] = useState(false);
-    const [currentRecord, setCurrentRecord] = useState<MeterPoint | undefined>(undefined);
 
-    const { toDelete } = useCrud<MeterPoint>({
+    const {
+        getState,
+        formRef,
+        actionRef,
+        toCreate,
+        toEdit,
+        toDelete,
+        toBatchDelete,
+        setDialogVisible,
+    } = useCrud<MeterPoint>({
         pathname: '/basic-data/meter-point',
         entityName: '采集点位',
         baseUrl: '/api/meter-points',
     });
 
-    const handleAdd = () => {
-        setCurrentRecord(undefined);
-        setFormVisible(true);
-    };
-
-    const handleEdit = (record: MeterPoint) => {
-        setCurrentRecord(record);
-        setFormVisible(true);
-    };
+    const state = getState('/basic-data/meter-point');
 
     const toEditSelected = () => {
         if (editDisabled) return;
         if (!selectedRows || selectedRows.length !== 1) return;
-        handleEdit(selectedRows[0]);
+        toEdit(selectedRows[0]);
     };
 
-    const toDeleteBatch = () => {
+    const handleBatchDelete = async () => {
         if (deleteDisabled) return;
-        if (!selectedRowKeys || selectedRowKeys.length === 0) return;
-
-        ModalConfirm({
-            title: '删除采集点位',
-            content: '采集点位删除后将无法恢复，请确认是否删除？',
-            onOk: async () => {
-                try {
-                    // 逐个删除
-                    for (const id of selectedRowKeys) {
-                        await deleteMeterPoint(id as number);
-                    }
-                    message.success('删除成功');
-                    setSelectedRowKeys([]);
-                    setSelectedRows([]);
-                    actionRef.current?.reload();
-                } catch (error) {
-                    message.error('删除失败');
-                }
-            },
-        });
+        try {
+            await toBatchDelete(selectedRowKeys as number[], true);
+            setSelectedRowKeys([]);
+            setSelectedRows([]);
+        } catch (error) {
+            // 错误由全局处理
+        }
     };
 
     const handleFormSuccess = () => {
-        setFormVisible(false);
+        setDialogVisible(false);
         actionRef.current?.reload();
     };
 
@@ -182,7 +165,7 @@ const MeterPointPage: React.FC = () => {
             hideInSearch: true,
             render: (_, record) => (
                 <Space>
-                    <EditButton onClick={() => handleEdit(record)} />
+                    <EditButton onClick={() => toEdit(record)} />
                     <DeleteButton onClick={() => toDelete(record.id, true)} />
                 </Space>
             ),
@@ -220,7 +203,7 @@ const MeterPointPage: React.FC = () => {
                                     icon={<PlusOutlined />}
                                     variant={'outlined'}
                                     size={'small'}
-                                    onClick={handleAdd}
+                                    onClick={toCreate}
                                 >
                                     新建
                                 </Button>
@@ -240,7 +223,7 @@ const MeterPointPage: React.FC = () => {
                                     disabled={deleteDisabled}
                                     size={'small'}
                                     variant={'outlined'}
-                                    onClick={toDeleteBatch}
+                                    onClick={handleBatchDelete}
                                 >
                                     删除
                                 </Button>
@@ -264,10 +247,10 @@ const MeterPointPage: React.FC = () => {
             </ProPageContainer>
 
             <MeterPointForm
-                visible={formVisible}
-                onVisibleChange={setFormVisible}
+                visible={state?.dialogVisible || false}
+                onVisibleChange={(v) => setDialogVisible(v)}
                 onSuccess={handleFormSuccess}
-                currentRecord={currentRecord}
+                currentRecord={state?.editData as MeterPoint | undefined}
             />
         </>
     );

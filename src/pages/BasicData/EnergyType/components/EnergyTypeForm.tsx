@@ -1,5 +1,6 @@
 import React from 'react';
-import { message } from 'antd';
+import { message, ColorPicker, Form, Col } from 'antd';
+import type { Color } from 'antd/es/color-picker';
 import {
     ProFormText,
     ProFormSelect,
@@ -11,7 +12,8 @@ import {
 import { ProModalForm } from '@/components/container';
 import {
     EnergyType,
-    EnergyTypeCategory,
+    EnergyCategory,
+    EnergyCategoryLabel,
     createEnergyType,
     updateEnergyType,
 } from '@/apis/energyType';
@@ -36,17 +38,14 @@ const EnergyTypeForm: React.FC<EnergyTypeFormProps> = ({
 
     const onFinish = async (values: any) => {
         try {
-            if (isEdit) {
-                await updateEnergyType(record!.id, values);
-                message.success('更新成功');
-            } else {
-                await createEnergyType(values);
-                message.success('创建成功');
-            }
+            // 统一使用 saveOrUpdate (POST)，编辑时携带 id
+            const payload = isEdit ? { ...values, id: record!.id } : values;
+            await createEnergyType(payload);
+            message.success(isEdit ? '更新成功' : '创建成功');
             onSuccess();
             return true;
         } catch (error: any) {
-            message.error(isEdit ? '更新失败' : '创建失败');
+            // 全局错误处理已显示错误消息，此处仅返回 false 阻止表单关闭
             return false;
         }
     };
@@ -106,8 +105,8 @@ const EnergyTypeForm: React.FC<EnergyTypeFormProps> = ({
                 name="category"
                 label="类别"
                 colProps={{ span: 12 }}
-                options={Object.entries(EnergyTypeCategory).map(([value, label]) => ({
-                    label,
+                options={Object.values(EnergyCategory).map((value) => ({
+                    label: EnergyCategoryLabel[value],
                     value,
                 }))}
                 placeholder="请选择类别"
@@ -152,12 +151,30 @@ const EnergyTypeForm: React.FC<EnergyTypeFormProps> = ({
                 }}
             />
 
-            <ProFormText
-                name="color"
-                label="展示颜色"
-                colProps={{ span: 12 }}
-                placeholder="如：#1890ff"
-            />
+            <Col span={12}>
+                <Form.Item
+                    name="color"
+                    label="展示颜色"
+                    labelCol={{ span: 6 }}
+                    wrapperCol={{ span: 18 }}
+                    getValueFromEvent={(color: Color) => color?.toHexString()}
+                    getValueProps={(value: string) => ({ value: value || undefined })}
+                >
+                    <ColorPicker
+                        showText
+                        allowClear
+                        presets={[
+                            {
+                                label: '推荐颜色',
+                                colors: [
+                                    '#1890ff', '#52c41a', '#faad14', '#f5222d', '#722ed1',
+                                    '#13c2c2', '#eb2f96', '#fa8c16', '#a0d911', '#2f54eb',
+                                ],
+                            },
+                        ]}
+                    />
+                </Form.Item>
+            </Col>
 
             <ProFormDigit
                 name="sortOrder"

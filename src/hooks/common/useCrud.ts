@@ -28,16 +28,20 @@ type Props = {
  * - DELETE baseUrl/{id}     → 删除
  */
 export default function useCrud<T extends Entity>({ entityName, pathname, baseUrl, onOpenChange }: Props) {
-  const { getState, initState, updateState } = useModel('crudModel');
+  const { getState, initState, updateState, resetState } = useModel('crudModel');
 
   const [form] = Form.useForm();
   const formRef = useRef<ProFormInstance>();
   const actionRef = useRef<ActionType | undefined>();
 
-  // 初始化对应 pathname 的状态
+  // 初始化对应 pathname 的状态，并在组件卸载时重置对话框状态
   useEffect(() => {
     initState(pathname);
-  }, [pathname, initState]);
+    // 组件卸载时重置对话框状态，解决页面切换时对话框残留问题
+    return () => {
+      resetState(pathname);
+    };
+  }, [pathname, initState, resetState]);
 
   // ============================================================================
   // 纯 API 调用方法 (第 4 层)
@@ -366,6 +370,7 @@ export default function useCrud<T extends Entity>({ entityName, pathname, baseUr
     actionRef,
     // 状态获取/更新
     getState,
-    updateState
+    updateState,
+    resetState
   }
 }

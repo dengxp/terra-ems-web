@@ -1,7 +1,7 @@
-import React, { useRef, useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { ProPageContainer } from '@/components/container';
-import { ProTable, ActionType, ProColumns } from '@ant-design/pro-components';
-import { Button, message, Space, Tag } from 'antd';
+import { ProTable, ProColumns } from '@ant-design/pro-components';
+import { Button, Space, Tag } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import {
     EnergyCostRecord,
@@ -11,64 +11,51 @@ import {
 } from '@/apis/energyCostRecord';
 import CostRecordForm from './components/CostRecordForm';
 import { EditButton, DeleteButton } from '@/components/button';
-import ModalConfirm from '@/components/ModalConfirm';
+import useCrud from '@/hooks/common/useCrud';
 import dayjs from 'dayjs';
 
 const CostRecordPage: React.FC = () => {
-    const actionRef = useRef<ActionType>();
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     const [selectedRows, setSelectedRows] = useState<EnergyCostRecord[]>([]);
-    const [formVisible, setFormVisible] = useState(false);
-    const [isEdit, setIsEdit] = useState(false);
-    const [currentRecord, setCurrentRecord] = useState<EnergyCostRecord>();
 
-    const handleAdd = () => {
-        setIsEdit(false);
-        setCurrentRecord(undefined);
-        setFormVisible(true);
-    };
+    const {
+        getState,
+        actionRef,
+        toCreate,
+        toEdit,
+        toBatchDelete,
+        setDialogVisible,
+    } = useCrud<EnergyCostRecord>({
+        pathname: '/cost-management/cost-record',
+        entityName: '成本记录',
+        baseUrl: '/api/energy-cost-records',
+    });
 
-    const handleEdit = (record: EnergyCostRecord) => {
-        setIsEdit(true);
-        setCurrentRecord(record);
-        setFormVisible(true);
-    };
+    const state = getState('/cost-management/cost-record');
 
     const toEditSelected = () => {
         if (editDisabled) return;
-        handleEdit(selectedRows[0]);
+        toEdit(selectedRows[0]);
     };
 
     const handleDelete = async (id: number) => {
         try {
             await deleteEnergyCostRecord(id);
-            message.success('删除成功');
             actionRef.current?.reload();
         } catch (error) {
             console.error(error);
         }
     };
 
-    const toDeleteBatch = () => {
+    const handleBatchDelete = async () => {
         if (deleteDisabled) return;
-
-        ModalConfirm({
-            title: '删除成本记录',
-            content: '确认删除选中的成本记录？',
-            onOk: async () => {
-                try {
-                    for (const id of selectedRowKeys) {
-                        await deleteEnergyCostRecord(id as number);
-                    }
-                    message.success('删除成功');
-                    setSelectedRowKeys([]);
-                    setSelectedRows([]);
-                    actionRef.current?.reload();
-                } catch (error) {
-                    message.error('删除失败');
-                }
-            },
-        });
+        try {
+            await toBatchDelete(selectedRowKeys as number[], true);
+            setSelectedRowKeys([]);
+            setSelectedRows([]);
+        } catch (error) {
+            // 错误由全局处理
+        }
     };
 
     const editDisabled = useMemo(() => !selectedRowKeys || selectedRowKeys.length !== 1, [selectedRowKeys]);
@@ -133,7 +120,7 @@ const CostRecordPage: React.FC = () => {
             width: 120,
             render: (_, record) => (
                 <Space>
-                    <EditButton onClick={() => handleEdit(record)} />
+                    <EditButton onClick={() => toEdit(record)} />
                     <DeleteButton onClick={() => handleDelete(record.id)} />
                 </Space>
             ),
@@ -162,13 +149,13 @@ const CostRecordPage: React.FC = () => {
                 toolbar={{
                     title: (
                         <Space>
-                            <Button color={'primary'} icon={<PlusOutlined />} variant={'outlined'} size={'small'} onClick={handleAdd}>
+                            <Button color={'primary'} icon={<PlusOutlined />} variant={'outlined'} size={'small'} onClick={toCreate}>
                                 新建
                             </Button>
                             <Button color={'green'} icon={<EditOutlined />} disabled={editDisabled} size={'small'} variant={'outlined'} onClick={toEditSelected}>
                                 修改
                             </Button>
-                            <Button color={'danger'} icon={<DeleteOutlined />} disabled={deleteDisabled} size={'small'} variant={'outlined'} onClick={toDeleteBatch}>
+                            <Button color={'danger'} icon={<DeleteOutlined />} disabled={deleteDisabled} size={'small'} variant={'outlined'} onClick={handleBatchDelete}>
                                 删除
                             </Button>
                         </Space>
@@ -190,11 +177,14 @@ const CostRecordPage: React.FC = () => {
                 columns={columns}
             />
             <CostRecordForm
-                visible={formVisible}
-                onVisibleChange={setFormVisible}
-                isEdit={isEdit}
-                currentRecord={currentRecord}
-                onSuccess={() => actionRef.current?.reload()}
+                visible={state?.dialogVisible || false}
+                onVisibleChange={(v) => setDialogVisible(v)}
+                isEdit={!!state?.editData}
+                currentRecord={state?.editData as EnergyCostRecord | undefined}
+                onSuccess={() => {
+                    setDialogVisible(false);
+                    actionRef.current?.reload();
+                }}
             />
         </ProPageContainer>
     );

@@ -1,7 +1,7 @@
-import React, { useRef, useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { ProPageContainer } from '@/components/container';
-import { ProTable, ActionType, ProColumns } from '@ant-design/pro-components';
-import { Button, message, Space, Tag, Typography } from 'antd';
+import { ProTable, ProColumns } from '@ant-design/pro-components';
+import { Button, Space, Tag, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, LinkOutlined } from '@ant-design/icons';
 import {
     Policy,
@@ -12,68 +12,54 @@ import {
 } from '@/apis/policy';
 import PolicyForm from './components/PolicyForm';
 import { EditButton, DeleteButton } from '@/components/button';
-import ModalConfirm from '@/components/ModalConfirm';
+import useCrud from '@/hooks/common/useCrud';
 import dayjs from 'dayjs';
 
 const { Link } = Typography;
 
 const PolicyPage: React.FC = () => {
-    const actionRef = useRef<ActionType>();
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     const [selectedRows, setSelectedRows] = useState<Policy[]>([]);
-    const [formVisible, setFormVisible] = useState(false);
-    const [isEdit, setIsEdit] = useState(false);
-    const [currentRecord, setCurrentRecord] = useState<Policy>();
 
-    const handleAdd = () => {
-        setIsEdit(false);
-        setCurrentRecord(undefined);
-        setFormVisible(true);
-    };
+    const {
+        getState,
+        actionRef,
+        toCreate,
+        toEdit,
+        toBatchDelete,
+        setDialogVisible,
+    } = useCrud<Policy>({
+        pathname: '/energy-saving/policy',
+        entityName: '政策法规',
+        baseUrl: '/api/policies',
+    });
 
-    const handleEdit = (record: Policy) => {
-        setIsEdit(true);
-        setCurrentRecord(record);
-        setFormVisible(true);
-    };
+    const state = getState('/energy-saving/policy');
 
     const toEditSelected = () => {
         if (editDisabled) return;
         if (!selectedRows || selectedRows.length !== 1) return;
-        handleEdit(selectedRows[0]);
+        toEdit(selectedRows[0]);
     };
 
     const handleDelete = async (id: number) => {
         try {
             await deletePolicy(id);
-            message.success('删除成功');
             actionRef.current?.reload();
         } catch (error) {
             console.error(error);
         }
     };
 
-    const toDeleteBatch = () => {
+    const handleBatchDelete = async () => {
         if (deleteDisabled) return;
-        if (!selectedRowKeys || selectedRowKeys.length === 0) return;
-
-        ModalConfirm({
-            title: '删除政策法规',
-            content: '政策法规删除后将无法恢复，请确认是否删除？',
-            onOk: async () => {
-                try {
-                    for (const id of selectedRowKeys) {
-                        await deletePolicy(id as number);
-                    }
-                    message.success('删除成功');
-                    setSelectedRowKeys([]);
-                    setSelectedRows([]);
-                    actionRef.current?.reload();
-                } catch (error) {
-                    message.error('删除失败');
-                }
-            },
-        });
+        try {
+            await toBatchDelete(selectedRowKeys as number[], true);
+            setSelectedRowKeys([]);
+            setSelectedRows([]);
+        } catch (error) {
+            // 错误由全局处理
+        }
     };
 
     const editDisabled = useMemo(() => {
@@ -151,7 +137,7 @@ const PolicyPage: React.FC = () => {
             width: 120,
             render: (_, record) => (
                 <Space>
-                    <EditButton onClick={() => handleEdit(record)} />
+                    <EditButton onClick={() => toEdit(record)} />
                     <DeleteButton onClick={() => handleDelete(record.id as number)} />
                 </Space>
             ),
@@ -185,7 +171,7 @@ const PolicyPage: React.FC = () => {
                                 icon={<PlusOutlined />}
                                 variant={'outlined'}
                                 size={'small'}
-                                onClick={handleAdd}
+                                onClick={toCreate}
                             >
                                 新建
                             </Button>
@@ -205,7 +191,7 @@ const PolicyPage: React.FC = () => {
                                 disabled={deleteDisabled}
                                 size={'small'}
                                 variant={'outlined'}
-                                onClick={toDeleteBatch}
+                                onClick={handleBatchDelete}
                             >
                                 删除
                             </Button>
@@ -228,11 +214,14 @@ const PolicyPage: React.FC = () => {
                 columns={columns}
             />
             <PolicyForm
-                visible={formVisible}
-                onVisibleChange={setFormVisible}
-                isEdit={isEdit}
-                currentRecord={currentRecord}
-                onSuccess={() => actionRef.current?.reload()}
+                visible={state?.dialogVisible || false}
+                onVisibleChange={(v) => setDialogVisible(v)}
+                isEdit={!!state?.editData}
+                currentRecord={state?.editData as Policy | undefined}
+                onSuccess={() => {
+                    setDialogVisible(false);
+                    actionRef.current?.reload();
+                }}
             />
         </ProPageContainer>
     );

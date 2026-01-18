@@ -1,20 +1,19 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { ProPageContainer } from '@/components/container';
-import { Button, message, Space } from 'antd';
+import { Button, Space } from 'antd';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ProColumns, ProTable } from '@ant-design/pro-components';
 import useCrud from '@/hooks/common/useCrud';
 import { DeleteButton, EditButton } from '@/components/button';
 import {
     EnergyType,
-    EnergyTypeCategory,
+    EnergyCategory,
+    EnergyCategoryLabel,
     getEnergyTypes,
     deleteEnergyType,
-    deleteEnergyTypesBatch,
 } from '@/apis/energyType';
 import EnergyTypeForm from './components/EnergyTypeForm';
 import StatusIcon from '@/components/icons/StatusIcon';
-import ModalConfirm from '@/components/ModalConfirm';
 
 /**
  * 能源类型管理页面
@@ -22,8 +21,6 @@ import ModalConfirm from '@/components/ModalConfirm';
 const Index: React.FC = () => {
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     const [selectedRows, setSelectedRows] = useState<EnergyType[]>([]);
-    const [formVisible, setFormVisible] = useState(false);
-    const [currentRecord, setCurrentRecord] = useState<EnergyType | undefined>();
 
     const {
         getState,
@@ -32,9 +29,9 @@ const Index: React.FC = () => {
         toCreate,
         toEdit,
         toDelete,
+        toBatchDelete,
         setDialogVisible,
         setShouldRefresh,
-        updateState,
     } = useCrud<EnergyType>({
         pathname: '/basic-data/energy-type',
         entityName: '能源类型',
@@ -43,50 +40,28 @@ const Index: React.FC = () => {
 
     const state = getState('/basic-data/energy-type');
 
-    // 打开新增表单
-    const handleAdd = () => {
-        setCurrentRecord(undefined);
-        setFormVisible(true);
-    };
-
-    // 打开编辑表单
-    const handleEdit = (record: EnergyType) => {
-        setCurrentRecord(record);
-        setFormVisible(true);
-    };
-
     // 编辑选中项
     const toEditSelected = () => {
         if (editDisabled) return;
         if (!selectedRows || selectedRows.length !== 1) return;
-        handleEdit(selectedRows[0]);
+        toEdit(selectedRows[0]);
     };
 
-    // 批量删除
-    const toDeleteBatch = () => {
+    // 批量删除 - 使用 useCrud 的 toBatchDelete
+    const handleBatchDelete = async () => {
         if (deleteDisabled) return;
-        if (!selectedRowKeys || selectedRowKeys.length === 0) return;
-
-        ModalConfirm({
-            title: '删除' + '能源类型',
-            content: '能源类型删除后将无法恢复，请确认是否删除？',
-            onOk: async () => {
-                try {
-                    await deleteEnergyTypesBatch(selectedRowKeys as number[]);
-                    message.success('删除成功');
-                    setSelectedRowKeys([]);
-                    setSelectedRows([]);
-                    actionRef.current?.reload();
-                } catch (error) {
-                    message.error('删除失败');
-                }
-            },
-        });
+        try {
+            await toBatchDelete(selectedRowKeys as number[], true);
+            setSelectedRowKeys([]);
+            setSelectedRows([]);
+        } catch (error) {
+            // 错误由全局处理
+        }
     };
 
     // 表单提交成功
     const handleFormSuccess = () => {
-        setFormVisible(false);
+        setDialogVisible(false);
         actionRef.current?.reload();
     };
 
@@ -156,12 +131,12 @@ const Index: React.FC = () => {
             valueType: 'select',
             fieldProps: {
                 placeholder: '请选择类别',
-                options: Object.entries(EnergyTypeCategory).map(([key, value]) => ({
-                    label: value,
-                    value: key,
+                options: Object.values(EnergyCategory).map((value) => ({
+                    label: EnergyCategoryLabel[value],
+                    value,
                 })),
             },
-            render: (_, record) => EnergyTypeCategory[record.category as keyof typeof EnergyTypeCategory] || record.category,
+            render: (_, record) => EnergyCategoryLabel[record.category as EnergyCategory] || record.category,
         },
         {
             title: '折标系数',
@@ -225,7 +200,7 @@ const Index: React.FC = () => {
             hideInSearch: true,
             render: (_, record) => (
                 <Space>
-                    <EditButton onClick={() => handleEdit(record)} />
+                    <EditButton onClick={() => toEdit(record)} />
                     <DeleteButton onClick={() => toDelete(record.id, true)} />
                 </Space>
             ),
@@ -263,7 +238,7 @@ const Index: React.FC = () => {
                                     icon={<PlusOutlined />}
                                     variant={'outlined'}
                                     size={'small'}
-                                    onClick={handleAdd}
+                                    onClick={toCreate}
                                 >
                                     新建
                                 </Button>
@@ -283,7 +258,7 @@ const Index: React.FC = () => {
                                     disabled={deleteDisabled}
                                     size={'small'}
                                     variant={'outlined'}
-                                    onClick={toDeleteBatch}
+                                    onClick={handleBatchDelete}
                                 >
                                     删除
                                 </Button>
@@ -307,9 +282,9 @@ const Index: React.FC = () => {
             </ProPageContainer>
 
             <EnergyTypeForm
-                visible={formVisible}
-                record={currentRecord}
-                onCancel={() => setFormVisible(false)}
+                visible={state?.dialogVisible || false}
+                record={state?.editData as EnergyType | undefined}
+                onCancel={() => setDialogVisible(false)}
                 onSuccess={handleFormSuccess}
             />
         </>

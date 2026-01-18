@@ -1,7 +1,7 @@
-import React, { useRef, useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { ProPageContainer } from '@/components/container';
-import { ProTable, ActionType, ProColumns } from '@ant-design/pro-components';
-import { Button, message, Space, Tag, Progress } from 'antd';
+import { ProTable, ProColumns } from '@ant-design/pro-components';
+import { Button, Space, Tag, Progress } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import {
     EnergySavingProject,
@@ -12,66 +12,52 @@ import {
 } from '@/apis/energySavingProject';
 import ProjectForm from './components/ProjectForm';
 import { EditButton, DeleteButton } from '@/components/button';
-import ModalConfirm from '@/components/ModalConfirm';
+import useCrud from '@/hooks/common/useCrud';
 import dayjs from 'dayjs';
 
 const EnergySavingProjectPage: React.FC = () => {
-    const actionRef = useRef<ActionType>();
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     const [selectedRows, setSelectedRows] = useState<EnergySavingProject[]>([]);
-    const [formVisible, setFormVisible] = useState(false);
-    const [isEdit, setIsEdit] = useState(false);
-    const [currentRecord, setCurrentRecord] = useState<EnergySavingProject>();
 
-    const handleAdd = () => {
-        setIsEdit(false);
-        setCurrentRecord(undefined);
-        setFormVisible(true);
-    };
+    const {
+        getState,
+        actionRef,
+        toCreate,
+        toEdit,
+        toBatchDelete,
+        setDialogVisible,
+    } = useCrud<EnergySavingProject>({
+        pathname: '/energy-saving/project',
+        entityName: '节能项目',
+        baseUrl: '/api/energy-saving-projects',
+    });
 
-    const handleEdit = (record: EnergySavingProject) => {
-        setIsEdit(true);
-        setCurrentRecord(record);
-        setFormVisible(true);
-    };
+    const state = getState('/energy-saving/project');
 
     const toEditSelected = () => {
         if (editDisabled) return;
         if (!selectedRows || selectedRows.length !== 1) return;
-        handleEdit(selectedRows[0]);
+        toEdit(selectedRows[0]);
     };
 
     const handleDelete = async (id: number) => {
         try {
             await deleteProject(id);
-            message.success('删除成功');
             actionRef.current?.reload();
         } catch (error) {
             console.error(error);
         }
     };
 
-    const toDeleteBatch = () => {
+    const handleBatchDelete = async () => {
         if (deleteDisabled) return;
-        if (!selectedRowKeys || selectedRowKeys.length === 0) return;
-
-        ModalConfirm({
-            title: '删除节能项目',
-            content: '节能项目删除后将无法恢复，请确认是否删除？',
-            onOk: async () => {
-                try {
-                    for (const id of selectedRowKeys) {
-                        await deleteProject(id as number);
-                    }
-                    message.success('删除成功');
-                    setSelectedRowKeys([]);
-                    setSelectedRows([]);
-                    actionRef.current?.reload();
-                } catch (error) {
-                    message.error('删除失败');
-                }
-            },
-        });
+        try {
+            await toBatchDelete(selectedRowKeys as number[], true);
+            setSelectedRowKeys([]);
+            setSelectedRows([]);
+        } catch (error) {
+            // 错误由全局处理
+        }
     };
 
     const editDisabled = useMemo(() => {
@@ -136,7 +122,7 @@ const EnergySavingProjectPage: React.FC = () => {
             width: 120,
             render: (_, record) => (
                 <Space>
-                    <EditButton onClick={() => handleEdit(record)} />
+                    <EditButton onClick={() => toEdit(record)} />
                     <DeleteButton onClick={() => handleDelete(record.id as number)} />
                 </Space>
             ),
@@ -170,7 +156,7 @@ const EnergySavingProjectPage: React.FC = () => {
                                 icon={<PlusOutlined />}
                                 variant={'outlined'}
                                 size={'small'}
-                                onClick={handleAdd}
+                                onClick={toCreate}
                             >
                                 新建
                             </Button>
@@ -190,7 +176,7 @@ const EnergySavingProjectPage: React.FC = () => {
                                 disabled={deleteDisabled}
                                 size={'small'}
                                 variant={'outlined'}
-                                onClick={toDeleteBatch}
+                                onClick={handleBatchDelete}
                             >
                                 删除
                             </Button>
@@ -213,11 +199,14 @@ const EnergySavingProjectPage: React.FC = () => {
                 columns={columns}
             />
             <ProjectForm
-                visible={formVisible}
-                onVisibleChange={setFormVisible}
-                isEdit={isEdit}
-                currentRecord={currentRecord}
-                onSuccess={() => actionRef.current?.reload()}
+                visible={state?.dialogVisible || false}
+                onVisibleChange={(v) => setDialogVisible(v)}
+                isEdit={!!state?.editData}
+                currentRecord={state?.editData as EnergySavingProject | undefined}
+                onSuccess={() => {
+                    setDialogVisible(false);
+                    actionRef.current?.reload();
+                }}
             />
         </ProPageContainer>
     );

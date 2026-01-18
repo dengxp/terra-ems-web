@@ -1,73 +1,57 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { ProPageContainer } from '@/components/container';
-import { ProTable, ActionType, ProColumns, ProFormInstance } from '@ant-design/pro-components';
-import { Button, message, Space, Tag } from 'antd';
+import { ProTable, ProColumns } from '@ant-design/pro-components';
+import { Button, Space, Tag } from 'antd';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
-import { PricePolicy, PeriodTypeOptions, getPricePolicyPage, deletePricePolicy } from '@/apis/pricePolicy';
+import { PricePolicy, PeriodTypeOptions, getPricePolicyPage } from '@/apis/pricePolicy';
 import PricePolicyForm from './components/PricePolicyForm';
 import StatusIcon from '@/components/icons/StatusIcon';
 import { EditButton, DeleteButton } from '@/components/button';
-import ModalConfirm from '@/components/ModalConfirm';
 import useCrud from '@/hooks/common/useCrud';
 
 /**
  * 电价策略管理页面
  */
 const PricePolicyPage: React.FC = () => {
-    const formRef = useRef<ProFormInstance>();
-    const actionRef = useRef<ActionType>();
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     const [selectedRows, setSelectedRows] = useState<PricePolicy[]>([]);
-    const [formVisible, setFormVisible] = useState(false);
-    const [currentRecord, setCurrentRecord] = useState<PricePolicy | undefined>(undefined);
 
-    const { toDelete } = useCrud<PricePolicy>({
+    const {
+        getState,
+        formRef,
+        actionRef,
+        toCreate,
+        toEdit,
+        toDelete,
+        toBatchDelete,
+        setDialogVisible,
+    } = useCrud<PricePolicy>({
         pathname: '/basic-data/price-policy',
         entityName: '电价策略',
         baseUrl: '/api/price-policies',
     });
 
-    const handleAdd = () => {
-        setCurrentRecord(undefined);
-        setFormVisible(true);
-    };
-
-    const handleEdit = (record: PricePolicy) => {
-        setCurrentRecord(record);
-        setFormVisible(true);
-    };
+    const state = getState('/basic-data/price-policy');
 
     const toEditSelected = () => {
         if (editDisabled) return;
         if (!selectedRows || selectedRows.length !== 1) return;
-        handleEdit(selectedRows[0]);
+        toEdit(selectedRows[0]);
     };
 
-    const toDeleteBatch = () => {
+    const handleBatchDelete = async () => {
         if (deleteDisabled) return;
-        if (!selectedRowKeys || selectedRowKeys.length === 0) return;
-
-        ModalConfirm({
-            title: '删除电价策略',
-            content: '电价策略删除后将无法恢复，请确认是否删除？',
-            onOk: async () => {
-                try {
-                    for (const id of selectedRowKeys) {
-                        await deletePricePolicy(id as number);
-                    }
-                    message.success('删除成功');
-                    setSelectedRowKeys([]);
-                    setSelectedRows([]);
-                    actionRef.current?.reload();
-                } catch (error) {
-                    message.error('删除失败');
-                }
-            },
-        });
+        try {
+            await toBatchDelete(selectedRowKeys as number[], true);
+            setSelectedRowKeys([]);
+            setSelectedRows([]);
+        } catch (error) {
+            // 错误由全局处理
+        }
     };
 
     const handleFormSuccess = () => {
-        setFormVisible(false);
+        setDialogVisible(false);
         actionRef.current?.reload();
     };
 
@@ -187,7 +171,7 @@ const PricePolicyPage: React.FC = () => {
             hideInSearch: true,
             render: (_, record) => (
                 <Space>
-                    <EditButton onClick={() => handleEdit(record)} />
+                    <EditButton onClick={() => toEdit(record)} />
                     <DeleteButton onClick={() => toDelete(record.id, true)} />
                 </Space>
             ),
@@ -225,7 +209,7 @@ const PricePolicyPage: React.FC = () => {
                                     icon={<PlusOutlined />}
                                     variant={'outlined'}
                                     size={'small'}
-                                    onClick={handleAdd}
+                                    onClick={toCreate}
                                 >
                                     新建
                                 </Button>
@@ -245,7 +229,7 @@ const PricePolicyPage: React.FC = () => {
                                     disabled={deleteDisabled}
                                     size={'small'}
                                     variant={'outlined'}
-                                    onClick={toDeleteBatch}
+                                    onClick={handleBatchDelete}
                                 >
                                     删除
                                 </Button>
@@ -269,10 +253,10 @@ const PricePolicyPage: React.FC = () => {
             </ProPageContainer>
 
             <PricePolicyForm
-                visible={formVisible}
-                onVisibleChange={setFormVisible}
+                visible={state?.dialogVisible || false}
+                onVisibleChange={(v) => setDialogVisible(v)}
                 onSuccess={handleFormSuccess}
-                currentRecord={currentRecord}
+                currentRecord={state?.editData as PricePolicy | undefined}
             />
         </>
     );

@@ -1,7 +1,7 @@
-import React, { useRef, useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { ProPageContainer } from '@/components/container';
-import { ProTable, ActionType, ProColumns } from '@ant-design/pro-components';
-import { Button, message, Space, Tag, Select } from 'antd';
+import { ProTable, ProColumns } from '@ant-design/pro-components';
+import { Button, Space, Tag, Select } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import {
     CostPolicyBinding,
@@ -12,18 +12,29 @@ import { getEnabledEnergyUnits, EnergyUnit } from '@/apis/energyUnit';
 import { getEnabledPricePolicies, PricePolicy } from '@/apis/pricePolicy';
 import BindingForm from './components/BindingForm';
 import { EditButton, DeleteButton } from '@/components/button';
-import ModalConfirm from '@/components/ModalConfirm';
+import useCrud from '@/hooks/common/useCrud';
 import dayjs from 'dayjs';
 
 const PolicyBindingPage: React.FC = () => {
-    const actionRef = useRef<ActionType>();
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     const [selectedRows, setSelectedRows] = useState<CostPolicyBinding[]>([]);
-    const [formVisible, setFormVisible] = useState(false);
-    const [isEdit, setIsEdit] = useState(false);
-    const [currentRecord, setCurrentRecord] = useState<CostPolicyBinding>();
     const [energyUnits, setEnergyUnits] = useState<EnergyUnit[]>([]);
     const [pricePolicies, setPricePolicies] = useState<PricePolicy[]>([]);
+
+    const {
+        getState,
+        actionRef,
+        toCreate,
+        toEdit,
+        toBatchDelete,
+        setDialogVisible,
+    } = useCrud<CostPolicyBinding>({
+        pathname: '/cost-management/policy-binding',
+        entityName: '策略绑定',
+        baseUrl: '/api/cost-policy-bindings',
+    });
+
+    const state = getState('/cost-management/policy-binding');
 
     useEffect(() => {
         loadOptions();
@@ -42,53 +53,29 @@ const PolicyBindingPage: React.FC = () => {
         }
     };
 
-    const handleAdd = () => {
-        setIsEdit(false);
-        setCurrentRecord(undefined);
-        setFormVisible(true);
-    };
-
-    const handleEdit = (record: CostPolicyBinding) => {
-        setIsEdit(true);
-        setCurrentRecord(record);
-        setFormVisible(true);
-    };
-
     const toEditSelected = () => {
         if (editDisabled) return;
-        handleEdit(selectedRows[0]);
+        toEdit(selectedRows[0]);
     };
 
     const handleDelete = async (id: number) => {
         try {
             await deleteCostPolicyBinding(id);
-            message.success('删除成功');
             actionRef.current?.reload();
         } catch (error) {
             console.error(error);
         }
     };
 
-    const toDeleteBatch = () => {
+    const handleBatchDelete = async () => {
         if (deleteDisabled) return;
-
-        ModalConfirm({
-            title: '删除绑定',
-            content: '确认删除选中的绑定记录？',
-            onOk: async () => {
-                try {
-                    for (const id of selectedRowKeys) {
-                        await deleteCostPolicyBinding(id as number);
-                    }
-                    message.success('删除成功');
-                    setSelectedRowKeys([]);
-                    setSelectedRows([]);
-                    actionRef.current?.reload();
-                } catch (error) {
-                    message.error('删除失败');
-                }
-            },
-        });
+        try {
+            await toBatchDelete(selectedRowKeys as number[], true);
+            setSelectedRowKeys([]);
+            setSelectedRows([]);
+        } catch (error) {
+            // 错误由全局处理
+        }
     };
 
     const editDisabled = useMemo(() => !selectedRowKeys || selectedRowKeys.length !== 1, [selectedRowKeys]);
@@ -150,7 +137,7 @@ const PolicyBindingPage: React.FC = () => {
             width: 120,
             render: (_, record) => (
                 <Space>
-                    <EditButton onClick={() => handleEdit(record)} />
+                    <EditButton onClick={() => toEdit(record)} />
                     <DeleteButton onClick={() => handleDelete(record.id)} />
                 </Space>
             ),
@@ -179,13 +166,13 @@ const PolicyBindingPage: React.FC = () => {
                 toolbar={{
                     title: (
                         <Space>
-                            <Button color={'primary'} icon={<PlusOutlined />} variant={'outlined'} size={'small'} onClick={handleAdd}>
+                            <Button color={'primary'} icon={<PlusOutlined />} variant={'outlined'} size={'small'} onClick={toCreate}>
                                 新建
                             </Button>
                             <Button color={'green'} icon={<EditOutlined />} disabled={editDisabled} size={'small'} variant={'outlined'} onClick={toEditSelected}>
                                 修改
                             </Button>
-                            <Button color={'danger'} icon={<DeleteOutlined />} disabled={deleteDisabled} size={'small'} variant={'outlined'} onClick={toDeleteBatch}>
+                            <Button color={'danger'} icon={<DeleteOutlined />} disabled={deleteDisabled} size={'small'} variant={'outlined'} onClick={handleBatchDelete}>
                                 删除
                             </Button>
                         </Space>
@@ -206,13 +193,16 @@ const PolicyBindingPage: React.FC = () => {
                 columns={columns}
             />
             <BindingForm
-                visible={formVisible}
-                onVisibleChange={setFormVisible}
-                isEdit={isEdit}
-                currentRecord={currentRecord}
+                visible={state?.dialogVisible || false}
+                onVisibleChange={(v) => setDialogVisible(v)}
+                isEdit={!!state?.editData}
+                currentRecord={state?.editData as CostPolicyBinding | undefined}
                 energyUnits={energyUnits}
                 pricePolicies={pricePolicies}
-                onSuccess={() => actionRef.current?.reload()}
+                onSuccess={() => {
+                    setDialogVisible(false);
+                    actionRef.current?.reload();
+                }}
             />
         </ProPageContainer>
     );

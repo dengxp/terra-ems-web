@@ -24,14 +24,8 @@ export interface EnergyType {
     updatedAt?: string;
 }
 
-// 能源类型类别
-export const EnergyTypeCategory = {
-    ELECTRIC: '电力',
-    GAS: '燃气',
-    STEAM: '蒸汽',
-    WATER: '水',
-    OTHER: '其他',
-};
+// 能源类型类别 (从 enums 中重新导出)
+export { EnergyCategory, EnergyCategoryLabel } from '@/enums';
 
 /**
  * 分页查询能源类型

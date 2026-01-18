@@ -1,70 +1,56 @@
-import React, { useRef, useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { ProPageContainer } from '@/components/container';
-import { ProTable, ActionType, ProColumns } from '@ant-design/pro-components';
-import { Button, message, Space, Tag } from 'antd';
+import { ProTable, ProColumns } from '@ant-design/pro-components';
+import { Button, Space, Tag } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { AlarmLimitType, getAlarmLimitTypePage, deleteAlarmLimitType } from '@/apis/alarm';
 import AlarmLimitTypeForm from './components/AlarmLimitTypeForm';
 import { EditButton, DeleteButton } from '@/components/button';
-import ModalConfirm from '@/components/ModalConfirm';
+import useCrud from '@/hooks/common/useCrud';
 
 const AlarmLimitTypePage: React.FC = () => {
-    const actionRef = useRef<ActionType>();
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     const [selectedRows, setSelectedRows] = useState<AlarmLimitType[]>([]);
-    const [formVisible, setFormVisible] = useState(false);
-    const [isEdit, setIsEdit] = useState(false);
-    const [currentRecord, setCurrentRecord] = useState<AlarmLimitType>();
 
-    const handleAdd = () => {
-        setIsEdit(false);
-        setCurrentRecord(undefined);
-        setFormVisible(true);
-    };
+    const {
+        getState,
+        actionRef,
+        toCreate,
+        toEdit,
+        toBatchDelete,
+        setDialogVisible,
+    } = useCrud<AlarmLimitType>({
+        pathname: '/basic-data/alarm-limit-type',
+        entityName: '报警限值类型',
+        baseUrl: '/api/alarm-limit-types',
+    });
 
-    const handleEdit = (record: AlarmLimitType) => {
-        setIsEdit(true);
-        setCurrentRecord(record);
-        setFormVisible(true);
-    };
+    const state = getState('/basic-data/alarm-limit-type');
 
     const toEditSelected = () => {
         if (editDisabled) return;
         if (!selectedRows || selectedRows.length !== 1) return;
-        handleEdit(selectedRows[0]);
+        toEdit(selectedRows[0]);
     };
 
     const handleDelete = async (id: number) => {
         try {
             await deleteAlarmLimitType(id);
-            message.success('删除成功');
             actionRef.current?.reload();
         } catch (error) {
             console.error(error);
         }
     };
 
-    const toDeleteBatch = () => {
+    const handleBatchDelete = async () => {
         if (deleteDisabled) return;
-        if (!selectedRowKeys || selectedRowKeys.length === 0) return;
-
-        ModalConfirm({
-            title: '删除报警限值类型',
-            content: '报警限值类型删除后将无法恢复，请确认是否删除？',
-            onOk: async () => {
-                try {
-                    for (const id of selectedRowKeys) {
-                        await deleteAlarmLimitType(id as number);
-                    }
-                    message.success('删除成功');
-                    setSelectedRowKeys([]);
-                    setSelectedRows([]);
-                    actionRef.current?.reload();
-                } catch (error) {
-                    message.error('删除失败');
-                }
-            },
-        });
+        try {
+            await toBatchDelete(selectedRowKeys as number[], true);
+            setSelectedRowKeys([]);
+            setSelectedRows([]);
+        } catch (error) {
+            // 错误由全局处理
+        }
     };
 
     const editDisabled = useMemo(() => {
@@ -116,7 +102,7 @@ const AlarmLimitTypePage: React.FC = () => {
             width: 120,
             render: (_, record) => (
                 <Space>
-                    <EditButton onClick={() => handleEdit(record)} />
+                    <EditButton onClick={() => toEdit(record)} />
                     <DeleteButton onClick={() => handleDelete(record.id as number)} />
                 </Space>
             ),
@@ -150,7 +136,7 @@ const AlarmLimitTypePage: React.FC = () => {
                                 icon={<PlusOutlined />}
                                 variant={'outlined'}
                                 size={'small'}
-                                onClick={handleAdd}
+                                onClick={toCreate}
                             >
                                 新建
                             </Button>
@@ -170,7 +156,7 @@ const AlarmLimitTypePage: React.FC = () => {
                                 disabled={deleteDisabled}
                                 size={'small'}
                                 variant={'outlined'}
-                                onClick={toDeleteBatch}
+                                onClick={handleBatchDelete}
                             >
                                 删除
                             </Button>
@@ -188,11 +174,14 @@ const AlarmLimitTypePage: React.FC = () => {
                 columns={columns}
             />
             <AlarmLimitTypeForm
-                visible={formVisible}
-                onVisibleChange={setFormVisible}
-                isEdit={isEdit}
-                currentRecord={currentRecord}
-                onSuccess={() => actionRef.current?.reload()}
+                visible={state?.dialogVisible || false}
+                onVisibleChange={(v) => setDialogVisible(v)}
+                isEdit={!!state?.editData}
+                currentRecord={state?.editData as AlarmLimitType | undefined}
+                onSuccess={() => {
+                    setDialogVisible(false);
+                    actionRef.current?.reload();
+                }}
             />
         </ProPageContainer>
     );

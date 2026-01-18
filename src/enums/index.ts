@@ -11,10 +11,10 @@ export enum OperationEnum {
 }
 
 export enum Permissions {
-    permissionCreate= 'security:permission:create',
-    permissionEdit = 'security:permission:edit',
-    permissionDelete = 'security:permission:delete',
-    superAdmin = 'super:super-admin'
+  permissionCreate = 'security:permission:create',
+  permissionEdit = 'security:permission:edit',
+  permissionDelete = 'security:permission:delete',
+  superAdmin = 'super:super-admin'
 }
 
 export enum DictKeyEnum {
@@ -28,3 +28,19 @@ export enum DataItemStatus {
   LOCKING,
   EXPIRED
 }
+
+export enum EnergyCategory {
+  ELECTRIC = 'ELECTRIC',
+  GAS = 'GAS',
+  STEAM = 'STEAM',
+  WATER = 'WATER',
+  OTHER = 'OTHER',
+}
+
+export const EnergyCategoryLabel: Record<EnergyCategory, string> = {
+  [EnergyCategory.ELECTRIC]: '电力',
+  [EnergyCategory.GAS]: '燃气',
+  [EnergyCategory.STEAM]: '蒸汽',
+  [EnergyCategory.WATER]: '水',
+  [EnergyCategory.OTHER]: '其他',
+};

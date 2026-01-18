@@ -1,22 +1,18 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { ProPageContainer } from '@/components/container';
-import { Button, message, Space, Input, Tag } from 'antd';
-import { DeleteOutlined, EditOutlined, PlusOutlined, SearchOutlined, EyeOutlined } from '@ant-design/icons';
+import { Button, Space, Tag } from 'antd';
+import { DeleteOutlined, EditOutlined, PlusOutlined, EyeOutlined } from '@ant-design/icons';
 import { ProColumns, ProTable } from '@ant-design/pro-components';
 import useCrud from '@/hooks/common/useCrud';
 import { DeleteButton, EditButton } from '@/components/button';
 import {
     KnowledgeArticle,
     getKnowledgeArticles,
-    batchDeleteKnowledgeArticles,
     searchKnowledgeArticles,
 } from '@/apis/knowledge';
 import KnowledgeArticleForm from './components/KnowledgeArticleForm';
 import KnowledgeArticleDetail from './components/KnowledgeArticleDetail';
 import StatusIcon from '@/components/icons/StatusIcon';
-import ModalConfirm from '@/components/ModalConfirm';
-
-const { Search } = Input;
 
 /**
  * 知识库管理页面
@@ -24,16 +20,19 @@ const { Search } = Input;
 const Index: React.FC = () => {
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     const [selectedRows, setSelectedRows] = useState<KnowledgeArticle[]>([]);
-    const [formVisible, setFormVisible] = useState(false);
     const [detailVisible, setDetailVisible] = useState(false);
-    const [currentRecord, setCurrentRecord] = useState<KnowledgeArticle | undefined>();
+    const [detailRecord, setDetailRecord] = useState<KnowledgeArticle | undefined>();
     const [searchKeyword, setSearchKeyword] = useState('');
 
     const {
         getState,
         formRef,
         actionRef,
+        toCreate,
+        toEdit,
         toDelete,
+        toBatchDelete,
+        setDialogVisible,
         setShouldRefresh,
     } = useCrud<KnowledgeArticle>({
         pathname: '/knowledge',
@@ -43,50 +42,30 @@ const Index: React.FC = () => {
 
     const state = getState('/knowledge');
 
-    const handleAdd = () => {
-        setCurrentRecord(undefined);
-        setFormVisible(true);
-    };
-
-    const handleEdit = (record: KnowledgeArticle) => {
-        setCurrentRecord(record);
-        setFormVisible(true);
-    };
-
     const handleView = (record: KnowledgeArticle) => {
-        setCurrentRecord(record);
+        setDetailRecord(record);
         setDetailVisible(true);
     };
 
     const toEditSelected = () => {
         if (editDisabled) return;
         if (!selectedRows || selectedRows.length !== 1) return;
-        handleEdit(selectedRows[0]);
+        toEdit(selectedRows[0]);
     };
 
-    const toDeleteBatch = () => {
+    const handleBatchDelete = async () => {
         if (deleteDisabled) return;
-        if (!selectedRowKeys || selectedRowKeys.length === 0) return;
-
-        ModalConfirm({
-            title: '删除文章',
-            content: '文章删除后将无法恢复，请确认是否删除？',
-            onOk: async () => {
-                try {
-                    await batchDeleteKnowledgeArticles(selectedRowKeys as number[]);
-                    message.success('删除成功');
-                    setSelectedRowKeys([]);
-                    setSelectedRows([]);
-                    actionRef.current?.reload();
-                } catch (error) {
-                    message.error('删除失败');
-                }
-            },
-        });
+        try {
+            await toBatchDelete(selectedRowKeys as number[], true);
+            setSelectedRowKeys([]);
+            setSelectedRows([]);
+        } catch (error) {
+            // 错误由全局处理
+        }
     };
 
     const handleFormSuccess = () => {
-        setFormVisible(false);
+        setDialogVisible(false);
         actionRef.current?.reload();
     };
 
@@ -172,7 +151,7 @@ const Index: React.FC = () => {
                         icon={<EyeOutlined />}
                         onClick={() => handleView(record)}
                     />
-                    <EditButton onClick={() => handleEdit(record)} />
+                    <EditButton onClick={() => toEdit(record)} />
                     <DeleteButton onClick={() => record.id && toDelete(record.id, true)} />
                 </Space>
             ),
@@ -208,7 +187,7 @@ const Index: React.FC = () => {
                                     icon={<PlusOutlined />}
                                     variant={'outlined'}
                                     size={'small'}
-                                    onClick={handleAdd}
+                                    onClick={toCreate}
                                 >
                                     新建
                                 </Button>
@@ -230,7 +209,7 @@ const Index: React.FC = () => {
                                     disabled={deleteDisabled}
                                     size={'small'}
                                     variant={'outlined'}
-                                    onClick={toDeleteBatch}
+                                    onClick={handleBatchDelete}
                                 >
                                     删除
                                 </Button>
@@ -270,15 +249,15 @@ const Index: React.FC = () => {
             </ProPageContainer>
 
             <KnowledgeArticleForm
-                visible={formVisible}
-                record={currentRecord}
-                onCancel={() => setFormVisible(false)}
+                visible={state?.dialogVisible || false}
+                record={state?.editData as KnowledgeArticle | undefined}
+                onCancel={() => setDialogVisible(false)}
                 onSuccess={handleFormSuccess}
             />
 
             <KnowledgeArticleDetail
                 visible={detailVisible}
-                articleId={currentRecord?.id}
+                articleId={detailRecord?.id}
                 onClose={() => setDetailVisible(false)}
             />
         </>

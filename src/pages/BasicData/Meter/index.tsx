@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { ProPageContainer } from '@/components/container';
-import { Button, message, Space, Tag } from 'antd';
+import { Button, Space, Tag } from 'antd';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ProColumns, ProTable } from '@ant-design/pro-components';
 import useCrud from '@/hooks/common/useCrud';
@@ -8,11 +8,9 @@ import { DeleteButton, EditButton } from '@/components/button';
 import {
     Meter,
     getMeters,
-    deleteMetersBatch,
 } from '@/apis/meter';
 import MeterForm from './components/MeterForm';
 import StatusIcon from '@/components/icons/StatusIcon';
-import ModalConfirm from '@/components/ModalConfirm';
 
 /**
  * 计量器具管理页面
@@ -20,14 +18,16 @@ import ModalConfirm from '@/components/ModalConfirm';
 const Index: React.FC = () => {
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     const [selectedRows, setSelectedRows] = useState<Meter[]>([]);
-    const [formVisible, setFormVisible] = useState(false);
-    const [currentRecord, setCurrentRecord] = useState<Meter | undefined>();
 
     const {
         getState,
         formRef,
         actionRef,
+        toCreate,
+        toEdit,
         toDelete,
+        toBatchDelete,
+        setDialogVisible,
         setShouldRefresh,
     } = useCrud<Meter>({
         pathname: '/basic-data/meter',
@@ -37,50 +37,28 @@ const Index: React.FC = () => {
 
     const state = getState('/basic-data/meter');
 
-    // 打开新增表单
-    const handleAdd = () => {
-        setCurrentRecord(undefined);
-        setFormVisible(true);
-    };
-
-    // 打开编辑表单
-    const handleEdit = (record: Meter) => {
-        setCurrentRecord(record);
-        setFormVisible(true);
-    };
-
     // 编辑选中项
     const toEditSelected = () => {
         if (editDisabled) return;
         if (!selectedRows || selectedRows.length !== 1) return;
-        handleEdit(selectedRows[0]);
+        toEdit(selectedRows[0]);
     };
 
     // 批量删除
-    const toDeleteBatch = () => {
+    const handleBatchDelete = async () => {
         if (deleteDisabled) return;
-        if (!selectedRowKeys || selectedRowKeys.length === 0) return;
-
-        ModalConfirm({
-            title: '删除' + '计量器具',
-            content: '计量器具删除后将无法恢复，请确认是否删除？',
-            onOk: async () => {
-                try {
-                    await deleteMetersBatch(selectedRowKeys as number[]);
-                    message.success('删除成功');
-                    setSelectedRowKeys([]);
-                    setSelectedRows([]);
-                    actionRef.current?.reload();
-                } catch (error) {
-                    message.error('删除失败');
-                }
-            },
-        });
+        try {
+            await toBatchDelete(selectedRowKeys as number[], true);
+            setSelectedRowKeys([]);
+            setSelectedRows([]);
+        } catch (error) {
+            // 错误由全局处理
+        }
     };
 
     // 表单提交成功
     const handleFormSuccess = () => {
-        setFormVisible(false);
+        setDialogVisible(false);
         actionRef.current?.reload();
     };
 
@@ -179,7 +157,7 @@ const Index: React.FC = () => {
             hideInSearch: true,
             render: (_, record) => (
                 <Space>
-                    <EditButton onClick={() => handleEdit(record)} />
+                    <EditButton onClick={() => toEdit(record)} />
                     <DeleteButton onClick={() => toDelete(record.id, true)} />
                 </Space>
             ),
@@ -218,7 +196,7 @@ const Index: React.FC = () => {
                                     icon={<PlusOutlined />}
                                     variant={'outlined'}
                                     size={'small'}
-                                    onClick={handleAdd}
+                                    onClick={toCreate}
                                 >
                                     新建
                                 </Button>
@@ -238,7 +216,7 @@ const Index: React.FC = () => {
                                     disabled={deleteDisabled}
                                     size={'small'}
                                     variant={'outlined'}
-                                    onClick={toDeleteBatch}
+                                    onClick={handleBatchDelete}
                                 >
                                     删除
                                 </Button>
@@ -262,9 +240,9 @@ const Index: React.FC = () => {
             </ProPageContainer>
 
             <MeterForm
-                visible={formVisible}
-                record={currentRecord}
-                onCancel={() => setFormVisible(false)}
+                visible={state?.dialogVisible || false}
+                record={state?.editData as Meter | undefined}
+                onCancel={() => setDialogVisible(false)}
                 onSuccess={handleFormSuccess}
             />
         </>

@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { ProPageContainer } from '@/components/container';
-import { Card, Col, Row, Tree, Button, message, Space, DatePicker, Tabs } from 'antd';
+import { Card, Col, Row, Tree, Button, Space, DatePicker, Tabs } from 'antd';
 import { DeleteOutlined, EditOutlined, PlusOutlined, ApartmentOutlined } from '@ant-design/icons';
 import { ProColumns, ProTable } from '@ant-design/pro-components';
 import useCrud from '@/hooks/common/useCrud';
@@ -8,10 +8,8 @@ import { DeleteButton, EditButton } from '@/components/button';
 import {
     ProductionRecord,
     getProductionRecords,
-    batchDeleteProductionRecords,
 } from '@/apis/productionRecord';
 import ProductionRecordForm from './components/ProductionRecordForm';
-import ModalConfirm from '@/components/ModalConfirm';
 import dayjs from 'dayjs';
 import { getEnabledEnergyUnitTree, EnergyUnit as EnergyUnitEntity } from '@/apis/energyUnit';
 
@@ -23,8 +21,6 @@ const { RangePicker } = DatePicker;
 const Index: React.FC = () => {
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     const [selectedRows, setSelectedRows] = useState<ProductionRecord[]>([]);
-    const [formVisible, setFormVisible] = useState(false);
-    const [currentRecord, setCurrentRecord] = useState<ProductionRecord | undefined>();
     const [dateRange, setDateRange] = useState<[dayjs.Dayjs, dayjs.Dayjs]>([
         dayjs().startOf('month'),
         dayjs().endOf('month'),
@@ -37,7 +33,11 @@ const Index: React.FC = () => {
         getState,
         formRef,
         actionRef,
+        toCreate,
+        toEdit,
         toDelete,
+        toBatchDelete,
+        setDialogVisible,
         setShouldRefresh,
     } = useCrud<ProductionRecord>({
         pathname: '/production/record',
@@ -47,45 +47,25 @@ const Index: React.FC = () => {
 
     const state = getState('/production/record');
 
-    const handleAdd = () => {
-        setCurrentRecord(undefined);
-        setFormVisible(true);
-    };
-
-    const handleEdit = (record: ProductionRecord) => {
-        setCurrentRecord(record);
-        setFormVisible(true);
-    };
-
     const toEditSelected = () => {
         if (editDisabled) return;
         if (!selectedRows || selectedRows.length !== 1) return;
-        handleEdit(selectedRows[0]);
+        toEdit(selectedRows[0]);
     };
 
-    const toDeleteBatch = () => {
+    const handleBatchDelete = async () => {
         if (deleteDisabled) return;
-        if (!selectedRowKeys || selectedRowKeys.length === 0) return;
-
-        ModalConfirm({
-            title: '删除产量记录',
-            content: '产量记录删除后将无法恢复，请确认是否删除？',
-            onOk: async () => {
-                try {
-                    await batchDeleteProductionRecords(selectedRowKeys as number[]);
-                    message.success('删除成功');
-                    setSelectedRowKeys([]);
-                    setSelectedRows([]);
-                    actionRef.current?.reload();
-                } catch (error) {
-                    message.error('删除失败');
-                }
-            },
-        });
+        try {
+            await toBatchDelete(selectedRowKeys as number[], true);
+            setSelectedRowKeys([]);
+            setSelectedRows([]);
+        } catch (error) {
+            // 错误由全局处理
+        }
     };
 
     const handleFormSuccess = () => {
-        setFormVisible(false);
+        setDialogVisible(false);
         actionRef.current?.reload();
     };
 
@@ -192,7 +172,7 @@ const Index: React.FC = () => {
             hideInSearch: true,
             render: (_, record) => (
                 <Space>
-                    <EditButton onClick={() => handleEdit(record)} />
+                    <EditButton onClick={() => toEdit(record)} />
                     <DeleteButton onClick={() => record.id && toDelete(record.id, true)} />
                 </Space>
             ),
@@ -249,7 +229,7 @@ const Index: React.FC = () => {
                                             icon={<PlusOutlined />}
                                             variant={'outlined'}
                                             size={'small'}
-                                            onClick={handleAdd}
+                                            onClick={toCreate}
                                         >
                                             新建
                                         </Button>
@@ -269,7 +249,7 @@ const Index: React.FC = () => {
                                             disabled={deleteDisabled}
                                             size={'small'}
                                             variant={'outlined'}
-                                            onClick={toDeleteBatch}
+                                            onClick={handleBatchDelete}
                                         >
                                             删除
                                         </Button>
@@ -323,11 +303,11 @@ const Index: React.FC = () => {
             </ProPageContainer>
 
             <ProductionRecordForm
-                visible={formVisible}
-                record={currentRecord}
+                visible={state?.dialogVisible || false}
+                record={state?.editData as ProductionRecord | undefined}
                 defaultUnitId={selectedUnitId}
                 defaultDataType={dataType}
-                onCancel={() => setFormVisible(false)}
+                onCancel={() => setDialogVisible(false)}
                 onSuccess={handleFormSuccess}
             />
         </>

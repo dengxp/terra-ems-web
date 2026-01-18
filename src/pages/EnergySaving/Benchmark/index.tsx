@@ -1,7 +1,7 @@
-import React, { useRef, useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { ProPageContainer } from '@/components/container';
-import { ProTable, ActionType, ProColumns } from '@ant-design/pro-components';
-import { Button, message, Space, Tag } from 'antd';
+import { ProTable, ProColumns } from '@ant-design/pro-components';
+import { Button, Space, Tag } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import {
     Benchmark,
@@ -12,65 +12,51 @@ import {
 } from '@/apis/benchmark';
 import BenchmarkForm from './components/BenchmarkForm';
 import { EditButton, DeleteButton } from '@/components/button';
-import ModalConfirm from '@/components/ModalConfirm';
+import useCrud from '@/hooks/common/useCrud';
 
 const BenchmarkPage: React.FC = () => {
-    const actionRef = useRef<ActionType>();
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     const [selectedRows, setSelectedRows] = useState<Benchmark[]>([]);
-    const [formVisible, setFormVisible] = useState(false);
-    const [isEdit, setIsEdit] = useState(false);
-    const [currentRecord, setCurrentRecord] = useState<Benchmark>();
 
-    const handleAdd = () => {
-        setIsEdit(false);
-        setCurrentRecord(undefined);
-        setFormVisible(true);
-    };
+    const {
+        getState,
+        actionRef,
+        toCreate,
+        toEdit,
+        toBatchDelete,
+        setDialogVisible,
+    } = useCrud<Benchmark>({
+        pathname: '/energy-saving/benchmark',
+        entityName: '对标值',
+        baseUrl: '/api/benchmarks',
+    });
 
-    const handleEdit = (record: Benchmark) => {
-        setIsEdit(true);
-        setCurrentRecord(record);
-        setFormVisible(true);
-    };
+    const state = getState('/energy-saving/benchmark');
 
     const toEditSelected = () => {
         if (editDisabled) return;
         if (!selectedRows || selectedRows.length !== 1) return;
-        handleEdit(selectedRows[0]);
+        toEdit(selectedRows[0]);
     };
 
     const handleDelete = async (id: number) => {
         try {
             await deleteBenchmark(id);
-            message.success('删除成功');
             actionRef.current?.reload();
         } catch (error) {
             console.error(error);
         }
     };
 
-    const toDeleteBatch = () => {
+    const handleBatchDelete = async () => {
         if (deleteDisabled) return;
-        if (!selectedRowKeys || selectedRowKeys.length === 0) return;
-
-        ModalConfirm({
-            title: '删除对标值',
-            content: '对标值删除后将无法恢复，请确认是否删除？',
-            onOk: async () => {
-                try {
-                    for (const id of selectedRowKeys) {
-                        await deleteBenchmark(id as number);
-                    }
-                    message.success('删除成功');
-                    setSelectedRowKeys([]);
-                    setSelectedRows([]);
-                    actionRef.current?.reload();
-                } catch (error) {
-                    message.error('删除失败');
-                }
-            },
-        });
+        try {
+            await toBatchDelete(selectedRowKeys as number[], true);
+            setSelectedRowKeys([]);
+            setSelectedRows([]);
+        } catch (error) {
+            // 错误由全局处理
+        }
     };
 
     const editDisabled = useMemo(() => {
@@ -145,7 +131,7 @@ const BenchmarkPage: React.FC = () => {
             width: 120,
             render: (_, record) => (
                 <Space>
-                    <EditButton onClick={() => handleEdit(record)} />
+                    <EditButton onClick={() => toEdit(record)} />
                     <DeleteButton onClick={() => handleDelete(record.id as number)} />
                 </Space>
             ),
@@ -179,7 +165,7 @@ const BenchmarkPage: React.FC = () => {
                                 icon={<PlusOutlined />}
                                 variant={'outlined'}
                                 size={'small'}
-                                onClick={handleAdd}
+                                onClick={toCreate}
                             >
                                 新建
                             </Button>
@@ -199,7 +185,7 @@ const BenchmarkPage: React.FC = () => {
                                 disabled={deleteDisabled}
                                 size={'small'}
                                 variant={'outlined'}
-                                onClick={toDeleteBatch}
+                                onClick={handleBatchDelete}
                             >
                                 删除
                             </Button>
@@ -222,11 +208,14 @@ const BenchmarkPage: React.FC = () => {
                 columns={columns}
             />
             <BenchmarkForm
-                visible={formVisible}
-                onVisibleChange={setFormVisible}
-                isEdit={isEdit}
-                currentRecord={currentRecord}
-                onSuccess={() => actionRef.current?.reload()}
+                visible={state?.dialogVisible || false}
+                onVisibleChange={(v) => setDialogVisible(v)}
+                isEdit={!!state?.editData}
+                currentRecord={state?.editData as Benchmark | undefined}
+                onSuccess={() => {
+                    setDialogVisible(false);
+                    actionRef.current?.reload();
+                }}
             />
         </ProPageContainer>
     );
