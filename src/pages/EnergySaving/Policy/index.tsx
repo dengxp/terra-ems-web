@@ -212,12 +212,18 @@ const PolicyPage: React.FC = () => {
                     };
                 }}
                 columns={columns}
+                pagination={{
+                    showSizeChanger: true,
+                    showQuickJumper: true,
+                    pageSizeOptions: ['10', '20', '50', '100'],
+                    defaultPageSize: 20,
+                }}
             />
             <PolicyForm
                 visible={state?.dialogVisible || false}
                 onVisibleChange={(v) => setDialogVisible(v)}
                 isEdit={!!state?.editData}
-                currentRecord={state?.editData as Policy | undefined}
+                currentRecord={state?.operation === 'edit' ? (state?.editData as Policy | undefined) : undefined}
                 onSuccess={() => {
                     setDialogVisible(false);
                     actionRef.current?.reload();

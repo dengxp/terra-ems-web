@@ -40,22 +40,33 @@ export interface MeterPoint {
 
 export interface MeterPointPageParams {
     current?: number;
+    pageNumber?: number;
     pageSize?: number;
     sortField?: string;
     sortOrder?: string;
+    // 查询条件
+    code?: string;
+    name?: string;
+    meterId?: number;
+    energyTypeId?: number;
+    pointType?: string;
+    category?: string;
+    status?: number;
 }
 
 /**
  * 分页查询采集点位
  */
 export async function getMeterPointPage(params: MeterPointPageParams) {
+    const { current, pageNumber, pageSize, sortField, sortOrder, ...queryParams } = params;
     return request<API.Result<API.PageResult<MeterPoint>>>('/api/meter-points', {
         method: 'GET',
         params: {
-            current: params.current || 1,
-            pageSize: params.pageSize || 10,
-            sortField: params.sortField || 'sortOrder',
-            sortOrder: params.sortOrder || 'asc',
+            pageNumber: pageNumber ?? (current ? current - 1 : 0),
+            pageSize: pageSize || 10,
+            sortField: sortField || 'sortOrder',
+            sortOrder: sortOrder || 'asc',
+            ...queryParams,
         },
     });
 }

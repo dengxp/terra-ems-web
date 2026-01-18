@@ -191,12 +191,18 @@ const PolicyBindingPage: React.FC = () => {
                     };
                 }}
                 columns={columns}
+                pagination={{
+                    showSizeChanger: true,
+                    showQuickJumper: true,
+                    pageSizeOptions: ['10', '20', '50', '100'],
+                    defaultPageSize: 20,
+                }}
             />
             <BindingForm
                 visible={state?.dialogVisible || false}
                 onVisibleChange={(v) => setDialogVisible(v)}
                 isEdit={!!state?.editData}
-                currentRecord={state?.editData as CostPolicyBinding | undefined}
+                currentRecord={state?.operation === 'edit' ? (state?.editData as CostPolicyBinding | undefined) : undefined}
                 energyUnits={energyUnits}
                 pricePolicies={pricePolicies}
                 onSuccess={() => {

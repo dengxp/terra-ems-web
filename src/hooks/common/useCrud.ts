@@ -139,6 +139,11 @@ export default function useCrud<T extends Entity>({ entityName, pathname, baseUr
     return wrapperResult(result);
   }, [findByPage]);
 
+  /**
+   * 复杂搜索 (适配 ProTable request，当前与 fetchPage 一致)
+   */
+  const search = fetchPage;
+
   // ============================================================================
   // 带 UI 交互的操作方法 (第 1 层)
   // ============================================================================
@@ -345,6 +350,8 @@ export default function useCrud<T extends Entity>({ entityName, pathname, baseUr
   return {
     // 分页查询
     fetchPage,
+    // 搜索
+    search,
     // 带 UI 交互的操作
     handleSaveOrUpdate,
     handleCreate,

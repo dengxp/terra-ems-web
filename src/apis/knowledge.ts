@@ -76,12 +76,18 @@ export async function getKnowledgeArticle(id: number) {
  */
 export async function getKnowledgeArticles(params: {
     energyTypeId?: number;
+    current?: number;
     pageNumber?: number;
     pageSize?: number;
 }) {
+    const { current, pageNumber, pageSize, ...rest } = params;
     return request<API.Result<API.PageResult<KnowledgeArticle>>>('/api/ems/knowledge', {
         method: 'GET',
-        params,
+        params: {
+            pageNumber: pageNumber ?? (current ? current - 1 : 0),
+            pageSize: pageSize ?? 10,
+            ...rest,
+        },
     });
 }
 
@@ -90,12 +96,18 @@ export async function getKnowledgeArticles(params: {
  */
 export async function searchKnowledgeArticles(params: {
     keyword: string;
+    current?: number;
     pageNumber?: number;
     pageSize?: number;
 }) {
+    const { current, pageNumber, pageSize, ...rest } = params;
     return request<API.Result<API.PageResult<KnowledgeArticle>>>('/api/ems/knowledge/search', {
         method: 'GET',
-        params,
+        params: {
+            pageNumber: pageNumber ?? (current ? current - 1 : 0),
+            pageSize: pageSize ?? 10,
+            ...rest,
+        },
     });
 }
 

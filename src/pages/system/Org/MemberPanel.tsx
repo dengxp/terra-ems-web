@@ -121,7 +121,12 @@ function MemberPanel({ departmentId }: Props) {
         form={{ span: 4 }}
         cardProps={{ bordered: false }}
         search={false}
-        pagination={{ pageSize: 10 }}
+        pagination={{
+          showSizeChanger: true,
+          showQuickJumper: true,
+          pageSizeOptions: ['10', '20', '50', '100'],
+          defaultPageSize: 10,
+        }}
         rowSelection={rowSelection}
         tableAlertRender={false}
         tableAlertOptionRender={false}

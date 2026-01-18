@@ -36,6 +36,7 @@ export interface PricePolicy {
 
 export interface PricePolicyPageParams {
     current?: number;
+    pageNumber?: number;
     pageSize?: number;
     sortField?: string;
     sortOrder?: string;
@@ -72,7 +73,7 @@ export async function getPricePolicyPage(params: PricePolicyPageParams) {
     return request<API.Result<API.PageResult<PricePolicy>>>('/api/price-policies', {
         method: 'GET',
         params: {
-            current: params.current || 1,
+            pageNumber: (params.current || 1) - 1,
             pageSize: params.pageSize || 10,
             sortField: params.sortField || 'sortOrder',
             sortOrder: params.sortOrder || 'asc',

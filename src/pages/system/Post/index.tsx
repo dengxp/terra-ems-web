@@ -273,6 +273,12 @@ const Index = () => {
               return result;
             }
           }
+          pagination={{
+            showSizeChanger: true,
+            showQuickJumper: true,
+            pageSizeOptions: ['10', '20', '50', '100'],
+            defaultPageSize: 20,
+          }}
         />
       </ProPageContainer>
       <PostDetailDialog title={state?.dialogTitle} open={state?.dialogVisible} onOpenChange={setDialogVisible} />

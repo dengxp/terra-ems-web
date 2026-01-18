@@ -71,6 +71,7 @@ const MeterPointForm: React.FC<MeterPointFormProps> = ({
 
     return (
         <ProModalForm
+            key={currentRecord?.id ?? 'create'}
             title={title}
             open={visible}
             onOpenChange={onVisibleChange}
@@ -203,6 +204,7 @@ const MeterPointForm: React.FC<MeterPointFormProps> = ({
                     { label: '启用', value: 0 },
                     { label: '停用', value: 1 },
                 ]}
+                rules={[{ required: true, message: '请选择状态' }]}
             />
             <ProFormTextArea
                 name="remark"

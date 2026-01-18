@@ -172,12 +172,18 @@ const AlarmLimitTypePage: React.FC = () => {
                     };
                 }}
                 columns={columns}
+                pagination={{
+                    showSizeChanger: true,
+                    showQuickJumper: true,
+                    pageSizeOptions: ['10', '20', '50', '100'],
+                    defaultPageSize: 20,
+                }}
             />
             <AlarmLimitTypeForm
                 visible={state?.dialogVisible || false}
                 onVisibleChange={(v) => setDialogVisible(v)}
-                isEdit={!!state?.editData}
-                currentRecord={state?.editData as AlarmLimitType | undefined}
+                isEdit={state?.operation === 'edit'}
+                currentRecord={state?.operation === 'edit' ? (state?.editData as AlarmLimitType | undefined) : undefined}
                 onSuccess={() => {
                     setDialogVisible(false);
                     actionRef.current?.reload();

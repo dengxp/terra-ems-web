@@ -278,12 +278,18 @@ const Index: React.FC = () => {
                             success: res.success,
                         };
                     }}
+                    pagination={{
+                        showSizeChanger: true,
+                        showQuickJumper: true,
+                        pageSizeOptions: ['10', '20', '50', '100'],
+                        defaultPageSize: 20,
+                    }}
                 />
             </ProPageContainer>
 
             <EnergyTypeForm
                 visible={state?.dialogVisible || false}
-                record={state?.editData as EnergyType | undefined}
+                record={state?.operation === 'edit' ? (state?.editData as EnergyType | undefined) : undefined}
                 onCancel={() => setDialogVisible(false)}
                 onSuccess={handleFormSuccess}
             />

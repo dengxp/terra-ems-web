@@ -28,12 +28,13 @@ export interface AlarmLimitTypePageParams {
  * 分页查询报警限值类型
  */
 export async function getAlarmLimitTypePage(params: AlarmLimitTypePageParams) {
+    const { current, pageSize, ...rest } = params;
     return request<API.Result<API.PageResult<AlarmLimitType>>>('/api/alarm/limit-types', {
         method: 'GET',
         params: {
-            current: params.current || 1,
-            pageSize: params.pageSize || 10,
-            ...params,
+            pageNumber: (current || 1) - 1,
+            pageSize: pageSize || 10,
+            ...rest,
         },
     });
 }
@@ -141,12 +142,13 @@ export interface AlarmRecordPageParams {
  * 分页查询报警记录
  */
 export async function getAlarmRecordPage(params: AlarmRecordPageParams) {
+    const { current, pageSize, ...rest } = params;
     return request<API.Result<API.PageResult<AlarmRecord>>>('/api/alarm/records', {
         method: 'GET',
         params: {
-            current: params.current || 1,
-            pageSize: params.pageSize || 10,
-            ...params,
+            pageNumber: (current || 1) - 1,
+            pageSize: pageSize || 10,
+            ...rest,
         },
     });
 }

@@ -25,6 +25,7 @@ const MeterPointPage: React.FC = () => {
         toDelete,
         toBatchDelete,
         setDialogVisible,
+        setShouldRefresh,
     } = useCrud<MeterPoint>({
         pathname: '/basic-data/meter-point',
         entityName: '采集点位',
@@ -32,6 +33,14 @@ const MeterPointPage: React.FC = () => {
     });
 
     const state = getState('/basic-data/meter-point');
+
+    // 监听 shouldRefresh 状态，触发表格刷新
+    useEffect(() => {
+        if (state?.shouldRefresh) {
+            actionRef.current?.reload();
+            setShouldRefresh(false);
+        }
+    }, [state?.shouldRefresh, setShouldRefresh]);
 
     const toEditSelected = () => {
         if (editDisabled) return;
@@ -235,6 +244,7 @@ const MeterPointPage: React.FC = () => {
                         const res = await getMeterPointPage({
                             current: current,
                             pageSize: pageSize,
+                            ...rest,
                         });
                         return {
                             data: res.data?.content || [],
@@ -243,6 +253,12 @@ const MeterPointPage: React.FC = () => {
                         };
                     }}
                     scroll={{ x: 1200 }}
+                    pagination={{
+                        showSizeChanger: true,
+                        showQuickJumper: true,
+                        pageSizeOptions: ['10', '20', '50', '100'],
+                        defaultPageSize: 20,
+                    }}
                 />
             </ProPageContainer>
 
@@ -250,7 +266,7 @@ const MeterPointPage: React.FC = () => {
                 visible={state?.dialogVisible || false}
                 onVisibleChange={(v) => setDialogVisible(v)}
                 onSuccess={handleFormSuccess}
-                currentRecord={state?.editData as MeterPoint | undefined}
+                currentRecord={state?.operation === 'edit' ? (state?.editData as MeterPoint | undefined) : undefined}
             />
         </>
     );

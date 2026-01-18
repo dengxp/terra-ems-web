@@ -83,12 +83,18 @@ export async function getProductionRecords(params: {
     dataType?: string;
     startDate: string;
     endDate: string;
+    current?: number;
     pageNumber?: number;
     pageSize?: number;
 }) {
+    const { current, pageNumber, pageSize, ...rest } = params;
     return request<API.Result<API.PageResult<ProductionRecord>>>('/api/ems/production-records', {
         method: 'GET',
-        params,
+        params: {
+            pageNumber: pageNumber ?? (current ? current - 1 : 0),
+            pageSize: pageSize ?? 10,
+            ...rest,
+        },
     });
 }
 

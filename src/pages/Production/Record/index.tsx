@@ -297,6 +297,12 @@ const Index: React.FC = () => {
                                     success: res.success,
                                 };
                             }}
+                            pagination={{
+                                showSizeChanger: true,
+                                showQuickJumper: true,
+                                pageSizeOptions: ['10', '20', '50', '100'],
+                                defaultPageSize: 20,
+                            }}
                         />
                     </Col>
                 </Row>
@@ -304,7 +310,7 @@ const Index: React.FC = () => {
 
             <ProductionRecordForm
                 visible={state?.dialogVisible || false}
-                record={state?.editData as ProductionRecord | undefined}
+                record={state?.operation === 'edit' ? (state?.editData as ProductionRecord | undefined) : undefined}
                 defaultUnitId={selectedUnitId}
                 defaultDataType={dataType}
                 onCancel={() => setDialogVisible(false)}

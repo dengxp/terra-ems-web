@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { ProPageContainer } from '@/components/container';
 import { ProTable, ProColumns } from '@ant-design/pro-components';
 import { Button, Space, Tag } from 'antd';
@@ -25,6 +25,7 @@ const PricePolicyPage: React.FC = () => {
         toDelete,
         toBatchDelete,
         setDialogVisible,
+        setShouldRefresh,
     } = useCrud<PricePolicy>({
         pathname: '/basic-data/price-policy',
         entityName: '电价策略',
@@ -32,6 +33,14 @@ const PricePolicyPage: React.FC = () => {
     });
 
     const state = getState('/basic-data/price-policy');
+
+    // 监听 shouldRefresh 状态，触发表格刷新
+    useEffect(() => {
+        if (state?.shouldRefresh) {
+            actionRef.current?.reload();
+            setShouldRefresh(false);
+        }
+    }, [state?.shouldRefresh, setShouldRefresh]);
 
     const toEditSelected = () => {
         if (editDisabled) return;
@@ -249,6 +258,12 @@ const PricePolicyPage: React.FC = () => {
                         };
                     }}
                     scroll={{ x: 1200 }}
+                    pagination={{
+                        showSizeChanger: true,
+                        showQuickJumper: true,
+                        pageSizeOptions: ['10', '20', '50', '100'],
+                        defaultPageSize: 20,
+                    }}
                 />
             </ProPageContainer>
 
@@ -256,7 +271,7 @@ const PricePolicyPage: React.FC = () => {
                 visible={state?.dialogVisible || false}
                 onVisibleChange={(v) => setDialogVisible(v)}
                 onSuccess={handleFormSuccess}
-                currentRecord={state?.editData as PricePolicy | undefined}
+                currentRecord={state?.operation === 'edit' ? (state?.editData as PricePolicy | undefined) : undefined}
             />
         </>
     );

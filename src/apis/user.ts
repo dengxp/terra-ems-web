@@ -5,10 +5,15 @@ const BASE_URL = '/api/system/user';
 /**
  * 分页查询用户列表
  */
-export async function findByPage(params: API.PageParams) {
+export async function findByPage(params: API.PageParams & { current?: number; pageNumber?: number }) {
+  const { current, pageNumber, pageSize, ...rest } = params;
   return request<API.Result<API.PageResult<SysUser>>>(`${BASE_URL}`, {
     method: 'GET',
-    params,
+    params: {
+      pageNumber: pageNumber ?? (current ? current - 1 : 0),
+      pageSize: pageSize ?? 10,
+      ...rest,
+    },
   });
 }
 

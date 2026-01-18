@@ -5,10 +5,15 @@ const BASE_URL = '/api/system/role';
 /**
  * 分页查询角色列表
  */
-export async function findRolesByPage(params: API.PageParams) {
+export async function findRolesByPage(params: API.PageParams & { current?: number; pageNumber?: number }) {
+  const { current, pageNumber, pageSize, ...rest } = params;
   return request<API.Result<API.PageResult<SysRole>>>(`${BASE_URL}/page`, {
     method: 'GET',
-    params,
+    params: {
+      pageNumber: pageNumber ?? (current ? current - 1 : 0),
+      pageSize: pageSize ?? 10,
+      ...rest,
+    },
   });
 }
 

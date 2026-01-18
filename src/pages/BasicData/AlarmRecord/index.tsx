@@ -144,6 +144,12 @@ const AlarmRecordPage: React.FC = () => {
                 search={{
                     labelWidth: 'auto',
                 }}
+                pagination={{
+                    showSizeChanger: true,
+                    showQuickJumper: true,
+                    pageSizeOptions: ['10', '20', '50', '100'],
+                    defaultPageSize: 20,
+                }}
             />
 
             <ModalForm

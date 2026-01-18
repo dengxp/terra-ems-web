@@ -245,12 +245,18 @@ const Index: React.FC = () => {
                             success: res.success,
                         };
                     }}
+                    pagination={{
+                        showSizeChanger: true,
+                        showQuickJumper: true,
+                        pageSizeOptions: ['10', '20', '50', '100'],
+                        defaultPageSize: 20,
+                    }}
                 />
             </ProPageContainer>
 
             <KnowledgeArticleForm
                 visible={state?.dialogVisible || false}
-                record={state?.editData as KnowledgeArticle | undefined}
+                record={state?.operation === 'edit' ? (state?.editData as KnowledgeArticle | undefined) : undefined}
                 onCancel={() => setDialogVisible(false)}
                 onSuccess={handleFormSuccess}
             />

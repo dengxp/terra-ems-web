@@ -439,7 +439,7 @@ const EnergyUnitPage: React.FC = () => {
                     setDialogVisible(false);
                     void loadTree();
                 }}
-                record={state.editData as EnergyUnit}
+                record={state.operation === 'edit' ? (state.editData as EnergyUnit) : undefined}
             />
 
             {selectedNode && (

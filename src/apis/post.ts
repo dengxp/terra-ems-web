@@ -19,10 +19,15 @@ export interface SysPost {
 /**
  * 分页查询岗位列表
  */
-export async function findPostsByPage(params: API.PageParams) {
+export async function findPostsByPage(params: API.PageParams & { current?: number; pageNumber?: number }) {
+  const { current, pageNumber, pageSize, ...rest } = params;
   return request<API.Result<API.PageResult<SysPost>>>(`${BASE_URL}/page`, {
     method: 'GET',
-    params,
+    params: {
+      pageNumber: pageNumber ?? (current ? current - 1 : 0),
+      pageSize: pageSize ?? 10,
+      ...rest,
+    },
   });
 }
 
