@@ -25,8 +25,11 @@ trigger: always_on
 2. **后端对接习惯**：
     - `POST /api/path` -> 对应后端的 `saveOrUpdate`。
     - `DELETE /api/path/{id}` -> 单选删除。
-    - `DELETE /api/path` (Body 传 IDs) -> 批量删除。
-3. **分页与排序适配**：
+    - `DELETE /api/path` (Request Body 传 IDs 数组) -> 批量删除。**禁止使用 params**。
+3. **分页与列表接口规范**：
+    - **标准分页**：`GET /api/path`，对应后端 `findByPage`。
+    - **标准列表**：`GET /api/path/list`，对应后端 `findList`（不分页）。
+4. **分页与排序适配**：
     - **页码索引**：前端分页组件通常使用 1-based 索引，后端框架已统一处理偏移，前端直接传递 `current` 即可。
     - **排序字段**：前端 `Sorter` 对象属性应与后端实体字段名保持一致。
 4. **Hook 依赖**：

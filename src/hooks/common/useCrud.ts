@@ -115,7 +115,7 @@ export default function useCrud<T extends Entity>({ entityName, pathname, baseUr
    */
   const batchDeleteByIds = useCallback(async (ids: any[]) => {
     return request<API.Result<void>>(
-      baseUrl + '/batch',
+      baseUrl,
       {
         method: 'DELETE',
         data: ids

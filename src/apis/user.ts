@@ -73,9 +73,9 @@ export async function deleteUser(userId: number) {
  * 批量删除用户
  */
 export async function batchDeleteUsers(userIds: number[]) {
-  return request<API.Result<void>>(`${BASE_URL}/batch`, {
+  return request<API.Result<void>>(`${BASE_URL}`, {
     method: 'DELETE',
-    data: { ids: userIds },
+    data: userIds,
   });
 }
 

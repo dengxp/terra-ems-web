@@ -56,7 +56,7 @@ export async function deleteKnowledgeArticle(id: number) {
  * 批量删除文章
  */
 export async function batchDeleteKnowledgeArticles(ids: number[]) {
-    return request<API.Result<void>>('/api/ems/knowledge/batch', {
+    return request<API.Result<void>>('/api/ems/knowledge', {
         method: 'DELETE',
         data: ids,
     });

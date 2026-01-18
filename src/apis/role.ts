@@ -63,9 +63,9 @@ export async function deleteRole(roleId: number) {
  * 批量删除角色
  */
 export async function batchDeleteRoles(roleIds: number[]) {
-  return request<API.Result<void>>(`${BASE_URL}/batch`, {
+  return request<API.Result<void>>(`${BASE_URL}`, {
     method: 'DELETE',
-    data: { ids: roleIds },
+    data: roleIds,
   });
 }
 

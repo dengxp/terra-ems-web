@@ -60,7 +60,7 @@ export async function deleteProductionRecord(id: number) {
  * 批量删除产量记录
  */
 export async function batchDeleteProductionRecords(ids: number[]) {
-    return request<API.Result<void>>('/api/ems/production-records/batch', {
+    return request<API.Result<void>>('/api/ems/production-records', {
         method: 'DELETE',
         data: ids,
     });
