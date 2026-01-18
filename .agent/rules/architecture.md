@@ -29,8 +29,9 @@ trigger: always_on
 3. **分页与列表接口规范**：
     - **标准分页**：`GET /api/path`，对应后端 `findByPage`。
     - **标准列表**：`GET /api/path/list`，对应后端 `findList`（不分页）。
-4. **分页与排序适配**：
-    - **页码索引**：前端分页组件通常使用 1-based 索引，后端框架已统一处理偏移，前端直接传递 `current` 即可。
+3. **分页与排序适配**：
+    - **页码索引**：前端分页组件通常使用 1-based 索引 (`current`)，而后台 (Spring Data JPA) 通常使用 0-based 索引 (`pageNumber`)。
+    - **API 层鲁棒性**：API 方法应自动处理偏移。推荐模式：`pageNumber: pageNumber ?? (current ? current - 1 : 0)`。
     - **排序字段**：前端 `Sorter` 对象属性应与后端实体字段名保持一致。
 4. **Hook 依赖**：
     - 列表与 CRUD 场景 **强制优先** 使用 `@/hooks/common/useCrud`。
@@ -49,9 +50,12 @@ trigger: always_on
 const {
     getState,
     actionRef,
-    toCreate,        // 新建操作
-    toEdit,          // 编辑操作
-    toBatchDelete,   // 批量删除
+    fetchPage,       // 分页查询 (已处理 0 索引转换)
+    search,          // 搜索别名 (适配 ProTable request)
+    toCreate,        // 打开新建对话框
+    toEdit,          // 打开编辑对话框
+    handleSaveOrUpdate, // 提交保存/更新逻辑
+    toBatchDelete,   // 批量删除 (带二次确认)
     setDialogVisible,
 } = useCrud<EntityType>({
     pathname: '/module/page',  // 全局唯一路径标识
