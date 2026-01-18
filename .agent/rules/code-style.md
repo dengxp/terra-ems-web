@@ -19,6 +19,7 @@ trigger: always_on
 1. **函数式编程**：强制使用函数组件（FC）和 Hooks。
 2. **解构赋值**：提倡对 Props 和 State 进行解构。
 3. **副作用管理**：明确 `useEffect` 的依赖项，禁止滥用 `any`。
+4. **数据完整性**：在所有增删改表单中，必须使用 `ProFormText` 配合 `hidden` 属性显式承载 `id` 或 `parentId`，严禁仅依赖闭包或内存状态。
 
 ## 三、 UI 统一封装
 

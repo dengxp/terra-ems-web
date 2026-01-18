@@ -111,11 +111,28 @@ const handleBatchDelete = async () => {
 ### 4.5 不适用场景
 
 以下场景不强制使用 useCrud：
-- 树形结构管理页面（如用能单元管理）
 - 多列复合布局页面（如报警配置）
 - 纯展示/分析页面
 
-## 五、 权限与认证
+## 五、 特殊组件交互规范
+
+### 5.1 树形组件 (Tree) 下下文菜单
+
+为保证 Tree 组件的 Flex 布局稳定性和防止换行 Bug：
+1. **禁止行为**：禁止在 `Tree.TreeNode` 的 `title` 中嵌套 `Dropdown` 组件。
+2. **推荐方案**：使用 `Tree` 的 `onRightClick` 事件驱动。
+    - 在页面根部定义一个受控的 `Dropdown` 和一个 `fixed` 定位的隐藏锚点 `div`。
+    - `onRightClick` 时，捕获鼠标坐标、更新锚点位置并显示菜单。
+    - 必须调用 `event.preventDefault()`。
+3. **数据冗余挂载**：在 `convertToTreeData` 时，将原始对象挂载到 `rawData` 属性下。事件回调中通过 `info.node.rawData` 直接访问 ID 和业务属性。
+
+### 5.2 数据完整性 (Hidden Fields)
+
+1. **原则**：所有增删改表单必须包含显式的隐藏标识符字段。
+2. **实现**：使用 `ProFormText` 并设置 `hidden` 属性承载 `id`（用于更新）或 `parentId`（用于创建子节点）。
+3. **优势**：确保表单在 `onFinish` 时自动收集所有必要的 API 字段，避免 Hook 内部进行不可控的“智能合并”。
+
+## 六、 权限与认证
 
 - 权限判断使用 `Access` 组件或 `useAccess` Hook。
 - 敏感操作按钮（新增、编辑、删除）必须绑定权限标识。
