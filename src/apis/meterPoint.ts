@@ -106,33 +106,13 @@ export async function getMeterPointsByEnergyUnitId(energyUnitId: number) {
 }
 
 /**
- * 创建采集点位
+ * 保存采集点位（新增或更新）
+ * 使用数据映射模式：直接在 data 中传递 meterId 和 energyTypeId
  */
-export async function createMeterPoint(
-    data: Partial<MeterPoint>,
-    meterId?: number,
-    energyTypeId?: number
-) {
+export async function saveMeterPoint(data: Partial<MeterPoint> & { meterId?: number; energyTypeId?: number }) {
     return request<API.Result<MeterPoint>>('/api/meter-points', {
         method: 'POST',
         data,
-        params: { meterId, energyTypeId },
-    });
-}
-
-/**
- * 更新采集点位
- */
-export async function updateMeterPoint(
-    id: number,
-    data: Partial<MeterPoint>,
-    meterId?: number,
-    energyTypeId?: number
-) {
-    return request<API.Result<MeterPoint>>('/api/meter-points', {
-        method: 'POST',
-        data: { ...data, id },
-        params: { meterId, energyTypeId },
     });
 }
 

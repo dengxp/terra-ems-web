@@ -8,7 +8,7 @@ import {
 } from '@ant-design/pro-components';
 import { ProModalForm } from '@/components/container';
 import { message } from 'antd';
-import { MeterPoint, createMeterPoint, updateMeterPoint } from '@/apis/meterPoint';
+import { MeterPoint, saveMeterPoint } from '@/apis/meterPoint';
 import { getEnabledEnergyTypes } from '@/apis/energyType';
 import { getMeters, Meter } from '@/apis/meter';
 
@@ -88,14 +88,14 @@ const MeterPointForm: React.FC<MeterPointFormProps> = ({
             }
             onFinish={async (values) => {
                 try {
-                    const { meterId, energyTypeId, ...data } = values;
-                    if (isEdit && currentRecord) {
-                        await updateMeterPoint(currentRecord.id, { ...currentRecord, ...data }, meterId, energyTypeId);
-                        message.success('更新成功');
-                    } else {
-                        await createMeterPoint(data, meterId, energyTypeId);
-                        message.success('创建成功');
-                    }
+                    // 使用数据映射模式：直接提交包含 meterId 和 energyTypeId 的扁平数据
+                    const submitData = {
+                        ...values,
+                        // 编辑时保留 id
+                        ...(isEdit && currentRecord ? { id: currentRecord.id } : {}),
+                    };
+                    await saveMeterPoint(submitData);
+                    message.success(isEdit ? '更新成功' : '创建成功');
                     onSuccess();
                     return true;
                 } catch (error) {
