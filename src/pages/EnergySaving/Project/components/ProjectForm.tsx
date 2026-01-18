@@ -41,7 +41,7 @@ const ProjectForm: React.FC<ProjectFormProps> = (props) => {
     const handleSubmit = async (values: any) => {
         try {
             if (isEdit && currentRecord) {
-                await updateProject(currentRecord.id, values);
+                await updateProject(currentRecord.id, { ...currentRecord, ...values });
                 message.success('更新成功');
             } else {
                 await createProject(values);

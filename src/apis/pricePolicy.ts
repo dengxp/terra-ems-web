@@ -130,9 +130,9 @@ export async function createPricePolicy(data: CreatePricePolicyParams) {
  * 更新电价策略
  */
 export async function updatePricePolicy(id: number, data: CreatePricePolicyParams) {
-    return request<API.Result<PricePolicy>>(`/api/price-policies/${id}`, {
-        method: 'PUT',
-        data,
+    return request<API.Result<PricePolicy>>('/api/price-policies', {
+        method: 'POST',
+        data: { ...data, id },
     });
 }
 
@@ -150,7 +150,7 @@ export async function deletePricePolicy(id: number) {
  */
 export async function updatePricePolicyStatus(id: number, status: number) {
     return request<API.Result<PricePolicy>>(`/api/price-policies/${id}/status`, {
-        method: 'PATCH',
+        method: 'POST',
         params: { status },
     });
 }

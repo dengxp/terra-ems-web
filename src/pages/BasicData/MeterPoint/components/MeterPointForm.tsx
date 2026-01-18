@@ -90,7 +90,7 @@ const MeterPointForm: React.FC<MeterPointFormProps> = ({
                 try {
                     const { meterId, energyTypeId, ...data } = values;
                     if (isEdit && currentRecord) {
-                        await updateMeterPoint(currentRecord.id, data, meterId, energyTypeId);
+                        await updateMeterPoint(currentRecord.id, { ...currentRecord, ...data }, meterId, energyTypeId);
                         message.success('更新成功');
                     } else {
                         await createMeterPoint(data, meterId, energyTypeId);

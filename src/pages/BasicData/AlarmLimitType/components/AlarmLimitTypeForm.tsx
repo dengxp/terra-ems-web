@@ -32,7 +32,7 @@ const AlarmLimitTypeForm: React.FC<AlarmLimitTypeFormProps> = (props) => {
     const handleSubmit = async (values: any) => {
         try {
             if (isEdit && currentRecord) {
-                await updateAlarmLimitType(currentRecord.id, values);
+                await updateAlarmLimitType(currentRecord.id, { ...currentRecord, ...values });
                 message.success('更新成功');
             } else {
                 await createAlarmLimitType(values);

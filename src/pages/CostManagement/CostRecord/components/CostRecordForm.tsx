@@ -65,6 +65,7 @@ const CostRecordForm: React.FC<CostRecordFormProps> = (props) => {
     const handleSubmit = async (values: any) => {
         try {
             const data = {
+                ...currentRecord, // 重点：合并旧数据
                 ...values,
                 energyUnit: values.energyUnitId ? { id: values.energyUnitId } : null,
                 energyType: values.energyTypeId ? { id: values.energyTypeId } : null,

@@ -128,9 +128,9 @@ export async function createBenchmark(data: Partial<Benchmark>) {
  * 更新对标值
  */
 export async function updateBenchmark(id: number, data: Partial<Benchmark>) {
-    return request<API.Result<Benchmark>>(`/api/ems/benchmarks/${id}`, {
-        method: 'PUT',
-        data,
+    return request<API.Result<Benchmark>>('/api/ems/benchmarks', {
+        method: 'POST',
+        data: { ...data, id },
     });
 }
 
@@ -148,7 +148,7 @@ export async function deleteBenchmark(id: number) {
  */
 export async function updateBenchmarkStatus(id: number, status: number) {
     return request<API.Result<Benchmark>>(`/api/ems/benchmarks/${id}/status`, {
-        method: 'PUT',
+        method: 'POST',
         params: { status },
     });
 }

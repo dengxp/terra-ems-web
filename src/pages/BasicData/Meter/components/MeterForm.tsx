@@ -51,10 +51,11 @@ const MeterForm: React.FC<MeterFormProps> = ({ visible, record, onCancel, onSucc
                 try {
                     // 构造传给后端的对象，后端实体要求 EnergyType 对象
                     const submitData = {
+                        ...record, // 重点：合并旧数据
                         ...values,
                         energyType: { id: values.energyTypeId }
                     };
-                    delete submitData.energyTypeId;
+                    delete (submitData as any).energyTypeId;
 
                     if (isEdit) {
                         await updateMeter(record.id, submitData);

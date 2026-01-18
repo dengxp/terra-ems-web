@@ -71,9 +71,9 @@ export async function createDept(dept: Partial<SysDept>) {
  * 更新部门信息
  */
 export async function updateDept(deptId: number, dept: Partial<SysDept>) {
-  return request<API.Result<SysDept>>(`${BASE_URL}/${deptId}`, {
-    method: 'PUT',
-    data: dept,
+  return request<API.Result<SysDept>>(`${BASE_URL}`, {
+    method: 'POST',
+    data: { ...dept, id: deptId },
   });
 }
 

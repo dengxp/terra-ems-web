@@ -113,7 +113,7 @@ export async function createMeterPoint(
     meterId?: number,
     energyTypeId?: number
 ) {
-    return request<API.Result<MeterPoint>>('/api/meter-points/create', {
+    return request<API.Result<MeterPoint>>('/api/meter-points', {
         method: 'POST',
         data,
         params: { meterId, energyTypeId },
@@ -129,9 +129,9 @@ export async function updateMeterPoint(
     meterId?: number,
     energyTypeId?: number
 ) {
-    return request<API.Result<MeterPoint>>(`/api/meter-points/${id}`, {
-        method: 'PUT',
-        data,
+    return request<API.Result<MeterPoint>>('/api/meter-points', {
+        method: 'POST',
+        data: { ...data, id },
         params: { meterId, energyTypeId },
     });
 }
@@ -150,7 +150,7 @@ export async function deleteMeterPoint(id: number) {
  */
 export async function updateMeterPointStatus(id: number, status: number) {
     return request<API.Result<MeterPoint>>(`/api/meter-points/${id}/status`, {
-        method: 'PATCH',
+        method: 'POST',
         params: { status },
     });
 }

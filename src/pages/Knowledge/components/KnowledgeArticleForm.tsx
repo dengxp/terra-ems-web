@@ -33,7 +33,7 @@ const KnowledgeArticleForm: React.FC<KnowledgeArticleFormProps> = ({
     const handleSubmit = async (values: KnowledgeArticle) => {
         try {
             if (isEdit && record?.id) {
-                await updateKnowledgeArticle(record.id, values);
+                await updateKnowledgeArticle(record.id, { ...record, ...values });
                 message.success('更新成功');
             } else {
                 await createKnowledgeArticle(values);
@@ -70,8 +70,8 @@ const KnowledgeArticleForm: React.FC<KnowledgeArticleFormProps> = ({
                 label="能源类型"
                 placeholder="选择能源类型（可选，留空表示通用知识）"
                 request={async () => {
-                    const res = await getEnergyTypes();
-                    return (res.data || []).map((item: any) => ({
+                    const res = await getEnergyTypes({});
+                    return (res.data?.content || []).map((item: any) => ({
                         label: item.name,
                         value: item.id,
                     }));

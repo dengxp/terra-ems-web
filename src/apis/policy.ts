@@ -95,9 +95,9 @@ export async function createPolicy(data: Partial<Policy>) {
  * 更新政策法规
  */
 export async function updatePolicy(id: number, data: Partial<Policy>) {
-    return request<API.Result<Policy>>(`/api/ems/policies/${id}`, {
-        method: 'PUT',
-        data,
+    return request<API.Result<Policy>>('/api/ems/policies', {
+        method: 'POST',
+        data: { ...data, id },
     });
 }
 
@@ -115,7 +115,7 @@ export async function deletePolicy(id: number) {
  */
 export async function updatePolicyStatus(id: number, status: number) {
     return request<API.Result<Policy>>(`/api/ems/policies/${id}/status`, {
-        method: 'PUT',
+        method: 'POST',
         params: { status },
     });
 }

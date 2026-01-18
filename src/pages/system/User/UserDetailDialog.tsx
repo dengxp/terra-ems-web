@@ -41,7 +41,7 @@ const UserDetailDialog = (props: Props) => {
   const state = getState('/system/user');
 
   const onFinish = async (values: Record<string, any>) => {
-    if (values.userId) {
+    if (values.id) {
       const data = { ...state.editData, ...values };
       await handleUpdate(data);
     } else {

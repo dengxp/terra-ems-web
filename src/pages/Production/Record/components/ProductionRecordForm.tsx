@@ -37,7 +37,7 @@ const ProductionRecordForm: React.FC<ProductionRecordFormProps> = ({
     const handleSubmit = async (values: ProductionRecord) => {
         try {
             if (isEdit && record?.id) {
-                await updateProductionRecord(record.id, values);
+                await updateProductionRecord(record.id, { ...record, ...values });
                 message.success('更新成功');
             } else {
                 await createProductionRecord(values);

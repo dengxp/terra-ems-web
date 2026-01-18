@@ -74,9 +74,9 @@ export async function createMeter(data: any) {
  * @param data 器具数据
  */
 export async function updateMeter(id: number, data: any) {
-    return request<API.Result<Meter>>(`/api/meters/${id}`, {
-        method: 'PUT',
-        data,
+    return request<API.Result<Meter>>('/api/meters', {
+        method: 'POST',
+        data: { ...data, id },
     });
 }
 

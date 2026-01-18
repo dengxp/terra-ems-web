@@ -44,9 +44,9 @@ export async function createRole(role: Partial<SysRole>) {
  * 更新角色信息
  */
 export async function updateRole(roleId: number, role: Partial<SysRole>) {
-  return request<API.Result<SysRole>>(`${BASE_URL}/${roleId}`, {
-    method: 'PUT',
-    data: role,
+  return request<API.Result<SysRole>>(`${BASE_URL}`, {
+    method: 'POST',
+    data: { ...role, id: roleId },
   });
 }
 
@@ -92,7 +92,7 @@ export async function getRolePermissions(roleId: number) {
  */
 export async function updateRolePermissions(roleId: number, permissionIds: number[]) {
   return request<API.Result<void>>(`${BASE_URL}/${roleId}/permissions`, {
-    method: 'PUT',
+    method: 'POST',
     data: { permissionIds },
   });
 }

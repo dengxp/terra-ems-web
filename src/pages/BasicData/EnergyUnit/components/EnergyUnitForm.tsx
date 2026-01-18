@@ -1,56 +1,42 @@
 import React from 'react';
 import {
-    ModalForm,
     ProFormText,
     ProFormDigit,
     ProFormRadio,
     ProFormTextArea,
 } from '@ant-design/pro-components';
-import { message } from 'antd';
-import { EnergyUnit, createEnergyUnit, updateEnergyUnit } from '@/apis/energyUnit';
+import { EnergyUnit } from '@/apis/energyUnit';
+import { ProModalForm } from "@/components/container";
+import useCrud from "@/hooks/common/useCrud";
 
 interface EnergyUnitFormProps {
     visible: boolean;
-    onVisibleChange: (visible: boolean) => void;
+    onOpenChange: (visible: boolean) => void;
     onSuccess: () => void;
-    currentNode?: EnergyUnit;
-    parentNode?: EnergyUnit | null;
-    mode: 'add' | 'addChild' | 'edit';
+    record?: EnergyUnit;
 }
 
 const EnergyUnitForm: React.FC<EnergyUnitFormProps> = ({
     visible,
-    onVisibleChange,
+    onOpenChange,
     onSuccess,
-    currentNode,
-    parentNode,
-    mode,
+    record,
 }) => {
-    const isEdit = mode === 'edit';
-    const title = isEdit ? '编辑用能单元' : (mode === 'addChild' ? '新增子节点' : '新增根节点');
-    const parentId = mode === 'addChild' ? parentNode?.id : undefined;
+    const { handleSaveOrUpdate } = useCrud<EnergyUnit>({
+        pathname: '/basic-data/energy-unit',
+        baseUrl: '/api/energy-units',
+    });
 
     return (
-        <ModalForm
-            title={title}
+        <ProModalForm
+            title={record?.id ? '编辑用能单元' : '新增用能单元'}
             open={visible}
-            onOpenChange={onVisibleChange}
-            initialValues={isEdit ? currentNode : { status: 0, sortOrder: 0 }}
+            onOpenChange={onOpenChange}
+            initialValues={{ status: 0, sortOrder: 0, ...record }}
             onFinish={async (values) => {
-                try {
-                    if (isEdit && currentNode) {
-                        await updateEnergyUnit(currentNode.id, values);
-                        message.success('更新成功');
-                    } else {
-                        await createEnergyUnit(values, parentId);
-                        message.success('创建成功');
-                    }
-                    onSuccess();
-                    return true;
-                } catch (error) {
-                    message.error('操作失败');
-                    return false;
-                }
+                await handleSaveOrUpdate(values);
+                onSuccess();
+                return true;
             }}
             width={500}
             layout="horizontal"
@@ -60,14 +46,8 @@ const EnergyUnitForm: React.FC<EnergyUnitFormProps> = ({
                 destroyOnClose: true,
             }}
         >
-            {parentNode && mode === 'addChild' && (
-                <ProFormText
-                    name="parentName"
-                    label="父节点"
-                    initialValue={parentNode.name}
-                    disabled
-                />
-            )}
+            <ProFormText name="id" hidden />
+            <ProFormText name="parentId" hidden />
             <ProFormText
                 name="code"
                 label="编码"
@@ -96,6 +76,7 @@ const EnergyUnitForm: React.FC<EnergyUnitFormProps> = ({
             <ProFormRadio.Group
                 name="status"
                 label="状态"
+                rules={[{ required: true, message: '请选择状态' }]}
                 options={[
                     { label: '启用', value: 0 },
                     { label: '停用', value: 1 },
@@ -107,7 +88,7 @@ const EnergyUnitForm: React.FC<EnergyUnitFormProps> = ({
                 placeholder="请输入备注"
                 fieldProps={{ rows: 3 }}
             />
-        </ModalForm>
+        </ProModalForm>
     );
 };
 

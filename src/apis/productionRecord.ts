@@ -41,9 +41,9 @@ export async function createProductionRecord(data: ProductionRecord) {
  * 更新产量记录
  */
 export async function updateProductionRecord(id: number, data: ProductionRecord) {
-    return request<API.Result<ProductionRecord>>(`/api/ems/production-records/${id}`, {
-        method: 'PUT',
-        data,
+    return request<API.Result<ProductionRecord>>('/api/ems/production-records', {
+        method: 'POST',
+        data: { ...data, id },
     });
 }
 

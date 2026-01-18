@@ -37,9 +37,9 @@ export async function createKnowledgeArticle(data: KnowledgeArticle) {
  * 更新文章
  */
 export async function updateKnowledgeArticle(id: number, data: KnowledgeArticle) {
-    return request<API.Result<KnowledgeArticle>>(`/api/ems/knowledge/${id}`, {
-        method: 'PUT',
-        data,
+    return request<API.Result<KnowledgeArticle>>('/api/ems/knowledge', {
+        method: 'POST',
+        data: { ...data, id },
     });
 }
 
@@ -122,7 +122,7 @@ export async function getHotKnowledgeArticles() {
  */
 export async function updateKnowledgeArticleStatus(id: number, status: 'ENABLE' | 'DISABLE') {
     return request<API.Result<void>>(`/api/ems/knowledge/${id}/status`, {
-        method: 'PATCH',
+        method: 'POST',
         params: { status },
     });
 }

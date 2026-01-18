@@ -58,9 +58,9 @@ export async function createPost(post: Partial<SysPost>) {
  * 更新岗位信息
  */
 export async function updatePost(postId: number, post: Partial<SysPost>) {
-  return request<API.Result<SysPost>>(`${BASE_URL}/${postId}`, {
-    method: 'PUT',
-    data: post,
+  return request<API.Result<SysPost>>(`${BASE_URL}`, {
+    method: 'POST',
+    data: { ...post, id: postId },
   });
 }
 
@@ -87,7 +87,7 @@ export async function getPostOptions() {
  */
 export async function changePostStatus(postId: number, status: string) {
   return request<API.Result<void>>(`${BASE_URL}/${postId}/status`, {
-    method: 'PUT',
+    method: 'POST',
     data: { status },
   });
 }

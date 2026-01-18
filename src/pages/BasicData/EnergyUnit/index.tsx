@@ -1,33 +1,55 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { ProDescriptions } from '@ant-design/pro-components';
 import { ProPageContainer } from '@/components/container';
-import { Tree, Flex, Splitter, Modal, message, Empty, Tag } from 'antd';
-import {
+import { Tree, Flex, Splitter, message, Empty, Tag, Input, Space, Dropdown } from 'antd';
+import type { MenuProps } from 'antd';
+import Icon, {
     PlusOutlined,
     EditOutlined,
     DeleteOutlined,
 } from '@ant-design/icons';
 import type { TreeDataNode } from 'antd';
 import { IconButton } from '@/components/button';
-import { getEnergyUnitTree, deleteEnergyUnit, EnergyUnit } from '@/apis/energyUnit';
+import { getEnergyUnitTree, EnergyUnit } from '@/apis/energyUnit';
 import EnergyUnitForm from './components/EnergyUnitForm';
+import { ReactComponent as MoveTo } from '@/icons/svg/move-to.svg';
+import MoveEnergyUnitDialog from './components/MoveEnergyUnitDialog';
+import useCrud from "@/hooks/common/useCrud";
+import { generateList, getParentKey } from "@/utils/tree";
 
 /**
  * 用能单元管理页面
  */
 const EnergyUnitPage: React.FC = () => {
     const [treeData, setTreeData] = useState<TreeDataNode[]>([]);
-    const [loading, setLoading] = useState(false);
     const [selectedNode, setSelectedNode] = useState<EnergyUnit | null>(null);
     const [expandedKeys, setExpandedKeys] = useState<React.Key[]>([]);
     const [selectedKeys, setSelectedKeys] = useState<React.Key[]>([]);
-    const [formVisible, setFormVisible] = useState(false);
-    const [formMode, setFormMode] = useState<'add' | 'addChild' | 'edit'>('add');
-    const [editingNode, setEditingNode] = useState<EnergyUnit | undefined>(undefined);
-    const [parentNode, setParentNode] = useState<EnergyUnit | null>(null);
+    const [moveVisible, setMoveVisible] = useState(false);
+    const [searchValue, setSearchValue] = useState('');
+    const [autoExpandParent, setAutoExpandParent] = useState(true);
     // 用于保存原始数据以便查找节点
     const [rawData, setRawData] = useState<EnergyUnit[]>([]);
     const [messageApi, contextHolder] = message.useMessage();
+    const [contextMenuVisible, setContextMenuVisible] = useState(false);
+    const [contextMenuPos, setContextMenuPos] = useState({ x: 0, y: 0 });
+    const [contextMenuNode, setContextMenuNode] = useState<EnergyUnit | null>(null);
+
+    const {
+        getState,
+        updateState,
+        toCreate,
+        toEdit,
+        toDelete,
+        setDialogVisible,
+        setShouldRefresh,
+    } = useCrud<EnergyUnit>({
+        entityName: '用能单元',
+        pathname: '/basic-data/energy-unit',
+        baseUrl: '/api/energy-units',
+    });
+
+    const state = getState('/basic-data/energy-unit');
 
     // 将 EnergyUnit 转换为 antd Tree 的 TreeDataNode
     const convertToTreeData = useCallback((nodes: EnergyUnit[]): TreeDataNode[] => {
@@ -36,17 +58,32 @@ const EnergyUnitPage: React.FC = () => {
             title: node.name,
             children: node.children ? convertToTreeData(node.children) : undefined,
             isLeaf: !node.children || node.children.length === 0,
-        }));
+            rawData: node, // 保存原始数据供上下文菜单展示
+        } as any));
+    }, []);
+
+    // 查找节点（递归）
+    const findNode = useCallback((id: number, nodes: EnergyUnit[]): EnergyUnit | null => {
+        for (const node of nodes) {
+            if (node.id === id) return node;
+            if (node.children) {
+                const found = findNode(id, node.children);
+                if (found) return found;
+            }
+        }
+        return null;
     }, []);
 
     // 加载树形数据
     const loadTree = useCallback(async () => {
-        setLoading(true);
+        updateState('/basic-data/energy-unit', { loading: true });
         try {
             const res = await getEnergyUnitTree();
             if (res.success && res.data) {
                 setRawData(res.data);
-                setTreeData(convertToTreeData(res.data));
+                const treeRows = convertToTreeData(res.data);
+                setTreeData(treeRows);
+
                 // 默认展开所有节点
                 const getAllKeys = (nodes: EnergyUnit[]): React.Key[] => {
                     let keys: React.Key[] = [];
@@ -59,6 +96,7 @@ const EnergyUnitPage: React.FC = () => {
                     return keys;
                 };
                 setExpandedKeys(getAllKeys(res.data));
+
                 // 如果之前有选中的节点，尝试恢复选中状态
                 if (selectedNode) {
                     const node = findNode(selectedNode.id, res.data);
@@ -75,33 +113,19 @@ const EnergyUnitPage: React.FC = () => {
         } catch (error) {
             messageApi.error('加载数据失败');
         } finally {
-            setLoading(false);
+            updateState('/basic-data/energy-unit', { loading: false });
         }
-    }, [convertToTreeData, messageApi, selectedNode]);
+    }, [convertToTreeData, messageApi, selectedNode, updateState, findNode]);
 
     useEffect(() => {
         loadTree();
     }, []);
 
-    // 查找节点（递归）
-    const findNode = useCallback((id: number, nodes: EnergyUnit[]): EnergyUnit | null => {
-        for (const node of nodes) {
-            if (node.id === id) return node;
-            if (node.children) {
-                const found = findNode(id, node.children);
-                if (found) return found;
-            }
-        }
-        return null;
-    }, []);
-
     // 选中节点
     const handleSelect = (keys: React.Key[], info: any) => {
         setSelectedKeys(keys);
-        if (keys.length > 0) {
-            const nodeId = keys[0] as number;
-            const node = findNode(nodeId, rawData);
-            setSelectedNode(node);
+        if (keys.length > 0 && info.node) {
+            setSelectedNode((info.node as any).rawData);
         } else {
             setSelectedNode(null);
         }
@@ -109,17 +133,8 @@ const EnergyUnitPage: React.FC = () => {
 
     // 新增子节点
     const handleCreate = () => {
-        if (selectedNode) {
-            // 有选中节点时，新增子节点
-            setFormMode('addChild');
-            setParentNode(selectedNode);
-        } else {
-            // 无选中节点时，新增根节点
-            setFormMode('add');
-            setParentNode(null);
-        }
-        setEditingNode(undefined);
-        setFormVisible(true);
+        const initialData = selectedNode ? { parentId: selectedNode.id } : {};
+        toCreate(initialData);
     };
 
     // 编辑节点
@@ -128,56 +143,161 @@ const EnergyUnitPage: React.FC = () => {
             messageApi.warning('请先选择一个节点');
             return;
         }
-        setFormMode('edit');
-        setEditingNode(selectedNode);
-        setParentNode(null);
-        setFormVisible(true);
+        toEdit(selectedNode);
     };
 
     // 删除节点
-    const handleDelete = () => {
+    const handleDelete = async (node?: EnergyUnit) => {
+        const target = node || selectedNode;
+        if (!target) {
+            messageApi.warning('请先选择一个节点');
+            return;
+        }
+        if (target.children && target.children.length > 0) {
+            messageApi.error('该节点下存在子节点，无法删除');
+            return;
+        }
+        try {
+            await toDelete(target.id);
+            if (!node || target.id === (selectedNode?.id)) {
+                setSelectedNode(null);
+                setSelectedKeys([]);
+            }
+            void loadTree();
+        } catch (error) {
+            // 错误由全局处理
+        }
+    };
+
+    // 移动节点
+    const handleMove = () => {
         if (!selectedNode) {
             messageApi.warning('请先选择一个节点');
             return;
         }
-        if (selectedNode.children && selectedNode.children.length > 0) {
-            messageApi.error('该节点下存在子节点，无法删除');
-            return;
-        }
-        Modal.confirm({
-            title: '确认删除',
-            content: `确定要删除用能单元「${selectedNode.name}」吗？`,
-            okText: '确定',
-            cancelText: '取消',
-            onOk: async () => {
-                try {
-                    const res = await deleteEnergyUnit(selectedNode.id);
-                    if (res.success) {
-                        messageApi.success('删除成功');
-                        setSelectedNode(null);
-                        setSelectedKeys([]);
-                        loadTree();
-                    } else {
-                        messageApi.error(res.message || '删除失败');
-                    }
-                } catch (error) {
-                    messageApi.error('删除失败');
-                }
-            },
-        });
+        setMoveVisible(true);
     };
 
-    // 表单成功回调
-    const handleFormSuccess = () => {
-        setFormVisible(false);
-        loadTree();
+    const dataList = useMemo(() => {
+        return generateList(treeData);
+    }, [treeData]);
+
+    const onSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { value } = e.target;
+        setSearchValue(value);
+        const newExpandedKeys = dataList
+            .map((item) => {
+                if (item.title.indexOf(value) > -1) {
+                    return getParentKey(item.key, treeData);
+                }
+                return null;
+            })
+            .filter((item): item is React.Key => item !== null && item !== undefined);
+
+        const uniqueKeys = Array.from(new Set(newExpandedKeys));
+
+        if (uniqueKeys.length > 0) {
+            setExpandedKeys(uniqueKeys);
+            setAutoExpandParent(true);
+        }
     };
+
+    const displayTreeData = useMemo(() => {
+        const loop = (data: any[]): TreeDataNode[] =>
+            data
+                .map((item) => {
+                    const node = item.rawData as EnergyUnit;
+                    const strTitle = node.name;
+                    const index = strTitle.indexOf(searchValue);
+
+                    const beforeStr = strTitle.substring(0, index);
+                    const afterStr = strTitle.slice(index + searchValue.length);
+
+                    const title =
+                        index > -1 ? (
+                            <span key={item.key}>
+                                {beforeStr}
+                                <span style={{ color: '#f50' }}>{searchValue}</span>
+                                {afterStr}
+                            </span>
+                        ) : (
+                            <span key={item.key}>{strTitle}</span>
+                        );
+
+                    let children = item.children ? loop(item.children) : [];
+
+                    if (index > -1 || children.length > 0) {
+                        return {
+                            ...item,
+                            title,
+                            children,
+                        };
+                    }
+
+                    return null;
+                })
+                .filter(item => item !== null) as TreeDataNode[];
+
+        return searchValue ? loop(treeData) : treeData;
+    }, [searchValue, treeData]);
+
+    useEffect(() => {
+        if (state.shouldRefresh) {
+            void loadTree();
+            setShouldRefresh(false);
+        }
+    }, [state.shouldRefresh, loadTree, setShouldRefresh]);
 
     return (
         <>
+            <Dropdown
+                menu={{
+                    items: contextMenuNode ? [
+                        {
+                            key: 'add',
+                            label: '新增子节点',
+                            icon: <PlusOutlined />,
+                            onClick: () => toCreate({ parentId: contextMenuNode.id })
+                        },
+                        {
+                            key: 'edit',
+                            label: '编辑',
+                            icon: <EditOutlined />,
+                            onClick: () => toEdit(contextMenuNode)
+                        },
+                        {
+                            key: 'move',
+                            label: '移动',
+                            icon: <Icon component={MoveTo} />,
+                            onClick: () => setMoveVisible(true)
+                        },
+                        ...(!(contextMenuNode.children && contextMenuNode.children.length > 0) ? [{
+                            key: 'delete',
+                            label: '删除',
+                            danger: true,
+                            icon: <DeleteOutlined />,
+                            onClick: () => handleDelete(contextMenuNode)
+                        }] : [])
+                    ] : []
+                }}
+                open={contextMenuVisible}
+                onOpenChange={setContextMenuVisible}
+                getPopupContainer={() => document.body}
+            >
+                <div style={{
+                    position: 'fixed',
+                    left: contextMenuPos.x,
+                    top: contextMenuPos.y,
+                    width: '1px',
+                    height: '1px',
+                    opacity: 0,
+                    pointerEvents: 'none',
+                    zIndex: -1
+                }} />
+            </Dropdown>
             <ProPageContainer className={'pt-1'}>
                 {contextHolder}
-                <Splitter style={{ height: 640, boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)' }}>
+                <Splitter style={{ height: 'calc(100vh - 250px)', minHeight: '500px', boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)' }}>
                     <Splitter.Panel
                         defaultSize="24%"
                         min="12%"
@@ -190,17 +310,37 @@ const EnergyUnitPage: React.FC = () => {
                             height: '100%',
                         }}
                     >
+                        <div className={'p-2 border-b bg-white'}>
+                            <Input.Search
+                                placeholder={'搜索用能单元'}
+                                onChange={onSearchChange}
+                                allowClear
+                            />
+                        </div>
                         <Tree.DirectoryTree
                             selectedKeys={selectedKeys}
                             expandedKeys={expandedKeys}
                             defaultExpandAll={true}
-                            autoExpandParent={true}
+                            autoExpandParent={autoExpandParent}
                             selectable
                             showLine
-                            onExpand={(keys) => setExpandedKeys(keys)}
-                            treeData={treeData}
+                            onExpand={(keys) => {
+                                setExpandedKeys(keys);
+                                setAutoExpandParent(false);
+                            }}
+                            treeData={displayTreeData}
                             onSelect={handleSelect}
                             rootClassName={'overflow-y-auto flex-1 p-2'}
+                            blockNode
+                            onRightClick={({ event, node }) => {
+                                event.preventDefault();
+                                const raw = (node as any).rawData as EnergyUnit;
+                                setSelectedNode(raw);
+                                setSelectedKeys([raw.id]);
+                                setContextMenuNode(raw);
+                                setContextMenuPos({ x: event.clientX, y: event.clientY });
+                                setContextMenuVisible(true);
+                            }}
                         />
                         <Flex
                             align={'center'}
@@ -212,7 +352,7 @@ const EnergyUnitPage: React.FC = () => {
                                 variant={'solid'}
                                 shape={'circle'}
                                 icon={<PlusOutlined />}
-                                disabled={formVisible}
+                                disabled={state.loading}
                                 size={'middle'}
                                 onClick={handleCreate}
                                 tooltip={'新增'}
@@ -224,8 +364,18 @@ const EnergyUnitPage: React.FC = () => {
                                 icon={<EditOutlined />}
                                 size={'middle'}
                                 onClick={handleEdit}
-                                disabled={formVisible || !selectedNode}
+                                disabled={state.loading || !selectedNode}
                                 tooltip={'编辑'}
+                            />
+                            <IconButton
+                                color={'primary'}
+                                variant={'solid'}
+                                shape={'circle'}
+                                icon={<Icon component={MoveTo} />}
+                                size={'middle'}
+                                disabled={state.loading || !selectedNode}
+                                onClick={handleMove}
+                                tooltip={'移动到...'}
                             />
                             <IconButton
                                 color={'danger'}
@@ -242,7 +392,7 @@ const EnergyUnitPage: React.FC = () => {
                     <Splitter.Panel style={{ backgroundColor: '#fff' }}>
                         <Flex vertical justify={'center'} rootClassName={'h-full'}>
                             {selectedNode ? (
-                                <div className={'h-full'}>
+                                <div className={'h-full overflow-y-auto'}>
                                     <ProDescriptions
                                         column={2}
                                         title={<div className={'pb-2 border-b'}>用能单元信息</div>}
@@ -283,13 +433,24 @@ const EnergyUnitPage: React.FC = () => {
 
             {/* 表单弹窗 */}
             <EnergyUnitForm
-                visible={formVisible}
-                onVisibleChange={setFormVisible}
-                onSuccess={handleFormSuccess}
-                currentNode={editingNode}
-                parentNode={parentNode}
-                mode={formMode}
+                visible={state.dialogVisible}
+                onOpenChange={setDialogVisible}
+                onSuccess={() => {
+                    setDialogVisible(false);
+                    void loadTree();
+                }}
+                record={state.editData as EnergyUnit}
             />
+
+            {selectedNode && (
+                <MoveEnergyUnitDialog
+                    open={moveVisible}
+                    onOpenChange={setMoveVisible}
+                    energyUnit={selectedNode}
+                    treeData={treeData}
+                    onSuccess={loadTree}
+                />
+            )}
         </>
     );
 };

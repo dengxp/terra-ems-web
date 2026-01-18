@@ -54,9 +54,9 @@ export async function createUser(user: Partial<SysUser>) {
  * 更新用户信息
  */
 export async function updateUser(userId: number, user: Partial<SysUser>) {
-  return request<API.Result<SysUser>>(`${BASE_URL}/${userId}`, {
-    method: 'PUT',
-    data: user,
+  return request<API.Result<SysUser>>(`${BASE_URL}`, {
+    method: 'POST',
+    data: { ...user, id: userId },
   });
 }
 
@@ -84,7 +84,7 @@ export async function batchDeleteUsers(userIds: number[]) {
  */
 export async function changeUserStatus(userId: number, status: string) {
   return request<API.Result<void>>(`${BASE_URL}/changeStatus`, {
-    method: 'PUT',
+    method: 'POST',
     data: { userId, status },
   });
 }
@@ -94,7 +94,7 @@ export async function changeUserStatus(userId: number, status: string) {
  */
 export async function resetUserPwd(userId: string, password: string) {
   return request<API.Result<void>>(`${BASE_URL}/resetPwd`, {
-    method: 'PUT',
+    method: 'POST',
     data: { userId, password },
   });
 }
@@ -113,7 +113,7 @@ export async function getAuthRole(userId: string) {
  */
 export async function updateAuthRole(userId: number, roleIds: string) {
   return request<API.Result<void>>(`${BASE_URL}/authRole`, {
-    method: 'PUT',
+    method: 'POST',
     params: { userId, roleIds },
   });
 }

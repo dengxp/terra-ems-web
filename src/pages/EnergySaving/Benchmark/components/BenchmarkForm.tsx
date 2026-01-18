@@ -40,7 +40,7 @@ const BenchmarkForm: React.FC<BenchmarkFormProps> = (props) => {
     const handleSubmit = async (values: any) => {
         try {
             if (isEdit && currentRecord) {
-                await updateBenchmark(currentRecord.id, values);
+                await updateBenchmark(currentRecord.id, { ...currentRecord, ...values });
                 message.success('更新成功');
             } else {
                 await createBenchmark(values);

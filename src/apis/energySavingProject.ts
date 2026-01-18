@@ -94,9 +94,9 @@ export async function createProject(data: Partial<EnergySavingProject>) {
  * 更新节能项目
  */
 export async function updateProject(id: number, data: Partial<EnergySavingProject>) {
-    return request<API.Result<EnergySavingProject>>(`/api/ems/saving-projects/${id}`, {
-        method: 'PUT',
-        data,
+    return request<API.Result<EnergySavingProject>>('/api/ems/saving-projects', {
+        method: 'POST',
+        data: { ...data, id },
     });
 }
 
@@ -114,7 +114,7 @@ export async function deleteProject(id: number) {
  */
 export async function updateProjectStatus(id: number, status: ProjectStatus) {
     return request<API.Result<EnergySavingProject>>(`/api/ems/saving-projects/${id}/status`, {
-        method: 'PUT',
+        method: 'POST',
         params: { status },
     });
 }

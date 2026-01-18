@@ -107,6 +107,7 @@ const PricePolicyForm: React.FC<PricePolicyFormProps> = ({
             // 转换生效日期范围为开始和结束日期
             const { effectiveDateRange, ...restValues } = values;
             const data = {
+                ...currentRecord, // 重点：合并旧数据
                 ...restValues,
                 effectiveStartDate: effectiveDateRange?.[0],
                 effectiveEndDate: effectiveDateRange?.[1],

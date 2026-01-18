@@ -76,9 +76,9 @@ export async function createEnergyType(data: Partial<EnergyType>) {
  * 更新能源类型
  */
 export async function updateEnergyType(id: number, data: Partial<EnergyType>) {
-    return request<API.Result<EnergyType>>(`/api/energy-types/${id}`, {
-        method: 'PUT',
-        data,
+    return request<API.Result<EnergyType>>('/api/energy-types', {
+        method: 'POST',
+        data: { ...data, id },
     });
 }
 
@@ -106,7 +106,7 @@ export async function deleteEnergyTypesBatch(ids: (number | string)[]) {
  */
 export async function updateEnergyTypeStatus(id: number, status: number) {
     return request<API.Result<EnergyType>>(`/api/energy-types/${id}/status`, {
-        method: 'PATCH',
+        method: 'POST',
         params: { status },
     });
 }

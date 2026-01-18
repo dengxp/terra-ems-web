@@ -190,7 +190,11 @@ export default function useCrud<T extends Entity>({ entityName, pathname, baseUr
     return new Promise<void>(async (resolve, reject) => {
       try {
         updateState(pathname, { loading: true });
-        const result = await update(values);
+        const state = getState(pathname);
+        // 自动合并逻辑
+        const data = state?.editData ? { ...state.editData, ...values } : values;
+
+        const result = await update(data);
         void message.success(result.message || '更新成功');
         updateState(pathname, { loading: false, shouldRefresh: true, dialogVisible: false });
         onOpenChange?.(false);
@@ -201,7 +205,7 @@ export default function useCrud<T extends Entity>({ entityName, pathname, baseUr
         reject(error);
       }
     });
-  }, [update, pathname, updateState, onOpenChange]);
+  }, [update, pathname, updateState, onOpenChange, getState]);
 
   // ============================================================================
   // UI 状态变化方法 (第 2 层)
@@ -210,12 +214,12 @@ export default function useCrud<T extends Entity>({ entityName, pathname, baseUr
   /**
    * 打开新建对话框
    */
-  const toCreate = useCallback(() => {
+  const toCreate = useCallback((initialData?: any) => {
     updateState(pathname, {
       operation: OperationEnum.CREATE,
       dialogTitle: '新建' + entityName,
       dialogVisible: true,
-      editData: null
+      editData: initialData || null
     })
   }, [entityName, pathname, updateState]);
 

@@ -48,6 +48,7 @@ const BindingForm: React.FC<BindingFormProps> = (props) => {
         try {
             if (isEdit && currentRecord) {
                 await updateCostPolicyBinding(currentRecord.id, {
+                    ...currentRecord, // 重点：合并旧数据
                     pricePolicyId: values.pricePolicyId,
                     startDate: values.startDate,
                     endDate: values.endDate,

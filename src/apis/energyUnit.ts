@@ -78,13 +78,11 @@ export async function getEnergyUnitByCode(code: string) {
 /**
  * 创建用能单元
  * @param data 节点数据
- * @param parentId 父节点ID（可选）
  */
-export async function createEnergyUnit(data: Partial<EnergyUnit>, parentId?: number) {
-    return request<API.Result<EnergyUnit>>('/api/energy-units/create', {
+export async function createEnergyUnit(data: Partial<EnergyUnit>) {
+    return request<API.Result<EnergyUnit>>('/api/energy-units', {
         method: 'POST',
         data,
-        params: parentId ? { parentId } : undefined,
     });
 }
 
@@ -94,9 +92,9 @@ export async function createEnergyUnit(data: Partial<EnergyUnit>, parentId?: num
  * @param data 节点数据
  */
 export async function updateEnergyUnit(id: number, data: Partial<EnergyUnit>) {
-    return request<API.Result<EnergyUnit>>(`/api/energy-units/${id}`, {
-        method: 'PUT',
-        data,
+    return request<API.Result<EnergyUnit>>('/api/energy-units', {
+        method: 'POST',
+        data: { ...data, id },
     });
 }
 

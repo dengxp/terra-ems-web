@@ -40,7 +40,7 @@ const PolicyForm: React.FC<PolicyFormProps> = (props) => {
     const handleSubmit = async (values: any) => {
         try {
             if (isEdit && currentRecord) {
-                await updatePolicy(currentRecord.id, values);
+                await updatePolicy(currentRecord.id, { ...currentRecord, ...values });
                 message.success('更新成功');
             } else {
                 await createPolicy(values);

@@ -52,9 +52,9 @@ export async function createAlarmLimitType(data: Partial<AlarmLimitType>) {
  * 更新报警限值类型
  */
 export async function updateAlarmLimitType(id: number, data: Partial<AlarmLimitType>) {
-    return request<API.Result<AlarmLimitType>>(`/api/alarm/limit-types/${id}`, {
-        method: 'PUT',
-        data,
+    return request<API.Result<AlarmLimitType>>('/api/alarm/limit-types', {
+        method: 'POST',
+        data: { ...data, id },
     });
 }
 

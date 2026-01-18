@@ -180,9 +180,9 @@ export async function createTimePeriodPrice(data: Partial<TimePeriodPrice>) {
  * 更新分时电价配置
  */
 export async function updateTimePeriodPrice(id: number, data: Partial<TimePeriodPrice>) {
-    return request<API.Result<TimePeriodPrice>>(`/api/time-period-prices/${id}`, {
-        method: 'PUT',
-        data,
+    return request<API.Result<TimePeriodPrice>>('/api/time-period-prices', {
+        method: 'POST',
+        data: { ...data, id },
     });
 }
 

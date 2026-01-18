@@ -39,6 +39,7 @@ const AlarmConfigForm: React.FC<AlarmConfigFormProps> = (props) => {
         if (!point) return false;
 
         const data: Partial<AlarmConfig> = {
+            ...currentRecord,
             ...values,
             id: isEdit ? currentRecord?.id : undefined,
             meterPoint: { id: point.id } as any,

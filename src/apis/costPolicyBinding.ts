@@ -110,9 +110,9 @@ export async function updateCostPolicyBinding(id: number, data: {
     endDate?: string;
     remark?: string;
 }) {
-    return request<API.Result<CostPolicyBinding>>(`/api/ems/cost-policy-bindings/${id}`, {
-        method: 'PUT',
-        params: data,
+    return request<API.Result<CostPolicyBinding>>('/api/ems/cost-policy-bindings', {
+        method: 'POST',
+        data: { ...data, id },
     });
 }
 
@@ -130,7 +130,7 @@ export async function deleteCostPolicyBinding(id: number) {
  */
 export async function updateCostPolicyBindingStatus(id: number, status: number) {
     return request<API.Result<CostPolicyBinding>>(`/api/ems/cost-policy-bindings/${id}/status`, {
-        method: 'PUT',
+        method: 'POST',
         params: { status },
     });
 }

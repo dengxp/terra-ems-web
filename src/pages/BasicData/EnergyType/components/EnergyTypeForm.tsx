@@ -38,8 +38,8 @@ const EnergyTypeForm: React.FC<EnergyTypeFormProps> = ({
 
     const onFinish = async (values: any) => {
         try {
-            // 统一使用 saveOrUpdate (POST)，编辑时携带 id
-            const payload = isEdit ? { ...values, id: record!.id } : values;
+            // 统一使用 saveOrUpdate (POST)，编辑时携带 id 并合并旧数据
+            const payload = isEdit ? { ...record, ...values, id: record!.id } : values;
             await createEnergyType(payload);
             message.success(isEdit ? '更新成功' : '创建成功');
             onSuccess();
