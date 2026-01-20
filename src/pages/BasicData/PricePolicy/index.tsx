@@ -125,15 +125,16 @@ const PricePolicyPage: React.FC = () => {
                 );
             },
         },
-        {
-            title: '能源类型',
-            dataIndex: ['energyType', 'name'],
-            key: 'energyTypeName',
-            width: 100,
-            hideInSearch: true,
-            render: (_, record) =>
-                record.energyType ? record.energyType.name : '-',
-        },
+        // 暂时隐藏能源类型列
+        // {
+        //     title: '能源类型',
+        //     dataIndex: ['energyType', 'name'],
+        //     key: 'energyTypeName',
+        //     width: 100,
+        //     hideInSearch: true,
+        //     render: (_, record) =>
+        //         record.energyType ? record.energyType.name : '-',
+        // },
         {
             title: '时段配置',
             dataIndex: 'items',
@@ -250,6 +251,7 @@ const PricePolicyPage: React.FC = () => {
                         const res = await getPricePolicyPage({
                             current: current,
                             pageSize: pageSize,
+                            ...rest,
                         });
                         return {
                             data: res.data?.content || [],

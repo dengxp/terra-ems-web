@@ -14,9 +14,8 @@ import {
     PricePolicy,
     PricePolicyItem,
     PeriodTypeOptions,
-    createPricePolicy,
-    updatePricePolicy,
 } from '@/apis/pricePolicy';
+import useCrud from '@/hooks/common/useCrud';
 
 interface PricePolicyFormProps {
     visible: boolean;
@@ -35,8 +34,21 @@ const PricePolicyForm: React.FC<PricePolicyFormProps> = ({
     const title = isEdit ? '编辑电价策略' : '新增电价策略';
     const [items, setItems] = useState<PricePolicyItem[]>([]);
     const [form] = Form.useForm();
-    const [loading, setLoading] = useState(false);
     const [isMultiRate, setIsMultiRate] = useState(true);
+
+    // 使用 useCrud hook
+    const {
+        handleSaveOrUpdate,
+        getState,
+    } = useCrud<PricePolicy>({
+        pathname: '/basic-data/price-policy',
+        entityName: '电价策略',
+        baseUrl: '/api/price-policies',
+        onOpenChange: onVisibleChange,
+    });
+
+    const state = getState('/basic-data/price-policy');
+    const loading = state?.loading || false;
 
     useEffect(() => {
         if (visible) {
@@ -54,13 +66,18 @@ const PricePolicyForm: React.FC<PricePolicyFormProps> = ({
                 setItems(currentRecord.items || []);
             } else {
                 form.resetFields();
+                form.setFieldsValue({ isMultiRate: true }); // 默认开启分时电价
                 setIsMultiRate(true);
                 setItems([
-                    { periodType: 'SHARP', price: 0, startTime: '10:00', endTime: '12:00', sortOrder: 1 },
-                    { periodType: 'PEAK', price: 0, startTime: '08:00', endTime: '10:00', sortOrder: 2 },
-                    { periodType: 'FLAT', price: 0, startTime: '12:00', endTime: '18:00', sortOrder: 3 },
-                    { periodType: 'VALLEY', price: 0, startTime: '23:00', endTime: '07:00', sortOrder: 4 },
-                    { periodType: 'DEEP', price: 0, startTime: '00:00', endTime: '06:00', sortOrder: 5 },
+                    { periodType: 'DEEP', price: 0, startTime: '00:00', endTime: '07:00', sortOrder: 1 },
+                    { periodType: 'FLAT', price: 0, startTime: '07:00', endTime: '09:00', sortOrder: 2 },
+                    { periodType: 'PEAK', price: 0, startTime: '09:00', endTime: '11:00', sortOrder: 3 },
+                    { periodType: 'SHARP', price: 0, startTime: '11:00', endTime: '13:00', sortOrder: 4 },
+                    { periodType: 'FLAT', price: 0, startTime: '13:00', endTime: '17:00', sortOrder: 5 },
+                    { periodType: 'PEAK', price: 0, startTime: '17:00', endTime: '19:00', sortOrder: 6 },
+                    { periodType: 'SHARP', price: 0, startTime: '19:00', endTime: '21:00', sortOrder: 7 },
+                    { periodType: 'FLAT', price: 0, startTime: '21:00', endTime: '23:00', sortOrder: 8 },
+                    { periodType: 'VALLEY', price: 0, startTime: '23:00', endTime: '24:00', sortOrder: 9 },
                 ]);
             }
         }
@@ -90,11 +107,15 @@ const PricePolicyForm: React.FC<PricePolicyFormProps> = ({
         } else if (items.length <= 1) {
             // 开启复费率时，恢复默认时段配置
             setItems([
-                { periodType: 'SHARP', price: 0, startTime: '10:00', endTime: '12:00', sortOrder: 1 },
-                { periodType: 'PEAK', price: 0, startTime: '08:00', endTime: '10:00', sortOrder: 2 },
-                { periodType: 'FLAT', price: 0, startTime: '12:00', endTime: '18:00', sortOrder: 3 },
-                { periodType: 'VALLEY', price: 0, startTime: '23:00', endTime: '07:00', sortOrder: 4 },
-                { periodType: 'DEEP', price: 0, startTime: '00:00', endTime: '06:00', sortOrder: 5 },
+                { periodType: 'DEEP', price: 0, startTime: '00:00', endTime: '07:00', sortOrder: 1 },
+                { periodType: 'FLAT', price: 0, startTime: '07:00', endTime: '09:00', sortOrder: 2 },
+                { periodType: 'PEAK', price: 0, startTime: '09:00', endTime: '11:00', sortOrder: 3 },
+                { periodType: 'SHARP', price: 0, startTime: '11:00', endTime: '13:00', sortOrder: 4 },
+                { periodType: 'FLAT', price: 0, startTime: '13:00', endTime: '17:00', sortOrder: 5 },
+                { periodType: 'PEAK', price: 0, startTime: '17:00', endTime: '19:00', sortOrder: 6 },
+                { periodType: 'SHARP', price: 0, startTime: '19:00', endTime: '21:00', sortOrder: 7 },
+                { periodType: 'FLAT', price: 0, startTime: '21:00', endTime: '23:00', sortOrder: 8 },
+                { periodType: 'VALLEY', price: 0, startTime: '23:00', endTime: '24:00', sortOrder: 9 },
             ]);
         }
     };
@@ -102,35 +123,33 @@ const PricePolicyForm: React.FC<PricePolicyFormProps> = ({
     const handleSubmit = async () => {
         try {
             const values = await form.validateFields();
-            setLoading(true);
 
-            // 转换生效日期范围为开始和结束日期
+            // 转换生效日期范围为开始和结束日期（使用字符串格式避免时区问题）
             const { effectiveDateRange, ...restValues } = values;
             const data = {
-                ...currentRecord, // 重点：合并旧数据
+                ...currentRecord, // 合并旧数据（编辑时会带上 id）
                 ...restValues,
-                effectiveStartDate: effectiveDateRange?.[0],
-                effectiveEndDate: effectiveDateRange?.[1],
+                effectiveStartDate: effectiveDateRange?.[0]
+                    ? (typeof effectiveDateRange[0] === 'string'
+                        ? effectiveDateRange[0]
+                        : effectiveDateRange[0].format('YYYY-MM-DD'))
+                    : null,
+                effectiveEndDate: effectiveDateRange?.[1]
+                    ? (typeof effectiveDateRange[1] === 'string'
+                        ? effectiveDateRange[1]
+                        : effectiveDateRange[1].format('YYYY-MM-DD'))
+                    : null,
                 items
             };
 
-            if (isEdit && currentRecord) {
-                await updatePricePolicy(currentRecord.id, data);
-                message.success('更新成功');
-            } else {
-                await createPricePolicy(data);
-                message.success('创建成功');
-            }
-            onVisibleChange(false);
+            // 统一使用 handleSaveOrUpdate，后端根据 id 判断是新增还是更新
+            await handleSaveOrUpdate(data);
             onSuccess();
         } catch (error) {
             if ((error as any)?.errorFields) {
                 message.error('请检查表单必填项');
-            } else {
-                message.error('操作失败');
             }
-        } finally {
-            setLoading(false);
+            // 其他错误由 useCrud 内部处理
         }
     };
 
@@ -296,6 +315,8 @@ const PricePolicyForm: React.FC<PricePolicyFormProps> = ({
                     name="status"
                     label="状态"
                     colProps={{ span: 12 }}
+                    initialValue={0}
+                    rules={[{ required: true, message: '请选择状态' }]}
                     options={[
                         { label: '启用', value: 0 },
                         { label: '停用', value: 1 },

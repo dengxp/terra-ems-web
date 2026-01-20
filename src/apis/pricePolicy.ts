@@ -26,6 +26,7 @@ export interface PricePolicy {
     isMultiRate: boolean;
     items: PricePolicyItem[];
     sortOrder: number;
+    status?: number;
     effectiveStartDate?: string;
     effectiveEndDate?: string;
     effectiveDateRange?: [string, string];  // 用于表单处理
@@ -40,6 +41,9 @@ export interface PricePolicyPageParams {
     pageSize?: number;
     sortField?: string;
     sortOrder?: string;
+    name?: string;
+    code?: string;
+    status?: number;
 }
 
 export interface CreatePricePolicyParams {
@@ -77,6 +81,9 @@ export async function getPricePolicyPage(params: PricePolicyPageParams) {
             pageSize: params.pageSize || 10,
             sortField: params.sortField || 'sortOrder',
             sortOrder: params.sortOrder || 'asc',
+            name: params.name,
+            code: params.code,
+            status: params.status,
         },
     });
 }
@@ -114,35 +121,6 @@ export async function getPricePolicyById(id: number) {
 export async function getPricePoliciesByEnergyTypeId(energyTypeId: number) {
     return request<API.Result<PricePolicy[]>>(`/api/price-policies/energy-type/${energyTypeId}`, {
         method: 'GET',
-    });
-}
-
-/**
- * 创建电价策略
- */
-export async function createPricePolicy(data: CreatePricePolicyParams) {
-    return request<API.Result<PricePolicy>>('/api/price-policies/create', {
-        method: 'POST',
-        data,
-    });
-}
-
-/**
- * 更新电价策略
- */
-export async function updatePricePolicy(id: number, data: CreatePricePolicyParams) {
-    return request<API.Result<PricePolicy>>('/api/price-policies', {
-        method: 'POST',
-        data: { ...data, id },
-    });
-}
-
-/**
- * 删除电价策略
- */
-export async function deletePricePolicy(id: number) {
-    return request<API.Result<void>>(`/api/price-policies/${id}`, {
-        method: 'DELETE',
     });
 }
 
