@@ -3,7 +3,7 @@ import { ProPageContainer } from '@/components/container';
 import { ProTable, ProColumns } from '@ant-design/pro-components';
 import { Button, Space, Tag } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import { AlarmLimitType, getAlarmLimitTypePage, deleteAlarmLimitType } from '@/apis/alarm';
+import { AlarmLimitType } from '@/apis/alarm';
 import AlarmLimitTypeForm from './components/AlarmLimitTypeForm';
 import { EditButton, DeleteButton } from '@/components/button';
 import useCrud from '@/hooks/common/useCrud';
@@ -15,14 +15,16 @@ const AlarmLimitTypePage: React.FC = () => {
     const {
         getState,
         actionRef,
+        search,
         toCreate,
         toEdit,
+        toDelete,
         toBatchDelete,
         setDialogVisible,
     } = useCrud<AlarmLimitType>({
         pathname: '/basic-data/alarm-limit-type',
         entityName: '报警限值类型',
-        baseUrl: '/api/alarm-limit-types',
+        baseUrl: '/api/alarm/limit-types',
     });
 
     const state = getState('/basic-data/alarm-limit-type');
@@ -35,10 +37,10 @@ const AlarmLimitTypePage: React.FC = () => {
 
     const handleDelete = async (id: number) => {
         try {
-            await deleteAlarmLimitType(id);
+            await toDelete(id, true);
             actionRef.current?.reload();
         } catch (error) {
-            console.error(error);
+            // 错误由全局处理
         }
     };
 
@@ -48,6 +50,7 @@ const AlarmLimitTypePage: React.FC = () => {
             await toBatchDelete(selectedRowKeys as number[], true);
             setSelectedRowKeys([]);
             setSelectedRows([]);
+            actionRef.current?.reload();
         } catch (error) {
             // 错误由全局处理
         }
@@ -164,12 +167,13 @@ const AlarmLimitTypePage: React.FC = () => {
                     ),
                 }}
                 request={async (params) => {
-                    const res = await getAlarmLimitTypePage(params);
-                    return {
-                        data: res.data?.content || [],
-                        success: res.success,
-                        total: res.data?.totalElements || 0,
-                    };
+                    // 将 ProTable 的 limitName/limitCode 转换为后端的 name/code
+                    const { limitName, limitCode, ...rest } = params;
+                    return search({
+                        ...rest,
+                        name: limitName,
+                        code: limitCode,
+                    });
                 }}
                 columns={columns}
                 pagination={{

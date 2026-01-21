@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Card, Col, Row, Tree, List, Empty, Button, Space, message, Tag, Popconfirm, Tooltip } from 'antd';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Card, Col, Row, Tree, List, Empty, Button, Space, message, Tag, Tooltip, Input } from 'antd';
 import { PageContainer, ProTable, ActionType, ProColumns } from '@ant-design/pro-components';
 import { getEnabledEnergyUnitTree, EnergyUnit } from '@/apis/energyUnit';
 import { getMeterPointsByEnergyUnitId, MeterPoint } from '@/apis/meterPoint';
@@ -12,6 +12,9 @@ import {
     ThunderboltOutlined
 } from '@ant-design/icons';
 import AlarmConfigForm from './components/AlarmConfigForm';
+import { generateList, getParentKey } from '@/utils/tree';
+import { EditButton, DeleteButton } from '@/components/button';
+import ModalConfirm from '@/components/ModalConfirm';
 
 const AlarmConfigPage: React.FC = () => {
     const actionRef = React.useRef<ActionType>();
@@ -22,6 +25,9 @@ const AlarmConfigPage: React.FC = () => {
     const [formVisible, setFormVisible] = useState(false);
     const [isEdit, setIsEdit] = useState(false);
     const [currentRecord, setCurrentRecord] = useState<AlarmConfig>();
+    const [searchValue, setSearchValue] = useState('');
+    const [expandedKeys, setExpandedKeys] = useState<React.Key[]>([]);
+    const [autoExpandParent, setAutoExpandParent] = useState(true);
 
     // Fetch tree data
     const fetchTree = async () => {
@@ -33,7 +39,11 @@ const AlarmConfigPage: React.FC = () => {
                     key: item.id,
                     children: item.children && item.children.length > 0 ? mapTree(item.children) : undefined,
                 }));
-            setTreeData(mapTree(res.data || []));
+            const tree = mapTree(res.data || []);
+            setTreeData(tree);
+            // 默认展开所有节点
+            const allKeys = generateList(tree).map((item) => item.key);
+            setExpandedKeys(allKeys);
         }
     };
 
@@ -51,6 +61,69 @@ const AlarmConfigPage: React.FC = () => {
         }
     }, [selectedUnitId]);
 
+    // 扁平化后的数据列表，用于搜索
+    const dataList = useMemo(() => generateList(treeData), [treeData]);
+
+    // 搜索输入变化处理
+    const onSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { value } = e.target;
+        setSearchValue(value);
+        const newExpandedKeys = dataList
+            .map((item) => {
+                if (item.title.indexOf(value) > -1) {
+                    return getParentKey(item.key, treeData);
+                }
+                return null;
+            })
+            .filter((item): item is React.Key => item !== null && item !== undefined);
+
+        const uniqueKeys = Array.from(new Set(newExpandedKeys));
+
+        if (uniqueKeys.length > 0) {
+            setExpandedKeys(uniqueKeys);
+            setAutoExpandParent(true);
+        }
+    };
+
+    // 渲染带高亮和过滤的树节点
+    const displayTreeData = useMemo(() => {
+        const loop = (data: any[]): any[] =>
+            data
+                .map((item) => {
+                    const strTitle = item.title as string;
+                    const index = strTitle.indexOf(searchValue);
+
+                    const beforeStr = strTitle.substring(0, index);
+                    const afterStr = strTitle.slice(index + searchValue.length);
+
+                    const title =
+                        index > -1 ? (
+                            <span key={item.key}>
+                                {beforeStr}
+                                <span style={{ color: '#f50' }}>{searchValue}</span>
+                                {afterStr}
+                            </span>
+                        ) : (
+                            <span key={item.key}>{strTitle}</span>
+                        );
+
+                    let children = item.children ? loop(item.children) : [];
+
+                    if (index > -1 || children.length > 0) {
+                        return {
+                            ...item,
+                            title,
+                            children,
+                        };
+                    }
+
+                    return null;
+                })
+                .filter(item => item !== null) as any[];
+
+        return searchValue ? loop(treeData) : treeData;
+    }, [searchValue, treeData]);
+
     const handleAdd = () => {
         if (!selectedPoint) {
             message.warning('请先选择采集点位');
@@ -67,12 +140,18 @@ const AlarmConfigPage: React.FC = () => {
         setFormVisible(true);
     };
 
-    const handleDelete = async (id: number) => {
-        const res = await deleteAlarmConfig(id);
-        if (res.success) {
-            message.success('删除成功');
-            actionRef.current?.reload();
-        }
+    const handleDelete = (id: number) => {
+        ModalConfirm({
+            title: '删除报警配置',
+            content: '报警配置删除后将无法恢复，确定删除吗？',
+            async onOk() {
+                const res = await deleteAlarmConfig(id);
+                if (res.success) {
+                    message.success('删除成功');
+                    actionRef.current?.reload();
+                }
+            }
+        });
     };
 
     const columns: ProColumns<AlarmConfig>[] = [
@@ -121,12 +200,12 @@ const AlarmConfigPage: React.FC = () => {
             title: '操作',
             valueType: 'option',
             width: 100,
-            render: (_, record) => [
-                <a key="edit" onClick={() => handleEdit(record)}>编辑</a>,
-                <Popconfirm key="delete" title="确定删除吗？" onConfirm={() => handleDelete(record.id)}>
-                    <a style={{ color: '#ff4d4f' }}>删除</a>
-                </Popconfirm>
-            ]
+            render: (_, record) => (
+                <Space>
+                    <EditButton onClick={() => handleEdit(record)} />
+                    <DeleteButton onClick={() => handleDelete(record.id)} />
+                </Space>
+            )
         }
     ];
 
@@ -147,19 +226,32 @@ const AlarmConfigPage: React.FC = () => {
                         title={<CardTitle icon={<ApartmentOutlined />} title="用能单元树" />}
                         size="small"
                         style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
-                        styles={{ body: { flex: 1, overflow: 'auto', padding: '8px' } }}
+                        styles={{ body: { flex: 1, overflow: 'hidden', padding: '8px', display: 'flex', flexDirection: 'column' } }}
                     >
-                        {treeData.length > 0 ? (
-                            <Tree
-                                treeData={treeData}
-                                onSelect={(keys) => setSelectedUnitId(keys[0] as number)}
-                                blockNode
-                                showLine={{ showLeafIcon: false }}
-                                defaultExpandAll
-                            />
-                        ) : (
-                            <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无用能单元" />
-                        )}
+                        <Input.Search
+                            placeholder="搜索用能单元"
+                            onChange={onSearchChange}
+                            allowClear
+                            style={{ marginBottom: 8 }}
+                        />
+                        <div style={{ flex: 1, overflow: 'auto' }}>
+                            {treeData.length > 0 ? (
+                                <Tree
+                                    treeData={displayTreeData}
+                                    onSelect={(keys) => setSelectedUnitId(keys[0] as number)}
+                                    blockNode
+                                    showLine={{ showLeafIcon: false }}
+                                    expandedKeys={expandedKeys}
+                                    onExpand={(keys) => {
+                                        setExpandedKeys(keys);
+                                        setAutoExpandParent(false);
+                                    }}
+                                    autoExpandParent={autoExpandParent}
+                                />
+                            ) : (
+                                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无用能单元" />
+                            )}
+                        </div>
                     </Card>
                 </Col>
 

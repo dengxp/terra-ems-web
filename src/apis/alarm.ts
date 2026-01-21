@@ -22,18 +22,21 @@ export interface AlarmLimitTypePageParams {
     current?: number;
     pageSize?: number;
     limitName?: string;
+    limitCode?: string;
 }
 
 /**
  * 分页查询报警限值类型
  */
 export async function getAlarmLimitTypePage(params: AlarmLimitTypePageParams) {
-    const { current, pageSize, ...rest } = params;
+    const { current, pageSize, limitName, limitCode, ...rest } = params;
     return request<API.Result<API.PageResult<AlarmLimitType>>>('/api/alarm/limit-types', {
         method: 'GET',
         params: {
             pageNumber: (current || 1) - 1,
             pageSize: pageSize || 10,
+            name: limitName,
+            code: limitCode,
             ...rest,
         },
     });

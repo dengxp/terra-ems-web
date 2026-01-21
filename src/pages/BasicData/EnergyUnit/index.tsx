@@ -1,17 +1,20 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { ProDescriptions } from '@ant-design/pro-components';
 import { ProPageContainer } from '@/components/container';
-import { Tree, Flex, Splitter, message, Empty, Tag, Input, Space, Dropdown } from 'antd';
+import { Tree, Flex, Splitter, message, Empty, Tag, Input, Space, Dropdown, Button, List } from 'antd';
 import type { MenuProps } from 'antd';
 import Icon, {
     PlusOutlined,
     EditOutlined,
     DeleteOutlined,
+    SettingOutlined,
 } from '@ant-design/icons';
 import type { TreeDataNode } from 'antd';
-import { IconButton } from '@/components/button';
+import { IconButton, DeleteButton } from '@/components/button';
 import { getEnergyUnitTree, EnergyUnit } from '@/apis/energyUnit';
+import { getMeterPointsByEnergyUnitId, MeterPoint, assignEnergyUnits } from '@/apis/meterPoint';
 import EnergyUnitForm from './components/EnergyUnitForm';
+import MeterPointsManageDialog from './components/MeterPointsManageDialog';
 import { ReactComponent as MoveTo } from '@/icons/svg/move-to.svg';
 import MoveEnergyUnitDialog from './components/MoveEnergyUnitDialog';
 import useCrud from "@/hooks/common/useCrud";
@@ -34,6 +37,10 @@ const EnergyUnitPage: React.FC = () => {
     const [contextMenuVisible, setContextMenuVisible] = useState(false);
     const [contextMenuPos, setContextMenuPos] = useState({ x: 0, y: 0 });
     const [contextMenuNode, setContextMenuNode] = useState<EnergyUnit | null>(null);
+    // 采集点位相关
+    const [meterPoints, setMeterPoints] = useState<MeterPoint[]>([]);
+    const [meterPointsLoading, setMeterPointsLoading] = useState(false);
+    const [manageDialogVisible, setManageDialogVisible] = useState(false);
 
     const {
         getState,
@@ -121,13 +128,48 @@ const EnergyUnitPage: React.FC = () => {
         loadTree();
     }, []);
 
+    // 加载选中节点的采集点位
+    const loadMeterPoints = useCallback(async (unitId: number) => {
+        setMeterPointsLoading(true);
+        try {
+            const res = await getMeterPointsByEnergyUnitId(unitId);
+            if (res.success) {
+                setMeterPoints(res.data || []);
+            }
+        } catch (error) {
+            console.error('加载采集点位失败', error);
+        } finally {
+            setMeterPointsLoading(false);
+        }
+    }, []);
+
     // 选中节点
     const handleSelect = (keys: React.Key[], info: any) => {
         setSelectedKeys(keys);
         if (keys.length > 0 && info.node) {
-            setSelectedNode((info.node as any).rawData);
+            const node = (info.node as any).rawData as EnergyUnit;
+            setSelectedNode(node);
+            // 加载该节点关联的采集点位
+            loadMeterPoints(node.id);
         } else {
             setSelectedNode(null);
+            setMeterPoints([]);
+        }
+    };
+
+    // 移除采集点位关联
+    const handleRemoveMeterPoint = async (point: MeterPoint) => {
+        if (!selectedNode) return;
+        try {
+            // 获取该点位当前关联的所有用能单元，移除当前单元
+            const currentUnitIds = point.energyUnits?.map((u) => u.id) || [];
+            const newUnitIds = currentUnitIds.filter((id) => id !== selectedNode.id);
+            await assignEnergyUnits(point.id, newUnitIds);
+            messageApi.success('已移除关联');
+            // 刷新列表
+            loadMeterPoints(selectedNode.id);
+        } catch (error) {
+            messageApi.error('操作失败');
         }
     };
 
@@ -390,7 +432,7 @@ const EnergyUnitPage: React.FC = () => {
                         </Flex>
                     </Splitter.Panel>
                     <Splitter.Panel style={{ backgroundColor: '#fff' }}>
-                        <Flex vertical justify={'center'} rootClassName={'h-full'}>
+                        <Flex vertical justify={'start'} rootClassName={'h-full'}>
                             {selectedNode ? (
                                 <div className={'h-full overflow-y-auto'}>
                                     <ProDescriptions
@@ -422,6 +464,73 @@ const EnergyUnitPage: React.FC = () => {
                                             {selectedNode.remark || '-'}
                                         </ProDescriptions.Item>
                                     </ProDescriptions>
+
+                                    {/* 采集点位列表 */}
+                                    <div className={'px-2 py-4'}>
+                                        <Flex justify={'space-between'} align={'center'} className={'pb-2 border-b mb-3'}>
+                                            <span style={{ fontSize: 16, fontWeight: 500 }}>
+                                                采集点位 ({meterPoints.length})
+                                            </span>
+                                            <Button
+                                                type="link"
+                                                size="small"
+                                                icon={<SettingOutlined />}
+                                                onClick={() => setManageDialogVisible(true)}
+                                                style={{ padding: 0 }}
+                                            >
+                                                管理
+                                            </Button>
+                                        </Flex>
+                                        {meterPoints.length > 0 ? (
+                                            <List
+                                                size="small"
+                                                loading={meterPointsLoading}
+                                                dataSource={meterPoints.slice(0, 5)}
+                                                renderItem={(item) => (
+                                                    <List.Item
+                                                        className="hover:bg-gray-50 rounded px-2 cursor-pointer transition-colors"
+                                                        style={{ padding: '8px 8px', margin: '2px 0' }}
+                                                        actions={[
+                                                            <DeleteButton
+                                                                key="remove"
+                                                                tooltip="移除关联"
+                                                                onClick={() => handleRemoveMeterPoint(item)}
+                                                            />
+                                                        ]}
+                                                    >
+                                                        <Space>
+                                                            <Tag color="blue" style={{ margin: 0 }}>
+                                                                {item.energyType?.name || '未知'}
+                                                            </Tag>
+                                                            <span>{item.name}</span>
+                                                            <span style={{ color: '#999', fontSize: 12 }}>
+                                                                ({item.code})
+                                                            </span>
+                                                        </Space>
+                                                    </List.Item>
+                                                )}
+                                                footer={
+                                                    meterPoints.length > 5 ? (
+                                                        <div style={{ textAlign: 'center' }}>
+                                                            <Button
+                                                                type="link"
+                                                                size="small"
+                                                                onClick={() => setManageDialogVisible(true)}
+                                                            >
+                                                                查看全部 {meterPoints.length} 个点位
+                                                            </Button>
+                                                        </div>
+                                                    ) : null
+                                                }
+                                            />
+                                        ) : (
+                                            <Empty
+                                                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                                                description="暂无关联的采集点位"
+                                                style={{ margin: '20px 0' }}
+                                            />
+                                        )}
+                                    </div>
                                 </div>
                             ) : (
                                 <Empty description="请在左侧选择一个节点" />
@@ -449,6 +558,16 @@ const EnergyUnitPage: React.FC = () => {
                     energyUnit={selectedNode}
                     treeData={treeData}
                     onSuccess={loadTree}
+                />
+            )}
+
+            {selectedNode && (
+                <MeterPointsManageDialog
+                    open={manageDialogVisible}
+                    onOpenChange={setManageDialogVisible}
+                    energyUnit={selectedNode}
+                    currentPoints={meterPoints}
+                    onSuccess={() => loadMeterPoints(selectedNode.id)}
                 />
             )}
         </>

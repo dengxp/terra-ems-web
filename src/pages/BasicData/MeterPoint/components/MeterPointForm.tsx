@@ -5,12 +5,14 @@ import {
     ProFormRadio,
     ProFormTextArea,
     ProFormSelect,
+    ProFormTreeSelect,
 } from '@ant-design/pro-components';
 import { ProModalForm } from '@/components/container';
 import { message } from 'antd';
-import { MeterPoint, saveMeterPoint } from '@/apis/meterPoint';
+import { MeterPoint, saveMeterPoint, assignEnergyUnits } from '@/apis/meterPoint';
 import { getEnabledEnergyTypes } from '@/apis/energyType';
 import { getMeters, Meter } from '@/apis/meter';
+import { getEnabledEnergyUnitTree, EnergyUnit } from '@/apis/energyUnit';
 
 interface MeterPointFormProps {
     visible: boolean;
@@ -32,6 +34,16 @@ const categoryOptions = [
     { label: '其他', value: 'OTHER' },
 ];
 
+// 转换用能单元数据为 TreeSelect 数据格式
+const convertToTreeSelectData = (nodes: EnergyUnit[]): any[] => {
+    return nodes.map((node) => ({
+        title: node.name,
+        value: node.id,
+        key: node.id,
+        children: node.children ? convertToTreeSelectData(node.children) : undefined,
+    }));
+};
+
 const MeterPointForm: React.FC<MeterPointFormProps> = ({
     visible,
     onVisibleChange,
@@ -42,6 +54,7 @@ const MeterPointForm: React.FC<MeterPointFormProps> = ({
     const title = isEdit ? '编辑采集点位' : '新增采集点位';
     const [meterOptions, setMeterOptions] = useState<{ label: string; value: number }[]>([]);
     const [energyTypeOptions, setEnergyTypeOptions] = useState<{ label: string; value: number }[]>([]);
+    const [energyUnitTreeData, setEnergyUnitTreeData] = useState<any[]>([]);
 
     useEffect(() => {
         // 加载计量器具选项
@@ -67,6 +80,13 @@ const MeterPointForm: React.FC<MeterPointFormProps> = ({
                 );
             }
         });
+
+        // 加载用能单元树
+        getEnabledEnergyUnitTree().then((res) => {
+            if (res.success && res.data) {
+                setEnergyUnitTreeData(convertToTreeSelectData(res.data));
+            }
+        });
     }, []);
 
     return (
@@ -84,18 +104,29 @@ const MeterPointForm: React.FC<MeterPointFormProps> = ({
                         ...currentRecord,
                         meterId: currentRecord.meter?.id,
                         energyTypeId: currentRecord.energyType?.id,
+                        energyUnitIds: currentRecord.energyUnits?.map((u) => u.id) || [],
                     }
-                    : { status: 0, sortOrder: 0, pointType: 'COLLECT', category: 'ENERGY' }
+                    : { status: 0, sortOrder: 0, pointType: 'COLLECT', category: 'ENERGY', energyUnitIds: [] }
             }
             onFinish={async (values) => {
                 try {
+                    const { energyUnitIds, ...restValues } = values;
                     // 使用数据映射模式：直接提交包含 meterId 和 energyTypeId 的扁平数据
                     const submitData = {
-                        ...values,
+                        ...restValues,
                         // 编辑时保留 id
                         ...(isEdit && currentRecord ? { id: currentRecord.id } : {}),
                     };
-                    await saveMeterPoint(submitData);
+                    const res = await saveMeterPoint(submitData);
+
+                    // 保存成功后关联用能单元
+                    if (res.success && res.data?.id && energyUnitIds && energyUnitIds.length > 0) {
+                        await assignEnergyUnits(res.data.id, energyUnitIds);
+                    } else if (res.success && res.data?.id) {
+                        // 清空关联
+                        await assignEnergyUnits(res.data.id, []);
+                    }
+
                     message.success(isEdit ? '更新成功' : '创建成功');
                     onSuccess();
                     return true;
@@ -160,6 +191,22 @@ const MeterPointForm: React.FC<MeterPointFormProps> = ({
                 colProps={{ span: 12 }}
                 options={energyTypeOptions}
                 placeholder="请选择能源类型"
+            />
+            <ProFormTreeSelect
+                name="energyUnitIds"
+                label="用能单元"
+                colProps={{ span: 12 }}
+                placeholder="请选择关联的用能单元"
+                fieldProps={{
+                    treeData: energyUnitTreeData,
+                    treeCheckable: true,
+                    showCheckedStrategy: 'SHOW_CHILD',
+                    treeDefaultExpandAll: true,
+                    maxTagCount: 3,
+                    allowClear: true,
+                    filterTreeNode: (input, node) =>
+                        (node?.title as string)?.toLowerCase().includes(input.toLowerCase()),
+                }}
             />
             <ProFormText
                 name="unit"
