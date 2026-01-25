@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Card, Col, Row, Tree, DatePicker, Select, Space, Tabs, Empty, Typography, Input, Splitter } from 'antd';
+import { Card, Col, Row, Tree, DatePicker, Select, Space, Tabs, Empty, Typography, Input, Splitter, message } from 'antd';
 import { PageContainer } from '@ant-design/pro-components';
 import { getEnabledEnergyUnitTree, EnergyUnit } from '@/apis/energyUnit';
+import { getEnabledEnergyTypes, EnergyType } from '@/apis/energyType';
 import { generateList, getParentKey } from '@/utils/tree';
 import {
     getStatisticsSummary,
@@ -9,12 +10,13 @@ import {
     getMoMAnalysis,
     EnergyStatisticsSummary,
     ComparisonAnalysis,
+    StatisticsQueryParams,
 } from '@/apis/statistics';
 import StatisticsCard from './components/StatisticsCard';
 import TrendChart from './components/TrendChart';
 import ComparisonTable from './components/ComparisonTable';
 import dayjs from 'dayjs';
-import { ApartmentOutlined, BarChartOutlined, LineChartOutlined, SwapOutlined, RetweetOutlined } from '@ant-design/icons';
+import { ApartmentOutlined, BarChartOutlined, LineChartOutlined, SwapOutlined, RetweetOutlined, FireOutlined } from '@ant-design/icons';
 
 const StatisticsPage: React.FC = () => {
     const [treeData, setTreeData] = useState<any[]>([]);
@@ -26,6 +28,8 @@ const StatisticsPage: React.FC = () => {
     const [searchValue, setSearchValue] = useState('');
     const [expandedKeys, setExpandedKeys] = useState<React.Key[]>([]);
     const [autoExpandParent, setAutoExpandParent] = useState(true);
+    const [energyTypes, setEnergyTypes] = useState<EnergyType[]>([]);
+    const [selectedEnergyTypeId, setSelectedEnergyTypeId] = useState<number | null>(null);
 
     const { Title, Text } = Typography;
 
@@ -118,20 +122,39 @@ const StatisticsPage: React.FC = () => {
         return searchValue ? loop(treeData) : treeData;
     }, [searchValue, treeData]);
 
+    // 加载能源类型
+    const fetchEnergyTypes = async () => {
+        const res = await getEnabledEnergyTypes();
+        if (res.success && res.data && res.data.length > 0) {
+            setEnergyTypes(res.data);
+            if (!selectedEnergyTypeId) {
+                setSelectedEnergyTypeId(res.data[0].id);
+            }
+        }
+    };
+
     useEffect(() => {
         fetchTree();
+        fetchEnergyTypes();
     }, []);
 
     // 加载统计数据
     const fetchStatistics = async () => {
-        if (!selectedUnitId) return;
+        if (!selectedUnitId || !selectedEnergyTypeId) return;
 
         setLoading(true);
-        const params = {
+        // 激进重置：每次查询前先清空旧数据，不仅是逻辑清空，也是 UI 视觉清空
+        setSummary(null);
+        setYoyData([]);
+        setMomData([]);
+
+        const params: StatisticsQueryParams & { _t: number } = {
             energyUnitId: selectedUnitId,
             parentUnitId: selectedUnitId,
             timeType,
+            energyTypeId: selectedEnergyTypeId,
             dataTime: dataTime.format('YYYY-MM-DD HH:mm:ss'),
+            _t: Date.now(),
         };
 
         try {
@@ -144,12 +167,12 @@ const StatisticsPage: React.FC = () => {
             if (summaryRes.success) {
                 setSummary(summaryRes.data || null);
             }
-            if (yoyRes.success) {
-                setYoyData(yoyRes.data || []);
-            }
-            if (momRes.success) {
-                setMomData(momRes.data || []);
-            }
+
+            setYoyData(yoyRes.success ? (yoyRes.data || []) : []);
+            setMomData(momRes.success ? (momRes.data || []) : []);
+        } catch (error) {
+            message.error('加载统计数据失败，请重试');
+            console.error('Fetch Statistics Error:', error);
         } finally {
             setLoading(false);
         }
@@ -157,7 +180,7 @@ const StatisticsPage: React.FC = () => {
 
     useEffect(() => {
         fetchStatistics();
-    }, [selectedUnitId, timeType, dataTime]);
+    }, [selectedUnitId, timeType, dataTime, selectedEnergyTypeId]);
 
     const handleTreeSelect = (selectedKeys: React.Key[], info: any) => {
         if (selectedKeys.length > 0) {
@@ -179,8 +202,14 @@ const StatisticsPage: React.FC = () => {
         }
     };
 
+    const currentEnergyType = useMemo(() => {
+        return energyTypes.find(t => t.id === selectedEnergyTypeId);
+    }, [energyTypes, selectedEnergyTypeId]);
+
+    const unit = currentEnergyType?.unit || 'kWh';
+
     // Tab items for Ant Design 5.x
-    const tabItems = [
+    const tabItems = useMemo(() => [
         {
             key: 'yoy',
             label: (
@@ -211,7 +240,7 @@ const StatisticsPage: React.FC = () => {
                 />
             ),
         },
-    ];
+    ], [yoyData, momData, loading]);
 
     return (
         <PageContainer ghost title={false}>
@@ -262,10 +291,18 @@ const StatisticsPage: React.FC = () => {
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
                                 <div>
                                     <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center' }}>
-                                        {selectedUnitName || '能耗统计分析'} <Text type="secondary" style={{ marginLeft: 12, fontSize: 14, fontWeight: 'normal' }}>多维对标分析</Text>
+                                        {selectedUnitName || '能耗统计分析'} <Text type="secondary" style={{ marginLeft: 12, fontSize: 14, fontWeight: 'normal' }}>同比环比分析</Text>
                                     </Title>
                                 </div>
                                 <Space size="middle">
+                                    <Select
+                                        value={selectedEnergyTypeId}
+                                        onChange={setSelectedEnergyTypeId}
+                                        style={{ width: 140 }}
+                                        placeholder="能源类型"
+                                        suffixIcon={<FireOutlined />}
+                                        options={energyTypes.map(t => ({ label: t.name, value: t.id }))}
+                                    />
                                     <Select
                                         value={timeType}
                                         onChange={setTimeType}
@@ -300,7 +337,7 @@ const StatisticsPage: React.FC = () => {
                                         <StatisticsCard
                                             title="当期能耗"
                                             value={summary?.currentTotal || 0}
-                                            unit="kWh"
+                                            unit={unit}
                                             loading={loading}
                                         />
                                     </Col>
@@ -311,7 +348,7 @@ const StatisticsPage: React.FC = () => {
                                             compareValue={summary?.lastYearTotal}
                                             compareLabel="去年同期"
                                             changeRate={summary?.yoyRate}
-                                            unit="kWh"
+                                            unit={unit}
                                             loading={loading}
                                         />
                                     </Col>
@@ -322,7 +359,7 @@ const StatisticsPage: React.FC = () => {
                                             compareValue={summary?.lastPeriodTotal}
                                             compareLabel="上期"
                                             changeRate={summary?.momRate}
-                                            unit="kWh"
+                                            unit={unit}
                                             loading={loading}
                                         />
                                     </Col>
@@ -332,15 +369,20 @@ const StatisticsPage: React.FC = () => {
                                 <Card size="small" style={{ marginBottom: 16 }}>
                                     <TrendChart
                                         data={summary?.trendData || []}
-                                        title={`${selectedUnitName} - 能耗趋势`}
+                                        title={`${selectedUnitName} - ${currentEnergyType?.name || ''}能耗趋势`}
                                         loading={loading}
                                         height={280}
+                                        unit={unit}
                                     />
                                 </Card>
 
-                                {/* 对比分析表格 */}
+                                {/* 对比分析表格 - 使用 energyTypeId 作为 key 确保能源切换时 Tabs 状态重置 */}
                                 <Card size="small" bordered={false}>
-                                    <Tabs defaultActiveKey="yoy" items={tabItems} />
+                                    <Tabs
+                                        key={selectedEnergyTypeId}
+                                        items={tabItems}
+                                        defaultActiveKey="yoy"
+                                    />
                                 </Card>
                             </div>
                         )}
