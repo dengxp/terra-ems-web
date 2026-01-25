@@ -310,16 +310,18 @@ const LoginV4Page: React.FC = () => {
                             </Form.Item>
 
                             <div className="captcha-row">
-                                <Form.Item name="captcha" label="验证识别" rules={[{ required: true, message: '请输入验证码' }]}>
+                                <Form.Item name="captcha" label="验证识别" rules={[{ required: true, message: '请输入验证码' }]} style={{ flex: 1 }}>
                                     <Input prefix={<SafetyOutlined />} placeholder="验证码" />
                                 </Form.Item>
-                                <div className="captcha-box" onClick={getCaptcha}>
-                                    {captchaLoading ? (
-                                        <div style={{ color: '#fff', textAlign: 'center', lineHeight: '42px' }}>...</div>
-                                    ) : (
-                                        <img src={codeUrl} alt="CAPTCHA" />
-                                    )}
-                                </div>
+                                <Form.Item label=" " colon={false}>
+                                    <div className="captcha-box" onClick={getCaptcha}>
+                                        {captchaLoading ? (
+                                            <div style={{ color: '#fff', textAlign: 'center', lineHeight: '42px' }}>...</div>
+                                        ) : (
+                                            <img src={codeUrl} alt="CAPTCHA" />
+                                        )}
+                                    </div>
+                                </Form.Item>
                             </div>
 
                             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '16px 0' }}>
@@ -336,12 +338,14 @@ const LoginV4Page: React.FC = () => {
                             </Form.Item>
 
                             <div className="captcha-row">
-                                <Form.Item name="smsCode" label="动态令牌" rules={[{ required: true, len: 6, message: '6位校验码' }]}>
+                                <Form.Item name="smsCode" label="动态令牌" rules={[{ required: true, len: 6, message: '6位校验码' }]} style={{ flex: 1 }}>
                                     <Input prefix={<SafetyOutlined />} placeholder="短信校验码" />
                                 </Form.Item>
-                                <Button className="sms-code-btn" onClick={handleSendSmsCode} disabled={countdown > 0} style={{ height: 42, background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }}>
-                                    {countdown > 0 ? `${countdown}s` : '获取令牌'}
-                                </Button>
+                                <Form.Item label=" " colon={false}>
+                                    <Button className="sms-code-btn" onClick={handleSendSmsCode} disabled={countdown > 0} style={{ height: 42, background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }}>
+                                        {countdown > 0 ? `${countdown}s` : '获取令牌'}
+                                    </Button>
+                                </Form.Item>
                             </div>
                             {/* 动态占位以对齐账号登录的高度 (账号登录多出一个“保持会话”行) */}
                             <div style={{ height: 64 }}></div>
