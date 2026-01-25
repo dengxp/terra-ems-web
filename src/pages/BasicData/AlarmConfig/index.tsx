@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Card, Col, Row, Tree, List, Empty, Button, Space, message, Tag, Tooltip, Input } from 'antd';
+import { Card, Tree, List, Empty, Button, Space, message, Tag, Tooltip, Input, Splitter } from 'antd';
 import { PageContainer, ProTable, ActionType, ProColumns } from '@ant-design/pro-components';
 import { getEnabledEnergyUnitTree, EnergyUnit } from '@/apis/energyUnit';
 import { getMeterPointsByEnergyUnitId, MeterPoint } from '@/apis/meterPoint';
@@ -219,14 +219,16 @@ const AlarmConfigPage: React.FC = () => {
 
     return (
         <PageContainer title={false} style={{ paddingBottom: 0 }}>
-            <Row gutter={12} style={{ height: 'calc(100vh - 280px)' }}>
+            <Splitter style={{ height: 'calc(100vh - 280px)' }}>
                 {/* 用能单元树 */}
-                <Col span={6} style={{ height: '100%' }}>
+                <Splitter.Panel defaultSize="20%" min="15%" max="30%" style={{ overflow: 'hidden' }}>
                     <Card
-                        title={<CardTitle icon={<ApartmentOutlined />} title="用能单元树" />}
+                        title={<Space><ApartmentOutlined style={{ color: '#1890ff' }} />用能单元</Space>}
+                        bordered={false}
                         size="small"
                         style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
-                        styles={{ body: { flex: 1, overflow: 'hidden', padding: '8px', display: 'flex', flexDirection: 'column' } }}
+                        bodyStyle={{ padding: '8px', flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
+                        className="custom-tree-card"
                     >
                         <Input.Search
                             placeholder="搜索用能单元"
@@ -247,16 +249,17 @@ const AlarmConfigPage: React.FC = () => {
                                         setAutoExpandParent(false);
                                     }}
                                     autoExpandParent={autoExpandParent}
+                                    selectedKeys={selectedUnitId ? [selectedUnitId] : []}
                                 />
                             ) : (
-                                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无用能单元" />
+                                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
                             )}
                         </div>
                     </Card>
-                </Col>
+                </Splitter.Panel>
 
-                {/* 采集点位列表 */}
-                <Col span={6} style={{ height: '100%' }}>
+                {/* 中间采集点列表 */}
+                <Splitter.Panel defaultSize="400px" min="300px" max="600px" style={{ overflow: 'hidden', paddingLeft: '16px' }}>
                     <Card
                         title={<CardTitle icon={<UnorderedListOutlined />} title="采集点位列表" />}
                         size="small"
@@ -315,10 +318,10 @@ const AlarmConfigPage: React.FC = () => {
                             </div>
                         )}
                     </Card>
-                </Col>
+                </Splitter.Panel>
 
                 {/* 预报警配置 */}
-                <Col span={12} style={{ height: '100%' }}>
+                <Splitter.Panel style={{ overflow: 'hidden', paddingLeft: '16px' }}>
                     <Card
                         title={
                             <CardTitle
@@ -372,8 +375,8 @@ const AlarmConfigPage: React.FC = () => {
                             </div>
                         )}
                     </Card>
-                </Col>
-            </Row>
+                </Splitter.Panel>
+            </Splitter>
 
             <AlarmConfigForm
                 visible={formVisible}

@@ -139,6 +139,10 @@ export interface AlarmRecordPageParams {
     current?: number;
     pageSize?: number;
     status?: number;
+    meterPointId?: number;
+    alarmLimitTypeId?: number;
+    startTime?: string;
+    endTime?: string;
 }
 
 /**

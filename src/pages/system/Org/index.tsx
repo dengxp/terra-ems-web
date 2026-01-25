@@ -123,7 +123,7 @@ const Index = (props: Props) => {
       <ProPageContainer className={'pt-1'}>
         {contextHolder}
         <Splitter style={{ height: 640, boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)' }}>
-          <Splitter.Panel defaultSize="24%" min="12%" max="40%"
+          <Splitter.Panel defaultSize="20%" min="12%" max="40%"
             style={{
               backgroundColor: '#fff',
               display: 'flex',

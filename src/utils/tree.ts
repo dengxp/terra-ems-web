@@ -1,21 +1,21 @@
 import React from 'react';
-import {TreeDataNode} from "antd";
-import {Tree} from "@/types";
+import { TreeDataNode } from "antd";
+import { Tree } from "@/types";
 
-export function getTreeKeys(treeData: any[], ): React.Key[] {
-    const keys: React.Key[] = [];
-    function traverse(nodes: TreeDataNode[]) {
-        nodes.forEach(node => {
-            keys.push(node.key);
-            if (node.children) {
-                traverse(node.children);
-            }
-        });
-    }
+export function getTreeKeys(treeData: any[],): React.Key[] {
+  const keys: React.Key[] = [];
+  function traverse(nodes: TreeDataNode[]) {
+    nodes.forEach(node => {
+      keys.push(node.key);
+      if (node.children) {
+        traverse(node.children);
+      }
+    });
+  }
 
-    traverse(treeData);
+  traverse(treeData);
 
-    return keys;
+  return keys;
 }
 
 // 递归移除节点的辅助函数
@@ -92,7 +92,7 @@ export const generateList = (tree: Record<string, any>[]) => {
     const { key } = node;
     dataList.push({ key, title: (node.title || node.label) as string });
     if (node.children) {
-      generateList(node.children);
+      dataList = [...dataList, ...generateList(node.children)];
     }
   }
 
@@ -101,13 +101,13 @@ export const generateList = (tree: Record<string, any>[]) => {
 
 export const generateNodeList = (treeData: Record<string, any>[]) => {
   let dataList: Record<string, any>[] = [];
-  for(let i = 0; i < treeData.length; i++) {
+  for (let i = 0; i < treeData.length; i++) {
     const node = treeData[i];
-    const {children, ...rest} = node;
-    dataList.push({...rest});
-    if(node.children) {
+    const { children, ...rest } = node;
+    dataList.push({ ...rest });
+    if (node.children) {
       const childrenDataList = generateNodeList(node.children);
-      if(childrenDataList && childrenDataList.length > 0) {
+      if (childrenDataList && childrenDataList.length > 0) {
         dataList = [...dataList, ...childrenDataList];
       }
     }
@@ -115,7 +115,7 @@ export const generateNodeList = (treeData: Record<string, any>[]) => {
   return dataList;
 }
 
-export const findNode = (tree: Record<string, any>[], key: number|string) => {
+export const findNode = (tree: Record<string, any>[], key: number | string) => {
   const dataList = generateNodeList(tree);
   const nodes = dataList.filter(node => node.key === key);
   return nodes?.[0];

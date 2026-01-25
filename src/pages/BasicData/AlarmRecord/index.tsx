@@ -2,7 +2,8 @@ import React, { useRef, useState } from 'react';
 import { PageContainer, ProTable, ActionType, ProColumns, ModalForm, ProFormTextArea, ProFormSelect } from '@ant-design/pro-components';
 import { message, Space, Typography, Tooltip, Button, Modal, Descriptions } from 'antd';
 import { CheckCircleFilled, EyeFilled } from '@ant-design/icons';
-import { AlarmRecord, getAlarmRecordPage, handleAlarmRecord } from '@/apis/alarm';
+import { AlarmRecord, getAlarmRecordPage, handleAlarmRecord, getAllAlarmLimitTypes } from '@/apis/alarm';
+import { getAllMeterPoints } from '@/apis/meterPoint';
 
 const { Text } = Typography;
 
@@ -19,6 +20,14 @@ const AlarmRecordPage: React.FC = () => {
         {
             title: '采集点位',
             dataIndex: ['alarmConfig', 'meterPoint', 'name'],
+            key: 'meterPointId',
+            request: async () => {
+                const res = await getAllMeterPoints();
+                return (res.data || []).map(item => ({
+                    label: item.name,
+                    value: item.id,
+                }));
+            },
             render: (_, record) => (
                 <Tooltip title={record.alarmConfig?.meterPoint?.code}>
                     <Text strong>{record.alarmConfig?.meterPoint?.name}</Text>
@@ -28,6 +37,26 @@ const AlarmRecordPage: React.FC = () => {
         {
             title: '限值类型',
             dataIndex: ['alarmConfig', 'alarmLimitType', 'limitName'],
+            key: 'alarmLimitTypeId',
+            request: async () => {
+                const res = await getAllAlarmLimitTypes();
+                return (res.data || []).map(item => ({
+                    label: (
+                        <Space>
+                            <div
+                                style={{
+                                    width: 8,
+                                    height: 8,
+                                    borderRadius: '50%',
+                                    backgroundColor: item.colorNumber || '#ccc'
+                                }}
+                            />
+                            {item.limitName}
+                        </Space>
+                    ),
+                    value: item.id,
+                }));
+            },
             render: (_, record) => (
                 <Space>
                     <div
@@ -55,8 +84,19 @@ const AlarmRecordPage: React.FC = () => {
         {
             title: '触发时间',
             dataIndex: 'triggerTime',
-            valueType: 'dateTime',
+            valueType: 'dateTimeRange',
             sorter: true,
+            fieldProps: {
+                format: 'YYYY-MM-DD HH:mm',
+                showTime: { format: 'HH:mm' },
+            },
+            search: {
+                transform: (value) => ({
+                    startTime: `${value[0]}:00`,
+                    endTime: `${value[1]}:59`,
+                }),
+            },
+            render: (_, record) => record.triggerTime?.replace('T', ' ').split('.')[0],
         },
         {
             title: '状态',
@@ -218,13 +258,17 @@ const AlarmRecordPage: React.FC = () => {
                         <Descriptions.Item label="触发数值">
                             <Text type="danger">{currentRecord.triggerValue}</Text>
                         </Descriptions.Item>
-                        <Descriptions.Item label="触发时间">{currentRecord.triggerTime}</Descriptions.Item>
+                        <Descriptions.Item label="触发时间">
+                            {currentRecord.triggerTime?.replace('T', ' ').split('.')[0]}
+                        </Descriptions.Item>
                         <Descriptions.Item label="处理状态">
                             {currentRecord.status === 0 ? '未处理' : currentRecord.status === 1 ? '已处理' : '忽略'}
                         </Descriptions.Item>
                         {currentRecord.status !== 0 && (
                             <>
-                                <Descriptions.Item label="处理时间">{currentRecord.handleTime}</Descriptions.Item>
+                                <Descriptions.Item label="处理时间">
+                                    {currentRecord.handleTime?.replace('T', ' ').split('.')[0]}
+                                </Descriptions.Item>
                                 <Descriptions.Item label="处理备注">{currentRecord.handleRemark || '-'}</Descriptions.Item>
                             </>
                         )}

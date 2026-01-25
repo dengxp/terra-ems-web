@@ -155,3 +155,12 @@ export async function assignEnergyUnits(id: number, energyUnitIds: number[]) {
         data: energyUnitIds,
     });
 }
+
+/**
+ * 获取所有采集点位
+ */
+export async function getAllMeterPoints() {
+    return request<API.Result<MeterPoint[]>>('/api/meter-points/all', {
+        method: 'GET',
+    });
+}
