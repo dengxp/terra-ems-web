@@ -138,13 +138,13 @@ export default [
         title: '碳排放分析',
         name: '碳排放分析',
         path: '/statistics/carbon',
-        component: './CarbonEmission',
+        component: './Statistics/CarbonEmission',
       },
       {
         title: '尖峰平谷分析',
         name: '尖峰平谷分析',
         path: '/statistics/peak-valley',
-        component: './PeakValley',
+        component: './Statistics/PeakValley',
       },
       {
         title: '工序能耗分析',
