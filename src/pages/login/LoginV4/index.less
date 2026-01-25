@@ -6,16 +6,45 @@
     height: 100vh;
     overflow: hidden;
     position: relative;
-    background-color: #050a1a;
-    /* 背景色与 Canvas 保持一致 */
+    background-color: #0b152d;
 
-    /* 1. Canvas 样式由组件内控制，此处仅保留容器布局 */
-    #mesh-canvas {
-        display: block;
-        opacity: 0.9;
+    /* 1. 静态背景层：重新启用用户喜欢的蓝色调背景图 */
+    .bg-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url('../../../assets/images/login_bg_v4.png');
+        background-size: cover;
+        background-position: -20% center;
+        /* 关键：大幅向左偏移，将右侧瑕疵完全移出可视区 */
+        transform: scale(1.15);
+        /* 放大以配合偏移 */
+        filter: brightness(0.7) saturate(1.2) contrast(1.1);
+        /* 提升亮度和对比度 */
+        z-index: 0;
+
+        &::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(11, 21, 45, 0.4) 0%, rgba(11, 21, 45, 0.8) 100%);
+            z-index: 1;
+        }
     }
 
-    /* 2. 覆盖遮罩层：提供微妙的纹理感和深度 */
+    /* 2. Canvas 容器 */
+    #mesh-canvas {
+        display: block;
+        opacity: 1;
+        z-index: 2;
+    }
+
+    /* 3. 覆盖遮罩层：提供微妙的纹理感和深度 */
     .mesh-overlay {
         position: absolute;
         top: 0;
@@ -23,9 +52,8 @@
         width: 100%;
         height: 100%;
         background-image:
-            radial-gradient(circle at 30% 30%, rgba(24, 144, 255, 0.04) 0%, transparent 60%),
-            radial-gradient(circle at 70% 70%, rgba(82, 196, 26, 0.03) 0%, transparent 60%);
-        z-index: 2;
+            radial-gradient(circle at 30% 30%, rgba(0, 242, 254, 0.05) 0%, transparent 60%);
+        z-index: 3;
         pointer-events: none;
     }
 

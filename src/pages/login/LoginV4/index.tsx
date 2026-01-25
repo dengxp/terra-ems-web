@@ -1,6 +1,6 @@
 /**
  * Terra EMS - 智慧能源布网版登录页 (LoginV4)
- * Featuring AI Grid Background & Glassmorphism
+ * Hybrid Mode: Static High-End Illustration + Dynamic Interactive Canvas Mesh
  */
 
 import { LockOutlined, MobileOutlined, SafetyOutlined, UserOutlined, NodeIndexOutlined } from '@ant-design/icons';
@@ -116,7 +116,7 @@ const LoginV4Page: React.FC = () => {
 
         if (isUserLoggedIn()) redirect();
 
-        // 2. Canvas 极光布网动效逻辑
+        // 2. Hybrid Canvas 极光布网动效逻辑
         const canvas = document.getElementById('mesh-canvas') as HTMLCanvasElement;
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
@@ -139,7 +139,8 @@ const LoginV4Page: React.FC = () => {
                 this.vx = (Math.random() - 0.5) * 0.4;
                 this.vy = (Math.random() - 0.5) * 0.4;
                 this.size = Math.random() * 2 + 0.5;
-                this.color = Math.random() > 0.5 ? 'rgba(24, 144, 255,' : 'rgba(82, 196, 26,';
+                // 统一为亮青色调以符合用户喜欢的蓝色系
+                this.color = Math.random() > 0.3 ? 'rgba(0, 242, 254,' : 'rgba(24, 144, 255,';
             }
             update() {
                 this.x += this.vx; this.y += this.vy;
@@ -155,14 +156,14 @@ const LoginV4Page: React.FC = () => {
             }
         }
 
-        // 极光背景块 (Aurora Blobs)
+        // 背景氛围块 (Aurora Blobs)
         class Aurora {
             x: number; y: number; r: number; color: string; vx: number; vy: number;
             constructor() {
                 this.x = Math.random() * width;
                 this.y = Math.random() * height;
-                this.r = Math.random() * 300 + 200;
-                this.color = Math.random() > 0.5 ? 'rgba(24, 144, 255, 0.08)' : 'rgba(82, 196, 26, 0.05)';
+                this.r = Math.random() * 400 + 200;
+                this.color = Math.random() > 0.5 ? 'rgba(0, 242, 254, 0.05)' : 'rgba(24, 144, 255, 0.03)';
                 this.vx = (Math.random() - 0.5) * 0.2;
                 this.vy = (Math.random() - 0.5) * 0.2;
             }
@@ -187,15 +188,14 @@ const LoginV4Page: React.FC = () => {
             particles = [];
             auroras = [];
             for (let i = 0; i < particleCount; i++) particles.push(new Particle());
-            for (let i = 0; i < 4; i++) auroras.push(new Aurora());
+            for (let i = 0; i < 3; i++) auroras.push(new Aurora());
         };
 
         const animate = () => {
             ctx.clearRect(0, 0, width, height);
-            ctx.fillStyle = '#0a1024'; // 稍微提亮一点的深蓝
-            ctx.fillRect(0, 0, width, height);
+            // Hybrid Mode: 透明背景以透出下方的静态图
 
-            // 绘制背景极光
+            // 绘制背景氛围
             auroras.forEach(a => { a.update(); a.draw(); });
 
             // 绘制网格
@@ -209,8 +209,8 @@ const LoginV4Page: React.FC = () => {
                     const dist = Math.sqrt(dx * dx + dy * dy);
                     if (dist < connectionDistance) {
                         ctx.beginPath();
-                        const opacity = (1 - dist / connectionDistance) * 0.5;
-                        ctx.strokeStyle = p.color === p2.color ? p.color + ` ${opacity})` : `rgba(255, 255, 255, ${opacity * 0.3})`;
+                        const opacity = (1 - dist / connectionDistance) * 0.4;
+                        ctx.strokeStyle = `rgba(0, 242, 254, ${opacity})`;
                         ctx.lineWidth = 0.5;
                         ctx.moveTo(p.x, p.y);
                         ctx.lineTo(p2.x, p2.y);
@@ -224,7 +224,7 @@ const LoginV4Page: React.FC = () => {
                 const mdist = Math.sqrt(mdx * mdx + mdy * mdy);
                 if (mdist < 220) {
                     ctx.beginPath();
-                    ctx.strokeStyle = `rgba(168, 255, 120, ${(1 - mdist / 220) * 0.4})`;
+                    ctx.strokeStyle = `rgba(0, 242, 254, ${(1 - mdist / 220) * 0.5})`;
                     ctx.moveTo(p.x, p.y);
                     ctx.lineTo(mouse.x, mouse.y);
                     ctx.stroke();
@@ -259,7 +259,8 @@ const LoginV4Page: React.FC = () => {
         <div className="login-v4-container">
             <Helmet><title>智能登录 - {defaultSettings.title}</title></Helmet>
 
-            {/* 动态 Canvas 背景图层 */}
+            {/* 混合背景层：静态视觉图 (层 0) + 动态 Canvas (层 1) */}
+            <div className="bg-image"></div>
             <canvas id="mesh-canvas" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 1 }} />
             <div className="mesh-overlay"></div>
 
@@ -345,7 +346,7 @@ const LoginV4Page: React.FC = () => {
                         </>
                     )}
 
-                    <Button type="primary" htmlType="submit" loading={loading} block className="submit-btn">
+                    <Button type="primary" htmlType="submit" loading={loading} block className="submit-btn" style={{ background: 'linear-gradient(90deg, #00f2fe, #4facfe)', border: 'none' }}>
                         {loginType === 'account' ? '确认身份并开启系统' : '令牌校验登录'}
                     </Button>
 
