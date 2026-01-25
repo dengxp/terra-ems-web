@@ -7,9 +7,9 @@ import {
     getCarbonRanking,
 } from '@/apis/carbonEmission';
 import { EnergyStatisticsSummary, ComparisonAnalysis } from '@/apis/statistics';
-import StatisticsCard from '../Statistics/components/StatisticsCard';
-import TrendChart from '../Statistics/components/TrendChart';
-import RankingChart from '../Statistics/components/RankingChart';
+import StatisticsCard from '../components/StatisticsCard';
+import TrendChart from '../components/TrendChart';
+import RankingChart from '../components/RankingChart';
 import dayjs from 'dayjs';
 import { CloudOutlined, DatabaseOutlined, BarChartOutlined, TrophyOutlined } from '@ant-design/icons';
 import { Typography } from 'antd';
@@ -26,7 +26,7 @@ const CarbonEmissionPage: React.FC = () => {
     const [summary, setSummary] = useState<EnergyStatisticsSummary | null>(null);
     const [rankingData, setRankingData] = useState<ComparisonAnalysis[]>([]);
 
-    // 移除 redundat fetchTree useEffect
+    // 移除 redundant fetchTree useEffect
 
     const fetchAllData = async () => {
         if (!selectedUnitId) return;
