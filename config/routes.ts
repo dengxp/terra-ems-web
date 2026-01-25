@@ -18,6 +18,22 @@ export default [
     component: './login/Login'
   },
   {
+    path: '/user',
+    layout: false,
+    children: [
+      {
+        name: 'login',
+        path: '/user/login',
+        component: './login/LoginV3',
+      },
+      {
+        name: 'login-v4',
+        path: '/user/login-v4',
+        component: './login/LoginV4',
+      },
+    ],
+  },
+  {
     path: '/login-v2',
     layout: false,
     component: './login/LoginV2'
