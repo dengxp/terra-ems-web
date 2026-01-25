@@ -38,7 +38,8 @@ const LoginV4Page: React.FC = () => {
         createCaptcha(identity, CAPTCHA_CATEGORY)
             .then((res) => {
                 if (res.success) {
-                    setCodeUrl(res.data.img);
+                    // @ts-ignore
+                    setCodeUrl(res.data.graphicImageBase64 || res.data.img);
                     setUuid(res.data.uuid);
                 }
             })
@@ -342,7 +343,8 @@ const LoginV4Page: React.FC = () => {
                                     {countdown > 0 ? `${countdown}s` : '获取令牌'}
                                 </Button>
                             </div>
-                            <div style={{ height: 24 }}></div>
+                            {/* 动态占位以对齐账号登录的高度 (账号登录多出一个“保持会话”行) */}
+                            <div style={{ height: 64 }}></div>
                         </>
                     )}
 
