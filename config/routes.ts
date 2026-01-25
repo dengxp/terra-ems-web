@@ -35,13 +35,20 @@ export default [
     component: './Dashboard',
     closable: false
   },
-  // {
-  //   title: '首页V2',
-  //   name: '首页V2',
-  //   path: '/dashboard',
-  //   icon: 'dashboard',
-  //   component: './DashboardV2',
-  // },
+  {
+    title: '首页V2',
+    name: '首页V2',
+    path: '/dashboard-v2',
+    icon: 'dashboard',
+    component: './DashboardV2',
+  },
+  {
+    title: '首页V3 (PRO)',
+    name: '首页V3 (PRO)',
+    path: '/dashboard-v3',
+    icon: 'rocket',
+    component: './DashboardV3',
+  },
   {
     title: '基础数据',
     name: '基础数据',
