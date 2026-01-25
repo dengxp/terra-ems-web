@@ -3,15 +3,14 @@
     /* 时段卡片容器 - 使用 flex 实现等宽布局 */
     .period-cards-container {
         display: flex;
-        gap: 12px;
-        margin-bottom: 16px;
+        gap: 16px;
+        margin-bottom: 8px;
         flex-wrap: wrap;
     }
 
     .period-card-wrapper {
         flex: 1;
-        min-width: 140px;
-        max-width: 200px;
+        min-width: 120px;
     }
 
     .period-card {
@@ -42,22 +41,7 @@
         }
     }
 
-    .total-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-top: none !important;
 
-        .ant-statistic-title {
-            color: rgba(255, 255, 255, 0.85);
-        }
-
-        .ant-statistic-content {
-            color: #fff;
-        }
-
-        .ant-statistic-content-suffix {
-            color: rgba(255, 255, 255, 0.9);
-        }
-    }
 
     /* 下方图表和表格对齐 */
     .chart-table-row {

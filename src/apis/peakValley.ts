@@ -13,10 +13,10 @@ export type TimePeriodType = 'SHARP' | 'PEAK' | 'FLAT' | 'VALLEY' | 'DEEP_VALLEY
  * 时段类型选项
  */
 export const TimePeriodTypeOptions = [
-    { label: '尖峰', value: 'SHARP', color: '#f5222d' },
-    { label: '高峰', value: 'PEAK', color: '#fa8c16' },
-    { label: '平段', value: 'FLAT', color: '#52c41a' },
-    { label: '低谷', value: 'VALLEY', color: '#1890ff' },
+    { label: '尖', value: 'SHARP', color: '#f5222d' },
+    { label: '峰', value: 'PEAK', color: '#fa8c16' },
+    { label: '平', value: 'FLAT', color: '#52c41a' },
+    { label: '谷', value: 'VALLEY', color: '#1890ff' },
     { label: '深谷', value: 'DEEP_VALLEY', color: '#722ed1' },
 ];
 

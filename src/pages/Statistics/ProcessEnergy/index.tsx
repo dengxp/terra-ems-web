@@ -13,6 +13,7 @@ import ProcessEnergyPieChart from './components/ProcessEnergyPieChart';
 import ProcessEnergyTrendChart from './components/ProcessEnergyTrendChart';
 import dayjs from 'dayjs';
 import { ApartmentOutlined, PartitionOutlined, PieChartOutlined, LineChartOutlined } from '@ant-design/icons';
+import type { ColumnsType } from 'antd/es/table';
 
 const { Text, Title } = Typography;
 
@@ -38,8 +39,6 @@ const ProcessEnergyPage: React.FC = () => {
             }
         });
     }, []);
-
-    // 移除 redundat fetchTree useEffect
 
     // 加载分析数据
     const loadData = async () => {
@@ -94,7 +93,7 @@ const ProcessEnergyPage: React.FC = () => {
         })));
 
     // 表格列定义
-    const columns = [
+    const columns: ColumnsType<ProcessEnergyAnalysis> = [
         {
             title: '用能单元',
             dataIndex: 'energyUnitName',
