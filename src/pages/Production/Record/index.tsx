@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { ProPageContainer } from '@/components/container';
-import { Card, Col, Row, Tree, Button, Space, DatePicker, Tabs } from 'antd';
+import { Card, Col, Row, Tree, Button, Space, DatePicker, Tabs, Splitter } from 'antd';
 import { DeleteOutlined, EditOutlined, PlusOutlined, ApartmentOutlined } from '@ant-design/icons';
 import { ProColumns, ProTable } from '@ant-design/pro-components';
 import useCrud from '@/hooks/common/useCrud';
@@ -11,7 +11,7 @@ import {
 } from '@/apis/productionRecord';
 import ProductionRecordForm from './components/ProductionRecordForm';
 import dayjs from 'dayjs';
-import { getEnabledEnergyUnitTree, EnergyUnit as EnergyUnitEntity } from '@/apis/energyUnit';
+import EnergyUnitTree from '@/components/EnergyUnitTree';
 
 const { RangePicker } = DatePicker;
 
@@ -25,7 +25,6 @@ const Index: React.FC = () => {
         dayjs().startOf('month'),
         dayjs().endOf('month'),
     ]);
-    const [treeData, setTreeData] = useState<any[]>([]);
     const [selectedUnitId, setSelectedUnitId] = useState<number | null>(null);
     const [dataType, setDataType] = useState<string>('1');
 
@@ -84,26 +83,7 @@ const Index: React.FC = () => {
         }
     }, [state?.shouldRefresh]);
 
-    const fetchTree = async () => {
-        const res = await getEnabledEnergyUnitTree();
-        if (res.success) {
-            const mapTree = (data: EnergyUnitEntity[]): any[] =>
-                data.map((item) => ({
-                    title: item.name,
-                    key: item.id,
-                    children: item.children && item.children.length > 0 ? mapTree(item.children) : undefined,
-                }));
-            const mappedData = mapTree(res.data || []);
-            setTreeData(mappedData);
-            if (mappedData.length > 0 && !selectedUnitId) {
-                setSelectedUnitId(mappedData[0].key);
-            }
-        }
-    };
-
-    useEffect(() => {
-        fetchTree();
-    }, []);
+    // 移除 redundat fetchTree useEffect
 
     useEffect(() => {
         actionRef.current?.reload();
@@ -182,24 +162,15 @@ const Index: React.FC = () => {
     return (
         <>
             <ProPageContainer title={false} className={'pt-1'}>
-                <Row gutter={12}>
-                    <Col span={5}>
-                        <Card
-                            title={<><ApartmentOutlined /> 用能单元</>}
-                            size="small"
-                            style={{ height: 'calc(100vh - 180px)', overflow: 'auto' }}
-                        >
-                            <Tree
-                                treeData={treeData}
-                                onSelect={(keys) => {
-                                    if (keys.length > 0) setSelectedUnitId(keys[0] as number);
-                                }}
-                                defaultExpandAll
-                                selectedKeys={selectedUnitId ? [selectedUnitId] : []}
-                            />
-                        </Card>
-                    </Col>
-                    <Col span={19}>
+                <Splitter>
+                    <Splitter.Panel defaultSize="20%" min="15%" max="30%" style={{ overflow: 'hidden' }}>
+                        <EnergyUnitTree
+                            selectedUnitId={selectedUnitId}
+                            onSelect={(id) => setSelectedUnitId(id)}
+                        />
+                    </Splitter.Panel>
+
+                    <Splitter.Panel style={{ overflow: 'hidden', paddingLeft: '16px' }}>
                         <ProTable<ProductionRecord>
                             columns={columns}
                             rowKey="id"
@@ -304,8 +275,8 @@ const Index: React.FC = () => {
                                 defaultPageSize: 20,
                             }}
                         />
-                    </Col>
-                </Row>
+                    </Splitter.Panel>
+                </Splitter>
             </ProPageContainer>
 
             <ProductionRecordForm

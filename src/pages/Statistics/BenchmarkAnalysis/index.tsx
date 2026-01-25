@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Card, Tree, DatePicker, Select, Space, Table, Empty, Typography, Tag, Spin, Badge, Input, Splitter } from 'antd';
 import { PageContainer } from '@ant-design/pro-components';
-import { getEnabledEnergyUnitTree, EnergyUnit } from '@/apis/energyUnit';
-import { generateList, getParentKey } from '@/utils/tree';
+import EnergyUnitTree from '@/components/EnergyUnitTree';
 import { getBenchmarkAnalysis, BenchmarkAnalysis } from '@/apis/statistics';
 import { ApartmentOutlined, AimOutlined, CheckCircleOutlined, CloseCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
@@ -11,101 +10,14 @@ import type { ColumnsType } from 'antd/es/table';
 const { Title, Text } = Typography;
 
 const BenchmarkAnalysisPage: React.FC = () => {
-    const [treeData, setTreeData] = useState<any[]>([]);
     const [selectedUnitId, setSelectedUnitId] = useState<number | null>(null);
     const [selectedUnitName, setSelectedUnitName] = useState<string>('');
     const [timeType, setTimeType] = useState<'DAY' | 'MONTH' | 'YEAR'>('MONTH');
     const [dataTime, setDataTime] = useState(dayjs());
     const [loading, setLoading] = useState(false);
-    const [searchValue, setSearchValue] = useState('');
-    const [expandedKeys, setExpandedKeys] = useState<React.Key[]>([]);
-    const [autoExpandParent, setAutoExpandParent] = useState(true);
     const [benchmarkData, setBenchmarkData] = useState<BenchmarkAnalysis[]>([]);
 
-    // 加载用能单元树
-    const fetchTree = async () => {
-        const res = await getEnabledEnergyUnitTree();
-        if (res.success) {
-            const mapTree = (data: EnergyUnit[]): any[] =>
-                data.map((item) => ({
-                    title: item.name,
-                    key: item.id,
-                    children: item.children && item.children.length > 0 ? mapTree(item.children) : undefined,
-                }));
-            const tree = mapTree(res.data || []);
-            setTreeData(tree);
-            // 默认展开所有节点
-            const allKeys = generateList(tree).map((item) => item.key);
-            setExpandedKeys(allKeys);
-        }
-    };
-
-    // 扁平化后的数据列表，用于搜索
-    const dataList = useMemo(() => generateList(treeData), [treeData]);
-
-    // 搜索输入变化处理
-    const onSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { value } = e.target;
-        setSearchValue(value);
-        const newExpandedKeys = dataList
-            .map((item) => {
-                if (item.title.indexOf(value) > -1) {
-                    return getParentKey(item.key, treeData);
-                }
-                return null;
-            })
-            .filter((item): item is React.Key => item !== null && item !== undefined);
-
-        const uniqueKeys = Array.from(new Set(newExpandedKeys));
-
-        if (uniqueKeys.length > 0) {
-            setExpandedKeys(uniqueKeys);
-            setAutoExpandParent(true);
-        }
-    };
-
-    // 渲染带高亮和过滤的树节点
-    const displayTreeData = useMemo(() => {
-        const loop = (data: any[]): any[] =>
-            data
-                .map((item) => {
-                    const strTitle = item.title as string;
-                    const index = strTitle.indexOf(searchValue);
-
-                    const beforeStr = strTitle.substring(0, index);
-                    const afterStr = strTitle.slice(index + searchValue.length);
-
-                    const title =
-                        index > -1 ? (
-                            <span key={item.key}>
-                                {beforeStr}
-                                <span style={{ color: '#f50' }}>{searchValue}</span>
-                                {afterStr}
-                            </span>
-                        ) : (
-                            <span key={item.key}>{strTitle}</span>
-                        );
-
-                    let children = item.children ? loop(item.children) : [];
-
-                    if (index > -1 || children.length > 0) {
-                        return {
-                            ...item,
-                            title,
-                            children,
-                        };
-                    }
-
-                    return null;
-                })
-                .filter(item => item !== null) as any[];
-
-        return searchValue ? loop(treeData) : treeData;
-    }, [searchValue, treeData]);
-
-    useEffect(() => {
-        fetchTree();
-    }, []);
+    // 移除 redundat fetchTree useEffect
 
     // 加载对标分析数据
     const fetchBenchmarkData = async () => {
@@ -130,12 +42,6 @@ const BenchmarkAnalysisPage: React.FC = () => {
         fetchBenchmarkData();
     }, [selectedUnitId, timeType, dataTime]);
 
-    const handleTreeSelect = (selectedKeys: React.Key[], info: any) => {
-        if (selectedKeys.length > 0) {
-            setSelectedUnitId(selectedKeys[0] as number);
-            setSelectedUnitName(info.node.title || '');
-        }
-    };
 
     const getPickerType = () => {
         switch (timeType) {
@@ -246,42 +152,14 @@ const BenchmarkAnalysisPage: React.FC = () => {
     return (
         <PageContainer ghost title={false}>
             <Splitter>
-                {/* 左侧树 */}
                 <Splitter.Panel defaultSize="20%" min="15%" max="30%" style={{ overflow: 'hidden' }}>
-                    <Card
-                        title={<Space><ApartmentOutlined style={{ color: '#1890ff' }} />用能单元</Space>}
-                        bordered={false}
-                        size="small"
-                        style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
-                        bodyStyle={{ padding: '8px', flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
-                        className="custom-tree-card"
-                    >
-                        <Input.Search
-                            placeholder="搜索用能单元"
-                            onChange={onSearchChange}
-                            allowClear
-                            style={{ marginBottom: 8 }}
-                        />
-                        <div style={{ flex: 1, overflow: 'auto' }}>
-                            {treeData.length > 0 ? (
-                                <Tree
-                                    treeData={displayTreeData}
-                                    onSelect={handleTreeSelect}
-                                    blockNode
-                                    showLine={{ showLeafIcon: false }}
-                                    expandedKeys={expandedKeys}
-                                    onExpand={(keys) => {
-                                        setExpandedKeys(keys);
-                                        setAutoExpandParent(false);
-                                    }}
-                                    autoExpandParent={autoExpandParent}
-                                    selectedKeys={selectedUnitId ? [selectedUnitId] : []}
-                                />
-                            ) : (
-                                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
-                            )}
-                        </div>
-                    </Card>
+                    <EnergyUnitTree
+                        selectedUnitId={selectedUnitId}
+                        onSelect={(id, name) => {
+                            setSelectedUnitId(id);
+                            setSelectedUnitName(name);
+                        }}
+                    />
                 </Splitter.Panel>
 
                 {/* 右侧内容 */}
