@@ -6,25 +6,23 @@
     height: 100vh;
     overflow: hidden;
     position: relative;
-    background-color: #0b152d;
+    background-color: #020617;
+    /* 极致深蓝黑 */
 
-    /* 1. 静态背景层：重新启用用户喜欢的蓝色调背景图 */
-    .bg-image {
+    /* 1. 全代码几何背景层 (取代图片) */
+    .procedural-bg {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background-image: url('../../../assets/images/login_bg_v4.png');
-        background-size: cover;
-        background-position: -20% center;
-        /* 关键：大幅向左偏移，将右侧瑕疵完全移出可视区 */
-        transform: scale(1.15);
-        /* 放大以配合偏移 */
-        filter: brightness(0.7) saturate(1.2) contrast(1.1);
-        /* 提升亮度和对比度 */
+        background:
+            linear-gradient(rgba(0, 242, 254, 0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 242, 254, 0.03) 1px, transparent 1px);
+        background-size: 50px 50px;
         z-index: 0;
 
+        /* 蜂窝状微弱纹理 */
         &::after {
             content: '';
             position: absolute;
@@ -32,46 +30,51 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, rgba(11, 21, 45, 0.4) 0%, rgba(11, 21, 45, 0.8) 100%);
-            z-index: 1;
+            background-image: radial-gradient(circle at 50% 50%, rgba(0, 242, 254, 0.05) 0.5px, transparent 1px);
+            background-size: 25px 25px;
         }
     }
 
-    /* 2. Canvas 容器 */
+    /* 2. Canvas 动画层 */
     #mesh-canvas {
-        display: block;
-        opacity: 1;
-        z-index: 2;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        opacity: 0.8;
     }
 
-    /* 3. 覆盖遮罩层：提供微妙的纹理感和深度 */
+    /* 3. 混合遮罩层：提供深度感 */
     .mesh-overlay {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background-image:
-            radial-gradient(circle at 30% 30%, rgba(0, 242, 254, 0.05) 0%, transparent 60%);
-        z-index: 3;
+        background: radial-gradient(circle at 50% 50%, transparent 0%, rgba(2, 6, 23, 0.6) 100%);
+        z-index: 2;
         pointer-events: none;
     }
 
-    /* 3. 登录主体：加深沉浸式玻璃拟态 */
+    /* 4. 登录盒子：进一步优化的玻璃拟态 */
     .login-box {
         position: relative;
         z-index: 10;
         width: 440px;
         padding: 48px;
         background: rgba(15, 23, 42, 0.7);
-        backdrop-filter: blur(24px) saturate(180%);
-        -webkit-backdrop-filter: blur(24px) saturate(180%);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(24px) saturate(200%);
+        -webkit-backdrop-filter: blur(24px) saturate(200%);
+        border: 1px solid rgba(0, 242, 254, 0.15);
         border-radius: 28px;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+        box-shadow:
+            0 25px 50px -12px rgba(0, 0, 0, 0.8),
+            0 0 40px rgba(0, 242, 254, 0.05);
+        /* 侧边微光 */
         animation: boxFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 
-        /* 内部 LOGO 升级样式保持不变... */
         .logo-section {
             display: flex;
             align-items: center;
@@ -83,12 +86,12 @@
                 width: 52px;
                 height: 52px;
                 background: rgba(255, 255, 255, 0.05);
-                border: 1px solid rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(0, 242, 254, 0.3);
                 border-radius: 14px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                box-shadow: 0 0 20px rgba(24, 144, 255, 0.2);
+                box-shadow: 0 0 20px rgba(0, 242, 254, 0.2);
 
                 .energy-svg {
                     width: 36px;
@@ -100,7 +103,7 @@
 
                     .inner-pulse {
                         animation: logoPulse 2.5s infinite ease-in-out;
-                        filter: drop-shadow(0 0 5px #52c41a);
+                        filter: drop-shadow(0 0 5px #00f2fe);
                     }
                 }
             }
@@ -133,7 +136,7 @@
                 text-transform: uppercase;
 
                 .accent {
-                    background: linear-gradient(135deg, #a8ff78 0%, #78ffd6 100%);
+                    background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
                     -webkit-background-clip: text;
                     background-clip: text;
                     -webkit-text-fill-color: transparent;
@@ -150,42 +153,47 @@
                 font-size: 20px;
                 font-weight: 600;
                 margin-bottom: 8px;
+                letter-spacing: 1px;
             }
 
             p {
-                color: rgba(255, 255, 255, 0.45);
-                font-size: 14px;
-                letter-spacing: 1px;
+                color: rgba(255, 255, 255, 0.4);
+                font-size: 13px;
+                letter-spacing: 2px;
             }
         }
 
         /* 统一适配深色 input 样式 */
         .ant-tabs-nav {
             margin-bottom: 24px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(0, 242, 254, 0.1);
 
             .ant-tabs-tab {
-                color: rgba(255, 255, 255, 0.45);
+                color: rgba(255, 255, 255, 0.4);
 
                 &:hover {
-                    color: #fff;
+                    color: #00f2fe;
                 }
             }
 
             .ant-tabs-tab-active .ant-tabs-tab-btn {
-                color: #fff;
-                text-shadow: 0 0 10px rgba(24, 144, 255, 0.5);
+                color: #00f2fe;
+                text-shadow: 0 0 15px rgba(0, 242, 254, 0.6);
+            }
+
+            .ant-tabs-ink-bar {
+                background: #00f2fe;
             }
         }
 
         .ant-form-item-label>label {
-            color: rgba(255, 255, 255, 0.65);
+            color: rgba(255, 255, 255, 0.6);
         }
 
         .ant-input-affix-wrapper,
         .ant-input-password {
             background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(0, 242, 254, 0.15);
             border-radius: 12px;
             padding: 10px 14px;
 
@@ -194,10 +202,16 @@
                 color: #fff;
             }
 
+            .anticon {
+                color: #00f2fe;
+                opacity: 0.6;
+            }
+
             &:hover,
             &-focused {
-                border-color: #1890ff;
+                border-color: #00f2fe;
                 background: rgba(255, 255, 255, 0.06);
+                box-shadow: 0 0 0 2px rgba(0, 242, 254, 0.1);
             }
         }
 
@@ -217,7 +231,7 @@
                     width: 100%;
                     height: 100%;
                     object-fit: cover;
-                    filter: invert(0.9) hue-rotate(180deg);
+                    filter: invert(0.9) hue-rotate(180deg) brightness(1.2);
                 }
             }
         }
@@ -228,13 +242,32 @@
             font-weight: 700;
             font-size: 16px;
             margin-top: 24px;
-            background: linear-gradient(90deg, #1890ff, #0a84ff);
+            background: linear-gradient(90deg, #00f2fe, #4facfe);
             border: none;
-            box-shadow: 0 8px 20px rgba(24, 144, 255, 0.3);
+            box-shadow: 0 8px 25px rgba(0, 242, 254, 0.4);
 
             &:hover {
                 transform: translateY(-1px);
-                box-shadow: 0 10px 25px rgba(24, 144, 255, 0.4);
+                box-shadow: 0 10px 30px rgba(0, 242, 254, 0.5);
+            }
+        }
+
+        .ant-checkbox-wrapper {
+            color: rgba(255, 255, 255, 0.5);
+
+            .ant-checkbox-checked .ant-checkbox-inner {
+                background-color: #00f2fe;
+                border-color: #00f2fe;
+            }
+        }
+
+        .forgot-password {
+            color: #00f2fe;
+            font-size: 13px;
+            opacity: 0.7;
+
+            &:hover {
+                opacity: 1;
             }
         }
     }
@@ -256,10 +289,10 @@
         bottom: 24px;
         width: 100%;
         text-align: center;
-        color: rgba(255, 255, 255, 0.2);
-        font-size: 12px;
+        color: rgba(0, 242, 254, 0.2);
+        font-size: 11px;
         z-index: 5;
-        letter-spacing: 2px;
+        letter-spacing: 3px;
     }
 }
 

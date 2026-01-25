@@ -1,10 +1,10 @@
 /**
  * Terra EMS - 智慧能源布网版登录页 (LoginV4)
- * Hybrid Mode: Static High-End Illustration + Dynamic Interactive Canvas Mesh
+ * Pure Code Edition: Procedural CSS Pattern + Dynamic Energy Brain Canvas
  */
 
 import { LockOutlined, MobileOutlined, SafetyOutlined, UserOutlined, NodeIndexOutlined } from '@ant-design/icons';
-import { Button, Checkbox, Form, Input, message, Tabs, Tag, Typography } from 'antd';
+import { Button, Checkbox, Form, Input, message, Tabs, Typography } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { Helmet, useModel } from '@umijs/max';
 import { flushSync } from 'react-dom';
@@ -116,7 +116,7 @@ const LoginV4Page: React.FC = () => {
 
         if (isUserLoggedIn()) redirect();
 
-        // 2. Hybrid Canvas 极光布网动效逻辑
+        // 2. Pure Code Canvas 动效逻辑
         const canvas = document.getElementById('mesh-canvas') as HTMLCanvasElement;
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
@@ -124,23 +124,16 @@ const LoginV4Page: React.FC = () => {
 
         let width = (canvas.width = window.innerWidth);
         let height = (canvas.height = window.innerHeight);
-        let particles: any[] = [];
-        let auroras: any[] = [];
-        const particleCount = 100;
-        const connectionDistance = 160;
-        const mouse = { x: -100, y: -100 };
 
         // 能量粒子类
         class Particle {
-            x: number; y: number; vx: number; vy: number; size: number; color: string;
+            x: number; y: number; vx: number; vy: number; size: number;
             constructor() {
                 this.x = Math.random() * width;
                 this.y = Math.random() * height;
-                this.vx = (Math.random() - 0.5) * 0.4;
-                this.vy = (Math.random() - 0.5) * 0.4;
+                this.vx = (Math.random() - 0.5) * 0.3;
+                this.vy = (Math.random() - 0.5) * 0.3;
                 this.size = Math.random() * 2 + 0.5;
-                // 统一为亮青色调以符合用户喜欢的蓝色系
-                this.color = Math.random() > 0.3 ? 'rgba(0, 242, 254,' : 'rgba(24, 144, 255,';
             }
             update() {
                 this.x += this.vx; this.y += this.vy;
@@ -151,54 +144,48 @@ const LoginV4Page: React.FC = () => {
                 if (!ctx) return;
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = this.color + ' 0.6)';
+                ctx.fillStyle = 'rgba(0, 242, 254, 0.4)';
                 ctx.fill();
             }
         }
 
-        // 背景氛围块 (Aurora Blobs)
-        class Aurora {
-            x: number; y: number; r: number; color: string; vx: number; vy: number;
-            constructor() {
-                this.x = Math.random() * width;
-                this.y = Math.random() * height;
-                this.r = Math.random() * 400 + 200;
-                this.color = Math.random() > 0.5 ? 'rgba(0, 242, 254, 0.05)' : 'rgba(24, 144, 255, 0.03)';
-                this.vx = (Math.random() - 0.5) * 0.2;
-                this.vy = (Math.random() - 0.5) * 0.2;
+        // 能量脉冲类
+        class Pulse {
+            x: number; y: number; r: number; opacity: number;
+            constructor(x: number, y: number) {
+                this.x = x; this.y = y; this.r = 0;
+                this.opacity = 0.6;
             }
             update() {
-                this.x += this.vx; this.y += this.vy;
-                if (this.x < -this.r || this.x > width + this.r) this.vx *= -1;
-                if (this.y < -this.r || this.y > height + this.r) this.vy *= -1;
+                this.r += 2;
+                this.opacity -= 0.01;
+                return this.opacity > 0;
             }
             draw() {
                 if (!ctx) return;
-                const grad = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.r);
-                grad.addColorStop(0, this.color);
-                grad.addColorStop(1, 'transparent');
-                ctx.fillStyle = grad;
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
-                ctx.fill();
+                ctx.strokeStyle = `rgba(0, 242, 254, ${this.opacity})`;
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
             }
         }
 
+        let particles: Particle[] = [];
+        let pulses: Pulse[] = [];
+        const particleCount = 120;
+        const connectionDistance = 180;
+        const mouse = { x: -100, y: -100 };
+
         const initScene = () => {
             particles = [];
-            auroras = [];
             for (let i = 0; i < particleCount; i++) particles.push(new Particle());
-            for (let i = 0; i < 3; i++) auroras.push(new Aurora());
         };
 
         const animate = () => {
             ctx.clearRect(0, 0, width, height);
-            // Hybrid Mode: 透明背景以透出下方的静态图
 
-            // 绘制背景氛围
-            auroras.forEach(a => { a.update(); a.draw(); });
-
-            // 绘制网格
+            // 绘制粒子
             particles.forEach((p, i) => {
                 p.update();
                 p.draw();
@@ -209,7 +196,7 @@ const LoginV4Page: React.FC = () => {
                     const dist = Math.sqrt(dx * dx + dy * dy);
                     if (dist < connectionDistance) {
                         ctx.beginPath();
-                        const opacity = (1 - dist / connectionDistance) * 0.4;
+                        const opacity = (1 - dist / connectionDistance) * 0.35;
                         ctx.strokeStyle = `rgba(0, 242, 254, ${opacity})`;
                         ctx.lineWidth = 0.5;
                         ctx.moveTo(p.x, p.y);
@@ -218,18 +205,31 @@ const LoginV4Page: React.FC = () => {
                     }
                 }
 
-                // 鼠标增强效果
+                // 鼠标交互
                 const mdx = p.x - mouse.x;
                 const mdy = p.y - mouse.y;
                 const mdist = Math.sqrt(mdx * mdx + mdy * mdy);
-                if (mdist < 220) {
+                if (mdist < 250) {
                     ctx.beginPath();
-                    ctx.strokeStyle = `rgba(0, 242, 254, ${(1 - mdist / 220) * 0.5})`;
+                    ctx.strokeStyle = `rgba(0, 242, 254, ${(1 - mdist / 250) * 0.5})`;
                     ctx.moveTo(p.x, p.y);
                     ctx.lineTo(mouse.x, mouse.y);
                     ctx.stroke();
                 }
             });
+
+            // 绘制脉冲
+            pulses = pulses.filter(pulse => {
+                const alive = pulse.update();
+                if (alive) pulse.draw();
+                return alive;
+            });
+
+            if (Math.random() < 0.015) {
+                const p = particles[Math.floor(Math.random() * particles.length)];
+                pulses.push(new Pulse(p.x, p.y));
+            }
+
             requestAnimationFrame(animate);
         };
 
@@ -259,9 +259,9 @@ const LoginV4Page: React.FC = () => {
         <div className="login-v4-container">
             <Helmet><title>智能登录 - {defaultSettings.title}</title></Helmet>
 
-            {/* 混合背景层：静态视觉图 (层 0) + 动态 Canvas (层 1) */}
-            <div className="bg-image"></div>
-            <canvas id="mesh-canvas" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 1 }} />
+            {/* 100% 纯代码背景层 */}
+            <div className="procedural-bg"></div>
+            <canvas id="mesh-canvas" />
             <div className="mesh-overlay"></div>
 
             <div className="login-box">
@@ -346,15 +346,15 @@ const LoginV4Page: React.FC = () => {
                         </>
                     )}
 
-                    <Button type="primary" htmlType="submit" loading={loading} block className="submit-btn" style={{ background: 'linear-gradient(90deg, #00f2fe, #4facfe)', border: 'none' }}>
+                    <Button type="primary" htmlType="submit" loading={loading} block className="submit-btn">
                         {loginType === 'account' ? '确认身份并开启系统' : '令牌校验登录'}
                     </Button>
 
-                    <div style={{ textAlign: 'center', marginTop: 24 }}>
-                        <AntdText type="secondary" style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>
+                    <nav style={{ textAlign: 'center', marginTop: 24 }}>
+                        <AntdText type="secondary" style={{ fontSize: 12, color: 'rgba(0, 242, 254, 0.4)' }}>
                             <NodeIndexOutlined /> 全球能源数据同步中心
                         </AntdText>
-                    </div>
+                    </nav>
                 </Form>
             </div>
 
