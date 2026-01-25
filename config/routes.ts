@@ -20,7 +20,7 @@ export default [
   {
     path: '/user',
     layout: false,
-    children: [
+    routes: [
       {
         name: 'login',
         path: '/user/login',
