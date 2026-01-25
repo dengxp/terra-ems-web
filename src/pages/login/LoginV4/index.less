@@ -82,29 +82,72 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
-            margin-bottom: 32px;
+            gap: 16px;
+            margin-bottom: 40px;
 
             .logo-icon {
-                width: 40px;
-                height: 40px;
-                background: linear-gradient(135deg, #1890ff, #52c41a);
-                border-radius: 10px;
+                width: 52px;
+                height: 52px;
+                background: rgba(255, 255, 255, 0.05);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 14px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                color: #fff;
-                font-size: 24px;
+                position: relative;
+                overflow: hidden;
+                box-shadow: 0 0 20px rgba(24, 144, 255, 0.2);
+
+                .energy-svg {
+                    width: 36px;
+                    height: 36px;
+
+                    .outer-circle {
+                        animation: drawCircle 2s ease-out forwards;
+                    }
+
+                    .inner-pulse {
+                        animation: logoPulse 2.5s infinite ease-in-out;
+                        filter: drop-shadow(0 0 5px #52c41a);
+                    }
+                }
+            }
+
+            @keyframes drawCircle {
+                to {
+                    stroke-dashoffset: 0;
+                }
+            }
+
+            @keyframes logoPulse {
+
+                0%,
+                100% {
+                    transform: scale(1);
+                    opacity: 0.8;
+                }
+
+                50% {
+                    transform: scale(1.15);
+                    opacity: 1;
+                }
             }
 
             .logo-text {
-                font-size: 24px;
-                font-weight: 700;
+                font-size: 28px;
+                font-weight: 800;
                 color: #fff;
-                letter-spacing: 1px;
+                letter-spacing: 4px;
+                font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+                text-transform: uppercase;
+                text-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
 
-                span {
+                .accent {
                     color: #52c41a;
+                    margin-left: 2px;
+                    background: linear-gradient(135deg, #a8ff78 0%, #78ffd6 100%);
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
                 }
             }
         }
