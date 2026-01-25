@@ -116,7 +116,7 @@ const LoginV4Page: React.FC = () => {
 
         if (isUserLoggedIn()) redirect();
 
-        // 2. Canvas 动效逻辑
+        // 2. Canvas 极光布网动效逻辑
         const canvas = document.getElementById('mesh-canvas') as HTMLCanvasElement;
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
@@ -125,18 +125,21 @@ const LoginV4Page: React.FC = () => {
         let width = (canvas.width = window.innerWidth);
         let height = (canvas.height = window.innerHeight);
         let particles: any[] = [];
-        const particleCount = 80;
-        const connectionDistance = 150;
+        let auroras: any[] = [];
+        const particleCount = 100;
+        const connectionDistance = 160;
         const mouse = { x: -100, y: -100 };
 
+        // 能量粒子类
         class Particle {
-            x: number; y: number; vx: number; vy: number; size: number;
+            x: number; y: number; vx: number; vy: number; size: number; color: string;
             constructor() {
                 this.x = Math.random() * width;
                 this.y = Math.random() * height;
-                this.vx = (Math.random() - 0.5) * 0.5;
-                this.vy = (Math.random() - 0.5) * 0.5;
-                this.size = Math.random() * 2 + 1;
+                this.vx = (Math.random() - 0.5) * 0.4;
+                this.vy = (Math.random() - 0.5) * 0.4;
+                this.size = Math.random() * 2 + 0.5;
+                this.color = Math.random() > 0.5 ? 'rgba(24, 144, 255,' : 'rgba(82, 196, 26,';
             }
             update() {
                 this.x += this.vx; this.y += this.vy;
@@ -147,21 +150,55 @@ const LoginV4Page: React.FC = () => {
                 if (!ctx) return;
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = 'rgba(24, 144, 255, 0.5)';
+                ctx.fillStyle = this.color + ' 0.6)';
                 ctx.fill();
             }
         }
 
-        const initParticles = () => {
+        // 极光背景块 (Aurora Blobs)
+        class Aurora {
+            x: number; y: number; r: number; color: string; vx: number; vy: number;
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.r = Math.random() * 300 + 200;
+                this.color = Math.random() > 0.5 ? 'rgba(24, 144, 255, 0.08)' : 'rgba(82, 196, 26, 0.05)';
+                this.vx = (Math.random() - 0.5) * 0.2;
+                this.vy = (Math.random() - 0.5) * 0.2;
+            }
+            update() {
+                this.x += this.vx; this.y += this.vy;
+                if (this.x < -this.r || this.x > width + this.r) this.vx *= -1;
+                if (this.y < -this.r || this.y > height + this.r) this.vy *= -1;
+            }
+            draw() {
+                if (!ctx) return;
+                const grad = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.r);
+                grad.addColorStop(0, this.color);
+                grad.addColorStop(1, 'transparent');
+                ctx.fillStyle = grad;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        const initScene = () => {
             particles = [];
+            auroras = [];
             for (let i = 0; i < particleCount; i++) particles.push(new Particle());
+            for (let i = 0; i < 4; i++) auroras.push(new Aurora());
         };
 
         const animate = () => {
             ctx.clearRect(0, 0, width, height);
-            ctx.fillStyle = '#0f172a'; // Deep navy background
+            ctx.fillStyle = '#0a1024'; // 稍微提亮一点的深蓝
             ctx.fillRect(0, 0, width, height);
 
+            // 绘制背景极光
+            auroras.forEach(a => { a.update(); a.draw(); });
+
+            // 绘制网格
             particles.forEach((p, i) => {
                 p.update();
                 p.draw();
@@ -172,20 +209,22 @@ const LoginV4Page: React.FC = () => {
                     const dist = Math.sqrt(dx * dx + dy * dy);
                     if (dist < connectionDistance) {
                         ctx.beginPath();
-                        ctx.strokeStyle = `rgba(24, 144, 255, ${1 - dist / connectionDistance})`;
+                        const opacity = (1 - dist / connectionDistance) * 0.5;
+                        ctx.strokeStyle = p.color === p2.color ? p.color + ` ${opacity})` : `rgba(255, 255, 255, ${opacity * 0.3})`;
                         ctx.lineWidth = 0.5;
                         ctx.moveTo(p.x, p.y);
                         ctx.lineTo(p2.x, p2.y);
                         ctx.stroke();
                     }
                 }
-                // Mouse interaction
+
+                // 鼠标增强效果
                 const mdx = p.x - mouse.x;
                 const mdy = p.y - mouse.y;
                 const mdist = Math.sqrt(mdx * mdx + mdy * mdy);
-                if (mdist < 200) {
+                if (mdist < 220) {
                     ctx.beginPath();
-                    ctx.strokeStyle = `rgba(82, 196, 26, ${(1 - mdist / 200) * 0.5})`;
+                    ctx.strokeStyle = `rgba(168, 255, 120, ${(1 - mdist / 220) * 0.4})`;
                     ctx.moveTo(p.x, p.y);
                     ctx.lineTo(mouse.x, mouse.y);
                     ctx.stroke();
@@ -197,7 +236,7 @@ const LoginV4Page: React.FC = () => {
         const handleResize = () => {
             width = canvas.width = window.innerWidth;
             height = canvas.height = window.innerHeight;
-            initParticles();
+            initScene();
         };
 
         const handleMouseMove = (e: MouseEvent) => {
@@ -207,7 +246,7 @@ const LoginV4Page: React.FC = () => {
 
         window.addEventListener('resize', handleResize);
         window.addEventListener('mousemove', handleMouseMove);
-        initParticles();
+        initScene();
         animate();
 
         return () => {

@@ -6,12 +6,13 @@
     height: 100vh;
     overflow: hidden;
     position: relative;
-    background-color: #0f172a;
+    background-color: #050a1a;
     /* 背景色与 Canvas 保持一致 */
 
     /* 1. Canvas 样式由组件内控制，此处仅保留容器布局 */
     #mesh-canvas {
         display: block;
+        opacity: 0.9;
     }
 
     /* 2. 覆盖遮罩层：提供微妙的纹理感和深度 */
@@ -22,10 +23,8 @@
         width: 100%;
         height: 100%;
         background-image:
-            radial-gradient(circle at 50% 50%, rgba(24, 144, 255, 0.05) 0%, transparent 80%),
-            linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
-        background-size: 100% 100%, 80px 80px, 80px 80px;
+            radial-gradient(circle at 30% 30%, rgba(24, 144, 255, 0.04) 0%, transparent 60%),
+            radial-gradient(circle at 70% 70%, rgba(82, 196, 26, 0.03) 0%, transparent 60%);
         z-index: 2;
         pointer-events: none;
     }
