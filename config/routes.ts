@@ -340,6 +340,13 @@ export default [
         path: '/system/dict',
         icon: 'book',
         component: './system/Dict'
+      },
+      {
+        title: '演示数据生成',
+        name: '演示数据生成',
+        path: '/system/demo-data',
+        icon: 'rocket',
+        component: './Developer/DemoData'
       }
     ]
   }

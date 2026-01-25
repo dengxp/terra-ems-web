@@ -35,36 +35,56 @@ const RankingChart: React.FC<RankingChartProps> = ({
         );
     }
 
-    const config = {
-        data,
-        xField: 'currentValue',
-        yField: 'energyUnitName',
+    // 仅展示有能耗的数据，并按降序排列
+    const chartData = [...data]
+        .filter(item => item.currentValue > 0)
+        .sort((a, b) => b.currentValue - a.currentValue);
+
+    // 为每个数据项添加排名标签
+    const dataWithRank = chartData.map((item, index) => ({
+        ...item,
+        rankName: `${index + 1}. ${item.energyUnitName}`,
+    }));
+
+    const config: any = {
+        data: dataWithRank,
+        // Plots V2 Bar：xField 映射分类（垂直），yField 映射数值（水平）
+        xField: 'rankName',
+        yField: 'currentValue',
+        colorField: 'energyUnitName',
         height: height - 40,
-        seriesField: 'energyUnitName',
         legend: false,
-        xAxis: {
-            title: {
-                text: '能耗值 (tce)',
-            },
-        },
+        // 当数据量多时启用滚动条
+        scrollbar: dataWithRank.length > 10 ? { type: 'y' } : undefined,
         label: {
-            position: 'middle',
+            text: 'currentValue',
+            position: 'right',
             style: {
-                fill: '#FFFFFF',
-                opacity: 0.6,
+                dx: 5,
             },
+            formatter: (val: any) => (val > 0 ? val.toFixed(2) : ''),
+        },
+        axis: {
+            y: {
+                title: '能耗值 (tce)',
+            },
+            x: {
+                labelFontSize: 11,
+            }
         },
         tooltip: {
-            formatter: (datum: any) => ({
-                name: '累计消耗',
-                value: `${datum.currentValue?.toFixed(2)} tce`,
-            }),
+            // V2 简写：显示 y 轴渠道的数据
+            channel: 'y',
+            valueFormatter: (val: any) => `${val.toFixed(2)} tce`,
         },
+        // 留出左侧空间给名称，右侧空间给标签
+        paddingLeft: 100,
+        paddingRight: 60,
     };
 
     return (
-        <div>
-            <div style={{ textAlign: 'center', fontSize: 14, marginBottom: 8, color: 'rgba(0,0,0,0.65)' }}>
+        <div style={{ padding: '0 8px' }}>
+            <div style={{ textAlign: 'center', fontSize: 13, marginBottom: 8, color: 'rgba(0,0,0,0.45)' }}>
                 {title}
             </div>
             <Bar {...config} />
