@@ -6,41 +6,15 @@
     height: 100vh;
     overflow: hidden;
     position: relative;
-    background-color: #000;
+    background-color: #0f172a;
+    /* 背景色与 Canvas 保持一致 */
 
-    /* 背景图层 */
-    .bg-image {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-image: url('../../../assets/images/login_bg_v4.png');
-        background-size: cover;
-        background-position: left center;
-        /* 关键：偏向左侧对齐，避开右侧的瑕疵块 */
-        transform: scale(1.1);
-        filter: brightness(0.5) contrast(1.1) blur(1px);
-        /* 增加微弱模糊，减少噪点 */
-        z-index: 1;
-
-        /* 使用渐变色层层覆盖，彻底遮住右侧的黑框和直线 */
-        &::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg,
-                    rgba(0, 0, 0, 0.2) 0%,
-                    rgba(0, 0, 0, 0.4) 50%,
-                    rgba(0, 0, 0, 0.9) 100%);
-            pointer-events: none;
-        }
+    /* 1. Canvas 样式由组件内控制，此处仅保留容器布局 */
+    #mesh-canvas {
+        display: block;
     }
 
-    /* 布网动效遮罩层 */
+    /* 2. 覆盖遮罩层：提供微妙的纹理感和深度 */
     .mesh-overlay {
         position: absolute;
         top: 0;
@@ -48,51 +22,29 @@
         width: 100%;
         height: 100%;
         background-image:
-            radial-gradient(circle at 50% 50%, rgba(24, 144, 255, 0.1) 0%, transparent 70%),
-            linear-gradient(rgba(10, 20, 40, 0.2) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(10, 20, 40, 0.2) 1px, transparent 1px);
-        background-size: 100% 100%, 40px 40px, 40px 40px;
+            radial-gradient(circle at 50% 50%, rgba(24, 144, 255, 0.05) 0%, transparent 80%),
+            linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+        background-size: 100% 100%, 80px 80px, 80px 80px;
         z-index: 2;
         pointer-events: none;
-
-        /* 网格线微光 */
-        &::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(0deg, transparent 0%, rgba(24, 144, 255, 0.05) 50%, transparent 100%);
-            background-size: 100% 200%;
-            animation: moveGridTop 6s linear infinite;
-        }
     }
 
-    @keyframes moveGridTop {
-        0% {
-            background-position: 0 0%
-        }
-
-        100% {
-            background-position: 0 100%
-        }
-    }
-
-    /* 登录主体 */
+    /* 3. 登录主体：加深沉浸式玻璃拟态 */
     .login-box {
         position: relative;
         z-index: 10;
         width: 440px;
         padding: 48px;
-        background: rgba(15, 23, 42, 0.65);
-        backdrop-filter: blur(20px) saturate(180%);
-        -webkit-backdrop-filter: blur(20px) saturate(180%);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 24px;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        background: rgba(15, 23, 42, 0.7);
+        backdrop-filter: blur(24px) saturate(180%);
+        -webkit-backdrop-filter: blur(24px) saturate(180%);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 28px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
         animation: boxFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 
+        /* 内部 LOGO 升级样式保持不变... */
         .logo-section {
             display: flex;
             align-items: center;
@@ -109,8 +61,6 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                position: relative;
-                overflow: hidden;
                 box-shadow: 0 0 20px rgba(24, 144, 255, 0.2);
 
                 .energy-svg {
@@ -153,17 +103,12 @@
                 font-weight: 800;
                 color: #fff;
                 letter-spacing: 4px;
-                font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
                 text-transform: uppercase;
-                text-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
 
                 .accent {
-                    color: #52c41a;
-                    margin-left: 2px;
                     background: linear-gradient(135deg, #a8ff78 0%, #78ffd6 100%);
                     -webkit-background-clip: text;
                     background-clip: text;
-                    /* 标准属性 */
                     -webkit-text-fill-color: transparent;
                 }
             }
@@ -183,17 +128,14 @@
             p {
                 color: rgba(255, 255, 255, 0.45);
                 font-size: 14px;
+                letter-spacing: 1px;
             }
         }
 
-        /* 覆盖 Ant Design 样式以适配深色玻璃拟态 */
+        /* 统一适配深色 input 样式 */
         .ant-tabs-nav {
             margin-bottom: 24px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-
-            &::before {
-                display: none;
-            }
 
             .ant-tabs-tab {
                 color: rgba(255, 255, 255, 0.45);
@@ -216,42 +158,30 @@
         .ant-input-affix-wrapper,
         .ant-input-password {
             background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 10px;
-            padding: 8px 12px;
-            transition: all 0.2s;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 10px 14px;
 
             input {
                 background: transparent !important;
                 color: #fff;
             }
 
-            .anticon {
-                color: rgba(255, 255, 255, 0.3);
-            }
-
             &:hover,
             &-focused {
                 border-color: #1890ff;
                 background: rgba(255, 255, 255, 0.06);
-                box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
             }
         }
 
         .captcha-row {
             display: flex;
             gap: 12px;
-            align-items: flex-end;
-
-            .ant-form-item {
-                flex: 1;
-                margin-bottom: 0;
-            }
 
             .captcha-box {
                 width: 120px;
-                height: 42px;
-                border-radius: 8px;
+                height: 46px;
+                border-radius: 10px;
                 cursor: pointer;
                 background: rgba(255, 255, 255, 0.05);
                 overflow: hidden;
@@ -266,35 +196,26 @@
         }
 
         .submit-btn {
-            height: 46px;
-            border-radius: 10px;
-            font-weight: 600;
+            height: 50px;
+            border-radius: 12px;
+            font-weight: 700;
             font-size: 16px;
             margin-top: 24px;
-            background: linear-gradient(90deg, #1890ff, #096dd9);
+            background: linear-gradient(90deg, #1890ff, #0a84ff);
             border: none;
-            box-shadow: 0 4px 15px rgba(24, 144, 255, 0.3);
+            box-shadow: 0 8px 20px rgba(24, 144, 255, 0.3);
 
             &:hover {
                 transform: translateY(-1px);
-                box-shadow: 0 6px 20px rgba(24, 144, 255, 0.4);
+                box-shadow: 0 10px 25px rgba(24, 144, 255, 0.4);
             }
-        }
-
-        .ant-checkbox-wrapper {
-            color: rgba(255, 255, 255, 0.45);
-        }
-
-        .forgot-password {
-            color: #1890ff;
-            font-size: 13px;
         }
     }
 
     @keyframes boxFadeIn {
         from {
             opacity: 0;
-            transform: translateY(20px) scale(0.95);
+            transform: translateY(30px) scale(0.95);
         }
 
         to {
@@ -303,7 +224,6 @@
         }
     }
 
-    /* 极简底部声明 */
     .login-footer {
         position: absolute;
         bottom: 24px;
@@ -312,11 +232,10 @@
         color: rgba(255, 255, 255, 0.2);
         font-size: 12px;
         z-index: 5;
-        letter-spacing: 1px;
+        letter-spacing: 2px;
     }
 }
 
-/* 响应式适配 */
 @media (max-width: 576px) {
     .login-v4-container .login-box {
         width: 100%;

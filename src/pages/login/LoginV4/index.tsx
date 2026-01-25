@@ -104,7 +104,7 @@ const LoginV4Page: React.FC = () => {
         setSessionId(sessionId);
         getCaptcha();
 
-        // 初始化 Cookie 信息
+        // 1. 初始化 Cookie 信息
         const username = Cookie.get('username');
         const password = Cookie.get('password');
         const rememberMe = Cookie.get('rememberMe');
@@ -115,14 +115,113 @@ const LoginV4Page: React.FC = () => {
         });
 
         if (isUserLoggedIn()) redirect();
+
+        // 2. Canvas 动效逻辑
+        const canvas = document.getElementById('mesh-canvas') as HTMLCanvasElement;
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        let width = (canvas.width = window.innerWidth);
+        let height = (canvas.height = window.innerHeight);
+        let particles: any[] = [];
+        const particleCount = 80;
+        const connectionDistance = 150;
+        const mouse = { x: -100, y: -100 };
+
+        class Particle {
+            x: number; y: number; vx: number; vy: number; size: number;
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.vx = (Math.random() - 0.5) * 0.5;
+                this.vy = (Math.random() - 0.5) * 0.5;
+                this.size = Math.random() * 2 + 1;
+            }
+            update() {
+                this.x += this.vx; this.y += this.vy;
+                if (this.x < 0 || this.x > width) this.vx *= -1;
+                if (this.y < 0 || this.y > height) this.vy *= -1;
+            }
+            draw() {
+                if (!ctx) return;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(24, 144, 255, 0.5)';
+                ctx.fill();
+            }
+        }
+
+        const initParticles = () => {
+            particles = [];
+            for (let i = 0; i < particleCount; i++) particles.push(new Particle());
+        };
+
+        const animate = () => {
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#0f172a'; // Deep navy background
+            ctx.fillRect(0, 0, width, height);
+
+            particles.forEach((p, i) => {
+                p.update();
+                p.draw();
+                for (let j = i + 1; j < particles.length; j++) {
+                    const p2 = particles[j];
+                    const dx = p.x - p2.x;
+                    const dy = p.y - p2.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < connectionDistance) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(24, 144, 255, ${1 - dist / connectionDistance})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.moveTo(p.x, p.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.stroke();
+                    }
+                }
+                // Mouse interaction
+                const mdx = p.x - mouse.x;
+                const mdy = p.y - mouse.y;
+                const mdist = Math.sqrt(mdx * mdx + mdy * mdy);
+                if (mdist < 200) {
+                    ctx.beginPath();
+                    ctx.strokeStyle = `rgba(82, 196, 26, ${(1 - mdist / 200) * 0.5})`;
+                    ctx.moveTo(p.x, p.y);
+                    ctx.lineTo(mouse.x, mouse.y);
+                    ctx.stroke();
+                }
+            });
+            requestAnimationFrame(animate);
+        };
+
+        const handleResize = () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            initParticles();
+        };
+
+        const handleMouseMove = (e: MouseEvent) => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+        };
+
+        window.addEventListener('resize', handleResize);
+        window.addEventListener('mousemove', handleMouseMove);
+        initParticles();
+        animate();
+
+        return () => {
+            window.removeEventListener('resize', handleResize);
+            window.removeEventListener('mousemove', handleMouseMove);
+        };
     }, []);
 
     return (
         <div className="login-v4-container">
             <Helmet><title>智能登录 - {defaultSettings.title}</title></Helmet>
 
-            {/* 背景动态图层 */}
-            <div className="bg-image"></div>
+            {/* 动态 Canvas 背景图层 */}
+            <canvas id="mesh-canvas" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 1 }} />
             <div className="mesh-overlay"></div>
 
             <div className="login-box">
