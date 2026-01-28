@@ -3,7 +3,7 @@ import { Card, Col, Row, Tree, DatePicker, Select, Space, Empty, Spin, Typograph
 import { PageContainer } from '@ant-design/pro-components';
 import { getEnabledEnergyTypes, EnergyType } from '@/apis/energyType';
 import EnergyUnitTree from '@/components/EnergyUnitTree';
-import { getProductNames } from '@/apis/productionRecord';
+import { getEnabledProducts, Product } from '@/apis/product';
 import {
     getUnitConsumptionAnalysis,
     UnitConsumption,
@@ -39,17 +39,16 @@ const UnitConsumptionPage: React.FC = () => {
         });
     }, []);
 
-    // 切换用能单元时加载产品列表
+    // 加载产品列表
     useEffect(() => {
-        if (selectedUnitId) {
-            getProductNames(selectedUnitId).then(res => {
-                if (res.success) {
-                    setProductNames(res.data || []);
-                }
-            });
-            setSelectedProductName(undefined);
-        }
-    }, [selectedUnitId]);
+        getEnabledProducts().then(res => {
+            if (res.success && res.data) {
+                // 提取唯一的产品名称
+                const names = res.data.map(p => p.name);
+                setProductNames(names);
+            }
+        });
+    }, []);
 
     // 加载分析数据
     const fetchAnalysis = async () => {
@@ -103,7 +102,7 @@ const UnitConsumptionPage: React.FC = () => {
                 <Splitter.Panel style={{ overflow: 'hidden', paddingLeft: '16px' }}>
                     <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
                         {/* 头部过滤器卡片 */}
-                        <Card bordered={false} bodyStyle={{ padding: '16px' }} style={{ marginBottom: 16 }}>
+                        <Card variant="borderless" styles={{ body: { padding: '16px' } }} style={{ marginBottom: 16 }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
                                 <div>
                                     <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center' }}>
@@ -154,7 +153,7 @@ const UnitConsumptionPage: React.FC = () => {
                         </Card>
 
                         {!selectedUnitId ? (
-                            <Card bordered={false}>
+                            <Card variant="borderless">
                                 <div style={{ padding: '100px 0', textAlign: 'center' }}>
                                     <Empty description="请从左侧选择一个用能单元开始分析" />
                                 </div>
@@ -203,7 +202,7 @@ const UnitConsumptionPage: React.FC = () => {
                                     <Row gutter={16} style={{ marginBottom: 16 }}>
                                         <Col span={12}>
                                             <Card size="small" style={{ backgroundColor: '#fcfcfc' }}>
-                                                <Space direction="vertical" style={{ width: '100%' }}>
+                                                <Space orientation="vertical" style={{ width: '100%' }}>
                                                     <Text type="secondary">本期综合能耗</Text>
                                                     <Title level={4} style={{ margin: 0 }}>
                                                         {data?.energyConsumption?.toFixed(2)} <Text type="secondary" style={{ fontSize: 14 }}>{data?.energyUnit || 'tce'}</Text>
@@ -213,7 +212,7 @@ const UnitConsumptionPage: React.FC = () => {
                                         </Col>
                                         <Col span={12}>
                                             <Card size="small" style={{ backgroundColor: '#fcfcfc' }}>
-                                                <Space direction="vertical" style={{ width: '100%' }}>
+                                                <Space orientation="vertical" style={{ width: '100%' }}>
                                                     <Text type="secondary">本期总产量</Text>
                                                     <Title level={4} style={{ margin: 0 }}>
                                                         {data?.production?.toFixed(2)} <Text type="secondary" style={{ fontSize: 14 }}>{data?.productionUnit || 't'}</Text>

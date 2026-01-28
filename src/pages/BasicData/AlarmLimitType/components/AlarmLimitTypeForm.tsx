@@ -57,7 +57,7 @@ const AlarmLimitTypeForm: React.FC<AlarmLimitTypeFormProps> = (props) => {
             labelCol={{ span: 6 }}
             wrapperCol={{ span: 18 }}
             modalProps={{
-                destroyOnClose: true,
+                destroyOnHidden: true,
                 maskClosable: false,
                 width: 480,
             }}

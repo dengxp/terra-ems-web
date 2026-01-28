@@ -13,7 +13,7 @@ import { changeUserStatus, exportUser } from "@/apis";
 import useCrud from "@/hooks/common/useCrud";
 import { DeleteButton, EditButton } from "@/components/button";
 import { useAccess, useModel } from "@@/exports";
-import { SysPost } from "@/types";
+
 import PostDetailDialog from "@/pages/system/Post/PostDetailDialog";
 import StatusIcon from "@/components/icons/StatusIcon";
 import { downloadFailed, downloadSuccess } from "@/utils/download";

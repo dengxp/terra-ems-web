@@ -43,6 +43,23 @@ declare namespace API {
         keyword?: string;
         [key: string]: any;
     };
+
+    /** 规则列表项 */
+    type RuleListItem = {
+        key?: number;
+        disabled?: boolean;
+        href?: string;
+        avatar?: string;
+        name?: string;
+        owner?: string;
+        desc?: string;
+        callNo?: number;
+        status?: number;
+        updatedAt?: string;
+        createdAt?: string;
+        progress?: number;
+        [key: string]: any;
+    };
 }
 
 // ============================================================================
@@ -63,7 +80,7 @@ declare type LoginResponse = {
 
 declare type CaptchaResponse = {
     uuid: string;
-    img: string;
+    graphicImageBase64: string;
 }
 
 declare type CurrentUser = {

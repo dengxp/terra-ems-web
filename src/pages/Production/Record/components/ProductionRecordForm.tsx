@@ -70,7 +70,7 @@ const ProductionRecordForm: React.FC<ProductionRecordFormProps> = ({
             title={isEdit ? `编辑${labels.title}` : `新建${labels.title}`}
             open={visible}
             modalProps={{
-                destroyOnClose: true,
+                destroyOnHidden: true,
                 onCancel,
             }}
             initialValues={record || {

@@ -1,31 +1,31 @@
-import React, {useEffect, useMemo} from 'react';
+import React, { useMemo } from 'react';
 
-import Icon, {ManOutlined, WomanOutlined} from "@ant-design/icons";
-import {Tooltip} from "antd";
-import {ReactComponent as UnknownSvg} from '@/icons/svg/unknown.svg';
-import {useModel} from "@umijs/max";
+import Icon, { ManOutlined, WomanOutlined } from "@ant-design/icons";
+import { Tooltip } from "antd";
+import { ReactComponent as UnknownSvg } from '@/icons/svg/unknown.svg';
+import { useModel } from "@umijs/max";
 
 type Props = {
   value?: number;
 }
 
-const GenderIcon = ({value}: Props) => {
+const GenderIcon = ({ value }: Props) => {
 
-  const {optionMap} = useModel('constantModel');
+  const { mapMaps } = useModel('constantModel');
   const map = useMemo(() => {
-    return optionMap.gender;
-  }, [optionMap]);
+    return mapMaps.gender || {};
+  }, [mapMaps]);
 
   let icon;
   switch (value) {
     case 0:
-      icon = <ManOutlined style={{color: 'blue'}}/>;
+      icon = <ManOutlined style={{ color: 'blue' }} />;
       break;
     case 1:
-      icon = <WomanOutlined style={{color: 'magenta'}}/>;
+      icon = <WomanOutlined style={{ color: 'magenta' }} />;
       break;
     default:
-      icon = <Icon component={UnknownSvg}/>;
+      icon = <Icon component={UnknownSvg} />;
       break;
   }
 

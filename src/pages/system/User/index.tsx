@@ -33,7 +33,7 @@ import { ReactComponent as RoleIcon } from "@/icons/svg/role.svg";
 import RoleDialog from "@/pages/system/User/RoleDialog";
 import UserImportDialog from "@/pages/system/User/UserImportDialog";
 import { downloadFailed, downloadSuccess } from "@/utils/download";
-import { SysUser } from "@/types";
+
 import { useModel } from "@umijs/max";
 import StatusIcon from "@/components/icons/StatusIcon";
 
@@ -75,7 +75,7 @@ const Index = () => {
   const state = getState('/system/user');
 
   const onMenuClick = ({ key }: MenuInfo, user: SysUser) => {
-    if (!user.userId) {
+    if (!user.id) {
       void message.error('未获取到用户信息');
       return;
     }
@@ -237,7 +237,7 @@ const Index = () => {
           <Space>
             <EditButton onClick={() => toEdit(row)} />
             <DeleteButton onClick={async () => {
-              await toDelete(row.userId, true);
+              await toDelete(row.id, true);
             }} />
             <Dropdown menu={{ items, onClick: (info) => onMenuClick(info, row) }}>
               <Button type={'text'} shape={'circle'} size={'small'}

@@ -12,7 +12,6 @@ import { generateAvatar } from "@/utils/avatar";
 import { getToken, removeToken } from "@/utils/auth";
 import { LOGIN_PATH } from "@/config/constants";
 import TabsLayout, { TabsLayoutProps } from "@/components/TabsLayout";
-import { Space } from "antd";
 import { fetchCurrentUser } from "@/apis";
 import { PERMISSIONS } from "@/config/permissions";
 

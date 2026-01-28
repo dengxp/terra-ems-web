@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, Typography, Spin, Tag, Space, Divider } from 'antd';
+import { Modal, Spin, Typography, Tag, Space, Divider, Descriptions } from 'antd';
 import { EyeOutlined, ClockCircleOutlined, UserOutlined } from '@ant-design/icons';
 import { KnowledgeArticle, getKnowledgeArticle } from '@/apis/knowledge';
 
@@ -47,13 +47,18 @@ const KnowledgeArticleDetail: React.FC<KnowledgeArticleDetailProps> = ({
             onCancel={onClose}
             footer={null}
             width={800}
-            destroyOnClose
+            destroyOnHidden
         >
             <Spin spinning={loading}>
                 {article && (
                     <div style={{ padding: '16px 0' }}>
                         <Title level={3}>{article.title}</Title>
-                        <Space split={<Divider type="vertical" />} style={{ marginBottom: 16 }}>
+                        {article.createdAt && (
+                            <Descriptions size="small" column={1} style={{ marginBottom: 16 }}>
+                                <Descriptions.Item label="创建时间">{article.createdAt}</Descriptions.Item>
+                            </Descriptions>
+                        )}
+                        <Space separator={<Divider type="vertical" />} style={{ marginBottom: 16 }}>
                             {article.category && <Tag color="blue">{article.category}</Tag>}
                             {article.author && (
                                 <Text type="secondary">
@@ -63,9 +68,9 @@ const KnowledgeArticleDetail: React.FC<KnowledgeArticleDetailProps> = ({
                             <Text type="secondary">
                                 <EyeOutlined /> {article.viewCount || 0} 次阅读
                             </Text>
-                            {article.createdTime && (
+                            {article.createdAt && (
                                 <Text type="secondary">
-                                    <ClockCircleOutlined /> {article.createdTime}
+                                    <ClockCircleOutlined /> {article.createdAt}
                                 </Text>
                             )}
                         </Space>

@@ -113,7 +113,7 @@ const DictDataList: React.FC<Props> = ({ typeCode }) => {
                 open={dialogVisible}
                 onOpenChange={setDialogVisible}
                 initialValues={editData || undefined}
-                modalProps={{ destroyOnClose: true, width: 520 }}
+                modalProps={{ destroyOnHidden: true, width: 520 }}
                 onFinish={(values) => handleSaveOrUpdate({ ...values, typeCode })}
                 layout="horizontal"
                 labelCol={{ span: 5 }}

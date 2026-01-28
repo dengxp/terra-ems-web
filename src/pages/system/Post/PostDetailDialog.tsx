@@ -4,7 +4,7 @@ import { ProModalFormProps } from "@/components/container/ProModalForm";
 import useCrud from "@/hooks/common/useCrud";
 import { ProFormDigit, ProFormText, ProFormTextArea } from "@ant-design/pro-components";
 import { DataItemStatus, OperationEnum } from "@/enums";
-import { SysPost } from "@/types";
+
 import ProFormDictRadioGroup from "@/components/radio/ProFormDictRadioGroup";
 
 type Props = ProModalFormProps;

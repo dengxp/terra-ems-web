@@ -134,7 +134,7 @@ const ProcessEnergyPage: React.FC = () => {
                 <Splitter.Panel style={{ overflow: 'hidden', paddingLeft: '16px' }}>
                     <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
                         {/* 头部过滤器卡片 */}
-                        <Card bordered={false} bodyStyle={{ padding: '16px' }} style={{ marginBottom: 16 }}>
+                        <Card variant="borderless" styles={{ body: { padding: '16px' } }} style={{ marginBottom: 16 }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
                                 <div>
                                     <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center' }}>

@@ -136,7 +136,7 @@ const MeterPointForm: React.FC<MeterPointFormProps> = ({
                 }
             }}
             modalProps={{
-                destroyOnClose: true,
+                destroyOnHidden: true,
                 width: 800,
             }}
         >

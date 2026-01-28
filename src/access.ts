@@ -1,6 +1,5 @@
 import { Permissions } from "@/enums";
 import { PERMISSIONS } from "@/config/permissions";
-import { CurrentUser } from "@/types";
 
 /**
  * @see https://umijs.org/docs/max/access#access

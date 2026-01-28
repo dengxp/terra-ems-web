@@ -24,8 +24,6 @@ const AlarmConfigPage: React.FC = () => {
     const [isEdit, setIsEdit] = useState(false);
     const [currentRecord, setCurrentRecord] = useState<AlarmConfig>();
 
-    // 移除 redundat fetchTree useEffect
-
     // When unit is selected, fetch points
     useEffect(() => {
         if (selectedUnitId) {

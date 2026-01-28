@@ -1,53 +1,47 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { ProPageContainer } from '@/components/container';
-import { ProTable, ProColumns } from '@ant-design/pro-components';
 import { Button, Space } from 'antd';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
-import { MeterPoint, getMeterPointPage } from '@/apis/meterPoint';
-import MeterPointForm from './components/MeterPointForm';
-import StatusIcon from '@/components/icons/StatusIcon';
-import { EditButton, DeleteButton } from '@/components/button';
+import { ProColumns, ProTable } from '@ant-design/pro-components';
 import useCrud from '@/hooks/common/useCrud';
+import { DeleteButton, EditButton } from '@/components/button';
+import { Product } from '@/apis/product';
+import ProductForm from './components/ProductForm';
+import StatusIcon from '@/components/icons/StatusIcon';
 
 /**
- * 采集点位管理页面
+ * 产品管理页面
  */
-const MeterPointPage: React.FC = () => {
+const ProductPage: React.FC = () => {
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-    const [selectedRows, setSelectedRows] = useState<MeterPoint[]>([]);
+    const [selectedRows, setSelectedRows] = useState<Product[]>([]);
 
     const {
         getState,
-        formRef,
         actionRef,
+        formRef,
+        fetchPage,
         toCreate,
         toEdit,
-        toDelete,
         toBatchDelete,
         setDialogVisible,
         setShouldRefresh,
-    } = useCrud<MeterPoint>({
-        pathname: '/basic-data/meter-point',
-        entityName: '采集点位',
-        baseUrl: '/api/meter-points',
+    } = useCrud<Product>({
+        pathname: '/basic-data/product',
+        baseUrl: '/api/products',
+        entityName: '产品',
     });
 
-    const state = getState('/basic-data/meter-point');
+    const state = getState('/basic-data/product');
 
-    // 监听 shouldRefresh 状态，触发表格刷新
-    useEffect(() => {
-        if (state?.shouldRefresh) {
-            actionRef.current?.reload();
-            setShouldRefresh(false);
-        }
-    }, [state?.shouldRefresh, setShouldRefresh]);
-
+    // 编辑选中项
     const toEditSelected = () => {
         if (editDisabled) return;
         if (!selectedRows || selectedRows.length !== 1) return;
         toEdit(selectedRows[0]);
     };
 
+    // 批量删除
     const handleBatchDelete = async () => {
         if (deleteDisabled) return;
         try {
@@ -59,6 +53,7 @@ const MeterPointPage: React.FC = () => {
         }
     };
 
+    // 表单提交成功
     const handleFormSuccess = () => {
         setDialogVisible(false);
         actionRef.current?.reload();
@@ -72,93 +67,50 @@ const MeterPointPage: React.FC = () => {
         return !selectedRowKeys || selectedRowKeys.length === 0;
     }, [selectedRowKeys]);
 
-    const columns: ProColumns<MeterPoint>[] = [
+    useEffect(() => {
+        if (state?.shouldRefresh) {
+            actionRef.current?.reload();
+            setShouldRefresh(false);
+        }
+    }, [state?.shouldRefresh]);
+
+    const columns: ProColumns<Product>[] = [
         {
-            title: '点位编码',
+            title: 'ID',
+            dataIndex: 'id',
+            hideInSearch: true,
+            width: 80,
+        },
+        {
+            title: '产品编码',
             dataIndex: 'code',
-            key: 'code',
+            copyable: true,
             width: 120,
-            ellipsis: true,
         },
         {
-            title: '点位名称',
+            title: '产品名称',
             dataIndex: 'name',
-            key: 'name',
+            copyable: true,
             width: 150,
-            ellipsis: true,
-        },
-        {
-            title: '点位类型',
-            dataIndex: 'pointType',
-            key: 'pointType',
-            width: 100,
-            valueType: 'select',
-            fieldProps: {
-                placeholder: '请选择类型',
-            },
-            valueEnum: {
-                COLLECT: { text: '采集类', status: 'Processing' },
-                CALC: { text: '计算类', status: 'Warning' },
-            },
-        },
-        {
-            title: '分类',
-            dataIndex: 'category',
-            key: 'category',
-            width: 100,
-            valueType: 'select',
-            fieldProps: {
-                placeholder: '请选择分类',
-            },
-            valueEnum: {
-                ENERGY: { text: '能源类' },
-                PRODUCT: { text: '产品类' },
-                EFFICIENCY: { text: '能效类' },
-                OPERATION: { text: '经营类' },
-                OTHER: { text: '其他' },
-            },
-        },
-        {
-            title: '计量器具',
-            dataIndex: ['meter', 'name'],
-            key: 'meterName',
-            width: 150,
-            ellipsis: true,
-            hideInSearch: true,
-            render: (_, record) =>
-                record.meter ? `${record.meter.name}` : '-',
-        },
-        {
-            title: '能源类型',
-            dataIndex: ['energyType', 'name'],
-            key: 'energyTypeName',
-            width: 100,
-            hideInSearch: true,
-            render: (_, record) =>
-                record.energyType ? record.energyType.name : '-',
         },
         {
             title: '计量单位',
             dataIndex: 'unit',
-            key: 'unit',
-            width: 80,
             hideInSearch: true,
+            width: 100,
         },
         {
-            title: '排序',
-            dataIndex: 'sortOrder',
-            key: 'sortOrder',
-            width: 80,
+            title: '产品类型',
+            dataIndex: 'type',
             hideInSearch: true,
+            width: 120,
         },
         {
             title: '状态',
             dataIndex: 'status',
-            key: 'status',
             width: 80,
             valueType: 'select',
             fieldProps: {
-                placeholder: '请选择状态',
                 options: [
                     { label: '启用', value: 0 },
                     { label: '停用', value: 1 },
@@ -167,15 +119,27 @@ const MeterPointPage: React.FC = () => {
             render: (_, record) => <StatusIcon value={record.status} />,
         },
         {
-            title: '操作',
-            dataIndex: 'actions',
-            key: 'actions',
-            width: 120,
+            title: '排序',
+            dataIndex: 'sortOrder',
             hideInSearch: true,
+            width: 80,
+        },
+        {
+            title: '创建时间',
+            dataIndex: 'createdAt',
+            valueType: 'dateTime',
+            hideInSearch: true,
+            width: 160,
+        },
+        {
+            title: '操作',
+            valueType: 'option',
+            width: 120,
+            fixed: 'right',
             render: (_, record) => (
                 <Space>
                     <EditButton onClick={() => toEdit(record)} />
-                    <DeleteButton onClick={() => toDelete(record.id, true)} />
+                    <DeleteButton onConfirm={() => toBatchDelete([record.id])} />
                 </Space>
             ),
         },
@@ -184,26 +148,18 @@ const MeterPointPage: React.FC = () => {
     return (
         <>
             <ProPageContainer className={'pt-1'}>
-                <ProTable<MeterPoint>
-                    columns={columns}
-                    rowKey="id"
-                    formRef={formRef}
+                <ProTable<Product>
+                    headerTitle="产品列表"
                     actionRef={actionRef}
-                    tableAlertRender={false}
-                    tableAlertOptionRender={false}
-                    rowSelection={{
-                        selectedRowKeys,
-                        onChange: (keys, rows) => {
-                            setSelectedRowKeys(keys);
-                            setSelectedRows(rows);
-                        },
-                    }}
-                    form={{ span: 6 }}
-                    cardProps={{ bordered: false }}
+                    formRef={formRef}
+                    rowKey="id"
                     search={{
-                        defaultCollapsed: true,
+                        labelWidth: 100,
+                        collapseRender: false,
+                        defaultCollapsed: false,
                         span: 6,
                     }}
+
                     toolbar={{
                         title: (
                             <Space>
@@ -239,20 +195,19 @@ const MeterPointPage: React.FC = () => {
                             </Space>
                         ),
                     }}
-                    request={async (params) => {
-                        const { current, pageSize, ...rest } = params;
-                        const res = await getMeterPointPage({
-                            current: current,
-                            pageSize: pageSize,
-                            ...rest,
-                        });
-                        return {
-                            data: res.data?.content || [],
-                            total: res.data?.totalElement || 0,
-                            success: res.success,
-                        };
+                    request={fetchPage}
+                    columns={columns}
+                    tableAlertRender={false}
+                    tableAlertOptionRender={false}
+                    rowSelection={{
+                        selectedRowKeys,
+                        onChange: (keys, rows) => {
+                            setSelectedRowKeys(keys);
+                            setSelectedRows(rows);
+                        },
                     }}
-                    scroll={{ x: 1200 }}
+                    form={{ span: 6 }}
+                    cardProps={{ bordered: false }}
                     pagination={{
                         showSizeChanger: true,
                         showQuickJumper: true,
@@ -262,14 +217,14 @@ const MeterPointPage: React.FC = () => {
                 />
             </ProPageContainer>
 
-            <MeterPointForm
+            <ProductForm
                 visible={state?.dialogVisible || false}
-                onVisibleChange={(v) => setDialogVisible(v)}
+                record={state?.editData as Product}
+                onOpenChange={setDialogVisible}
                 onSuccess={handleFormSuccess}
-                currentRecord={state?.operation === 'edit' ? (state?.editData as MeterPoint | undefined) : undefined}
             />
         </>
     );
 };
 
-export default MeterPointPage;
+export default ProductPage;

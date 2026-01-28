@@ -1,6 +1,5 @@
 import React from 'react';
 import { TreeDataNode } from "antd";
-import { Tree } from "@/types";
 
 export function getTreeKeys(treeData: any[],): React.Key[] {
   const keys: React.Key[] = [];

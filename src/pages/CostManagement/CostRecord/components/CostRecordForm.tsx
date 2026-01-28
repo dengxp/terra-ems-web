@@ -96,7 +96,7 @@ const CostRecordForm: React.FC<CostRecordFormProps> = (props) => {
             labelCol={{ span: 8 }}
             wrapperCol={{ span: 16 }}
             modalProps={{
-                destroyOnClose: true,
+                destroyOnHidden: true,
                 maskClosable: false,
                 width: 680,
             }}

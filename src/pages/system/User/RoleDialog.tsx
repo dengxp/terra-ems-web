@@ -1,11 +1,11 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import useCrud from "@/hooks/common/useCrud";
-import {message, PaginationProps, Table, TableColumnProps} from "antd";
-import {getAuthRole, updateAuthRole} from "@/apis";
-import {ProModalForm} from "@/components/container";
-import {ProModalFormProps} from "@/components/container/ProModalForm";
-import {ProFormText} from "@ant-design/pro-components";
-import {SysUser} from "@/types";
+import { message, PaginationProps, Table, TableColumnProps } from "antd";
+import { getAuthRole, updateAuthRole } from "@/apis";
+import { ProModalForm } from "@/components/container";
+import { ProModalFormProps } from "@/components/container/ProModalForm";
+import { ProFormText } from "@ant-design/pro-components";
+
 
 type Props = ProModalFormProps;
 
@@ -59,9 +59,9 @@ const RoleDialog = (props: Props) => {
       setPageNumber(prevState => (pagination?.current || prevState));
       setPageSize(prevState => (pagination?.pageSize || prevState));
     }
-    getAuthRole(state.editData?.userId)
+    getAuthRole(state.editData?.id)
       .then(res => {
-        const roles = res.roles;
+        const roles = res.data.roles;
         setDataSource(roles);
         const selectedKeys = roles
           .filter((item: Record<string, any>) => item.flag)
@@ -78,10 +78,10 @@ const RoleDialog = (props: Props) => {
   const onFinish = async (values: Record<string, any>) => {
     try {
       setLoading(true);
-      const userId = values.userId;
+      const userId = values.id;
       const roleIds = selectedRowKeys.join(',');
       const result = await updateAuthRole(userId, roleIds);
-      void messageApi.success(result.msg || '操作成功');
+      void messageApi.success(result.message || '操作成功');
       props.onOpenChange?.(false);
     } catch (error: any) {
       void messageApi.error(error.message || '操作失败');
@@ -98,8 +98,8 @@ const RoleDialog = (props: Props) => {
 
   useEffect(() => {
     if (props.open) {
-      form.setFieldsValue({...state.editData});
-      if (state.editData?.userId) {
+      form.setFieldsValue({ ...state.editData });
+      if (state.editData?.id) {
         handleTableChange();
       }
     }
@@ -107,37 +107,37 @@ const RoleDialog = (props: Props) => {
 
   return (
     <ProModalForm {...props}
-                  form={form}
-                  title={'分配角色'}
-                  onFinish={onFinish}
+      form={form}
+      title={'分配角色'}
+      onFinish={onFinish}
     >
       {contextHolder}
-      <ProFormText label={'id'} name={'userId'} hidden />
-      <ProFormText label={'登录账号'} name={'userName'}
-                   fieldProps={{disabled: true}}
+      <ProFormText label={'id'} name={'id'} hidden />
+      <ProFormText label={'登录账号'} name={'username'}
+        fieldProps={{ disabled: true }}
       />
-      <ProFormText label={'用户昵称'} name={'nickName'}
-                   fieldProps={{disabled: true}}
+      <ProFormText label={'用户昵称'} name={'nickname'}
+        fieldProps={{ disabled: true }}
       />
       <Table columns={column}
-             rowKey={'roleId'}
-             rowSelection={rowSelection}
-             dataSource={dataSource}
-             loading={{spinning: loading, tip}}
-             onChange={handleTableChange}
-             pagination={{
-               current: pageNumber,
-               pageSize,
-               total,
-               onChange: (page, pageSize) => {
-                 setPageNumber(page);
-                 setPageSize(pageSize);
-               },
-               onShowSizeChange: (current, size) => {
-                 setPageSize(size);
-                 setPageNumber(current);
-               }
-             }}
+        rowKey={'roleId'}
+        rowSelection={rowSelection}
+        dataSource={dataSource}
+        loading={{ spinning: loading, tip }}
+        onChange={handleTableChange}
+        pagination={{
+          current: pageNumber,
+          pageSize,
+          total,
+          onChange: (page, pageSize) => {
+            setPageNumber(page);
+            setPageSize(pageSize);
+          },
+          onShowSizeChange: (current, size) => {
+            setPageSize(size);
+            setPageNumber(current);
+          }
+        }}
       />
     </ProModalForm>
   )

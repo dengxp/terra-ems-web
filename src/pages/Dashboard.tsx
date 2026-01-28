@@ -174,7 +174,7 @@ const Dashboard: React.FC = () => {
                             split={false}
                             renderItem={(item) => (
                                 <List.Item style={{ padding: '12px 0' }}>
-                                    <Space direction="vertical" style={{ width: '100%' }} size={6}>
+                                    <Space orientation="vertical" style={{ width: '100%' }} size={6}>
                                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                             <Space size={8}>
                                                 <div style={{ width: 10, height: 10, borderRadius: '50%', background: item.color }} />
@@ -200,7 +200,7 @@ const Dashboard: React.FC = () => {
                             split={false}
                             renderItem={(item) => (
                                 <List.Item style={{ padding: '10px 0' }}>
-                                    <Space direction="vertical" style={{ width: '100%' }} size={6}>
+                                    <Space orientation="vertical" style={{ width: '100%' }} size={6}>
                                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                             <Text>{item.name}</Text>
                                             <Tag color={item.status === 'warning' ? 'orange' : 'green'}>

@@ -143,7 +143,7 @@ const MeterPointsManageDialog: React.FC<MeterPointsManageDialogProps> = ({
             cancelText="取消"
             confirmLoading={submitting}
             width={700}
-            destroyOnClose
+            destroyOnHidden
         >
             <Alert
                 message="选择要关联到此用能单元的采集点位"

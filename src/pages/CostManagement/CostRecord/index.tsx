@@ -171,7 +171,7 @@ const CostRecordPage: React.FC = () => {
                     return {
                         data: res.data?.content || [],
                         success: res.success,
-                        total: res.data?.totalElements || 0,
+                        total: res.data?.totalElement || 0,
                     };
                 }}
                 columns={columns}

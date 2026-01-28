@@ -52,7 +52,7 @@ const KnowledgeArticleForm: React.FC<KnowledgeArticleFormProps> = ({
             title={isEdit ? '编辑文章' : '新建文章'}
             open={visible}
             modalProps={{
-                destroyOnClose: true,
+                destroyOnHidden: true,
                 onCancel,
                 width: 800,
             }}

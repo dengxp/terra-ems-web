@@ -38,8 +38,7 @@ const LoginV4Page: React.FC = () => {
         createCaptcha(identity, CAPTCHA_CATEGORY)
             .then((res) => {
                 if (res.success) {
-                    // @ts-ignore
-                    setCodeUrl(res.data.graphicImageBase64 || res.data.img);
+                    setCodeUrl(res.data.graphicImageBase64);
                     setUuid(res.data.uuid);
                 }
             })

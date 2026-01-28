@@ -1,11 +1,11 @@
-import React, {useState} from 'react';
-import {ProModalForm} from "@/components/container";
-import {ProModalFormProps} from "@/components/container/ProModalForm";
-import {ProFormCheckbox, ProFormUploadDragger} from "@ant-design/pro-components";
-import {Button, Form, GetProp, message, Upload, UploadProps} from "antd";
-import type {UploadChangeParam, UploadFile} from "antd/es/upload";
-import {exportTemplate, importUser} from "@/apis";
-import {downloadFailed, downloadSuccess} from "@/utils/download";
+import React, { useState } from 'react';
+import { ProModalForm } from "@/components/container";
+import { ProModalFormProps } from "@/components/container/ProModalForm";
+import { ProFormCheckbox, ProFormUploadDragger } from "@ant-design/pro-components";
+import { Button, Form, GetProp, message, Upload, UploadProps } from "antd";
+import type { UploadChangeParam, UploadFile } from "antd/es/upload";
+import { exportTemplate, importUser } from "@/apis";
+import { downloadFailed, downloadSuccess } from "@/utils/download";
 
 type Props = ProModalFormProps;
 type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
@@ -37,16 +37,16 @@ const UserImportDialog = (props: Props) => {
   }
 
   const onFinish = async (values: Record<string, any>) => {
-    const {files, updateSupport} = values;
+    const { files, updateSupport } = values;
     const formData = new FormData();
     formData.append('file', files[0].originFileObj);
     formData.append('updateSupport', updateSupport);
     setUploading(true);
     try {
       const res = await importUser(formData);
-      void messageApi.success(res.msg || '导入用户成功');
+      void messageApi.success(res.message || '导入用户成功');
     } catch (error: any) {
-      void messageApi.error(<span dangerouslySetInnerHTML={{__html: error.message}} />);
+      void messageApi.error(<span dangerouslySetInnerHTML={{ __html: error.message }} />);
     } finally {
       setUploading(false);
     }
@@ -54,22 +54,22 @@ const UserImportDialog = (props: Props) => {
 
   return (
     <ProModalForm {...props}
-                  width={400}
-                  form={form}
-                  onFinish={onFinish}
+      width={400}
+      form={form}
+      onFinish={onFinish}
     >
       {contextHolder}
-      <ProFormUploadDragger formItemProps={{className: 'mb-1'}}
-                            name="files"
-                            disabled={uploading}
-                            fieldProps={{
-                              multiple: false,
-                              accept,
-                              maxCount: 1,
-                              beforeUpload
-                            }}
-                            description={'只支持单个文件上传'}
-                            rules={[{required: true, message: '请上传文件'}]}
+      <ProFormUploadDragger formItemProps={{ className: 'mb-1' }}
+        name="files"
+        disabled={uploading}
+        fieldProps={{
+          multiple: false,
+          accept,
+          maxCount: 1,
+          beforeUpload
+        }}
+        description={'只支持单个文件上传'}
+        rules={[{ required: true, message: '请上传文件' }]}
       />
       <ProFormCheckbox name={'updateSupport'} initialValue={false}>允许更新已经存在的用户数据</ProFormCheckbox>
       <p className={'text-gray-500'}>

@@ -16,9 +16,9 @@ type Props = {
 
 /**
  * 通用 CRUD Hook
- * 
+ *
  * 提供标准的增删改查操作和 UI 状态管理
- * 
+ *
  * API 端点约定：
  * - GET    baseUrl          → 分页查询
  * - GET    baseUrl/search   → 复杂搜索
@@ -31,6 +31,7 @@ export default function useCrud<T extends Entity>({ entityName, pathname, baseUr
   const { getState, initState, updateState, resetState } = useModel('crudModel');
 
   const [form] = Form.useForm();
+  // const formRef = useRef<ProFormInstance>();
   const formRef = useRef<ProFormInstance>();
   const actionRef = useRef<ActionType | undefined>();
 

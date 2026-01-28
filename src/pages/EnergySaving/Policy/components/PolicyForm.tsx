@@ -65,7 +65,7 @@ const PolicyForm: React.FC<PolicyFormProps> = (props) => {
             labelCol={{ span: 5 }}
             wrapperCol={{ span: 19 }}
             modalProps={{
-                destroyOnClose: true,
+                destroyOnHidden: true,
                 maskClosable: false,
                 width: 640,
             }}

@@ -1,6 +1,6 @@
 /**
  * Terra EMS - 极光登录页 (LoginV2)
- * 采用高端玻璃拟态 (Glassmorphism) 与动态极光背景设计
+ * 采用高端玻璃拟态 (Glass morphism) 与动态极光背景设计
  */
 
 import { LockOutlined, MobileOutlined, SafetyOutlined, UserOutlined } from '@ant-design/icons';

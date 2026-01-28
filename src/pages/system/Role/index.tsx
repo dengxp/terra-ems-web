@@ -54,7 +54,7 @@ const Index = () => {
         const status = record.status === '0' ? '1' : '0';
         changeUserStatus(record.userId, status)
           .then(res => {
-            void message.success(res.msg || `${action}用户[${record.userName}]成功`);
+            void message.success(res.message || `${action}用户[${record.userName}]成功`);
             actionRef.current?.reload();
           })
           .catch(err => {

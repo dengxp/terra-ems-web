@@ -66,7 +66,7 @@ const ProjectForm: React.FC<ProjectFormProps> = (props) => {
             labelCol={{ span: 5 }}
             wrapperCol={{ span: 19 }}
             modalProps={{
-                destroyOnClose: true,
+                destroyOnHidden: true,
                 maskClosable: false,
                 width: 640,
             }}

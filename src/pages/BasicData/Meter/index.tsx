@@ -232,7 +232,7 @@ const Index: React.FC = () => {
                         });
                         return {
                             data: res.data?.content || [],
-                            total: res.data?.totalElements || 0,
+                            total: res.data?.totalElement || 0,
                             success: res.success,
                         };
                     }}

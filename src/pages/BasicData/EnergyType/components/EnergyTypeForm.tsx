@@ -69,7 +69,7 @@ const EnergyTypeForm: React.FC<EnergyTypeFormProps> = ({
                 status: 0,
             }}
             modalProps={{
-                destroyOnClose: true,
+                destroyOnHidden: true,
                 width: 800,
             }}
         >

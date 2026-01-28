@@ -13,6 +13,10 @@ export interface EnergyUnit {
     sortOrder: number;
     status: number;
     remark?: string;
+    unitType: 'GENERAL' | 'BRANCH' | 'PROCESS' | 'EQUIPMENT';
+    voltageLevel?: string;
+    ratedCurrent?: number;
+    ratedPower?: number;
     children?: EnergyUnit[];
     createdAt?: string;
     updatedAt?: string;

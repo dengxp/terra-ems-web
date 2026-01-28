@@ -1,10 +1,10 @@
-import React, {useEffect, useState} from 'react';
-import {Button, Col, Input, Modal, ModalProps, PaginationProps, Row, message, Table} from "antd";
+import React, { useEffect, useState } from 'react';
+import { Button, Col, Input, Modal, ModalProps, PaginationProps, Row, message, Table } from "antd";
 import GenderIcon from "@/components/icons/GenderIcon";
-import {TableRowSelection} from "antd/es/table/interface";
-import {AnyObject} from "antd/es/_util/type";
-import {addMembers, findUsersWithoutDepartment} from "@/apis";
-import {SysUser} from "@/types";
+import { TableRowSelection } from "antd/es/table/interface";
+import { AnyObject } from "antd/es/_util/type";
+import { addMembers, findUsersWithoutDepartment } from "@/apis";
+
 
 type Props = Omit<ModalProps, 'onCancel'> & {
   departmentId: number;
@@ -23,7 +23,7 @@ function AddMemberDialog(props: Props) {
   const [pageSize, setPageSize] = useState(20);
   const [total, setTotal] = useState(0);
 
-  const {departmentId, ...rest} = props;
+  const { departmentId, ...rest } = props;
 
   const columns = [
     {
@@ -40,7 +40,7 @@ function AddMemberDialog(props: Props) {
       title: '性别',
       dataIndex: 'gender',
       key: 'gender',
-      render: (value: any) => <GenderIcon value={value}/>
+      render: (value: any) => <GenderIcon value={value} />
     },
     {
       title: '手机号',
@@ -134,15 +134,15 @@ function AddMemberDialog(props: Props) {
 
   return (
     <Modal {...rest} title={'添加成员'} centered width={800}
-           onCancel={(e) => onCancel(e)}
-           onOk={onFinish}
+      onCancel={(e) => onCancel(e)}
+      onOk={onFinish}
     >
       <div className={'pt-2'}>
         <Row gutter={8}>
           <Col flex={1}>
             <Input placeholder={'输入关键字搜索'} className={'w-full'} value={keyword}
-                   onChange={(e) => onChange(e.target.value)}
-                   allowClear
+              onChange={(e) => onChange(e.target.value)}
+              allowClear
             />
           </Col>
           <Col>
@@ -150,26 +150,26 @@ function AddMemberDialog(props: Props) {
           </Col>
         </Row>
         <Table columns={columns} size={'small'}
-               rowKey={'id'}
-               rowSelection={rowSelection}
-               dataSource={users}
-               pagination={{
-                 current: pageNumber,
-                 pageSize,
-                 total,
-                 onChange: (page, pageSize) => {
-                   setPageNumber(page);
-                   setPageSize(pageSize);
-                 },
-                 onShowSizeChange: (current, size) => {
-                   setPageSize(size);
-                   setPageNumber(current);
-                 }
-               }}
-               scroll={{y: 440}}
-               className={'h-full'}
-               onChange={handleTableChange}
-               loading={{spinning: loading, tip}}
+          rowKey={'id'}
+          rowSelection={rowSelection}
+          dataSource={users}
+          pagination={{
+            current: pageNumber,
+            pageSize,
+            total,
+            onChange: (page, pageSize) => {
+              setPageNumber(page);
+              setPageSize(pageSize);
+            },
+            onShowSizeChange: (current, size) => {
+              setPageSize(size);
+              setPageNumber(current);
+            }
+          }}
+          scroll={{ y: 440 }}
+          className={'h-full'}
+          onChange={handleTableChange}
+          loading={{ spinning: loading, tip }}
         />
       </div>
     </Modal>

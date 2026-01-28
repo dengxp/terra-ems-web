@@ -178,7 +178,7 @@ const AlarmRecordPage: React.FC = () => {
                     return {
                         data: res.data?.content || [],
                         success: res.success,
-                        total: res.data?.totalElements || 0,
+                        total: res.data?.totalElement || 0,
                     };
                 }}
                 search={{
@@ -201,7 +201,7 @@ const AlarmRecordPage: React.FC = () => {
                 labelCol={{ span: 5 }}
                 wrapperCol={{ span: 19 }}
                 modalProps={{
-                    destroyOnClose: true,
+                    destroyOnHidden: true,
                     maskClosable: false,
                     width: 420,
                 }}

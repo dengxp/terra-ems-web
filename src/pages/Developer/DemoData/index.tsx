@@ -57,8 +57,8 @@ const DemoDataPage: React.FC = () => {
     return (
         <PageContainer ghost title="演示数据生成">
             <div style={{ maxWidth: 800, margin: '0 auto' }}>
-                <Card bordered={false}>
-                    <Space direction="vertical" size="large" style={{ width: '100%' }}>
+                <Card variant="borderless">
+                    <Space orientation="vertical" size="large" style={{ width: '100%' }}>
                         <div>
                             <Title level={4}>
                                 <DatabaseOutlined style={{ marginRight: 8, color: '#1890ff' }} />

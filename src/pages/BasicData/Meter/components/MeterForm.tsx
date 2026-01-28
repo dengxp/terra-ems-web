@@ -74,7 +74,7 @@ const MeterForm: React.FC<MeterFormProps> = ({ visible, record, onCancel, onSucc
                 }
             }}
             modalProps={{
-                destroyOnClose: true,
+                destroyOnHidden: true,
                 maskClosable: false,
                 width: 800,
             }}

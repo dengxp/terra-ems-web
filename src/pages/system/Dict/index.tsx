@@ -130,7 +130,7 @@ const DictTypeManager: React.FC = () => {
                 onCancel={() => setDataListVisible(false)}
                 width={1000}
                 footer={null}
-                destroyOnClose
+                destroyOnHidden
             >
                 <DictDataList typeCode={currentRow?.type || ''} />
             </Modal>

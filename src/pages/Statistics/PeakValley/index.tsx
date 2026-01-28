@@ -149,7 +149,7 @@ const PeakValleyPage: React.FC = () => {
                 <Splitter.Panel style={{ overflow: 'hidden', paddingLeft: '16px' }}>
                     <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
                         {/* 头部过滤器卡片 */}
-                        <Card bordered={false} bodyStyle={{ padding: '16px' }} style={{ marginBottom: 16 }}>
+                        <Card variant="borderless" styles={{ body: { padding: '16px' } }} style={{ marginBottom: 16 }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
                                 <div>
                                     <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center' }}>
@@ -178,7 +178,7 @@ const PeakValleyPage: React.FC = () => {
                         </Card>
 
                         {!selectedUnitId ? (
-                            <Card bordered={false}>
+                            <Card variant="borderless">
                                 <div style={{ padding: '100px 0', textAlign: 'center' }}>
                                     <Empty description="请从左侧选择一个用能单元开始分析" />
                                 </div>

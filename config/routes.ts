@@ -107,6 +107,12 @@ export default [
         path: '/basic-data/alarm-limit-type',
         component: './BasicData/AlarmLimitType',
       },
+      {
+        title: '产品管理',
+        name: '产品管理',
+        path: '/basic-data/product',
+        component: './BasicData/Product',
+      },
     ],
   },
   {

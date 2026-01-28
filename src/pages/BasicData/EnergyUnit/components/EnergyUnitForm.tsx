@@ -4,6 +4,8 @@ import {
     ProFormDigit,
     ProFormRadio,
     ProFormTextArea,
+    ProFormSelect,
+    ProFormDependency,
 } from '@ant-design/pro-components';
 import { EnergyUnit } from '@/apis/energyUnit';
 import { ProModalForm } from "@/components/container";
@@ -43,7 +45,8 @@ const EnergyUnitForm: React.FC<EnergyUnitFormProps> = ({
             labelCol={{ span: 6 }}
             wrapperCol={{ span: 16 }}
             modalProps={{
-                destroyOnClose: true,
+                destroyOnHidden: true,
+                width: 800,
             }}
         >
             <ProFormText name="id" hidden />
@@ -66,6 +69,47 @@ const EnergyUnitForm: React.FC<EnergyUnitFormProps> = ({
                     { max: 100, message: '名称最多100个字符' },
                 ]}
             />
+            <ProFormSelect
+                name="unitType"
+                label="类型"
+                placeholder="请选择类型"
+                rules={[{ required: true, message: '请选择类型' }]}
+                options={[
+                    { label: '普通单元', value: 'GENERAL' },
+                    { label: '电力支路', value: 'BRANCH' },
+                    { label: '工序', value: 'PROCESS' },
+                    { label: '设备', value: 'EQUIPMENT' },
+                ]}
+                initialValue="GENERAL"
+            />
+            <ProFormDependency name={['unitType']}>
+                {({ unitType }) => {
+                    if (unitType === 'BRANCH') {
+                        return (
+                            <>
+                                <ProFormText
+                                    name="voltageLevel"
+                                    label="电压等级"
+                                    placeholder="请输入电压等级"
+                                />
+                                <ProFormDigit
+                                    name="ratedCurrent"
+                                    label="额定电流"
+                                    placeholder="请输入额定电流(A)"
+                                    fieldProps={{ precision: 2 }}
+                                />
+                                <ProFormDigit
+                                    name="ratedPower"
+                                    label="额定功率"
+                                    placeholder="请输入额定功率(kW)"
+                                    fieldProps={{ precision: 2 }}
+                                />
+                            </>
+                        );
+                    }
+                    return null;
+                }}
+            </ProFormDependency>
             <ProFormDigit
                 name="sortOrder"
                 label="排序"

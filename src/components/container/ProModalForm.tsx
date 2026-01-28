@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { CSSProperties } from 'react';
 import { ModalForm, ModalFormProps } from "@ant-design/pro-components";
 
 export type ProModalFormProps = ModalFormProps & {
@@ -21,16 +21,22 @@ const ProModalForm = (props: ProModalFormProps) => {
       className={'py-4 px-4'}
       modalProps={{
         centered: true,
-        destroyOnClose: true,
+        destroyOnHidden: true,
         ...rest.modalProps,
-        styles: {
-          ...rest.modalProps?.styles,
-          body: {
-            maxHeight: '80vh',
-            overflowY: 'auto',
-            overflowX: 'hidden',
-            ...rest.modalProps?.styles?.body,
-          },
+        styles: (params: any) => {
+          const userStyles = typeof rest.modalProps?.styles === 'function'
+            ? rest.modalProps.styles(params)
+            : rest.modalProps?.styles || {};
+
+          return {
+            ...userStyles,
+            body: {
+              maxHeight: '80vh',
+              overflowY: 'auto',
+              overflowX: 'hidden',
+              ...userStyles?.body,
+            },
+          };
         },
       }}
     >
