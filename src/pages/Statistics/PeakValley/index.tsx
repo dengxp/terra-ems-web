@@ -16,7 +16,6 @@ import {
 } from '@/apis/peakValley';
 import StatisticsCard from '../components/StatisticsCard';
 import {
-    ThunderboltOutlined,
     DollarOutlined,
 } from '@ant-design/icons';
 import dayjs from 'dayjs';

@@ -3,7 +3,7 @@ import { Card, Button, Form, TreeSelect, message, Typography, Space, Alert, Divi
 import { PageContainer } from '@ant-design/pro-components';
 import { getEnabledEnergyUnitTree, EnergyUnit } from '@/apis/energyUnit';
 import { generateRankingData } from '@/apis/demo';
-import { RocketOutlined, InfoCircleOutlined, DatabaseOutlined } from '@ant-design/icons';
+import { RocketOutlined, DatabaseOutlined } from '@ant-design/icons';
 
 const { Title, Paragraph, Text } = Typography;
 

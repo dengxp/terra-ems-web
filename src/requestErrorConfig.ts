@@ -5,7 +5,7 @@ import { ContentType } from '@/enums';
 import qs from 'qs';
 import { EXPIRATION_CODE, LOGIN_PATH, TOKEN_HEADER_NAME, WHITE_LIST, X_TERRA_SESSION_ID } from "./config/constants";
 import { getSessionId, getToken, removeToken } from "@/utils/auth";
-import storage from "store";
+
 
 // 错误处理方案： 错误类型
 enum ErrorShowType {
