@@ -1,6 +1,6 @@
 import React from 'react';
 import { PageContainer } from '@ant-design/pro-components';
-import { Row, Col, Typography } from 'antd';
+import { Row, Col } from 'antd';
 import {
     ThunderboltOutlined,
     CloudOutlined,
@@ -15,7 +15,7 @@ import {
 } from '@ant-design/icons';
 import './DashboardV2.less';
 
-const { Text } = Typography;
+
 
 /**
  * 能源管理系统 Dashboard V2 - 高颜值版本

@@ -6,7 +6,7 @@
 import { LockOutlined, MobileOutlined, SafetyOutlined, UserOutlined } from '@ant-design/icons';
 import { Button, Checkbox, Form, Input, message, Tabs } from 'antd';
 import React, { useEffect, useState } from 'react';
-import { Helmet, useIntl, useModel } from '@umijs/max';
+import { Helmet, useModel } from '@umijs/max';
 import { flushSync } from 'react-dom';
 import Cookie from 'js-cookie';
 import useAuth from '@/hooks/useAuth';
@@ -28,7 +28,7 @@ const LoginPage: React.FC = () => {
   const [uuid, setUuid] = useState('');
   const [loading, setLoading] = useState(false);
   const [countdown, setCountdown] = useState(0);
-  const intl = useIntl();
+
   const [messageApi, contextHolder] = message.useMessage();
   const [form] = Form.useForm();
   const { login, redirect } = useAuth();
