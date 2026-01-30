@@ -1,14 +1,13 @@
 import React, { useState, useMemo } from 'react';
 import { ProPageContainer } from '@/components/container';
 import { ProTable, ProColumns } from '@ant-design/pro-components';
-import { Button, Space, Tag, Progress } from 'antd';
+import { Button, Space, Tag } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import {
     EnergySavingProject,
     ProjectStatus,
     ProjectStatusOptions,
     getProjectPage,
-    deleteProject,
 } from '@/apis/energySavingProject';
 import ProjectForm from './components/ProjectForm';
 import { EditButton, DeleteButton } from '@/components/button';
@@ -24,6 +23,7 @@ const EnergySavingProjectPage: React.FC = () => {
         actionRef,
         toCreate,
         toEdit,
+        toDelete,
         toBatchDelete,
         setDialogVisible,
     } = useCrud<EnergySavingProject>({
@@ -38,15 +38,6 @@ const EnergySavingProjectPage: React.FC = () => {
         if (editDisabled) return;
         if (!selectedRows || selectedRows.length !== 1) return;
         toEdit(selectedRows[0]);
-    };
-
-    const handleDelete = async (id: number) => {
-        try {
-            await deleteProject(id);
-            actionRef.current?.reload();
-        } catch (error) {
-            console.error(error);
-        }
     };
 
     const handleBatchDelete = async () => {
@@ -123,7 +114,7 @@ const EnergySavingProjectPage: React.FC = () => {
             render: (_, record) => (
                 <Space>
                     <EditButton onClick={() => toEdit(record)} />
-                    <DeleteButton onClick={() => handleDelete(record.id as number)} />
+                    <DeleteButton onClick={() => toDelete(record.id as number, true)} />
                 </Space>
             ),
         },
@@ -193,7 +184,7 @@ const EnergySavingProjectPage: React.FC = () => {
                     return {
                         data: res.data?.content || [],
                         success: res.success,
-                        total: res.data?.totalElement || 0,
+                        total: res.data?.totalElements || 0,
                     };
                 }}
                 columns={columns}
@@ -207,8 +198,6 @@ const EnergySavingProjectPage: React.FC = () => {
             <ProjectForm
                 visible={state?.dialogVisible || false}
                 onVisibleChange={(v) => setDialogVisible(v)}
-                isEdit={!!state?.editData}
-                currentRecord={state?.operation === 'edit' ? (state?.editData as EnergySavingProject | undefined) : undefined}
                 onSuccess={() => {
                     setDialogVisible(false);
                     actionRef.current?.reload();

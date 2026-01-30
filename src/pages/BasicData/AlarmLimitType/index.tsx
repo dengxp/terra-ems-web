@@ -185,9 +185,7 @@ const AlarmLimitTypePage: React.FC = () => {
             />
             <AlarmLimitTypeForm
                 visible={state?.dialogVisible || false}
-                onVisibleChange={(v) => setDialogVisible(v)}
-                isEdit={state?.operation === 'edit'}
-                currentRecord={state?.operation === 'edit' ? (state?.editData as AlarmLimitType | undefined) : undefined}
+                onVisibleChange={(v: boolean) => setDialogVisible(v)}
                 onSuccess={() => {
                     setDialogVisible(false);
                     actionRef.current?.reload();

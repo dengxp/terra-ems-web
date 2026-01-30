@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { ProPageContainer } from '@/components/container';
-import { Card, Col, Row, Tree, Button, Space, DatePicker, Tabs, Splitter } from 'antd';
-import { DeleteOutlined, EditOutlined, PlusOutlined, ApartmentOutlined } from '@ant-design/icons';
+import { Col, Row, Tree, Button, Space, DatePicker, Tabs, Splitter } from 'antd';
+import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ProColumns, ProTable } from '@ant-design/pro-components';
 import useCrud from '@/hooks/common/useCrud';
 import { DeleteButton, EditButton } from '@/components/button';
@@ -81,11 +81,19 @@ const Index: React.FC = () => {
             actionRef.current?.reload();
             setShouldRefresh(false);
         }
-    }, [state?.shouldRefresh]);
+    }, [state?.shouldRefresh, setShouldRefresh, actionRef]);
 
     useEffect(() => {
         actionRef.current?.reload();
-    }, [selectedUnitId, dataType]);
+    }, [selectedUnitId, dataType, actionRef]);
+
+    const handleAdd = () => {
+        toCreate({
+            energyUnitId: selectedUnitId,
+            dataType: dataType,
+            granularity: 'DAY'
+        });
+    };
 
     const columns: ProColumns<ProductionRecord>[] = [
         {
@@ -132,6 +140,7 @@ const Index: React.FC = () => {
                 DAY: { text: '日' },
                 MONTH: { text: '月' },
                 YEAR: { text: '年' },
+                CUSTOM: { text: '自定义' },
             },
         },
         {
@@ -198,7 +207,7 @@ const Index: React.FC = () => {
                                             icon={<PlusOutlined />}
                                             variant={'outlined'}
                                             size={'small'}
-                                            onClick={toCreate}
+                                            onClick={handleAdd}
                                         >
                                             新建
                                         </Button>
@@ -250,7 +259,7 @@ const Index: React.FC = () => {
                             }}
                             request={async (params) => {
                                 const { current, pageSize, energyUnitId: paramsUnitId, ...rest } = params;
-                                const finalUnitId = selectedUnitId || paramsUnitId || 1;
+                                const finalUnitId = selectedUnitId || paramsUnitId;
                                 const res = await getProductionRecords({
                                     ...rest,
                                     energyUnitId: finalUnitId,
@@ -262,7 +271,7 @@ const Index: React.FC = () => {
                                 });
                                 return {
                                     data: res.data?.content || [],
-                                    total: res.data?.totalElement || 0,
+                                    total: res.data?.totalElements || 0,
                                     success: res.success,
                                 };
                             }}
@@ -279,9 +288,6 @@ const Index: React.FC = () => {
 
             <ProductionRecordForm
                 visible={state?.dialogVisible || false}
-                record={state?.operation === 'edit' ? (state?.editData as ProductionRecord | undefined) : undefined}
-                defaultUnitId={selectedUnitId}
-                defaultDataType={dataType}
                 onCancel={() => setDialogVisible(false)}
                 onSuccess={handleFormSuccess}
             />

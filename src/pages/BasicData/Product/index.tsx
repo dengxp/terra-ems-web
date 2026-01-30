@@ -219,7 +219,6 @@ const ProductPage: React.FC = () => {
 
             <ProductForm
                 visible={state?.dialogVisible || false}
-                record={state?.editData as Product}
                 onOpenChange={setDialogVisible}
                 onSuccess={handleFormSuccess}
             />

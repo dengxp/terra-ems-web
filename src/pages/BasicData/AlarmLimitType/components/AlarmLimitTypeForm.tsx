@@ -1,79 +1,86 @@
 import React, { useEffect } from 'react';
-import {
-    ModalForm,
-    ProFormText,
-    ProFormSelect,
-} from '@ant-design/pro-components';
-import { Form, message, ColorPicker } from 'antd';
-import { AlarmLimitType, createAlarmLimitType, updateAlarmLimitType } from '@/apis/alarm';
+import { ProFormText, ProFormSelect } from '@ant-design/pro-components';
+import { Form, ColorPicker } from 'antd';
+import { ProModalForm } from '@/components/container';
+import { AlarmLimitType } from '@/apis/alarm';
+import useCrud from '@/hooks/common/useCrud';
+import { OperationEnum } from '@/enums';
 
 interface AlarmLimitTypeFormProps {
     visible: boolean;
     onVisibleChange: (visible: boolean) => void;
-    isEdit: boolean;
-    currentRecord?: AlarmLimitType;
     onSuccess: () => void;
 }
 
-const AlarmLimitTypeForm: React.FC<AlarmLimitTypeFormProps> = (props) => {
-    const { visible, onVisibleChange, isEdit, currentRecord, onSuccess } = props;
-    const [form] = Form.useForm();
+const AlarmLimitTypeForm: React.FC<AlarmLimitTypeFormProps> = ({
+    visible,
+    onVisibleChange,
+    onSuccess,
+}) => {
+    const {
+        form,
+        handleSaveOrUpdate,
+        getState
+    } = useCrud<AlarmLimitType>({
+        pathname: '/basic-data/alarm-limit-type',
+        entityName: '报警限值类型',
+        baseUrl: '/api/alarm/limit-types',
+        onOpenChange: onVisibleChange
+    });
+
+    const state = getState('/basic-data/alarm-limit-type');
 
     useEffect(() => {
         if (visible) {
-            if (isEdit && currentRecord) {
-                form.setFieldsValue(currentRecord);
+            if (state.operation === OperationEnum.EDIT) {
+                form.setFieldsValue({ ...state.editData });
             } else {
                 form.resetFields();
             }
         }
-    }, [visible, isEdit, currentRecord, form]);
-
-    const handleSubmit = async (values: any) => {
-        try {
-            if (isEdit && currentRecord) {
-                await updateAlarmLimitType(currentRecord.id, { ...currentRecord, ...values });
-                message.success('更新成功');
-            } else {
-                await createAlarmLimitType(values);
-                message.success('创建成功');
-            }
-            onSuccess();
-            return true;
-        } catch (error) {
-            console.error(error);
-            return false;
-        }
-    };
+    }, [visible, state.operation, state.editData, form]);
 
     return (
-        <ModalForm
-            title={isEdit ? '编辑报警限值类型' : '新增报警限值类型'}
+        <ProModalForm
+            title={state.dialogTitle}
             open={visible}
             onOpenChange={onVisibleChange}
             form={form}
-            onFinish={handleSubmit}
-            layout="horizontal"
-            labelCol={{ span: 6 }}
-            wrapperCol={{ span: 18 }}
+            onFinish={async (values) => {
+                const submitData = {
+                    ...state.editData,
+                    ...values
+                };
+                await handleSaveOrUpdate(submitData);
+                onSuccess();
+                return true;
+            }}
             modalProps={{
                 destroyOnHidden: true,
                 maskClosable: false,
-                width: 480,
+                width: 500,
             }}
+            layout="horizontal"
+            labelCol={{ span: 6 }}
+            wrapperCol={{ span: 18 }}
+            loading={state.loading}
         >
             <ProFormText
+                name="id"
+                hidden
+            />
+            <ProFormText
                 name="limitName"
-                label="限值类型名称"
-                placeholder="请输入限值类型名称"
-                rules={[{ required: true, message: '请输入限值类型名称' }]}
+                label="限值名称"
+                placeholder="请输入限值名称"
+                rules={[{ required: true, message: '请输入限值名称' }]}
             />
             <ProFormText
                 name="limitCode"
-                label="限值类型编码"
-                placeholder="请输入限值类型编码"
-                disabled={isEdit}
-                rules={[{ required: true, message: '请输入限值类型编码' }]}
+                label="限值编码"
+                placeholder="请输入限值编码"
+                disabled={state.operation === OperationEnum.EDIT}
+                rules={[{ required: true, message: '请输入限值编码' }]}
             />
             <Form.Item
                 name="colorNumber"
@@ -104,7 +111,7 @@ const AlarmLimitTypeForm: React.FC<AlarmLimitTypeFormProps> = (props) => {
                 ]}
                 rules={[{ required: true, message: '请选择报警级别' }]}
             />
-        </ModalForm>
+        </ProModalForm>
     );
 };
 

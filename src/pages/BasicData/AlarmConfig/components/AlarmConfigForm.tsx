@@ -1,102 +1,116 @@
 import React, { useEffect, useState } from 'react';
-import { ModalForm, ProFormSelect, ProFormDigit, ProFormSwitch, ProFormTextArea } from '@ant-design/pro-components';
-import { Form, message } from 'antd';
-import { AlarmConfig, AlarmLimitType, getAllAlarmLimitTypes, saveOrUpdateAlarmConfig } from '@/apis/alarm';
+import { ProFormText, ProFormSelect, ProFormDigit, ProFormSwitch, ProFormTextArea } from '@ant-design/pro-components';
+import { ProModalForm } from '@/components/container';
+import { AlarmConfig, getAllAlarmLimitTypes, AlarmLimitType } from '@/apis/alarm';
+import useCrud from '@/hooks/common/useCrud';
+import { OperationEnum } from '@/enums';
 import { MeterPoint } from '@/apis/meterPoint';
 
 interface AlarmConfigFormProps {
     visible: boolean;
     onVisibleChange: (visible: boolean) => void;
     onSuccess: () => void;
-    isEdit: boolean;
-    currentRecord?: AlarmConfig;
     point: MeterPoint | null;
 }
 
-const AlarmConfigForm: React.FC<AlarmConfigFormProps> = (props) => {
-    const { visible, onVisibleChange, onSuccess, isEdit, currentRecord, point } = props;
-    const [form] = Form.useForm();
+const AlarmConfigForm: React.FC<AlarmConfigFormProps> = ({
+    visible,
+    onVisibleChange,
+    onSuccess,
+    point,
+}) => {
     const [limitTypes, setLimitTypes] = useState<AlarmLimitType[]>([]);
+
+    const {
+        form,
+        getState,
+        handleSaveOrUpdate
+    } = useCrud<AlarmConfig>({
+        pathname: '/basic-data/alarm-config',
+        entityName: '报警配置',
+        baseUrl: '/api/alarm/configs',
+        onOpenChange: onVisibleChange
+    });
+
+    const state = getState('/basic-data/alarm-config');
 
     useEffect(() => {
         if (visible) {
             getAllAlarmLimitTypes().then((res) => {
-                if (res.success) setLimitTypes(res.data || []);
+                if (res.success && res.data) {
+                    setLimitTypes(res.data);
+                }
             });
+        }
+    }, [visible]);
 
-            if (isEdit && currentRecord) {
+    useEffect(() => {
+        if (visible) {
+            if (state.operation === OperationEnum.EDIT) {
                 form.setFieldsValue({
-                    ...currentRecord,
-                    limitTypeId: currentRecord.alarmLimitType?.id,
+                    ...state.editData,
+                    limitTypeId: state.editData?.alarmLimitType?.id,
                 });
             } else {
                 form.resetFields();
+                form.setFieldsValue({ isEnabled: true });
             }
         }
-    }, [visible, isEdit, currentRecord, form]);
-
-    const handleSubmit = async (values: any) => {
-        if (!point) return false;
-
-        const data: Partial<AlarmConfig> = {
-            ...currentRecord,
-            ...values,
-            id: isEdit ? currentRecord?.id : undefined,
-            meterPoint: { id: point.id } as any,
-            alarmLimitType: { id: values.limitTypeId } as any,
-        };
-
-        try {
-            const res = await saveOrUpdateAlarmConfig(data);
-            if (res.success) {
-                message.success(isEdit ? '更新成功' : '创建成功');
-                onSuccess();
-                return true;
-            }
-            message.error(res.message || '操作失败');
-            return false;
-        } catch (error) {
-            console.error(error);
-            return false;
-        }
-    };
+    }, [visible, state.operation, state.editData, form]);
 
     return (
-        <ModalForm
-            title={isEdit ? '编辑报警配置' : '添加报警配置'}
+        <ProModalForm
+            title={state?.dialogTitle}
             open={visible}
             onOpenChange={onVisibleChange}
             form={form}
-            onFinish={handleSubmit}
-            autoFocusFirstInput
-            layout="horizontal"
-            labelCol={{ span: 6 }}
-            wrapperCol={{ span: 18 }}
+            onFinish={async (values) => {
+                if (!point) return false;
+                const submitData = {
+                    ...state.editData,
+                    ...values,
+                    meterPoint: { id: point.id },
+                    alarmLimitType: { id: values.limitTypeId },
+                };
+                delete (submitData as any).limitTypeId;
+
+                await handleSaveOrUpdate(submitData);
+                onSuccess();
+                return true;
+            }}
             modalProps={{
                 destroyOnHidden: true,
                 maskClosable: false,
-                width: 480,
+                width: 500,
             }}
+            layout="horizontal"
+            labelCol={{ span: 6 }}
+            wrapperCol={{ span: 18 }}
+            loading={state.loading}
         >
+            <ProFormText
+                name="id"
+                hidden
+            />
             <ProFormSelect
                 name="limitTypeId"
-                label="报警限值类型"
+                label="限值类型"
                 options={limitTypes.map((item) => ({
                     label: (
-                        <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                             <div style={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: item.colorNumber }} />
                             {item.limitName} ({item.alarmType === 'ALARM' ? '报警' : '预警'})
-                        </span>
+                        </div>
                     ),
                     value: item.id,
                 }))}
-                rules={[{ required: true, message: '请选择报警限值类型' }]}
+                rules={[{ required: true, message: '请选择限值类型' }]}
                 placeholder="请选择"
             />
             <ProFormDigit
                 name="limitValue"
                 label="报警设定值"
-                placeholder="请输入"
+                placeholder="请输入设定值"
                 rules={[{ required: true, message: '请输入设定值' }]}
                 fieldProps={{
                     style: { width: '100%' }
@@ -105,14 +119,13 @@ const AlarmConfigForm: React.FC<AlarmConfigFormProps> = (props) => {
             <ProFormSwitch
                 name="isEnabled"
                 label="是否启用"
-                initialValue={true}
             />
             <ProFormTextArea
                 name="remark"
                 label="备注"
                 placeholder="请输入备注"
             />
-        </ModalForm>
+        </ProModalForm>
     );
 };
 

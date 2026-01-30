@@ -241,7 +241,7 @@ const Index: React.FC = () => {
                         }
                         return {
                             data: res.data?.content || [],
-                            total: res.data?.totalElement || 0,
+                            total: res.data?.totalElements || 0,
                             success: res.success,
                         };
                     }}
@@ -256,7 +256,6 @@ const Index: React.FC = () => {
 
             <KnowledgeArticleForm
                 visible={state?.dialogVisible || false}
-                record={state?.operation === 'edit' ? (state?.editData as KnowledgeArticle | undefined) : undefined}
                 onCancel={() => setDialogVisible(false)}
                 onSuccess={handleFormSuccess}
             />

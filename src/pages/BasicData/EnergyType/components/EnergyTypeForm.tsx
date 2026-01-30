@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { message, ColorPicker, Form, Col } from 'antd';
 import type { Color } from 'antd/es/color-picker';
 import {
@@ -14,13 +14,12 @@ import {
     EnergyType,
     EnergyCategory,
     EnergyCategoryLabel,
-    createEnergyType,
-    updateEnergyType,
 } from '@/apis/energyType';
+import useCrud from '@/hooks/common/useCrud';
+import { OperationEnum } from '@/enums';
 
 interface EnergyTypeFormProps {
     visible: boolean;
-    record?: EnergyType;
     onCancel: () => void;
     onSuccess: () => void;
 }
@@ -30,55 +29,75 @@ interface EnergyTypeFormProps {
  */
 const EnergyTypeForm: React.FC<EnergyTypeFormProps> = ({
     visible,
-    record,
     onCancel,
     onSuccess,
 }) => {
-    const isEdit = !!record;
+    const {
+        form,
+        handleSaveOrUpdate,
+        getState
+    } = useCrud<EnergyType>({
+        pathname: '/basic-data/energy-type',
+        entityName: '能源类型',
+        baseUrl: '/api/energy-types',
+        onOpenChange: (open) => {
+            if (!open) onCancel();
+        }
+    });
+
+    const state = getState('/basic-data/energy-type');
+
+    useEffect(() => {
+        if (visible) {
+            if (state.operation === OperationEnum.EDIT) {
+                form.setFieldsValue({ ...state.editData });
+            } else {
+                form.resetFields();
+                form.setFieldsValue({
+                    storable: false,
+                    sortOrder: 0,
+                    status: 0,
+                });
+            }
+        }
+    }, [visible, state.operation, state.editData, form]);
 
     const onFinish = async (values: any) => {
-        try {
-            // 统一使用 saveOrUpdate (POST)，编辑时携带 id 并合并旧数据
-            const payload = isEdit ? { ...record, ...values, id: record!.id } : values;
-            await createEnergyType(payload);
-            message.success(isEdit ? '更新成功' : '创建成功');
-            onSuccess();
-            return true;
-        } catch (error: any) {
-            // 全局错误处理已显示错误消息，此处仅返回 false 阻止表单关闭
-            return false;
-        }
+        const payload = state.operation === OperationEnum.EDIT ? { ...state.editData, ...values } : values;
+        await handleSaveOrUpdate(payload);
+        onSuccess();
+        return true;
     };
 
     return (
         <ProModalForm
-            title={isEdit ? '编辑能源类型' : '新增能源类型'}
+            title={state.dialogTitle}
             open={visible}
             onOpenChange={(open) => {
                 if (!open) onCancel();
             }}
+            form={form}
             onFinish={onFinish}
             grid={true}
             rowProps={{
                 gutter: 0,
             }}
             labelCol={{ span: 6 }}
-            initialValues={record || {
-                storable: false,
-                sortOrder: 0,
-                status: 0,
-            }}
             modalProps={{
                 destroyOnHidden: true,
                 width: 800,
             }}
         >
             <ProFormText
+                name="id"
+                hidden
+            />
+            <ProFormText
                 name="code"
                 label="编码"
                 colProps={{ span: 12 }}
                 placeholder="如：ELECTRIC、NATURAL_GAS"
-                disabled={isEdit}
+                disabled={state.operation === OperationEnum.EDIT}
                 rules={[
                     { required: true, message: '请输入编码' },
                     { pattern: /^[A-Z_]+$/, message: '编码只能包含大写字母和下划线' },

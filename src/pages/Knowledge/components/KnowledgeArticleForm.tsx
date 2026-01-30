@@ -1,64 +1,75 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
-    ModalForm,
     ProFormText,
     ProFormSelect,
     ProFormTextArea,
     ProFormDigit,
 } from '@ant-design/pro-components';
-import { message } from 'antd';
+import { ProModalForm } from '@/components/container';
 import {
     KnowledgeArticle,
-    createKnowledgeArticle,
-    updateKnowledgeArticle,
     getKnowledgeCategories,
 } from '@/apis/knowledge';
 import { getEnergyTypes } from '@/apis/energyType';
+import useCrud from '@/hooks/common/useCrud';
+import { OperationEnum } from '@/enums';
 
 interface KnowledgeArticleFormProps {
     visible: boolean;
-    record?: KnowledgeArticle;
     onCancel: () => void;
     onSuccess: () => void;
 }
 
 const KnowledgeArticleForm: React.FC<KnowledgeArticleFormProps> = ({
     visible,
-    record,
     onCancel,
     onSuccess,
 }) => {
-    const isEdit = !!record?.id;
+    const {
+        form,
+        handleSaveOrUpdate,
+        getState
+    } = useCrud<KnowledgeArticle>({
+        pathname: '/knowledge',
+        entityName: '知识库文章',
+        baseUrl: '/api/ems/knowledge',
+        onOpenChange: (open) => !open && onCancel()
+    });
 
-    const handleSubmit = async (values: KnowledgeArticle) => {
-        try {
-            if (isEdit && record?.id) {
-                await updateKnowledgeArticle(record.id, { ...record, ...values });
-                message.success('更新成功');
+    const state = getState('/knowledge');
+
+    useEffect(() => {
+        if (visible) {
+            if (state.operation === OperationEnum.EDIT) {
+                form.setFieldsValue({ ...state.editData });
             } else {
-                await createKnowledgeArticle(values);
-                message.success('创建成功');
+                form.resetFields();
             }
-            onSuccess();
-            return true;
-        } catch (error) {
-            message.error(isEdit ? '更新失败' : '创建失败');
-            return false;
         }
-    };
+    }, [visible, state.operation, state.editData, form]);
 
     return (
-        <ModalForm<KnowledgeArticle>
-            title={isEdit ? '编辑文章' : '新建文章'}
+        <ProModalForm
+            title={state?.dialogTitle}
             open={visible}
+            onOpenChange={(open) => !open && onCancel()}
+            form={form}
+            onFinish={async (values) => {
+                await handleSaveOrUpdate(values);
+                onSuccess();
+                return true;
+            }}
+            width={800}
+            layout="horizontal"
+            labelCol={{ span: 4 }}
+            wrapperCol={{ span: 18 }}
             modalProps={{
                 destroyOnHidden: true,
-                onCancel,
-                width: 800,
+                maskClosable: false,
             }}
-            initialValues={record || {}}
-            onFinish={handleSubmit}
+            loading={state.loading}
         >
+            <ProFormText name="id" hidden />
             <ProFormText
                 name="title"
                 label="标题"
@@ -122,7 +133,7 @@ const KnowledgeArticleForm: React.FC<KnowledgeArticleFormProps> = ({
                 min={0}
                 fieldProps={{ precision: 0 }}
             />
-        </ModalForm>
+        </ProModalForm>
     );
 };
 

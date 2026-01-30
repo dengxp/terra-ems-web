@@ -16,22 +16,19 @@ import {
     PeriodTypeOptions,
 } from '@/apis/pricePolicy';
 import useCrud from '@/hooks/common/useCrud';
+import { OperationEnum } from '@/enums';
 
 interface PricePolicyFormProps {
     visible: boolean;
     onVisibleChange: (visible: boolean) => void;
     onSuccess: () => void;
-    currentRecord?: PricePolicy;
 }
 
 const PricePolicyForm: React.FC<PricePolicyFormProps> = ({
     visible,
     onVisibleChange,
     onSuccess,
-    currentRecord,
 }) => {
-    const isEdit = !!currentRecord;
-    const title = isEdit ? '编辑电价策略' : '新增电价策略';
     const [items, setItems] = useState<PricePolicyItem[]>([]);
     const [form] = Form.useForm();
     const [isMultiRate, setIsMultiRate] = useState(true);
@@ -52,18 +49,18 @@ const PricePolicyForm: React.FC<PricePolicyFormProps> = ({
 
     useEffect(() => {
         if (visible) {
-            if (currentRecord) {
+            if (state.operation === OperationEnum.EDIT && state.editData) {
                 // 编辑模式：处理生效日期回显
-                const initialValues = { ...currentRecord };
-                if (currentRecord.effectiveStartDate || currentRecord.effectiveEndDate) {
+                const initialValues = { ...state.editData };
+                if (state.editData.effectiveStartDate || state.editData.effectiveEndDate) {
                     initialValues.effectiveDateRange = [
-                        currentRecord.effectiveStartDate || '',
-                        currentRecord.effectiveEndDate || '',
+                        state.editData.effectiveStartDate || '',
+                        state.editData.effectiveEndDate || '',
                     ];
                 }
                 form.setFieldsValue(initialValues);
-                setIsMultiRate(currentRecord.isMultiRate);
-                setItems(currentRecord.items || []);
+                setIsMultiRate(state.editData.isMultiRate);
+                setItems(state.editData.items || []);
             } else {
                 form.resetFields();
                 form.setFieldsValue({ isMultiRate: true }); // 默认开启分时电价
@@ -81,7 +78,7 @@ const PricePolicyForm: React.FC<PricePolicyFormProps> = ({
                 ]);
             }
         }
-    }, [visible, isEdit, currentRecord, form]);
+    }, [visible, state.operation, state.editData, form]);
 
     const handleAddItem = () => {
         setItems([...items, { periodType: 'FLAT', price: 0, startTime: '', endTime: '', sortOrder: items.length + 1 }]);
@@ -127,7 +124,7 @@ const PricePolicyForm: React.FC<PricePolicyFormProps> = ({
             // 转换生效日期范围为开始和结束日期（使用字符串格式避免时区问题）
             const { effectiveDateRange, ...restValues } = values;
             const data = {
-                ...currentRecord, // 合并旧数据（编辑时会带上 id）
+                ...state.editData, // 合并旧数据（编辑时会带上 id）
                 ...restValues,
                 effectiveStartDate: effectiveDateRange?.[0]
                     ? (typeof effectiveDateRange[0] === 'string'
@@ -231,7 +228,7 @@ const PricePolicyForm: React.FC<PricePolicyFormProps> = ({
 
     return (
         <Drawer
-            title={title}
+            title={state?.dialogTitle}
             open={visible}
             onClose={handleCancel}
             width={800}

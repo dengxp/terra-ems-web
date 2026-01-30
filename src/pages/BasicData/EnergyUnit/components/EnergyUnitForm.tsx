@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
     ProFormText,
     ProFormDigit,
@@ -10,44 +10,67 @@ import {
 import { EnergyUnit } from '@/apis/energyUnit';
 import { ProModalForm } from "@/components/container";
 import useCrud from "@/hooks/common/useCrud";
+import { OperationEnum } from '@/enums';
 
 interface EnergyUnitFormProps {
     visible: boolean;
     onOpenChange: (visible: boolean) => void;
     onSuccess: () => void;
-    record?: EnergyUnit;
 }
 
 const EnergyUnitForm: React.FC<EnergyUnitFormProps> = ({
     visible,
     onOpenChange,
     onSuccess,
-    record,
 }) => {
-    const { handleSaveOrUpdate } = useCrud<EnergyUnit>({
+    const {
+        form,
+        handleSaveOrUpdate,
+        getState
+    } = useCrud<EnergyUnit>({
         pathname: '/basic-data/energy-unit',
+        entityName: '用能单元',
         baseUrl: '/api/energy-units',
+        onOpenChange: onOpenChange,
     });
+
+    const state = getState('/basic-data/energy-unit');
+
+    useEffect(() => {
+        if (visible) {
+            if (state.operation === OperationEnum.EDIT) {
+                form.setFieldsValue({ ...state.editData });
+            } else {
+                form.resetFields();
+                form.setFieldsValue({
+                    status: 0,
+                    sortOrder: 0,
+                    parentId: state.editData?.parentId
+                });
+            }
+        }
+    }, [visible, state.operation, state.editData, form]);
 
     return (
         <ProModalForm
-            title={record?.id ? '编辑用能单元' : '新增用能单元'}
+            title={state?.dialogTitle}
             open={visible}
             onOpenChange={onOpenChange}
-            initialValues={{ status: 0, sortOrder: 0, ...record }}
+            form={form}
             onFinish={async (values) => {
                 await handleSaveOrUpdate(values);
                 onSuccess();
                 return true;
             }}
-            width={500}
+            width={700}
             layout="horizontal"
             labelCol={{ span: 6 }}
             wrapperCol={{ span: 16 }}
             modalProps={{
                 destroyOnHidden: true,
-                width: 800,
+                maskClosable: false,
             }}
+            loading={state.loading}
         >
             <ProFormText name="id" hidden />
             <ProFormText name="parentId" hidden />

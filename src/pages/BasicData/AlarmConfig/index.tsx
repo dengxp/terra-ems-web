@@ -1,12 +1,11 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Card, Tree, List, Empty, Button, Space, message, Tag, Tooltip, Input, Splitter } from 'antd';
-import { PageContainer, ProTable, ActionType, ProColumns } from '@ant-design/pro-components';
+import React, { useState, useEffect } from 'react';
+import { Card, List, Empty, Button, Space, message, Tag, Tooltip, Splitter } from 'antd';
+import { PageContainer, ProTable, ProColumns } from '@ant-design/pro-components';
 import EnergyUnitTree from '@/components/EnergyUnitTree';
 import { getMeterPointsByEnergyUnitId, MeterPoint } from '@/apis/meterPoint';
-import { getAlarmConfigsByMeterPoint, deleteAlarmConfig, AlarmConfig } from '@/apis/alarm';
+import { getAlarmConfigsByMeterPoint, AlarmConfig } from '@/apis/alarm';
 import {
     PlusOutlined,
-    ApartmentOutlined,
     UnorderedListOutlined,
     SettingOutlined,
     ThunderboltOutlined
@@ -14,15 +13,27 @@ import {
 import AlarmConfigForm from './components/AlarmConfigForm';
 import { EditButton, DeleteButton } from '@/components/button';
 import ModalConfirm from '@/components/ModalConfirm';
+import useCrud from '@/hooks/common/useCrud';
 
 const AlarmConfigPage: React.FC = () => {
-    const actionRef = React.useRef<ActionType>();
+    const {
+        getState,
+        actionRef,
+        toCreate,
+        toEdit,
+        toDelete,
+        setDialogVisible,
+    } = useCrud<AlarmConfig>({
+        pathname: '/basic-data/alarm-config',
+        entityName: '报警配置',
+        baseUrl: '/api/alarm-configs',
+    });
+
+    const state = getState('/basic-data/alarm-config');
+
     const [selectedUnitId, setSelectedUnitId] = useState<number | null>(null);
     const [points, setPoints] = useState<MeterPoint[]>([]);
     const [selectedPoint, setSelectedPoint] = useState<MeterPoint | null>(null);
-    const [formVisible, setFormVisible] = useState(false);
-    const [isEdit, setIsEdit] = useState(false);
-    const [currentRecord, setCurrentRecord] = useState<AlarmConfig>();
 
     // When unit is selected, fetch points
     useEffect(() => {
@@ -40,15 +51,16 @@ const AlarmConfigPage: React.FC = () => {
             message.warning('请先选择采集点位');
             return;
         }
-        setIsEdit(false);
-        setCurrentRecord(undefined);
-        setFormVisible(true);
+        toCreate();
     };
 
     const handleEdit = (record: AlarmConfig) => {
-        setIsEdit(true);
-        setCurrentRecord(record);
-        setFormVisible(true);
+        toEdit(record);
+    };
+
+    const handleFormSuccess = () => {
+        setDialogVisible(false);
+        actionRef.current?.reload();
     };
 
     const handleDelete = (id: number) => {
@@ -56,10 +68,11 @@ const AlarmConfigPage: React.FC = () => {
             title: '删除报警配置',
             content: '报警配置删除后将无法恢复，确定删除吗？',
             async onOk() {
-                const res = await deleteAlarmConfig(id);
-                if (res.success) {
-                    message.success('删除成功');
+                try {
+                    await toDelete(id, true);
                     actionRef.current?.reload();
+                } catch (error) {
+                    // 错误由全局处理
                 }
             }
         });
@@ -259,12 +272,10 @@ const AlarmConfigPage: React.FC = () => {
             </Splitter>
 
             <AlarmConfigForm
-                visible={formVisible}
-                onVisibleChange={setFormVisible}
-                isEdit={isEdit}
-                currentRecord={currentRecord}
+                visible={state?.dialogVisible || false}
+                onVisibleChange={setDialogVisible}
+                onSuccess={handleFormSuccess}
                 point={selectedPoint}
-                onSuccess={() => actionRef.current?.reload()}
             />
 
             <style>{`

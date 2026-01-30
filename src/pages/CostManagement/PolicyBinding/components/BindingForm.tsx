@@ -1,106 +1,96 @@
 import React, { useEffect } from 'react';
 import {
-    ModalForm,
     ProFormSelect,
     ProFormTextArea,
     ProFormDatePicker,
+    ProFormText,
 } from '@ant-design/pro-components';
-import { Form, message } from 'antd';
+import { Form } from 'antd';
+import { ProModalForm } from '@/components/container';
 import {
     CostPolicyBinding,
-    createCostPolicyBinding,
-    updateCostPolicyBinding,
 } from '@/apis/costPolicyBinding';
-import { EnergyUnit } from '@/apis/energyUnit';
-import { PricePolicy } from '@/apis/pricePolicy';
+import { getEnabledEnergyUnits } from '@/apis/energyUnit';
+import { getEnabledPricePolicies } from '@/apis/pricePolicy';
+import useCrud from '@/hooks/common/useCrud';
+import { OperationEnum } from '@/enums';
 
 interface BindingFormProps {
     visible: boolean;
     onVisibleChange: (visible: boolean) => void;
-    isEdit: boolean;
-    currentRecord?: CostPolicyBinding;
-    energyUnits: EnergyUnit[];
-    pricePolicies: PricePolicy[];
     onSuccess: () => void;
 }
 
-const BindingForm: React.FC<BindingFormProps> = (props) => {
-    const { visible, onVisibleChange, isEdit, currentRecord, energyUnits, pricePolicies, onSuccess } = props;
-    const [form] = Form.useForm();
+const BindingForm: React.FC<BindingFormProps> = ({ visible, onVisibleChange, onSuccess }) => {
+    const {
+        form,
+        handleSaveOrUpdate,
+        getState
+    } = useCrud<CostPolicyBinding>({
+        pathname: '/cost-management/policy-binding',
+        entityName: '策略绑定',
+        baseUrl: '/api/cost-policy-bindings',
+        onOpenChange: onVisibleChange
+    });
+
+    const state = getState('/cost-management/policy-binding');
 
     useEffect(() => {
         if (visible) {
-            if (isEdit && currentRecord) {
+            if (state.operation === OperationEnum.EDIT) {
                 form.setFieldsValue({
-                    energyUnitId: currentRecord.energyUnit?.id,
-                    pricePolicyId: currentRecord.pricePolicy?.id,
-                    startDate: currentRecord.effectiveStartDate,
-                    endDate: currentRecord.effectiveEndDate,
-                    remark: currentRecord.remark,
+                    ...state.editData,
+                    energyUnitId: state.editData?.energyUnit?.id,
+                    pricePolicyId: state.editData?.pricePolicy?.id,
+                    startDate: state.editData?.effectiveStartDate,
+                    endDate: state.editData?.effectiveEndDate,
                 });
             } else {
                 form.resetFields();
             }
         }
-    }, [visible, isEdit, currentRecord, form]);
-
-    const handleSubmit = async (values: any) => {
-        try {
-            if (isEdit && currentRecord) {
-                await updateCostPolicyBinding(currentRecord.id, {
-                    ...currentRecord, // 重点：合并旧数据
-                    pricePolicyId: values.pricePolicyId,
-                    startDate: values.startDate,
-                    endDate: values.endDate,
-                    remark: values.remark,
-                });
-                message.success('更新成功');
-            } else {
-                await createCostPolicyBinding({
-                    energyUnitId: values.energyUnitId,
-                    pricePolicyId: values.pricePolicyId,
-                    startDate: values.startDate,
-                    endDate: values.endDate,
-                    remark: values.remark,
-                });
-                message.success('创建成功');
-            }
-            onSuccess();
-            return true;
-        } catch (error) {
-            console.error(error);
-            return false;
-        }
-    };
+    }, [visible, state.operation, state.editData, form]);
 
     return (
-        <ModalForm
-            title={isEdit ? '编辑策略绑定' : '新增策略绑定'}
+        <ProModalForm
+            title={state?.dialogTitle}
             open={visible}
             onOpenChange={onVisibleChange}
             form={form}
-            onFinish={handleSubmit}
+            onFinish={async (values) => {
+                await handleSaveOrUpdate(values);
+                onSuccess();
+                return true;
+            }}
             layout="horizontal"
             labelCol={{ span: 6 }}
             wrapperCol={{ span: 18 }}
             modalProps={{
                 destroyOnHidden: true,
                 maskClosable: false,
-                width: 520,
             }}
+            width={520}
+            loading={state.loading}
         >
+            <ProFormText name="id" hidden />
             <ProFormSelect
                 name="energyUnitId"
                 label="用能单元"
-                options={energyUnits.map((u) => ({ label: u.name, value: u.id }))}
-                disabled={isEdit}
+                disabled={state.operation === OperationEnum.EDIT}
                 rules={[{ required: true, message: '请选择用能单元' }]}
+                request={async () => {
+                    const res = await getEnabledEnergyUnits();
+                    return (res.data || []).map((u: any) => ({ label: u.name, value: u.id }));
+                }}
             />
             <ProFormSelect
                 name="pricePolicyId"
                 label="电价策略"
-                options={pricePolicies.map((p) => ({ label: p.name, value: p.id }))}
                 rules={[{ required: true, message: '请选择电价策略' }]}
+                request={async () => {
+                    const res = await getEnabledPricePolicies();
+                    return (res.data || []).map((p: any) => ({ label: p.name, value: p.id }));
+                }}
             />
             <ProFormDatePicker
                 name="startDate"
@@ -120,7 +110,7 @@ const BindingForm: React.FC<BindingFormProps> = (props) => {
                 placeholder="备注信息"
                 fieldProps={{ rows: 2 }}
             />
-        </ModalForm>
+        </ProModalForm>
     );
 };
 

@@ -1,58 +1,58 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
-    ModalForm,
     ProFormText,
     ProFormDigit,
     ProFormDatePicker,
     ProFormSelect,
     ProFormTextArea,
 } from '@ant-design/pro-components';
-import { message } from 'antd';
-import {
-    ProductionRecord,
-    createProductionRecord,
-    updateProductionRecord,
-} from '@/apis/productionRecord';
+import { ProModalForm } from '@/components/container';
+import { ProductionRecord } from '@/apis/productionRecord';
 import { getEnabledEnergyUnits } from '@/apis/energyUnit';
+import useCrud from '@/hooks/common/useCrud';
+import { OperationEnum } from '@/enums';
+import dayjs from 'dayjs';
 
 interface ProductionRecordFormProps {
     visible: boolean;
-    record?: ProductionRecord;
-    defaultUnitId?: number | null;
-    defaultDataType?: string;
     onCancel: () => void;
     onSuccess: () => void;
 }
 
 const ProductionRecordForm: React.FC<ProductionRecordFormProps> = ({
     visible,
-    record,
-    defaultUnitId,
-    defaultDataType,
     onCancel,
     onSuccess,
 }) => {
-    const isEdit = !!record?.id;
+    const {
+        form,
+        handleSaveOrUpdate,
+        getState
+    } = useCrud<ProductionRecord>({
+        pathname: '/production/record',
+        entityName: '产量记录',
+        baseUrl: '/api/ems/production-records',
+        onOpenChange: (open) => !open && onCancel()
+    });
 
-    const handleSubmit = async (values: ProductionRecord) => {
-        try {
-            if (isEdit && record?.id) {
-                await updateProductionRecord(record.id, { ...record, ...values });
-                message.success('更新成功');
+    const state = getState('/production/record');
+
+    useEffect(() => {
+        if (visible) {
+            if (state.operation === OperationEnum.EDIT) {
+                form.setFieldsValue({ ...state.editData });
             } else {
-                await createProductionRecord(values);
-                message.success('创建成功');
+                form.resetFields();
+                form.setFieldsValue({
+                    granularity: 'DAY',
+                    ...state.editData
+                });
             }
-            onSuccess();
-            return true;
-        } catch (error) {
-            message.error(isEdit ? '更新失败' : '创建失败');
-            return false;
         }
-    };
+    }, [visible, state.operation, state.editData, form]);
 
     const getLabels = () => {
-        const type = record?.dataType || defaultDataType || '1';
+        const type = state.editData?.dataType || '1';
         switch (type) {
             case '2':
                 return { title: '仪表数据', name: '仪表名称', value: '读数' };
@@ -66,21 +66,32 @@ const ProductionRecordForm: React.FC<ProductionRecordFormProps> = ({
     const labels = getLabels();
 
     return (
-        <ModalForm<ProductionRecord>
-            title={isEdit ? `编辑${labels.title}` : `新建${labels.title}`}
+        <ProModalForm
+            title={state.dialogTitle || (state.operation === OperationEnum.EDIT ? `编辑${labels.title}` : `新建${labels.title}`)}
             open={visible}
+            onOpenChange={(open) => !open && onCancel()}
+            form={form}
+            onFinish={async (values) => {
+                const submitData = {
+                    ...state.editData,
+                    ...values,
+                    recordDate: values.recordDate ? dayjs(values.recordDate).format('YYYY-MM-DD') : undefined
+                };
+                await handleSaveOrUpdate(submitData);
+                onSuccess();
+                return true;
+            }}
+            width={600}
+            layout="horizontal"
+            labelCol={{ span: 6 }}
+            wrapperCol={{ span: 16 }}
             modalProps={{
                 destroyOnHidden: true,
-                onCancel,
+                maskClosable: false,
             }}
-            initialValues={record || {
-                granularity: 'DAY',
-                energyUnitId: defaultUnitId,
-                dataType: defaultDataType || '1'
-            }}
-            onFinish={handleSubmit}
-            width={600}
+            loading={state.loading}
         >
+            <ProFormText name="id" hidden />
             <ProFormText name="dataType" hidden />
             <ProFormSelect
                 name="energyUnitId"
@@ -98,7 +109,9 @@ const ProductionRecordForm: React.FC<ProductionRecordFormProps> = ({
                 name="recordDate"
                 label="记录日期"
                 rules={[{ required: true, message: '请选择记录日期' }]}
-                width="md"
+                fieldProps={{
+                    style: { width: '100%' }
+                }}
             />
             <ProFormText
                 name="productName"
@@ -116,7 +129,7 @@ const ProductionRecordForm: React.FC<ProductionRecordFormProps> = ({
                 label={labels.value}
                 rules={[{ required: true, message: `请输入${labels.value}` }]}
                 min={0}
-                fieldProps={{ precision: 4 }}
+                fieldProps={{ precision: 4, style: { width: '100%' } }}
             />
             <ProFormText
                 name="unit"
@@ -132,6 +145,7 @@ const ProductionRecordForm: React.FC<ProductionRecordFormProps> = ({
                     { label: '日', value: 'DAY' },
                     { label: '月', value: 'MONTH' },
                     { label: '年', value: 'YEAR' },
+                    { label: '自定义', value: 'CUSTOM' },
                 ]}
             />
             <ProFormTextArea
@@ -140,7 +154,7 @@ const ProductionRecordForm: React.FC<ProductionRecordFormProps> = ({
                 placeholder="请输入备注"
                 fieldProps={{ rows: 3 }}
             />
-        </ModalForm>
+        </ProModalForm>
     );
 };
 

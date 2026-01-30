@@ -8,7 +8,6 @@ import {
     BenchmarkType,
     BenchmarkTypeOptions,
     getBenchmarkPage,
-    deleteBenchmark,
 } from '@/apis/benchmark';
 import BenchmarkForm from './components/BenchmarkForm';
 import { EditButton, DeleteButton } from '@/components/button';
@@ -23,6 +22,7 @@ const BenchmarkPage: React.FC = () => {
         actionRef,
         toCreate,
         toEdit,
+        toDelete,
         toBatchDelete,
         setDialogVisible,
     } = useCrud<Benchmark>({
@@ -37,15 +37,6 @@ const BenchmarkPage: React.FC = () => {
         if (editDisabled) return;
         if (!selectedRows || selectedRows.length !== 1) return;
         toEdit(selectedRows[0]);
-    };
-
-    const handleDelete = async (id: number) => {
-        try {
-            await deleteBenchmark(id);
-            actionRef.current?.reload();
-        } catch (error) {
-            console.error(error);
-        }
     };
 
     const handleBatchDelete = async () => {
@@ -76,13 +67,13 @@ const BenchmarkPage: React.FC = () => {
         {
             title: '标杆编码',
             dataIndex: 'code',
-            width: 140,
+            width: 120,
         },
         {
             title: '标杆名称',
             dataIndex: 'name',
             ellipsis: true,
-            width: 200,
+            width: 150,
         },
         {
             title: '标杆类型',
@@ -95,24 +86,23 @@ const BenchmarkPage: React.FC = () => {
             render: (_, record) => getTypeTag(record.type),
         },
         {
-            title: '标杆等级',
-            dataIndex: 'grade',
-            width: 90,
-            hideInSearch: true,
-        },
-        {
             title: '标杆值',
             dataIndex: 'value',
+            width: 120,
+            hideInSearch: true,
+            render: (val, record) => (val ? `${val} ${record.unit || ''}` : '-'),
+        },
+        {
+            title: '等级',
+            dataIndex: 'grade',
             width: 100,
             hideInSearch: true,
-            render: (val, record) => val ? `${val} ${record.unit || ''}` : '-',
         },
         {
             title: '国标编号',
             dataIndex: 'nationalNum',
-            width: 130,
+            width: 150,
             hideInSearch: true,
-            ellipsis: true,
         },
         {
             title: '状态',
@@ -132,7 +122,7 @@ const BenchmarkPage: React.FC = () => {
             render: (_, record) => (
                 <Space>
                     <EditButton onClick={() => toEdit(record)} />
-                    <DeleteButton onClick={() => handleDelete(record.id as number)} />
+                    <DeleteButton onClick={() => toDelete(record.id as number, true)} />
                 </Space>
             ),
         },
@@ -196,13 +186,14 @@ const BenchmarkPage: React.FC = () => {
                     const res = await getBenchmarkPage({
                         current: params.current,
                         pageSize: params.pageSize,
+                        code: params.code,
                         name: params.name,
                         type: params.type,
                     });
                     return {
                         data: res.data?.content || [],
                         success: res.success,
-                        total: res.data?.totalElement || 0,
+                        total: res.data?.totalElements || 0,
                     };
                 }}
                 columns={columns}
@@ -216,8 +207,6 @@ const BenchmarkPage: React.FC = () => {
             <BenchmarkForm
                 visible={state?.dialogVisible || false}
                 onVisibleChange={(v) => setDialogVisible(v)}
-                isEdit={state?.operation === 'edit'}
-                currentRecord={state?.operation === 'edit' ? (state?.editData as Benchmark | undefined) : undefined}
                 onSuccess={() => {
                     setDialogVisible(false);
                     actionRef.current?.reload();

@@ -8,17 +8,17 @@ import {
     ProFormTreeSelect,
 } from '@ant-design/pro-components';
 import { ProModalForm } from '@/components/container';
-import { message } from 'antd';
 import { MeterPoint, saveMeterPoint, assignEnergyUnits } from '@/apis/meterPoint';
 import { getEnabledEnergyTypes } from '@/apis/energyType';
 import { getMeters, Meter } from '@/apis/meter';
 import { getEnabledEnergyUnitTree, EnergyUnit } from '@/apis/energyUnit';
+import useCrud from '@/hooks/common/useCrud';
+import { OperationEnum } from '@/enums';
 
 interface MeterPointFormProps {
     visible: boolean;
     onVisibleChange: (visible: boolean) => void;
     onSuccess: () => void;
-    currentRecord?: MeterPoint;
 }
 
 const pointTypeOptions = [
@@ -48,90 +48,101 @@ const MeterPointForm: React.FC<MeterPointFormProps> = ({
     visible,
     onVisibleChange,
     onSuccess,
-    currentRecord,
 }) => {
-    const isEdit = !!currentRecord;
-    const title = isEdit ? '编辑采集点位' : '新增采集点位';
     const [meterOptions, setMeterOptions] = useState<{ label: string; value: number }[]>([]);
     const [energyTypeOptions, setEnergyTypeOptions] = useState<{ label: string; value: number }[]>([]);
     const [energyUnitTreeData, setEnergyUnitTreeData] = useState<any[]>([]);
 
+    const {
+        form,
+        getState
+    } = useCrud<MeterPoint>({
+        pathname: '/basic-data/meter-point',
+        entityName: '采集点位',
+        baseUrl: '/api/meter-points',
+        onOpenChange: onVisibleChange
+    });
+
+    const state = getState('/basic-data/meter-point');
+
     useEffect(() => {
-        // 加载计量器具选项
-        getMeters({ pageNumber: 0, pageSize: 1000 }).then((res) => {
-            if (res.success && res.data?.content) {
-                setMeterOptions(
-                    res.data.content.map((item: Meter) => ({
-                        label: `${item.name} (${item.code})`,
-                        value: item.id,
-                    }))
-                );
-            }
-        });
+        if (visible) {
+            // 加载计量器具选项
+            getMeters({ pageNumber: 0, pageSize: 1000 }).then((res) => {
+                if (res.success && res.data?.content) {
+                    setMeterOptions(
+                        res.data.content.map((item: Meter) => ({
+                            label: `${item.name} (${item.code})`,
+                            value: item.id,
+                        }))
+                    );
+                }
+            });
 
-        // 加载能源类型选项
-        getEnabledEnergyTypes().then((res) => {
-            if (res.success && res.data) {
-                setEnergyTypeOptions(
-                    res.data.map((item) => ({
-                        label: item.name,
-                        value: item.id,
-                    }))
-                );
-            }
-        });
+            // 加载能源类型选项
+            getEnabledEnergyTypes().then((res) => {
+                if (res.success && res.data) {
+                    setEnergyTypeOptions(
+                        res.data.map((item) => ({
+                            label: item.name,
+                            value: item.id,
+                        }))
+                    );
+                }
+            });
 
-        // 加载用能单元树
-        getEnabledEnergyUnitTree().then((res) => {
-            if (res.success && res.data) {
-                setEnergyUnitTreeData(convertToTreeSelectData(res.data));
+            // 加载用能单元树
+            getEnabledEnergyUnitTree().then((res) => {
+                if (res.success && res.data) {
+                    setEnergyUnitTreeData(convertToTreeSelectData(res.data));
+                }
+            });
+        }
+    }, [visible]);
+
+    useEffect(() => {
+        if (visible) {
+            if (state.operation === OperationEnum.EDIT) {
+                form.setFieldsValue({
+                    ...state.editData,
+                    meterId: state.editData?.meter?.id,
+                    energyTypeId: state.editData?.energyType?.id,
+                    energyUnitIds: state.editData?.energyUnits?.map((u: EnergyUnit) => u.id) || [],
+                });
+            } else {
+                form.resetFields();
+                form.setFieldsValue({ status: 0, sortOrder: 0, pointType: 'COLLECT', category: 'ENERGY', energyUnitIds: [] });
             }
-        });
-    }, []);
+        }
+    }, [visible, state.operation, state.editData, form]);
 
     return (
         <ProModalForm
-            key={currentRecord?.id ?? 'create'}
-            title={title}
+            title={state.dialogTitle}
             open={visible}
             onOpenChange={onVisibleChange}
+            form={form}
             grid={true}
             rowProps={{ gutter: 0 }}
             labelCol={{ span: 6 }}
-            initialValues={
-                isEdit && currentRecord
-                    ? {
-                        ...currentRecord,
-                        meterId: currentRecord.meter?.id,
-                        energyTypeId: currentRecord.energyType?.id,
-                        energyUnitIds: currentRecord.energyUnits?.map((u) => u.id) || [],
-                    }
-                    : { status: 0, sortOrder: 0, pointType: 'COLLECT', category: 'ENERGY', energyUnitIds: [] }
-            }
             onFinish={async (values) => {
                 try {
                     const { energyUnitIds, ...restValues } = values;
                     // 使用数据映射模式：直接提交包含 meterId 和 energyTypeId 的扁平数据
                     const submitData = {
+                        ...state.editData,
                         ...restValues,
-                        // 编辑时保留 id
-                        ...(isEdit && currentRecord ? { id: currentRecord.id } : {}),
                     };
                     const res = await saveMeterPoint(submitData);
 
                     // 保存成功后关联用能单元
-                    if (res.success && res.data?.id && energyUnitIds && energyUnitIds.length > 0) {
+                    if (res.success && res.data?.id && energyUnitIds !== undefined) {
                         await assignEnergyUnits(res.data.id, energyUnitIds);
-                    } else if (res.success && res.data?.id) {
-                        // 清空关联
-                        await assignEnergyUnits(res.data.id, []);
                     }
 
-                    message.success(isEdit ? '更新成功' : '创建成功');
                     onSuccess();
                     return true;
                 } catch (error) {
-                    message.error('操作失败');
                     return false;
                 }
             }}
@@ -139,7 +150,12 @@ const MeterPointForm: React.FC<MeterPointFormProps> = ({
                 destroyOnHidden: true,
                 width: 800,
             }}
+            loading={state.loading}
         >
+            <ProFormText
+                name="id"
+                hidden
+            />
             <ProFormText
                 name="code"
                 label="点位编码"

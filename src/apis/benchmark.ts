@@ -39,6 +39,7 @@ export const BenchmarkTypeOptions = [
 export interface BenchmarkPageParams {
     current?: number;
     pageSize?: number;
+    code?: string;
     name?: string;
     type?: BenchmarkType;
     status?: number;
@@ -53,6 +54,7 @@ export async function getBenchmarkPage(params: BenchmarkPageParams) {
         params: {
             pageNumber: (params.current || 1) - 1,
             pageSize: params.pageSize || 10,
+            code: params.code,
             name: params.name,
             type: params.type,
             status: params.status,

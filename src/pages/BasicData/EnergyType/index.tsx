@@ -289,7 +289,6 @@ const Index: React.FC = () => {
 
             <EnergyTypeForm
                 visible={state?.dialogVisible || false}
-                record={state?.operation === 'edit' ? (state?.editData as EnergyType | undefined) : undefined}
                 onCancel={() => setDialogVisible(false)}
                 onSuccess={handleFormSuccess}
             />

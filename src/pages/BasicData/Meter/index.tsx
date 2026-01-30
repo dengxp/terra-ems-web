@@ -247,7 +247,6 @@ const Index: React.FC = () => {
 
             <MeterForm
                 visible={state?.dialogVisible || false}
-                record={state?.operation === 'edit' ? (state?.editData as Meter | undefined) : undefined}
                 onCancel={() => setDialogVisible(false)}
                 onSuccess={handleFormSuccess}
             />

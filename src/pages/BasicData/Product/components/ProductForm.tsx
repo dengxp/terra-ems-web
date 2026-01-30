@@ -1,36 +1,51 @@
-import { TextAreaProps } from 'antd/es/input';
 import { Product, ProductType } from '@/apis/product';
 import { ProModalForm } from "@/components/container";
 import useCrud from "@/hooks/common/useCrud";
 import { ProFormDigit, ProFormSelect, ProFormText, ProFormTextArea, ProFormRadio } from "@ant-design/pro-components";
-import React from "react";
-
-// ... (existing code)
+import React, { useEffect } from "react";
+import { OperationEnum } from '@/enums';
 
 interface ProductFormProps {
     visible: boolean;
     onOpenChange: (visible: boolean) => void;
     onSuccess: () => void;
-    record?: Product;
 }
 
-const ProductForm: React.FC<ProductFormProps> = ({
-    visible,
-    onOpenChange,
-    onSuccess,
-    record,
-}) => {
-    const { handleSaveOrUpdate } = useCrud<Product>({
+const ProductForm: React.FC<ProductFormProps> = (props) => {
+    const { visible, onOpenChange, onSuccess } = props;
+    const {
+        form,
+        handleSaveOrUpdate,
+        getState
+    } = useCrud<Product>({
         pathname: '/basic-data/product',
+        entityName: '产品',
         baseUrl: '/api/products',
+        onOpenChange: onOpenChange
     });
+
+    const state = getState('/basic-data/product');
+
+    useEffect(() => {
+        if (visible) {
+            if (state.operation === OperationEnum.EDIT) {
+                form.setFieldsValue({
+                    ...state.editData,
+                    productType: (state.editData as any)?.type
+                });
+            } else {
+                form.resetFields();
+                form.setFieldsValue({ status: 0, sortOrder: 0 });
+            }
+        }
+    }, [visible, state.operation, state.editData, form]);
 
     return (
         <ProModalForm
-            title={record?.id ? '编辑产品' : '新增产品'}
+            title={state.dialogTitle}
             open={visible}
             onOpenChange={onOpenChange}
-            initialValues={{ status: 0, sortOrder: 0, productType: record?.type, ...record }}
+            form={form}
             onFinish={async (values) => {
                 const { productType, ...rest } = values;
                 await handleSaveOrUpdate({ ...rest, type: productType });
@@ -104,7 +119,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                 name="remark"
                 label="备注"
                 placeholder="请输入备注"
-                fieldProps={{ autoSize: { minRows: 3, maxRows: 6 } } as TextAreaProps}
+                fieldProps={{ autoSize: { minRows: 3, maxRows: 6 } }}
             />
         </ProModalForm>
     );

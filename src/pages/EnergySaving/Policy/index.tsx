@@ -1,21 +1,18 @@
 import React, { useState, useMemo } from 'react';
 import { ProPageContainer } from '@/components/container';
 import { ProTable, ProColumns } from '@ant-design/pro-components';
-import { Button, Space, Tag, Typography } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined, LinkOutlined } from '@ant-design/icons';
+import { Button, Space, Tag } from 'antd';
+import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import {
     Policy,
     PolicyType,
     PolicyTypeOptions,
     getPolicyPage,
-    deletePolicy,
 } from '@/apis/policy';
 import PolicyForm from './components/PolicyForm';
 import { EditButton, DeleteButton } from '@/components/button';
 import useCrud from '@/hooks/common/useCrud';
 import dayjs from 'dayjs';
-
-const { Link } = Typography;
 
 const PolicyPage: React.FC = () => {
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
@@ -26,6 +23,7 @@ const PolicyPage: React.FC = () => {
         actionRef,
         toCreate,
         toEdit,
+        toDelete,
         toBatchDelete,
         setDialogVisible,
     } = useCrud<Policy>({
@@ -40,15 +38,6 @@ const PolicyPage: React.FC = () => {
         if (editDisabled) return;
         if (!selectedRows || selectedRows.length !== 1) return;
         toEdit(selectedRows[0]);
-    };
-
-    const handleDelete = async (id: number) => {
-        try {
-            await deletePolicy(id);
-            actionRef.current?.reload();
-        } catch (error) {
-            console.error(error);
-        }
     };
 
     const handleBatchDelete = async () => {
@@ -80,7 +69,7 @@ const PolicyPage: React.FC = () => {
             title: '政策标题',
             dataIndex: 'title',
             ellipsis: true,
-            width: 280,
+            width: 200,
         },
         {
             title: '政策类型',
@@ -95,30 +84,15 @@ const PolicyPage: React.FC = () => {
         {
             title: '印发部门',
             dataIndex: 'department',
-            width: 160,
+            width: 120,
             hideInSearch: true,
-            ellipsis: true,
         },
         {
             title: '印发时间',
             dataIndex: 'issuingDate',
-            width: 110,
+            width: 120,
             hideInSearch: true,
             render: (val) => (val ? dayjs(val as string).format('YYYY-MM-DD') : '-'),
-        },
-        {
-            title: '文件链接',
-            dataIndex: 'fileUrl',
-            width: 80,
-            hideInSearch: true,
-            render: (val) =>
-                val ? (
-                    <Link href={val as string} target="_blank">
-                        <LinkOutlined /> 查看
-                    </Link>
-                ) : (
-                    '-'
-                ),
         },
         {
             title: '状态',
@@ -138,7 +112,7 @@ const PolicyPage: React.FC = () => {
             render: (_, record) => (
                 <Space>
                     <EditButton onClick={() => toEdit(record)} />
-                    <DeleteButton onClick={() => handleDelete(record.id as number)} />
+                    <DeleteButton onClick={() => toDelete(record.id as number, true)} />
                 </Space>
             ),
         },
@@ -208,7 +182,7 @@ const PolicyPage: React.FC = () => {
                     return {
                         data: res.data?.content || [],
                         success: res.success,
-                        total: res.data?.totalElement || 0,
+                        total: res.data?.totalElements || 0,
                     };
                 }}
                 columns={columns}
@@ -222,8 +196,6 @@ const PolicyPage: React.FC = () => {
             <PolicyForm
                 visible={state?.dialogVisible || false}
                 onVisibleChange={(v) => setDialogVisible(v)}
-                isEdit={!!state?.editData}
-                currentRecord={state?.operation === 'edit' ? (state?.editData as Policy | undefined) : undefined}
                 onSuccess={() => {
                     setDialogVisible(false);
                     actionRef.current?.reload();

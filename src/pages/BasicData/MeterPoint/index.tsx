@@ -266,7 +266,6 @@ const MeterPointPage: React.FC = () => {
                 visible={state?.dialogVisible || false}
                 onVisibleChange={(v) => setDialogVisible(v)}
                 onSuccess={handleFormSuccess}
-                currentRecord={state?.operation === 'edit' ? (state?.editData as MeterPoint | undefined) : undefined}
             />
         </>
     );

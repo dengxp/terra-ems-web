@@ -1,80 +1,76 @@
 import React, { useEffect } from 'react';
 import {
-    ModalForm,
     ProFormText,
     ProFormSelect,
     ProFormTextArea,
     ProFormDigit,
 } from '@ant-design/pro-components';
-import { Form, message } from 'antd';
+import { ProModalForm } from '@/components/container';
 import {
     Benchmark,
     BenchmarkTypeOptions,
-    createBenchmark,
-    updateBenchmark,
 } from '@/apis/benchmark';
+import useCrud from '@/hooks/common/useCrud';
+import { OperationEnum } from '@/enums';
 
 interface BenchmarkFormProps {
     visible: boolean;
     onVisibleChange: (visible: boolean) => void;
-    isEdit: boolean;
-    currentRecord?: Benchmark;
     onSuccess: () => void;
 }
 
-const BenchmarkForm: React.FC<BenchmarkFormProps> = (props) => {
-    const { visible, onVisibleChange, isEdit, currentRecord, onSuccess } = props;
-    const [form] = Form.useForm();
+const BenchmarkForm: React.FC<BenchmarkFormProps> = ({ visible, onVisibleChange, onSuccess }) => {
+    const {
+        form,
+        handleSaveOrUpdate,
+        getState
+    } = useCrud<Benchmark>({
+        pathname: '/energy-saving/benchmark',
+        entityName: '对标值',
+        baseUrl: '/api/benchmarks',
+        onOpenChange: onVisibleChange
+    });
+
+    const state = getState('/energy-saving/benchmark');
 
     useEffect(() => {
         if (visible) {
-            if (isEdit && currentRecord) {
-                form.setFieldsValue(currentRecord);
+            if (state.operation === OperationEnum.EDIT) {
+                form.setFieldsValue(state.editData);
             } else {
                 form.resetFields();
                 form.setFieldsValue({ type: 'NATIONAL', status: 0 });
             }
         }
-    }, [visible, isEdit, currentRecord, form]);
-
-    const handleSubmit = async (values: any) => {
-        try {
-            if (isEdit && currentRecord) {
-                await updateBenchmark(currentRecord.id, { ...currentRecord, ...values });
-                message.success('更新成功');
-            } else {
-                await createBenchmark(values);
-                message.success('创建成功');
-            }
-            onSuccess();
-            return true;
-        } catch (error) {
-            console.error(error);
-            return false;
-        }
-    };
+    }, [visible, state.operation, state.editData, form]);
 
     return (
-        <ModalForm
-            title={isEdit ? '编辑对标值' : '新增对标值'}
+        <ProModalForm
+            title={state?.dialogTitle}
             open={visible}
             onOpenChange={onVisibleChange}
             form={form}
-            onFinish={handleSubmit}
+            onFinish={async (values) => {
+                await handleSaveOrUpdate(values);
+                onSuccess();
+                return true;
+            }}
             layout="horizontal"
             labelCol={{ span: 5 }}
             wrapperCol={{ span: 19 }}
             modalProps={{
                 destroyOnHidden: true,
                 maskClosable: false,
-                width: 560,
             }}
+            width={560}
+            loading={state.loading}
         >
+            <ProFormText name="id" hidden />
             <ProFormText
                 name="code"
                 label="标杆编码"
                 placeholder="请输入标杆编码"
-                disabled={isEdit}
+                disabled={state.operation === OperationEnum.EDIT}
                 rules={[{ required: true, message: '请输入标杆编码' }]}
             />
             <ProFormText
@@ -126,7 +122,7 @@ const BenchmarkForm: React.FC<BenchmarkFormProps> = (props) => {
                 placeholder="备注信息"
                 fieldProps={{ rows: 2 }}
             />
-        </ModalForm>
+        </ProModalForm>
     );
 };
 

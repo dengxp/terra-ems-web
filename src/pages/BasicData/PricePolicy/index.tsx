@@ -271,9 +271,8 @@ const PricePolicyPage: React.FC = () => {
 
             <PricePolicyForm
                 visible={state?.dialogVisible || false}
-                onVisibleChange={(v) => setDialogVisible(v)}
+                onVisibleChange={setDialogVisible}
                 onSuccess={handleFormSuccess}
-                currentRecord={state?.operation === 'edit' ? (state?.editData as PricePolicy | undefined) : undefined}
             />
         </>
     );

@@ -1,75 +1,71 @@
 import React, { useEffect } from 'react';
 import {
-    ModalForm,
     ProFormText,
     ProFormSelect,
     ProFormTextArea,
     ProFormDatePicker,
 } from '@ant-design/pro-components';
-import { Form, message } from 'antd';
+import { ProModalForm } from '@/components/container';
 import {
     Policy,
     PolicyTypeOptions,
-    createPolicy,
-    updatePolicy,
 } from '@/apis/policy';
+import useCrud from '@/hooks/common/useCrud';
+import { OperationEnum } from '@/enums';
 
 interface PolicyFormProps {
     visible: boolean;
     onVisibleChange: (visible: boolean) => void;
-    isEdit: boolean;
-    currentRecord?: Policy;
     onSuccess: () => void;
 }
 
-const PolicyForm: React.FC<PolicyFormProps> = (props) => {
-    const { visible, onVisibleChange, isEdit, currentRecord, onSuccess } = props;
-    const [form] = Form.useForm();
+const PolicyForm: React.FC<PolicyFormProps> = ({ visible, onVisibleChange, onSuccess }) => {
+    const {
+        form,
+        handleSaveOrUpdate,
+        getState
+    } = useCrud<Policy>({
+        pathname: '/energy-saving/policy',
+        entityName: '政策法规',
+        baseUrl: '/api/policies',
+        onOpenChange: onVisibleChange
+    });
+
+    const state = getState('/energy-saving/policy');
 
     useEffect(() => {
         if (visible) {
-            if (isEdit && currentRecord) {
-                form.setFieldsValue(currentRecord);
+            if (state.operation === OperationEnum.EDIT) {
+                form.setFieldsValue(state.editData);
             } else {
                 form.resetFields();
                 form.setFieldsValue({ type: 'NATIONAL', status: 0 });
             }
         }
-    }, [visible, isEdit, currentRecord, form]);
-
-    const handleSubmit = async (values: any) => {
-        try {
-            if (isEdit && currentRecord) {
-                await updatePolicy(currentRecord.id, { ...currentRecord, ...values });
-                message.success('更新成功');
-            } else {
-                await createPolicy(values);
-                message.success('创建成功');
-            }
-            onSuccess();
-            return true;
-        } catch (error) {
-            console.error(error);
-            return false;
-        }
-    };
+    }, [visible, state.operation, state.editData, form]);
 
     return (
-        <ModalForm
-            title={isEdit ? '编辑政策法规' : '新增政策法规'}
+        <ProModalForm
+            title={state?.dialogTitle}
             open={visible}
             onOpenChange={onVisibleChange}
             form={form}
-            onFinish={handleSubmit}
+            onFinish={async (values) => {
+                await handleSaveOrUpdate(values);
+                onSuccess();
+                return true;
+            }}
             layout="horizontal"
             labelCol={{ span: 5 }}
             wrapperCol={{ span: 19 }}
             modalProps={{
                 destroyOnHidden: true,
                 maskClosable: false,
-                width: 640,
             }}
+            width={640}
+            loading={state.loading}
         >
+            <ProFormText name="id" hidden />
             <ProFormText
                 name="title"
                 label="政策标题"
@@ -117,7 +113,7 @@ const PolicyForm: React.FC<PolicyFormProps> = (props) => {
                 placeholder="备注信息"
                 fieldProps={{ rows: 2 }}
             />
-        </ModalForm>
+        </ProModalForm>
     );
 };
 

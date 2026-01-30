@@ -6,10 +6,8 @@ import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import {
     CostPolicyBinding,
     getCostPolicyBindingPage,
-    deleteCostPolicyBinding,
 } from '@/apis/costPolicyBinding';
 import { getEnabledEnergyUnits, EnergyUnit } from '@/apis/energyUnit';
-import { getEnabledPricePolicies, PricePolicy } from '@/apis/pricePolicy';
 import BindingForm from './components/BindingForm';
 import { EditButton, DeleteButton } from '@/components/button';
 import useCrud from '@/hooks/common/useCrud';
@@ -19,13 +17,13 @@ const PolicyBindingPage: React.FC = () => {
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     const [selectedRows, setSelectedRows] = useState<CostPolicyBinding[]>([]);
     const [energyUnits, setEnergyUnits] = useState<EnergyUnit[]>([]);
-    const [pricePolicies, setPricePolicies] = useState<PricePolicy[]>([]);
 
     const {
         getState,
         actionRef,
         toCreate,
         toEdit,
+        toDelete,
         toBatchDelete,
         setDialogVisible,
     } = useCrud<CostPolicyBinding>({
@@ -42,12 +40,8 @@ const PolicyBindingPage: React.FC = () => {
 
     const loadOptions = async () => {
         try {
-            const [unitRes, policyRes] = await Promise.all([
-                getEnabledEnergyUnits(),
-                getEnabledPricePolicies(),
-            ]);
+            const unitRes = await getEnabledEnergyUnits();
             setEnergyUnits(unitRes.data || []);
-            setPricePolicies(policyRes.data || []);
         } catch (error) {
             console.error(error);
         }
@@ -56,15 +50,6 @@ const PolicyBindingPage: React.FC = () => {
     const toEditSelected = () => {
         if (editDisabled) return;
         toEdit(selectedRows[0]);
-    };
-
-    const handleDelete = async (id: number) => {
-        try {
-            await deleteCostPolicyBinding(id);
-            actionRef.current?.reload();
-        } catch (error) {
-            console.error(error);
-        }
     };
 
     const handleBatchDelete = async () => {
@@ -138,7 +123,7 @@ const PolicyBindingPage: React.FC = () => {
             render: (_, record) => (
                 <Space>
                     <EditButton onClick={() => toEdit(record)} />
-                    <DeleteButton onClick={() => handleDelete(record.id)} />
+                    <DeleteButton onClick={() => toDelete(record.id, true)} />
                 </Space>
             ),
         },
@@ -187,7 +172,7 @@ const PolicyBindingPage: React.FC = () => {
                     return {
                         data: res.data?.content || [],
                         success: res.success,
-                        total: res.data?.totalElement || 0,
+                        total: res.data?.totalElements || 0,
                     };
                 }}
                 columns={columns}
@@ -201,10 +186,6 @@ const PolicyBindingPage: React.FC = () => {
             <BindingForm
                 visible={state?.dialogVisible || false}
                 onVisibleChange={(v) => setDialogVisible(v)}
-                isEdit={!!state?.editData}
-                currentRecord={state?.operation === 'edit' ? (state?.editData as CostPolicyBinding | undefined) : undefined}
-                energyUnits={energyUnits}
-                pricePolicies={pricePolicies}
                 onSuccess={() => {
                     setDialogVisible(false);
                     actionRef.current?.reload();

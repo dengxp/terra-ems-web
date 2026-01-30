@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { ModalForm, ProFormText, ProFormSelect, ProFormDatePicker, ProFormDigit, ProFormTextArea } from '@ant-design/pro-components';
-import { message } from 'antd';
-import { Meter, createMeter, updateMeter } from '@/apis/meter';
+import { ProFormText, ProFormSelect, ProFormDatePicker, ProFormDigit, ProFormTextArea } from '@ant-design/pro-components';
+import { ProModalForm } from "@/components/container";
+import { Meter } from '@/apis/meter';
 import { EnergyType, getEnabledEnergyTypes } from '@/apis/energyType';
+import useCrud from '@/hooks/common/useCrud';
+import { OperationEnum } from '@/enums';
 
 interface MeterFormProps {
     visible: boolean;
-    record?: Meter;
     onCancel: () => void;
     onSuccess: () => void;
 }
@@ -14,9 +15,23 @@ interface MeterFormProps {
 /**
  * 计量器具表单弹窗
  */
-const MeterForm: React.FC<MeterFormProps> = ({ visible, record, onCancel, onSuccess }) => {
+const MeterForm: React.FC<MeterFormProps> = ({ visible, onCancel, onSuccess }) => {
     const [energyTypes, setEnergyTypes] = useState<EnergyType[]>([]);
-    const [loading, setLoading] = useState(false);
+
+    const {
+        form,
+        handleSaveOrUpdate,
+        getState
+    } = useCrud<Meter>({
+        pathname: '/basic-data/meter',
+        entityName: '计量器具',
+        baseUrl: '/api/meters',
+        onOpenChange: (open) => {
+            if (!open) onCancel();
+        }
+    });
+
+    const state = getState('/basic-data/meter');
 
     // 获取启用的能源类型
     useEffect(() => {
@@ -29,49 +44,44 @@ const MeterForm: React.FC<MeterFormProps> = ({ visible, record, onCancel, onSucc
         }
     }, [visible]);
 
-    const isEdit = !!record;
+    useEffect(() => {
+        if (visible) {
+            if (state.operation === OperationEnum.EDIT) {
+                form.setFieldsValue({
+                    ...state.editData,
+                    energyTypeId: state.editData?.energyType?.id
+                });
+            } else {
+                form.resetFields();
+                form.setFieldsValue({
+                    status: 0,
+                    checkCycle: 365,
+                    reminderCycle: 30
+                });
+            }
+        }
+    }, [visible, state.operation, state.editData, form]);
 
     return (
-        <ModalForm
-            title={isEdit ? '编辑计量器具' : '新建计量器具'}
+        <ProModalForm
+            title={state.dialogTitle}
             open={visible}
             onOpenChange={(open) => {
                 if (!open) onCancel();
             }}
-            initialValues={record ? {
-                ...record,
-                energyTypeId: record.energyType?.id
-            } : {
-                status: 0,
-                checkCycle: 365,
-                reminderCycle: 30
-            }}
+            form={form}
             onFinish={async (values) => {
-                setLoading(true);
-                try {
-                    // 构造传给后端的对象，后端实体要求 EnergyType 对象
-                    const submitData = {
-                        ...record, // 重点：合并旧数据
-                        ...values,
-                        energyType: { id: values.energyTypeId }
-                    };
-                    delete (submitData as any).energyTypeId;
+                // 构造传给后端的对象，后端实体要求 EnergyType 对象
+                const submitData = {
+                    ...state.editData,
+                    ...values,
+                    energyType: { id: values.energyTypeId }
+                };
+                delete (submitData as any).energyTypeId;
 
-                    if (isEdit) {
-                        await updateMeter(record.id, submitData);
-                        message.success('更新成功');
-                    } else {
-                        await createMeter(submitData);
-                        message.success('创建成功');
-                    }
-                    onSuccess();
-                    return true;
-                } catch (error: any) {
-                    message.error(error.message || (isEdit ? '更新失败' : '创建失败'));
-                    return false;
-                } finally {
-                    setLoading(false);
-                }
+                await handleSaveOrUpdate(submitData);
+                onSuccess();
+                return true;
             }}
             modalProps={{
                 destroyOnHidden: true,
@@ -86,18 +96,18 @@ const MeterForm: React.FC<MeterFormProps> = ({ visible, record, onCancel, onSucc
             rowProps={{
                 gutter: [16, 0]
             }}
-            submitter={{
-                submitButtonProps: {
-                    loading
-                }
-            }}
+            loading={state.loading}
         >
+            <ProFormText
+                name="id"
+                hidden
+            />
             <ProFormText
                 name="code"
                 label="器具编码"
                 placeholder="请输入器具编码"
                 rules={[{ required: true, message: '请输入器具编码' }]}
-                disabled={isEdit}
+                disabled={state.operation === OperationEnum.EDIT}
             />
             <ProFormText
                 name="name"
@@ -187,7 +197,7 @@ const MeterForm: React.FC<MeterFormProps> = ({ visible, record, onCancel, onSucc
                 labelCol={{ span: 3 }}
                 wrapperCol={{ span: 21 }}
             />
-        </ModalForm>
+        </ProModalForm>
     );
 };
 
