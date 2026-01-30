@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { ProPageContainer } from '@/components/container';
 import { Button, Space } from 'antd';
-import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
+import { DeleteFilled, EditFilled, PlusOutlined } from '@ant-design/icons';
 import { ProColumns, ProTable } from '@ant-design/pro-components';
 import useCrud from '@/hooks/common/useCrud';
 import { DeleteButton, EditButton } from '@/components/button';
@@ -79,18 +79,17 @@ const ProductPage: React.FC = () => {
             title: 'ID',
             dataIndex: 'id',
             hideInSearch: true,
-            width: 80,
+            width: 60,
         },
         {
             title: '产品编码',
             dataIndex: 'code',
             copyable: true,
-            width: 120,
+            width: 160,
         },
         {
             title: '产品名称',
             dataIndex: 'name',
-            copyable: true,
             width: 150,
         },
         {
@@ -104,6 +103,11 @@ const ProductPage: React.FC = () => {
             dataIndex: 'type',
             hideInSearch: true,
             width: 120,
+            valueEnum: {
+                '1': { text: '成品' },
+                '2': { text: '半成品' },
+                '3': { text: '原材料' },
+            },
         },
         {
             title: '状态',
@@ -164,30 +168,25 @@ const ProductPage: React.FC = () => {
                         title: (
                             <Space>
                                 <Button
-                                    color={'primary'}
                                     icon={<PlusOutlined />}
-                                    variant={'outlined'}
+                                    type="primary"
                                     size={'small'}
                                     onClick={toCreate}
                                 >
                                     新建
                                 </Button>
                                 <Button
-                                    color={'green'}
-                                    icon={<EditOutlined />}
+                                    icon={<EditFilled />}
                                     disabled={editDisabled}
                                     size={'small'}
-                                    variant={'outlined'}
                                     onClick={toEditSelected}
                                 >
                                     修改
                                 </Button>
                                 <Button
-                                    color={'danger'}
-                                    icon={<DeleteOutlined />}
+                                    icon={<DeleteFilled />}
                                     disabled={deleteDisabled}
                                     size={'small'}
-                                    variant={'outlined'}
                                     onClick={handleBatchDelete}
                                 >
                                     删除

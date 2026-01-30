@@ -1,20 +1,23 @@
-import React from 'react';
-import {Tooltip, Button} from 'antd';
+import React, { forwardRef } from 'react';
+import { Tooltip, Button } from 'antd';
 
-const IconButton = (props: any) => {
+const IconButton = forwardRef((props: any, ref: any) => {
 
-    const {variant, color, tooltip, icon, size, ...rest} = props;
+    const { variant, color, tooltip, icon, size, ...rest } = props;
 
     return (
         <Tooltip title={tooltip ? tooltip : '配置'}>
-            <Button variant={variant || 'text'}
+            <span ref={ref} className="inline-block">
+                <Button variant={variant || 'text'}
                     color={color || 'default'}
+                    shape="circle"
                     size={size || 'small'}
                     icon={icon}
                     {...rest}
-            />
+                />
+            </span>
         </Tooltip>
     );
-};
+});
 
 export default IconButton;
