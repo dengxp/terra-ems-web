@@ -1,6 +1,6 @@
-import React from 'react';
-import {Tooltip} from "antd";
-import {CheckCircleFilled, CloseCircleFilled} from "@ant-design/icons";
+import React, { forwardRef } from 'react';
+import { Tooltip } from "antd";
+import { CheckCircleFilled, CloseCircleFilled } from "@ant-design/icons";
 
 type Props = {
   value: boolean;
@@ -8,10 +8,14 @@ type Props = {
   falseText?: string;
 }
 
-const BoolIcon = ({value, trueText, falseText}: Props) => {
-  return value
-    ? <Tooltip title={trueText ? trueText : '是'}><CheckCircleFilled style={{color: 'green'}}/></Tooltip>
-    : <Tooltip title={falseText ? falseText : '否'}><CloseCircleFilled style={{color: '#8c8c8c'}} /></Tooltip>
-}
+const BoolIcon = forwardRef<HTMLSpanElement, Props>(({ value, trueText, falseText }, ref) => {
+  return (
+    <Tooltip title={trueText ? trueText : '是'}>
+      <span ref={ref}>
+        {value ? <CheckCircleFilled style={{ color: 'green' }} /> : <CloseCircleFilled style={{ color: '#8c8c8c' }} />}
+      </span>
+    </Tooltip>
+  );
+});
 
 export default BoolIcon;

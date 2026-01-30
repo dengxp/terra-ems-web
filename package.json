@@ -46,7 +46,7 @@
     "not ie <= 10"
   ],
   "dependencies": {
-    "@ant-design/icons": "^4.8.1",
+    "@ant-design/icons": "^6.1.0",
     "@ant-design/plots": "^2.6.8",
     "@ant-design/pro-components": "^2.8.10",
     "@umijs/route-utils": "^2.2.2",

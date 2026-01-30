@@ -57,6 +57,7 @@ export default {
   'menu.production': '生产管理',
   'menu.production.record': '产品产量管理',
   'menu.knowledge': '知识库',
+  'menu.basic-data.product': '产品管理',
   'menu.statistics.process-energy': '工序能耗分析',
   'menu.statistics.unit-consumption': '单耗分析'
 };

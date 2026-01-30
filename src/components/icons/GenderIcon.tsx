@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { forwardRef, useMemo } from 'react';
 
 import Icon, { ManOutlined, WomanOutlined } from "@ant-design/icons";
 import { Tooltip } from "antd";
@@ -9,7 +9,7 @@ type Props = {
   value?: number;
 }
 
-const GenderIcon = ({ value }: Props) => {
+const GenderIcon = forwardRef<HTMLSpanElement, Props>(({ value }, ref) => {
 
   const { mapMaps } = useModel('constantModel');
   const map = useMemo(() => {
@@ -30,8 +30,10 @@ const GenderIcon = ({ value }: Props) => {
   }
 
   return (
-    <Tooltip title={value != undefined && map[value] ? map[value] : '未知'}>{icon}</Tooltip>
+    <Tooltip title={value != undefined && map[value] ? map[value] : '未知'}>
+      <span ref={ref}>{icon}</span>
+    </Tooltip>
   );
-}
+});
 
 export default GenderIcon;

@@ -1,14 +1,14 @@
-import React, {useEffect, useMemo} from 'react';
-import {CheckCircleFilled, CloseCircleFilled, ExclamationCircleFilled, LockFilled} from "@ant-design/icons";
-import {Tooltip} from "antd";
-import {useModel} from "@umijs/max";
-import {DataItemStatus} from "@/enums";
+import React, { forwardRef, useMemo } from 'react';
+import { CheckCircleFilled, CloseCircleFilled, ExclamationCircleFilled, LockFilled } from "@ant-design/icons";
+import { Tooltip } from "antd";
+import { useModel } from "@umijs/max";
+import { DataItemStatus } from "@/enums";
 
 type Props = {
   value?: number;
 }
-const StatusIcon = ({value}: Props) => {
-  const {optionMap} = useModel('constantModel');
+const StatusIcon = forwardRef<HTMLSpanElement, Props>(({ value }, ref) => {
+  const { optionMap } = useModel('constantModel');
   const map = useMemo(() => {
     return optionMap.status;
   }, [optionMap]);
@@ -33,7 +33,9 @@ const StatusIcon = ({value}: Props) => {
   }
 
   return (
-    <Tooltip title={value != undefined && map[value] ? map[value].label : '未知'}>{icon}</Tooltip>
+    <Tooltip title={value != undefined && map[value] ? map[value].label : '未知'}>
+      <span ref={ref}>{icon}</span>
+    </Tooltip>
   )
-}
+});
 export default StatusIcon;

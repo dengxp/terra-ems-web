@@ -231,8 +231,8 @@ const PricePolicyForm: React.FC<PricePolicyFormProps> = ({
             title={state?.dialogTitle}
             open={visible}
             onClose={handleCancel}
-            width={800}
-            destroyOnClose
+            size="large"
+            destroyOnHidden
             footer={
                 <div style={{ textAlign: 'right', paddingTop: 8 }}>
                     <Space>
