@@ -12,7 +12,7 @@ export const wrapperResult = <T>(result: API.Result<API.PageResult<T>>) => {
   return {
     data: data?.content || [],
     success: result.status ? (result.status >= 200 && result.status < 300) : true,
-    total: data?.totalElement ?? data?.totalElements ?? 0
+    total: data?.totalElements ?? 0
   }
 }
 

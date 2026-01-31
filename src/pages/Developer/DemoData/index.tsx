@@ -3,6 +3,7 @@ import { Card, Button, Form, TreeSelect, message, Typography, Space, Alert, Divi
 import { PageContainer } from '@ant-design/pro-components';
 import { getEnabledEnergyUnitTree, EnergyUnit } from '@/apis/energyUnit';
 import { generateRankingData } from '@/apis/demo';
+import { getToken } from '@/utils/auth';
 import { RocketOutlined, DatabaseOutlined } from '@ant-design/icons';
 
 const { Title, Paragraph, Text } = Typography;
@@ -14,6 +15,7 @@ const DemoDataPage: React.FC = () => {
     const [form] = Form.useForm();
 
     const fetchTree = async () => {
+        if (!getToken()) return;
         setFetching(true);
         try {
             const res = await getEnabledEnergyUnitTree();

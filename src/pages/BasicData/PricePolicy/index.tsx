@@ -8,6 +8,7 @@ import PricePolicyForm from './components/PricePolicyForm';
 import StatusIcon from '@/components/icons/StatusIcon';
 import { EditButton, DeleteButton } from '@/components/button';
 import useCrud from '@/hooks/common/useCrud';
+import { wrapperResult } from '@/utils';
 
 /**
  * 电价策略管理页面
@@ -206,7 +207,7 @@ const PricePolicyPage: React.FC = () => {
                         },
                     }}
                     form={{ span: 6 }}
-                    cardProps={{ bordered: false }}
+                    cardProps={{ variant: 'borderless' } as any}
                     search={{
                         defaultCollapsed: true,
                         span: 6,
@@ -253,11 +254,7 @@ const PricePolicyPage: React.FC = () => {
                             pageSize: pageSize,
                             ...rest,
                         });
-                        return {
-                            data: res.data?.content || [],
-                            total: res.data?.totalElement || 0,
-                            success: res.success,
-                        };
+                        return wrapperResult(res);
                     }}
                     scroll={{ x: 1200 }}
                     pagination={{

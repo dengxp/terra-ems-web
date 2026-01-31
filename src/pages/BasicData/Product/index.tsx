@@ -213,7 +213,7 @@ const ProductPage: React.FC = () => {
                         },
                     }}
                     form={{ span: 6 }}
-                    cardProps={{ bordered: false }}
+                    cardProps={{ variant: 'borderless' } as any}
                     pagination={{
                         showSizeChanger: true,
                         showQuickJumper: true,

@@ -12,6 +12,7 @@ import {
 import ProductionRecordForm from './components/ProductionRecordForm';
 import dayjs from 'dayjs';
 import EnergyUnitTree from '@/components/EnergyUnitTree';
+import { wrapperResult } from '@/utils';
 
 const { RangePicker } = DatePicker;
 
@@ -100,8 +101,14 @@ const Index: React.FC = () => {
             title: '记录日期',
             dataIndex: 'recordDate',
             key: 'recordDate',
-            width: 120,
+            width: 160,
             hideInSearch: true,
+            render: (_, record) => {
+                if (record.granularity === 'HOUR') {
+                    return dayjs(record.recordDate).format('YYYY-MM-DD HH:mm');
+                }
+                return record.recordDate ? dayjs(record.recordDate).format('YYYY-MM-DD') : '-';
+            },
         },
         {
             title: () => {
@@ -193,7 +200,7 @@ const Index: React.FC = () => {
                                 },
                             }}
                             form={{ span: 12 }}
-                            cardProps={{ bordered: false }}
+                            cardProps={{ variant: 'borderless' } as any}
                             search={{
                                 collapseRender: false,
                                 defaultCollapsed: false,
@@ -269,11 +276,7 @@ const Index: React.FC = () => {
                                     pageNumber: (current || 1) - 1,
                                     pageSize: pageSize,
                                 });
-                                return {
-                                    data: res.data?.content || [],
-                                    total: res.data?.totalElements || 0,
-                                    success: res.success,
-                                };
+                                return wrapperResult(res);
                             }}
                             pagination={{
                                 showSizeChanger: true,

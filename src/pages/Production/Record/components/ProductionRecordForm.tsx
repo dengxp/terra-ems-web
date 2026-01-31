@@ -3,7 +3,10 @@ import {
     ProFormText,
     ProFormDigit,
     ProFormDatePicker,
+    ProFormDateTimePicker,
     ProFormSelect,
+    ProFormRadio,
+    ProFormDependency,
     ProFormTextArea,
 } from '@ant-design/pro-components';
 import { ProModalForm } from '@/components/container';
@@ -67,7 +70,7 @@ const ProductionRecordForm: React.FC<ProductionRecordFormProps> = ({
 
     return (
         <ProModalForm
-            title={state.dialogTitle || (state.operation === OperationEnum.EDIT ? `编辑${labels.title}` : `新建${labels.title}`)}
+            title={state.dialogTitle || (state.operation === OperationEnum.EDIT ? '编辑记录' : '新建记录')}
             open={visible}
             onOpenChange={(open) => !open && onCancel()}
             form={form}
@@ -75,7 +78,7 @@ const ProductionRecordForm: React.FC<ProductionRecordFormProps> = ({
                 const submitData = {
                     ...state.editData,
                     ...values,
-                    recordDate: values.recordDate ? dayjs(values.recordDate).format('YYYY-MM-DD') : undefined
+                    recordDate: values.recordDate ? dayjs(values.recordDate).format('YYYY-MM-DD HH:mm:ss') : undefined
                 };
                 await handleSaveOrUpdate(submitData);
                 onSuccess();
@@ -92,7 +95,7 @@ const ProductionRecordForm: React.FC<ProductionRecordFormProps> = ({
             loading={state.loading}
         >
             <ProFormText name="id" hidden />
-            <ProFormText name="dataType" hidden />
+
             <ProFormSelect
                 name="energyUnitId"
                 label="用能单元"
@@ -105,49 +108,134 @@ const ProductionRecordForm: React.FC<ProductionRecordFormProps> = ({
                     }));
                 }}
             />
-            <ProFormDatePicker
-                name="recordDate"
-                label="记录日期"
-                rules={[{ required: true, message: '请选择记录日期' }]}
-                fieldProps={{
-                    style: { width: '100%' }
-                }}
+
+            <ProFormRadio.Group
+                name="dataType"
+                label="数据类型"
+                initialValue="1"
+                options={[
+                    { label: '产品产量', value: '1' },
+                    { label: '仪表数据', value: '2' },
+                    { label: '能耗指标', value: '3' },
+                ]}
+                rules={[{ required: true }]}
             />
-            <ProFormText
-                name="productName"
-                label={labels.name}
-                rules={[{ required: true, message: `请输入${labels.name}` }]}
-                placeholder={`请输入${labels.name}`}
-            />
-            <ProFormText
-                name="productType"
-                label="类型分类"
-                placeholder="如：半成品、成品或自定义分类"
-            />
-            <ProFormDigit
-                name="quantity"
-                label={labels.value}
-                rules={[{ required: true, message: `请输入${labels.value}` }]}
-                min={0}
-                fieldProps={{ precision: 4, style: { width: '100%' } }}
-            />
-            <ProFormText
-                name="unit"
-                label="计量单位"
-                placeholder="如：吨、件、立方米等"
-            />
+
             <ProFormSelect
                 name="granularity"
                 label="时间粒度"
+                initialValue="DAY"
                 rules={[{ required: true, message: '请选择时间粒度' }]}
                 options={[
                     { label: '小时', value: 'HOUR' },
                     { label: '日', value: 'DAY' },
                     { label: '月', value: 'MONTH' },
                     { label: '年', value: 'YEAR' },
-                    { label: '自定义', value: 'CUSTOM' },
+                    // { label: '自定义', value: 'CUSTOM' }, // 暂时隐藏自定义，因为 Picker 不好处理
                 ]}
             />
+
+            <ProFormDependency name={['granularity']}>
+                {({ granularity }) => {
+                    // 小时粒度使用 DateTimePicker
+                    if (granularity === 'HOUR') {
+                        return (
+                            <ProFormDateTimePicker
+                                name="recordDate"
+                                label="记录时间"
+                                rules={[{ required: true, message: '请选择记录时间' }]}
+                                fieldProps={{
+                                    style: { width: '100%' },
+                                    format: 'YYYY-MM-DD HH:00',
+                                    showTime: {
+                                        format: 'HH',
+                                        hideDisabledOptions: true,
+                                    },
+                                }}
+                            />
+                        );
+                    }
+
+                    // 其他粒度使用 DatePicker
+                    let picker: 'date' | 'month' | 'year' = 'date';
+                    let format = 'YYYY-MM-DD';
+
+                    if (granularity === 'MONTH') {
+                        picker = 'month';
+                        format = 'YYYY-MM';
+                    } else if (granularity === 'YEAR') {
+                        picker = 'year';
+                        format = 'YYYY';
+                    }
+
+                    return (
+                        <ProFormDatePicker
+                            name="recordDate"
+                            label="记录时间"
+                            rules={[{ required: true, message: '请选择记录时间' }]}
+                            fieldProps={{
+                                style: { width: '100%' },
+                                picker: picker,
+                                format: format,
+                            }}
+                        />
+                    );
+                }}
+            </ProFormDependency>
+
+            <ProFormDependency name={['dataType']}>
+                {({ dataType }) => {
+                    const type = dataType || '1';
+                    let nameLabel = '产品名称';
+                    let valueLabel = '产量';
+                    let namePlaceholder = '请输入产品名称';
+
+                    if (type === '2') {
+                        nameLabel = '仪表名称';
+                        valueLabel = '读数';
+                        namePlaceholder = '请输入仪表名称';
+                    } else if (type === '3') {
+                        nameLabel = '指标名称';
+                        valueLabel = '指标值';
+                        namePlaceholder = '请输入指标名称';
+                    }
+
+                    return (
+                        <>
+                            <ProFormText
+                                name="productName"
+                                label={nameLabel}
+                                rules={[{ required: true, message: namePlaceholder }]}
+                                placeholder={namePlaceholder}
+                            />
+                            <ProFormDigit
+                                name="quantity"
+                                label={valueLabel}
+                                rules={[{ required: true, message: `请输入${valueLabel}` }]}
+                                min={0}
+                                fieldProps={{
+                                    precision: 4,
+                                    style: { width: '100%' },
+                                }}
+                            />
+                        </>
+                    );
+                }}
+            </ProFormDependency>
+
+            <ProFormText
+                name="productType"
+                label="类型分类"
+                tooltip="可用于标记该记录的细分类型，如：半成品、成品、一号泵、二号泵等"
+                placeholder="如：半成品、成品或自定义分类"
+            />
+
+            <ProFormText
+                name="unit"
+                label="计量单位"
+                placeholder="如：吨、件、立方米等"
+            />
+
             <ProFormTextArea
                 name="remark"
                 label="备注"

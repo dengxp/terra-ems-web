@@ -12,6 +12,7 @@ import {
 import BenchmarkForm from './components/BenchmarkForm';
 import { EditButton, DeleteButton } from '@/components/button';
 import useCrud from '@/hooks/common/useCrud';
+import { wrapperResult } from '@/utils';
 
 const BenchmarkPage: React.FC = () => {
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
@@ -190,11 +191,7 @@ const BenchmarkPage: React.FC = () => {
                         name: params.name,
                         type: params.type,
                     });
-                    return {
-                        data: res.data?.content || [],
-                        success: res.success,
-                        total: res.data?.totalElements || 0,
-                    };
+                    return wrapperResult(res);
                 }}
                 columns={columns}
                 pagination={{

@@ -213,7 +213,7 @@ const Index = () => {
             }
           }}
           form={{ span: 6 }}
-          cardProps={{ bordered: false }}
+          cardProps={{ variant: 'borderless' } as any}
           search={{
             collapseRender: false, // 完全移除折叠按钮
             defaultCollapsed: false // 默认不折叠

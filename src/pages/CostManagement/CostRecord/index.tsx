@@ -12,6 +12,7 @@ import {
 import CostRecordForm from './components/CostRecordForm';
 import { EditButton, DeleteButton } from '@/components/button';
 import useCrud from '@/hooks/common/useCrud';
+import { wrapperResult } from '@/utils';
 import dayjs from 'dayjs';
 
 const CostRecordPage: React.FC = () => {
@@ -168,11 +169,7 @@ const CostRecordPage: React.FC = () => {
                         periodType: params.periodType,
                         startDate: params.recordDate,
                     });
-                    return {
-                        data: res.data?.content || [],
-                        success: res.success,
-                        total: res.data?.totalElement || 0,
-                    };
+                    return wrapperResult(res);
                 }}
                 columns={columns}
                 pagination={{

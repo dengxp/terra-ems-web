@@ -25,12 +25,8 @@ declare namespace API {
     /** 分页结果 */
     type PageResult<T = unknown> = {
         content: T[];
-        totalElement: number;
-        totalPage: number;
-        /** @deprecated 使用 totalElement */
-        totalElements?: number;
-        /** @deprecated 使用 totalPage */
-        totalPages?: number;
+        totalElements: number;
+        totalPages: number;
         size?: number;
         number?: number;
     };

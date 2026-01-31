@@ -11,6 +11,7 @@ import {
 } from '@/apis/meter';
 import MeterForm from './components/MeterForm';
 import StatusIcon from '@/components/icons/StatusIcon';
+import { wrapperResult } from '@/utils';
 
 /**
  * 计量器具管理页面
@@ -182,7 +183,7 @@ const Index: React.FC = () => {
                         },
                     }}
                     form={{ span: 6 }}
-                    cardProps={{ bordered: false }}
+                    cardProps={{ variant: 'borderless' } as any}
                     search={{
                         collapseRender: false,
                         defaultCollapsed: false,
@@ -230,11 +231,7 @@ const Index: React.FC = () => {
                             pageNumber: (current || 1) - 1,
                             pageSize: pageSize,
                         });
-                        return {
-                            data: res.data?.content || [],
-                            total: res.data?.totalElement || 0,
-                            success: res.success,
-                        };
+                        return wrapperResult(res);
                     }}
                     pagination={{
                         showSizeChanger: true,

@@ -11,6 +11,7 @@ import { getEnabledEnergyUnits, EnergyUnit } from '@/apis/energyUnit';
 import BindingForm from './components/BindingForm';
 import { EditButton, DeleteButton } from '@/components/button';
 import useCrud from '@/hooks/common/useCrud';
+import { wrapperResult } from '@/utils';
 import dayjs from 'dayjs';
 
 const PolicyBindingPage: React.FC = () => {
@@ -169,11 +170,7 @@ const PolicyBindingPage: React.FC = () => {
                         pageSize: params.pageSize,
                         energyUnitId: params.energyUnit?.id,
                     });
-                    return {
-                        data: res.data?.content || [],
-                        success: res.success,
-                        total: res.data?.totalElements || 0,
-                    };
+                    return wrapperResult(res);
                 }}
                 columns={columns}
                 pagination={{

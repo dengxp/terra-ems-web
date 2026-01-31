@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Card, Tree, Input, Empty, Space, Spin } from 'antd';
 import { ApartmentOutlined } from '@ant-design/icons';
 import { getEnabledEnergyUnitTree, EnergyUnit } from '@/apis/energyUnit';
+import { getToken } from '@/utils/auth';
 import { generateList, getParentKey } from '@/utils/tree';
 
 export interface EnergyUnitTreeProps {
@@ -43,6 +44,7 @@ const EnergyUnitTree: React.FC<EnergyUnitTreeProps> = ({
 
     // 加载数据
     const fetchTree = async () => {
+        if (!getToken()) return;
         setLoading(true);
         try {
             const res = await getEnabledEnergyUnitTree();

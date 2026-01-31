@@ -195,7 +195,7 @@ const ProcessEnergyPage: React.FC = () => {
                             <Col span={10} style={{ display: 'flex' }}>
                                 <Card
                                     title={<span><PieChartOutlined style={{ marginRight: 8 }} />消耗占比</span>}
-                                    bordered={false}
+                                    variant="borderless"
                                     style={{ width: '100%', display: 'flex', flexDirection: 'column' }}
                                     bodyStyle={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}
                                 >
@@ -210,7 +210,7 @@ const ProcessEnergyPage: React.FC = () => {
                             <Col span={14} style={{ display: 'flex' }}>
                                 <Card
                                     title={<span><PartitionOutlined style={{ marginRight: 8 }} />数据详情</span>}
-                                    bordered={false}
+                                    variant="borderless"
                                     style={{ width: '100%' }}
                                     bodyStyle={{ padding: 0 }}
                                 >
@@ -235,7 +235,7 @@ const ProcessEnergyPage: React.FC = () => {
                         {/* 趋势图 */}
                         <Card
                             title={<span><LineChartOutlined style={{ marginRight: 8 }} />能耗趋势对比</span>}
-                            bordered={false}
+                            variant="borderless"
                         >
                             <div style={{ padding: '0 8px' }}>
                                 <ProcessEnergyTrendChart

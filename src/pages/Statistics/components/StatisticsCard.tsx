@@ -72,7 +72,7 @@ const StatisticsCard: React.FC<StatisticsCardProps> = ({
             style={cardStyle}
             loading={loading}
             styles={{ body: bodyStyle }}
-            bordered={false}
+            variant="borderless"
         >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div style={{ flex: 1 }}>
@@ -97,11 +97,13 @@ const StatisticsCard: React.FC<StatisticsCardProps> = ({
                             value={value as number}
                             precision={precision}
                             suffix={<span style={{ fontSize: 14, color: '#999', marginLeft: 4 }}>{unit}</span>}
-                            valueStyle={{
-                                fontSize: 28,
-                                fontWeight: 600,
-                                color: color,
-                                lineHeight: 1.2,
+                            styles={{
+                                content: {
+                                    fontSize: 28,
+                                    fontWeight: 600,
+                                    color: color,
+                                    lineHeight: 1.2,
+                                }
                             }}
                         />
                     )}

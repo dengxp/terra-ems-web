@@ -12,6 +12,7 @@ import { MeterPoint, saveMeterPoint, assignEnergyUnits } from '@/apis/meterPoint
 import { getEnabledEnergyTypes } from '@/apis/energyType';
 import { getMeters, Meter } from '@/apis/meter';
 import { getEnabledEnergyUnitTree, EnergyUnit } from '@/apis/energyUnit';
+import { getToken } from '@/utils/auth';
 import useCrud from '@/hooks/common/useCrud';
 import { OperationEnum } from '@/enums';
 
@@ -66,7 +67,7 @@ const MeterPointForm: React.FC<MeterPointFormProps> = ({
     const state = getState('/basic-data/meter-point');
 
     useEffect(() => {
-        if (visible) {
+        if (visible && getToken()) {
             // 加载计量器具选项
             getMeters({ pageNumber: 0, pageSize: 1000 }).then((res) => {
                 if (res.success && res.data?.content) {

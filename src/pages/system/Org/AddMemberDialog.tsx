@@ -98,7 +98,7 @@ function AddMemberDialog(props: Props) {
     findUsersWithoutDepartment(params)
       .then(res => {
         const data = res.data;
-        setTotal(data?.totalElement || 0);
+        setTotal(data?.totalElements || 0);
         setUsers(data?.content || []);
         setPageNumber(pagination?.current || pageNumber);
         setPageSize(pagination?.pageSize || pageSize);

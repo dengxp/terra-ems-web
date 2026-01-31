@@ -119,7 +119,7 @@ function MemberPanel({ departmentId }: Props) {
         actionRef={actionRef}
         params={params}
         form={{ span: 4 }}
-        cardProps={{ bordered: false }}
+        cardProps={{ variant: 'borderless' } as any}
         search={false}
         pagination={{
           showSizeChanger: true,

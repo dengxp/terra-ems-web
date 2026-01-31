@@ -62,6 +62,35 @@ export function tansParams(params: Record<string, string>) {
   return result
 }
 
+// 全局跳转守卫，防止 401 并发导致死循环
+let isRedirecting = false;
+
+/**
+ * 统一跳转到登录页
+ */
+const jumpToLogin = () => {
+  if (isRedirecting) return;
+
+  const { location } = history;
+  if (location.pathname === LOGIN_PATH) return;
+
+  isRedirecting = true;
+  removeToken();
+
+  const uri = location.pathname + location.search;
+  const loginUrl = `${LOGIN_PATH}?redirect=${encodeURIComponent(uri)}`;
+
+  console.log('[Terra] |- 检测到 401/Token 过期，跳转至登录页:', loginUrl);
+
+  // 使用 replace 防止在历史记录中堆积
+  history.replace(loginUrl);
+
+  // 1.5秒后重置状态，给页面跳转留出充分时间
+  setTimeout(() => {
+    isRedirecting = false;
+  }, 1500);
+};
+
 /**
  * 错误处理
  * pro 自带的错误处理， 可以在这里做自己的改动
@@ -88,6 +117,13 @@ export const errorConfig: RequestConfig = {
         if (errorInfo) {
           const { errorMessage, errorCode } = errorInfo;
           const showType = opts.showType || errorInfo.showType;
+
+          // 如果是认证过期的业务代码，执行跳转
+          if (EXPIRATION_CODE.includes(errorCode as number)) {
+            jumpToLogin();
+            return;
+          }
+
           switch (showType) {
             case ErrorShowType.SILENT:
               // do nothing
@@ -104,25 +140,16 @@ export const errorConfig: RequestConfig = {
                 message: errorCode,
               });
               break;
-            case ErrorShowType.REDIRECT:
-              // TODO: redirect
-              break;
             default:
               void message.error(errorMessage);
           }
         }
       } else if (error.response) {
         // Axios 的错误
-        // 请求成功发出且服务器也响应了状态码，但状态代码超出了 2xx 的范围
         const { message: errorMessage, data, status } = error.response;
 
         if (status === 401) {
-          removeToken();
-          const { location } = history;
-          if (location.pathname !== LOGIN_PATH) {
-            const uri = location.pathname + location.search;
-            history.push(`${LOGIN_PATH}?redirect=${encodeURIComponent(uri)}`);
-          }
+          jumpToLogin();
           return;
         }
 
@@ -133,18 +160,14 @@ export const errorConfig: RequestConfig = {
 
         const msg = (data && data.message) || errorMessage || '操作失败!';
         void message.error(msg);
-        // message.error(`Response status:${error.response.status}`);
       } else if (error.request) {
-        // 请求已经成功发起，但没有收到响应
-        // \`error.request\` 在浏览器中是 XMLHttpRequest 的实例，
-        // 而在node.js中是 http.ClientRequest 的实例
-        void message.error('None response! Please retry.');
+        void message.error('服务器无响应，请重试');
       } else {
-        // 发送请求时出了点问题
         void message.error('请求失败，请稍后再重试！');
       }
     },
   },
+
 
   // 请求拦截器
   requestInterceptors: [
@@ -209,9 +232,7 @@ export const errorConfig: RequestConfig = {
       }
 
       if (!WHITE_LIST.includes(location.pathname) && EXPIRATION_CODE.includes(data.code)) {
-        removeToken();
-        const uri = location.pathname + location.search;
-        history.push(`${LOGIN_PATH}?redirect=${encodeURIComponent(uri)}`);
+        jumpToLogin();
         return response;
       }
 

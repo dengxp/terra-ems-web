@@ -4,6 +4,7 @@ import { message, Space, Typography, Tooltip, Button, Modal, Descriptions } from
 import { CheckCircleFilled, EyeFilled } from '@ant-design/icons';
 import { AlarmRecord, getAlarmRecordPage, handleAlarmRecord, getAllAlarmLimitTypes } from '@/apis/alarm';
 import { getAllMeterPoints } from '@/apis/meterPoint';
+import { wrapperResult } from '@/utils';
 
 const { Text } = Typography;
 
@@ -175,11 +176,7 @@ const AlarmRecordPage: React.FC = () => {
                         pageSize,
                         ...rest
                     });
-                    return {
-                        data: res.data?.content || [],
-                        success: res.success,
-                        total: res.data?.totalElement || 0,
-                    };
+                    return wrapperResult(res);
                 }}
                 search={{
                     labelWidth: 'auto',

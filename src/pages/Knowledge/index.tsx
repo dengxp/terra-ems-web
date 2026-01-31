@@ -13,6 +13,7 @@ import {
 import KnowledgeArticleForm from './components/KnowledgeArticleForm';
 import KnowledgeArticleDetail from './components/KnowledgeArticleDetail';
 import StatusIcon from '@/components/icons/StatusIcon';
+import { wrapperResult } from '@/utils';
 
 /**
  * 知识库管理页面
@@ -176,7 +177,7 @@ const Index: React.FC = () => {
                         },
                     }}
                     form={{ span: 6 }}
-                    cardProps={{ bordered: false }}
+                    cardProps={{ variant: 'borderless' } as any}
                     search={false}
                     toolbar={{
                         title: (
@@ -239,11 +240,7 @@ const Index: React.FC = () => {
                                 pageSize: pageSize,
                             });
                         }
-                        return {
-                            data: res.data?.content || [],
-                            total: res.data?.totalElements || 0,
-                            success: res.success,
-                        };
+                        return wrapperResult(res);
                     }}
                     pagination={{
                         showSizeChanger: true,

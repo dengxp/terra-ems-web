@@ -12,6 +12,7 @@ import {
 import ProjectForm from './components/ProjectForm';
 import { EditButton, DeleteButton } from '@/components/button';
 import useCrud from '@/hooks/common/useCrud';
+import { wrapperResult } from '@/utils';
 import dayjs from 'dayjs';
 
 const EnergySavingProjectPage: React.FC = () => {
@@ -181,11 +182,7 @@ const EnergySavingProjectPage: React.FC = () => {
                         name: params.name,
                         status: params.status,
                     });
-                    return {
-                        data: res.data?.content || [],
-                        success: res.success,
-                        total: res.data?.totalElements || 0,
-                    };
+                    return wrapperResult(res);
                 }}
                 columns={columns}
                 pagination={{

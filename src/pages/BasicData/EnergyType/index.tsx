@@ -14,6 +14,7 @@ import {
 } from '@/apis/energyType';
 import EnergyTypeForm from './components/EnergyTypeForm';
 import StatusIcon from '@/components/icons/StatusIcon';
+import { wrapperResult } from '@/utils';
 
 /**
  * 能源类型管理页面
@@ -225,7 +226,7 @@ const Index: React.FC = () => {
                         },
                     }}
                     form={{ span: 8 }}
-                    cardProps={{ bordered: false }}
+                    cardProps={{ variant: 'borderless' } as any}
                     search={{
                         collapseRender: false,
                         defaultCollapsed: false,
@@ -272,11 +273,7 @@ const Index: React.FC = () => {
                             pageNumber: (current || 1) - 1,
                             pageSize: pageSize,
                         });
-                        return {
-                            data: res.data?.content || [],
-                            total: res.data?.totalElement || 0,
-                            success: res.success,
-                        };
+                        return wrapperResult(res);
                     }}
                     pagination={{
                         showSizeChanger: true,

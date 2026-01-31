@@ -221,7 +221,7 @@ const PeakValleyPage: React.FC = () => {
                                                         value={item.electricity || 0}
                                                         precision={2}
                                                         suffix="kWh"
-                                                        valueStyle={{ color: option.color, fontSize: 18 }}
+                                                        styles={{ content: { color: option.color, fontSize: 18 } }}
                                                         loading={loading}
                                                     />
                                                 </Card>

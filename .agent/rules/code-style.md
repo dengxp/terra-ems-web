@@ -14,6 +14,15 @@ trigger: always_on
 | 变量/函数 | camelCase | `handleDelete` |
 | 常量 | UPPER_CASE | `LOGIN_PATH` |
 
+## 1.1 单复数命名规范 (Singular vs Plural)
+
+| 对象类型 | 规范 | 示例 | 说明 |
+|---|---|---|---|
+| **数据库表名** | **单数 (Singular)** | `ems_product`, `sys_user` | 定义数据模型/模具，保持与 Entity 类名一致 |
+| **实体类名** | **单数 (Singular)** | `Product`, `SysUser` | Java 类定义 |
+| **集合/列表变量** | **复数 (Plural)** | `products`, `userList` | 代码中表示多个实例的容器 |
+| **统计数量字段** | **复数 (Plural)** | `totalElements`, `totalPages` | 遵循 Spring Data 及业界标准，严禁使用 `totalElement` |
+
 ## 二、 编码习惯
 
 1. **函数式编程**：强制使用函数组件（FC）和 Hooks。
