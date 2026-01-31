@@ -38,12 +38,10 @@ trigger: always_on
 
 ## 四、 样式规范
 
-- **Vanilla CSS**：复杂的动效或特定布局使用 Vanilla CSS。
-- **变量引用**：优先使用项目全局 CSS 变量。
-- **UI 框架 (Ant Design v6 适配)**：
-  - **Dropdown**：弃用 `overlayClassName` (改用 `classNames.root`)。
-  - **Drawer**：优先使用 `size` 属性定义标准宽度。
-  - **Ref 稳定性**：所有自定义 UI 组件必须使用 `React.forwardRef` 包装，以支持 Pro-Components 的自动 ref 注入和测量。
+- **样式变量与主题**：优先使用 Ant Design 的 Design Token 或项目全局 CSS 变量，避免硬编码颜色和间距。
+- **UI 框架适配原则**：
+  - **升级适配**：在框架版本升级（如 Ant Design v5 -> v6）时，应优先采用官方推荐的新一代 API 和布局模式。
+  - **Ref 稳定性**：所有自定义 UI 组件**强制要求**使用 `React.forwardRef` 包装，以确保与 Pro-Components 等上层框架的自动注入和测量兼容。
 
 ## 五、 工程化流程
 

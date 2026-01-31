@@ -82,12 +82,11 @@ const { toCreate, toEdit, getState, setDialogVisible } = useCrud(...);
 const state = getState(pathname);
 ```
 
-### 4.3 字段顺序与表单密度
+### 4.3 字段顺序与表单显示策略
 
-1. **视觉一致性**：所有列表 (ProTable) 和表单 (ProForm) 应遵循“名称在前，编码在后”的原则。
-2. **表单布局**：
-    - 针对包含大量字段的业务实体，优先使用 `ProModalForm` 的 `grid` 模式。
-    - 结合 `rowProps={{ gutter: [16, 0] }}` 和 `colProps={{ span: 12 }}` 实现双栏布局，提升屏幕利用率。
+1. **视觉一致性**：所有列表 (ProTable) 和表单 (ProForm) 应遵循“名称在前，编码在后”的原则，确保用户首先看到易读的业务标示。
+2. **表单布局标准**：
+    - 针对字段较多的实体，优先使用 `grid` 模式的分栏布局，提高屏幕利用率。ID 等技术主键应显式设置为 `hidden` 以支持自动提交，但不在 UI 中展示。
 3. **对话框组件连接**：
 
 ```tsx
