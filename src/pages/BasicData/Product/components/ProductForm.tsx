@@ -101,10 +101,7 @@ const ProductForm: React.FC<ProductFormProps> = (props) => {
             />
             <ProFormDigit
                 name="sortOrder"
-                label="排序"
-                placeholder="请输入排序号"
-                min={0}
-                fieldProps={{ precision: 0 }}
+                hidden
             />
             <ProFormRadio.Group
                 name="status"

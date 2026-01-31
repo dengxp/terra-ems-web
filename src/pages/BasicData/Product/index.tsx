@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { ProPageContainer } from '@/components/container';
 import { Button, Space } from 'antd';
-import { DeleteFilled, EditFilled, PlusOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ProColumns, ProTable } from '@ant-design/pro-components';
 import useCrud from '@/hooks/common/useCrud';
 import { DeleteButton, EditButton } from '@/components/button';
@@ -127,6 +127,7 @@ const ProductPage: React.FC = () => {
             title: '排序',
             dataIndex: 'sortOrder',
             hideInSearch: true,
+            hideInTable: true,
             width: 80,
         },
         {
@@ -170,14 +171,17 @@ const ProductPage: React.FC = () => {
                             <Space>
                                 <Button
                                     icon={<PlusOutlined />}
-                                    type="primary"
+                                    color="primary"
+                                    variant="outlined"
                                     size={'small'}
                                     onClick={toCreate}
                                 >
                                     新建
                                 </Button>
                                 <Button
-                                    icon={<EditFilled />}
+                                    icon={<EditOutlined />}
+                                    color="green"
+                                    variant="outlined"
                                     disabled={editDisabled}
                                     size={'small'}
                                     onClick={toEditSelected}
@@ -185,7 +189,9 @@ const ProductPage: React.FC = () => {
                                     修改
                                 </Button>
                                 <Button
-                                    icon={<DeleteFilled />}
+                                    icon={<DeleteOutlined />}
+                                    color="danger"
+                                    variant="outlined"
                                     disabled={deleteDisabled}
                                     size={'small'}
                                     onClick={handleBatchDelete}
@@ -195,10 +201,7 @@ const ProductPage: React.FC = () => {
                             </Space>
                         ),
                     }}
-                    request={async (params) => {
-                        console.log('[ProductPage] fetchPage params:', params);
-                        return fetchPage(params);
-                    }}
+                    request={fetchPage}
                     columns={columns}
                     tableAlertRender={false}
                     tableAlertOptionRender={false}
