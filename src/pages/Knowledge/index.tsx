@@ -3,11 +3,11 @@ import { history } from '@umijs/max';
 import { getToken } from "@/utils/auth";
 import { LOGIN_PATH } from "@/config/constants";
 import { ProPageContainer } from '@/components/container';
-import { Button, Space, Tag } from 'antd';
-import { DeleteOutlined, EditOutlined, PlusOutlined, EyeOutlined } from '@ant-design/icons';
+import { Button, Space, Tag, Typography } from 'antd';
+import { DeleteOutlined, EditOutlined, PlusOutlined, EyeFilled } from '@ant-design/icons';
 import { ProColumns, ProTable } from '@ant-design/pro-components';
 import useCrud from '@/hooks/common/useCrud';
-import { DeleteButton, EditButton } from '@/components/button';
+import { DeleteButton, EditButton, IconButton } from '@/components/button';
 import {
     KnowledgeArticle,
     getKnowledgeArticles,
@@ -108,7 +108,9 @@ const Index: React.FC = () => {
             width: 250,
             ellipsis: true,
             render: (_, record) => (
-                <a onClick={() => handleView(record)}>{record.title}</a>
+                <Typography.Link onClick={() => handleView(record)} style={{ fontWeight: 500 }}>
+                    {record.title}
+                </Typography.Link>
             ),
         },
         {
@@ -146,13 +148,14 @@ const Index: React.FC = () => {
             key: 'status',
             width: 80,
             hideInSearch: true,
-            render: (_, record) => <StatusIcon value={record.status === 'ENABLE' ? 0 : 1} />,
+            render: (_, record) => <StatusIcon value={record.status} />,
         },
         {
             title: '创建时间',
             dataIndex: 'createdAt',
             key: 'createdAt',
             width: 160,
+            valueType: 'dateTime',
             hideInSearch: true,
         },
         {
@@ -162,11 +165,10 @@ const Index: React.FC = () => {
             width: 150,
             hideInSearch: true,
             render: (_, record) => (
-                <Space>
-                    <Button
-                        type="link"
-                        size="small"
-                        icon={<EyeOutlined />}
+                <Space size={0}>
+                    <IconButton
+                        tooltip="查看"
+                        icon={<EyeFilled />}
                         onClick={() => handleView(record)}
                     />
                     <EditButton onClick={() => toEdit(record)} />
@@ -214,7 +216,7 @@ const Index: React.FC = () => {
                                 </Button>
                                 <Button
                                     key="edit"
-                                    color={'green'}
+                                    color={'primary'}
                                     icon={<EditOutlined />}
                                     disabled={editDisabled}
                                     size={'small'}
@@ -224,7 +226,7 @@ const Index: React.FC = () => {
                                     修改
                                 </Button>
                                 <Button
-                                    key="delete"
+                                    key="danger"
                                     color={'danger'}
                                     icon={<DeleteOutlined />}
                                     disabled={deleteDisabled}

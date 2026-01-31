@@ -18,7 +18,7 @@ export interface KnowledgeArticle {
     author?: string;
     viewCount?: number;
     sortOrder?: number;
-    status?: 'ENABLE' | 'DISABLE';
+    status?: number;
     createdAt?: string;
     updatedAt?: string;
 }
