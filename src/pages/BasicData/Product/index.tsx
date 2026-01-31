@@ -79,6 +79,7 @@ const ProductPage: React.FC = () => {
             title: 'ID',
             dataIndex: 'id',
             hideInSearch: true,
+            hideInTable: true,
             width: 60,
         },
         {
@@ -194,7 +195,10 @@ const ProductPage: React.FC = () => {
                             </Space>
                         ),
                     }}
-                    request={fetchPage}
+                    request={async (params) => {
+                        console.log('[ProductPage] fetchPage params:', params);
+                        return fetchPage(params);
+                    }}
                     columns={columns}
                     tableAlertRender={false}
                     tableAlertOptionRender={false}
