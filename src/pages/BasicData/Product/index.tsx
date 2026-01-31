@@ -101,8 +101,8 @@ const ProductPage: React.FC = () => {
         {
             title: '产品类型',
             dataIndex: 'type',
-            hideInSearch: true,
             width: 120,
+            valueType: 'select',
             valueEnum: {
                 '1': { text: '成品' },
                 '2': { text: '半成品' },
