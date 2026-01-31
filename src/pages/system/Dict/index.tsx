@@ -39,10 +39,6 @@ const DictTypeManager: React.FC = () => {
 
     const columns: ProColumns<SysDictType>[] = [
         {
-            title: '字典名称',
-            dataIndex: 'name',
-        },
-        {
             title: '字典类型',
             dataIndex: 'type',
             render: (dom, record) => (
@@ -57,6 +53,10 @@ const DictTypeManager: React.FC = () => {
                     <SettingFilled style={{ marginRight: 4 }} />{dom}
                 </Tag>
             ),
+        },
+        {
+            title: '字典名称',
+            dataIndex: 'name',
         },
         {
             title: '状态',
@@ -148,18 +148,18 @@ const DictTypeManager: React.FC = () => {
                 wrapperCol={{ span: 20 }}
             >
                 <ProFormText
-                    name="name"
-                    label="字典名称"
-                    placeholder="请输入字典名称"
-                    rules={[{ required: true, message: '请输入字典名称' }]}
-                />
-                <ProFormText name="id" hidden />
-                <ProFormText
                     name="type"
                     label="字典类型"
                     placeholder="请输入字典类型"
                     rules={[{ required: true, message: '请输入字典类型' }]}
                     disabled={!!editData?.id}
+                />
+                <ProFormText name="id" hidden />
+                <ProFormText
+                    name="name"
+                    label="字典名称"
+                    placeholder="请输入字典名称"
+                    rules={[{ required: true, message: '请输入字典名称' }]}
                 />
                 <ProFormRadio.Group
                     name="status"

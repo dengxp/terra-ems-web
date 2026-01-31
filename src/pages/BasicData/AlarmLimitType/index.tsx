@@ -66,12 +66,12 @@ const AlarmLimitTypePage: React.FC = () => {
 
     const columns: ProColumns<AlarmLimitType>[] = [
         {
-            title: '限值类型名称',
-            dataIndex: 'limitName',
-        },
-        {
             title: '限值类型编码',
             dataIndex: 'limitCode',
+        },
+        {
+            title: '限值类型名称',
+            dataIndex: 'limitName',
         },
         {
             title: '色号',

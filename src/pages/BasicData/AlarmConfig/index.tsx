@@ -180,17 +180,17 @@ const AlarmConfigPage: React.FC = () => {
                                         >
                                             <List.Item.Meta
                                                 title={
+                                                    <span style={{ fontSize: 12, color: 'rgba(0,0,0,0.45)' }}>
+                                                        {item.code}
+                                                    </span>
+                                                }
+                                                description={
                                                     <span style={{
                                                         fontSize: 13,
                                                         fontWeight: isSelected ? 500 : 400,
                                                         color: isSelected ? '#1890ff' : 'rgba(0,0,0,0.85)'
                                                     }}>
                                                         {item.name}
-                                                    </span>
-                                                }
-                                                description={
-                                                    <span style={{ fontSize: 12, color: 'rgba(0,0,0,0.45)' }}>
-                                                        {item.code}
                                                     </span>
                                                 }
                                             />
