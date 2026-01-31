@@ -12,6 +12,7 @@ import {
 } from '@/apis/knowledge';
 import { getEnergyTypes } from '@/apis/energyType';
 import useCrud from '@/hooks/common/useCrud';
+import { getToken } from "@/utils/auth";
 import { OperationEnum } from '@/enums';
 
 interface KnowledgeArticleFormProps {
@@ -86,6 +87,7 @@ const KnowledgeArticleForm: React.FC<KnowledgeArticleFormProps> = ({
                 label="能源类型"
                 placeholder="选择能源类型（可选，留空表示通用知识）"
                 request={async () => {
+                    if (!getToken()) return [];
                     const res = await getEnergyTypes({});
                     return (res.data?.content || []).map((item: any) => ({
                         label: item.name,
@@ -104,6 +106,7 @@ const KnowledgeArticleForm: React.FC<KnowledgeArticleFormProps> = ({
                     allowClear: true,
                 }}
                 request={async () => {
+                    if (!getToken()) return [];
                     try {
                         const res = await getKnowledgeCategories();
                         return (res.data || []).map((cat: string) => ({

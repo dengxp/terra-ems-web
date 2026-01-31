@@ -1,4 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { history } from '@umijs/max';
+import { getToken } from "@/utils/auth";
+import { LOGIN_PATH } from "@/config/constants";
 import { ProPageContainer } from '@/components/container';
 import { Button, Space, Tag } from 'antd';
 import { DeleteOutlined, EditOutlined, PlusOutlined, EyeOutlined } from '@ant-design/icons';
@@ -25,6 +28,12 @@ const Index: React.FC = () => {
     const [detailVisible, setDetailVisible] = useState(false);
     const [detailRecord, setDetailRecord] = useState<KnowledgeArticle | undefined>();
     const [searchKeyword, setSearchKeyword] = useState('');
+
+    const token = getToken();
+    if (!token) {
+        (history as any).push(`${LOGIN_PATH}?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`);
+        return null;
+    }
 
     const {
         getState,
@@ -91,7 +100,7 @@ const Index: React.FC = () => {
         }
     }, [state?.shouldRefresh]);
 
-    const columns: ProColumns<KnowledgeArticle>[] = [
+    const columns: ProColumns<KnowledgeArticle>[] = useMemo(() => [
         {
             title: '标题',
             dataIndex: 'title',
@@ -109,6 +118,7 @@ const Index: React.FC = () => {
             width: 120,
             valueType: 'select',
             request: async () => {
+                if (!getToken()) return [];
                 const res = await getKnowledgeCategories();
                 return (res.data || []).map((cat: string) => ({
                     label: cat,
@@ -164,7 +174,7 @@ const Index: React.FC = () => {
                 </Space>
             ),
         },
-    ];
+    ], [selectedRowKeys, selectedRows]);
 
     return (
         <>
@@ -236,6 +246,7 @@ const Index: React.FC = () => {
                         },
                     }}
                     request={async (params) => {
+                        if (!getToken()) return { data: [], success: true, total: 0 };
                         const { current, pageSize, title, author, category } = params;
                         const res = await getKnowledgeArticles({
                             keyword: searchKeyword,
