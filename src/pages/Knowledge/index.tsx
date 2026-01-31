@@ -9,6 +9,7 @@ import {
     KnowledgeArticle,
     getKnowledgeArticles,
     searchKnowledgeArticles,
+    getKnowledgeCategories,
 } from '@/apis/knowledge';
 import KnowledgeArticleForm from './components/KnowledgeArticleForm';
 import KnowledgeArticleDetail from './components/KnowledgeArticleDetail';
@@ -105,16 +106,22 @@ const Index: React.FC = () => {
             title: '分类',
             dataIndex: 'category',
             key: 'category',
-            width: 100,
-            hideInSearch: true,
+            width: 120,
+            valueType: 'select',
+            request: async () => {
+                const res = await getKnowledgeCategories();
+                return (res.data || []).map((cat: string) => ({
+                    label: cat,
+                    value: cat,
+                }));
+            },
             render: (_, record) => record.category ? <Tag>{record.category}</Tag> : '-',
         },
         {
             title: '作者',
             dataIndex: 'author',
             key: 'author',
-            width: 100,
-            hideInSearch: true,
+            width: 120,
         },
         {
             title: '阅读次数',
@@ -133,8 +140,8 @@ const Index: React.FC = () => {
         },
         {
             title: '创建时间',
-            dataIndex: 'createdTime',
-            key: 'createdTime',
+            dataIndex: 'createdAt',
+            key: 'createdAt',
             width: 160,
             hideInSearch: true,
         },
@@ -178,7 +185,10 @@ const Index: React.FC = () => {
                     }}
                     form={{ span: 6 }}
                     cardProps={{ variant: 'borderless' } as any}
-                    search={false}
+                    search={{
+                        labelWidth: 'auto',
+                        defaultCollapsed: false,
+                    }}
                     toolbar={{
                         title: (
                             <Space>
@@ -226,9 +236,12 @@ const Index: React.FC = () => {
                         },
                     }}
                     request={async (params) => {
-                        const { current, pageSize } = params;
+                        const { current, pageSize, title, author, category } = params;
                         const res = await getKnowledgeArticles({
                             keyword: searchKeyword,
+                            title,
+                            author,
+                            category,
                             pageNumber: (current || 1) - 1,
                             pageSize: pageSize,
                         });

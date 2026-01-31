@@ -55,7 +55,12 @@ const KnowledgeArticleForm: React.FC<KnowledgeArticleFormProps> = ({
             onOpenChange={(open) => !open && onCancel()}
             form={form}
             onFinish={async (values) => {
-                await handleSaveOrUpdate(values);
+                // 处理 category，如果是 tags 模式（数组），取第一个值
+                const submitValues = { ...values };
+                if (Array.isArray(values.category)) {
+                    submitValues.category = values.category[0];
+                }
+                await handleSaveOrUpdate(submitValues);
                 onSuccess();
                 return true;
             }}
@@ -91,8 +96,10 @@ const KnowledgeArticleForm: React.FC<KnowledgeArticleFormProps> = ({
             <ProFormSelect
                 name="category"
                 label="分类"
-                placeholder="选择或输入分类"
+                placeholder="请选择或输入分类"
                 fieldProps={{
+                    mode: 'tags',
+                    maxCount: 1,
                     showSearch: true,
                     allowClear: true,
                 }}

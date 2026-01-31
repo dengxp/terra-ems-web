@@ -76,8 +76,11 @@ export async function getKnowledgeArticle(id: number) {
  */
 export async function getKnowledgeArticles(params: {
     keyword?: string;
+    title?: string;
+    author?: string;
     energyTypeId?: number;
     category?: string;
+    status?: number;
     current?: number;
     pageNumber?: number;
     pageSize?: number;
