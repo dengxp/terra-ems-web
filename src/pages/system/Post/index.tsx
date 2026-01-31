@@ -81,19 +81,19 @@ const Index = () => {
       hideInSearch: true
     },
     {
-      title: '岗位代码',
-      dataIndex: 'code',
-      key: 'code',
-      fieldProps: {
-        placeholder: '请输入岗位代码'
-      }
-    },
-    {
       title: '岗位名称',
       dataIndex: 'name',
       key: 'name',
       fieldProps: {
         placeholder: '请输入岗位名称'
+      }
+    },
+    {
+      title: '岗位代码',
+      dataIndex: 'code',
+      key: 'code',
+      fieldProps: {
+        placeholder: '请输入岗位代码'
       }
     },
     {

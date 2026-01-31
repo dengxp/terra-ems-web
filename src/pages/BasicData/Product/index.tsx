@@ -83,15 +83,15 @@ const ProductPage: React.FC = () => {
             width: 60,
         },
         {
+            title: '产品名称',
+            dataIndex: 'name',
+            width: 150,
+        },
+        {
             title: '产品编码',
             dataIndex: 'code',
             copyable: true,
             width: 160,
-        },
-        {
-            title: '产品名称',
-            dataIndex: 'name',
-            width: 150,
         },
         {
             title: '计量单位',

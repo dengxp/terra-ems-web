@@ -70,17 +70,17 @@ const AlarmLimitTypeForm: React.FC<AlarmLimitTypeFormProps> = ({
                 hidden
             />
             <ProFormText
+                name="limitName"
+                label="限值名称"
+                placeholder="请输入限值名称"
+                rules={[{ required: true, message: '请输入限值名称' }]}
+            />
+            <ProFormText
                 name="limitCode"
                 label="限值编码"
                 placeholder="请输入限值编码"
                 disabled={state.operation === OperationEnum.EDIT}
                 rules={[{ required: true, message: '请输入限值编码' }]}
-            />
-            <ProFormText
-                name="limitName"
-                label="限值名称"
-                placeholder="请输入限值名称"
-                rules={[{ required: true, message: '请输入限值名称' }]}
             />
             <Form.Item
                 name="colorNumber"

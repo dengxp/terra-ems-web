@@ -65,6 +65,15 @@ const RoleDetailDialog = (props: Props) => {
       <ProFormText label={'ID'}
         name={'roleId'}
         hidden={true} />
+      <ProFormText label={'角色名称'}
+        name={'roleName'}
+        placeholder={'请输入角色名称'}
+        rules={[
+          {
+            required: true,
+            message: '角色名称不能为空'
+          }
+        ]} />
       <ProFormText name={'roleKey'}
         label={'角色键值'}
         placeholder={'请输入角色键值'}
@@ -76,15 +85,6 @@ const RoleDetailDialog = (props: Props) => {
           }
         ]}
       />
-      <ProFormText label={'角色名称'}
-        name={'roleName'}
-        placeholder={'请输入角色名称'}
-        rules={[
-          {
-            required: true,
-            message: '角色名称不能为空'
-          }
-        ]} />
       <ProFormDigit label={'角色顺序'}
         name={'roleSort'}
         min={0}

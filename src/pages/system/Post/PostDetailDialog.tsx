@@ -55,15 +55,6 @@ const PostDetailDialog = (props: Props) => {
       <ProFormText label={'ID'}
         name={'id'}
         hidden={true} />
-      <ProFormText label={'岗位代码'}
-        name={'code'}
-        placeholder={'请输入岗位代码'}
-        rules={[
-          {
-            required: true,
-            message: '岗位代码不能为空'
-          }
-        ]} />
       <ProFormText label={'岗位名称'}
         name={'name'}
         placeholder={'请输入岗位名称'}
@@ -71,6 +62,15 @@ const PostDetailDialog = (props: Props) => {
           {
             required: true,
             message: '岗位名称不能为空'
+          }
+        ]} />
+      <ProFormText label={'岗位代码'}
+        name={'code'}
+        placeholder={'请输入岗位代码'}
+        rules={[
+          {
+            required: true,
+            message: '岗位代码不能为空'
           }
         ]} />
       <ProFormDigit label={'显示排序'} name={'ranking'} min={0} max={1000}

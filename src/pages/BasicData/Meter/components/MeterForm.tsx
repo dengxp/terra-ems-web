@@ -103,17 +103,17 @@ const MeterForm: React.FC<MeterFormProps> = ({ visible, onCancel, onSuccess }) =
                 hidden
             />
             <ProFormText
+                name="name"
+                label="器具名称"
+                placeholder="请输入器具名称"
+                rules={[{ required: true, message: '请输入器具名称' }]}
+            />
+            <ProFormText
                 name="code"
                 label="器具编码"
                 placeholder="请输入器具编码"
                 rules={[{ required: true, message: '请输入器具编码' }]}
                 disabled={state.operation === OperationEnum.EDIT}
-            />
-            <ProFormText
-                name="name"
-                label="器具名称"
-                placeholder="请输入器具名称"
-                rules={[{ required: true, message: '请输入器具名称' }]}
             />
             <ProFormSelect
                 name="energyTypeId"

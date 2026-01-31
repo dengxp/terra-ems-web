@@ -62,21 +62,21 @@ const ProductForm: React.FC<ProductFormProps> = (props) => {
         >
             <ProFormText name="id" hidden />
             <ProFormText
-                name="code"
-                label="产品编码"
-                placeholder="请输入产品编码"
-                rules={[
-                    { required: true, message: '请输入产品编码' },
-                    { max: 50, message: '编码最多50个字符' },
-                ]}
-            />
-            <ProFormText
                 name="name"
                 label="产品名称"
                 placeholder="请输入产品名称"
                 rules={[
                     { required: true, message: '请输入产品名称' },
                     { max: 100, message: '名称最多100个字符' },
+                ]}
+            />
+            <ProFormText
+                name="code"
+                label="产品编码"
+                placeholder="请输入产品编码"
+                rules={[
+                    { required: true, message: '请输入产品编码' },
+                    { max: 50, message: '编码最多50个字符' },
                 ]}
             />
             <ProFormText

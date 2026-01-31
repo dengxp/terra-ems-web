@@ -72,17 +72,17 @@ const Index = () => {
       hideInSearch: true
     },
     {
-      title: '权限字符',
-      dataIndex: 'roleKey',
-      key: 'roleKey',
-    },
-    {
       title: '角色名称',
       dataIndex: 'roleName',
       key: 'roleName',
       fieldProps: {
         placeholder: '请输入角色名称'
       }
+    },
+    {
+      title: '权限字符',
+      dataIndex: 'roleKey',
+      key: 'roleKey',
     },
     {
       title: '显示顺序',

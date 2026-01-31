@@ -83,6 +83,15 @@ const Index: React.FC = () => {
     // 表格列定义
     const columns: ProColumns<EnergyType>[] = [
         {
+            title: '名称',
+            dataIndex: 'name',
+            key: 'name',
+            width: 120,
+            fieldProps: {
+                placeholder: '请输入名称',
+            },
+        },
+        {
             title: '编码',
             dataIndex: 'code',
             key: 'code',
@@ -106,15 +115,6 @@ const Index: React.FC = () => {
                     <span>{record.code}</span>
                 </Space>
             ),
-        },
-        {
-            title: '名称',
-            dataIndex: 'name',
-            key: 'name',
-            width: 120,
-            fieldProps: {
-                placeholder: '请输入名称',
-            },
         },
         {
             title: '计量单位',

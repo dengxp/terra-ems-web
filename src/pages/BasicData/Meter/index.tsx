@@ -80,16 +80,16 @@ const Index: React.FC = () => {
     // 表格列定义
     const columns: ProColumns<Meter>[] = [
         {
-            title: '器具编码',
-            dataIndex: 'code',
-            key: 'code',
-            width: 120,
-        },
-        {
             title: '器具名称',
             dataIndex: 'name',
             key: 'name',
             width: 150,
+        },
+        {
+            title: '器具编码',
+            dataIndex: 'code',
+            key: 'code',
+            width: 120,
         },
         {
             title: '能源类型',

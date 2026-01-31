@@ -93,6 +93,13 @@ const EnergyTypeForm: React.FC<EnergyTypeFormProps> = ({
                 hidden
             />
             <ProFormText
+                name="name"
+                label="名称"
+                colProps={{ span: 12 }}
+                placeholder="如：电力、天然气"
+                rules={[{ required: true, message: '请输入名称' }]}
+            />
+            <ProFormText
                 name="code"
                 label="编码"
                 colProps={{ span: 12 }}
@@ -102,14 +109,6 @@ const EnergyTypeForm: React.FC<EnergyTypeFormProps> = ({
                     { required: true, message: '请输入编码' },
                     { pattern: /^[A-Z_]+$/, message: '编码只能包含大写字母和下划线' },
                 ]}
-            />
-
-            <ProFormText
-                name="name"
-                label="名称"
-                colProps={{ span: 12 }}
-                placeholder="如：电力、天然气"
-                rules={[{ required: true, message: '请输入名称' }]}
             />
 
             <ProFormText
