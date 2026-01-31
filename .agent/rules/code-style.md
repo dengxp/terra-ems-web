@@ -20,17 +20,29 @@ trigger: always_on
 2. **解构赋值**：提倡对 Props 和 State 进行解构。
 3. **副作用管理**：明确 `useEffect` 的依赖项，禁止滥用 `any`。
 4. **数据完整性**：在所有增删改表单中，必须使用 `ProFormText` 配合 `hidden` 属性显式承载 `id` 或 `parentId`，严禁仅依赖闭包或内存状态。
+5. **ProTable 列表优化**：
+    - **ID 列**：固定宽度 `60-80px`，通常 `hideInSearch: true`。
+    - **编码/名称列**：对重要标识符列开启 `copyable: true`，宽度保证不折行（通常 `160px+`）。
+    - **状态与枚举**：数值枚举值必须通过 `valueEnum` 映射为展示文本。
 
 ## 三、 UI 统一封装
 
 - 禁止直接调用 `Button` 进行删除等排他性操作。
 - 必须使用 `@/components` 下的按钮封装：
   - `AddButton`：带统一样式和权限。
-  - `EditButton`：编辑入口。
-  - `DeleteButton`：带 `Popconfirm` 气泡确认提示。
+  - `EditButton`：编辑入口，统一使用 `EditFilled` 图标。
+  - `DeleteButton`：**必须内置 `Popconfirm`**，统一使用 `DeleteFilled` 图标。
+  - `IconButton`：列表行内操作按钮，强制 `shape="circle"` 且默认 `variant="text"`。
 
 ## 四、 样式规范
 
 - **Vanilla CSS**：复杂的动效或特定布局使用 Vanilla CSS。
 - **变量引用**：优先使用项目全局 CSS 变量。
-- **禁止硬编码**：颜色、间距等建议引用全局设计令牌。
+- **UI 框架**：Ant Design v6 适配时，弃用 `overlayClassName` (改用 `classNames.root`)，Drawer 优先使用 `size` 属性。
+
+## 五、 工程化流程
+
+1. **Git 提交**：
+    - **语言约定**：Commit Message 必须使用**简体中文**。
+    - **格式**：遵循 `type: 描述` (如 `fix: 修复搜索分页失效`)。
+2. **文档同步**：重大交互变更或技术选型变更后，需同步更新 `.agent/rules/` 下的文档。

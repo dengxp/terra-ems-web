@@ -16,7 +16,7 @@ trigger: always_on
 - `src/apis/`：API 模块化定义。禁止在组件内直接写 `request` URL。
 - `src/pages/`：业务页面组件。一个页面一个文件夹，内部拆分主组件与子组件（如 `EditDialog.tsx`）。
 - `src/hooks/common/`：抽象后的通用逻辑（如 `useCrud.ts`）。
-- `src/components/`：跨页面的公共 UI 组件。
+- `src/components/`：跨页面的公共 UI 组件。**强制要求**：所有封装的底层 UI 组件（如按钮、图标）必须支持 `React.forwardRef`。
 - `src/utils/`：无副作用的工具函数。
 
 ## 三、 API 交互协议
@@ -99,6 +99,8 @@ const state = getState(pathname);
 
 ### 4.4 批量删除实现
 
+1. **二段确认**：具备“删除”语义的按钮（如 `DeleteButton`）必须内置 `Popconfirm` 气泡确认框，严禁直接触发删除 API。
+2. **批量逻辑示例**：
 ```tsx
 const handleBatchDelete = async () => {
     if (deleteDisabled) return;
@@ -117,6 +119,12 @@ const handleBatchDelete = async () => {
 以下场景不强制使用 useCrud：
 - 多列复合布局页面（如报警配置）
 - 纯展示/分析页面
+
+## 七、 数据一致性与工程细节 (Engineering Best Practices)
+
+1. **JPA 枚举转换**：实体类中使用 `@Convert` 时，数据库 SQL 或 Mock 数据必须使用转换后的存值（通常是 `'1'`, `'2'`），禁止插入枚举名。
+2. **国际化完整性**：新模块开发必须检查 `src/locales/zh-CN/`，确保菜单和提示无 `Missing message` 警告。
+3. **Ref 稳定性**：避免在 `render` 函数或 `columns.render` 中直接定义匿名函数作为组件，以防 Ref 失效或不必要的重新渲染。
 
 ## 五、 特殊组件交互规范
 
