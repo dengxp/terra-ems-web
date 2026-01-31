@@ -75,7 +75,9 @@ export async function getKnowledgeArticle(id: number) {
  * 分页查询文章
  */
 export async function getKnowledgeArticles(params: {
+    keyword?: string;
     energyTypeId?: number;
+    category?: string;
     current?: number;
     pageNumber?: number;
     pageSize?: number;

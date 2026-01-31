@@ -227,19 +227,11 @@ const Index: React.FC = () => {
                     }}
                     request={async (params) => {
                         const { current, pageSize } = params;
-                        let res;
-                        if (searchKeyword) {
-                            res = await searchKnowledgeArticles({
-                                keyword: searchKeyword,
-                                pageNumber: (current || 1) - 1,
-                                pageSize: pageSize,
-                            });
-                        } else {
-                            res = await getKnowledgeArticles({
-                                pageNumber: (current || 1) - 1,
-                                pageSize: pageSize,
-                            });
-                        }
+                        const res = await getKnowledgeArticles({
+                            keyword: searchKeyword,
+                            pageNumber: (current || 1) - 1,
+                            pageSize: pageSize,
+                        });
                         return wrapperResult(res);
                     }}
                     pagination={{
