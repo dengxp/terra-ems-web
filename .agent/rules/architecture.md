@@ -82,7 +82,13 @@ const { toCreate, toEdit, getState, setDialogVisible } = useCrud(...);
 const state = getState(pathname);
 ```
 
-### 4.3 对话框组件连接
+### 4.3 字段顺序与表单密度
+
+1. **视觉一致性**：所有列表 (ProTable) 和表单 (ProForm) 应遵循“名称在前，编码在后”的原则。
+2. **表单布局**：
+    - 针对包含大量字段的业务实体，优先使用 `ProModalForm` 的 `grid` 模式。
+    - 结合 `rowProps={{ gutter: [16, 0] }}` 和 `colProps={{ span: 12 }}` 实现双栏布局，提升屏幕利用率。
+3. **对话框组件连接**：
 
 ```tsx
 <EntityForm
