@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Card, Col, Row, Tree, DatePicker, Select, Space, Empty, Spin, Typography, Input, Splitter } from 'antd';
 import { PageContainer } from '@ant-design/pro-components';
-import { getEnabledEnergyTypes, EnergyType } from '@/apis/energyType';
+import { getEnergyTypeOptions } from '@/apis/energyType';
 import EnergyUnitTree from '@/components/EnergyUnitTree';
-import { getEnabledProducts, Product } from '@/apis/product';
+import { getProductOptions } from '@/apis/product';
 import {
     getUnitConsumptionAnalysis,
     UnitConsumption,
@@ -16,8 +16,8 @@ import { ApartmentOutlined, BarChartOutlined, LineChartOutlined, DashboardOutlin
 const { Text, Title } = Typography;
 
 const UnitConsumptionPage: React.FC = () => {
-    const [energyTypes, setEnergyTypes] = useState<EnergyType[]>([]);
-    const [productNames, setProductNames] = useState<string[]>([]);
+    const [energyTypeOptions, setEnergyTypeOptions] = useState<API.Option[]>([]);
+    const [productOptions, setProductOptions] = useState<API.Option[]>([]);
 
     // 筛选状态
     const [selectedUnitId, setSelectedUnitId] = useState<number | null>(null);
@@ -25,27 +25,25 @@ const UnitConsumptionPage: React.FC = () => {
     const [timeType, setTimeType] = useState<'DAY' | 'MONTH' | 'YEAR'>('MONTH');
     const [dataTime, setDataTime] = useState(dayjs());
     const [selectedEnergyType, setSelectedEnergyType] = useState<number | undefined>(undefined);
-    const [selectedProductName, setSelectedProductName] = useState<string | undefined>(undefined);
+    const [selectedProductId, setSelectedProductId] = useState<number | undefined>(undefined);
 
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState<UnitConsumption | null>(null);
 
-    // 加载基础数据
+    // 加载能源类型选项
     useEffect(() => {
-        getEnabledEnergyTypes().then(res => {
+        getEnergyTypeOptions().then(res => {
             if (res.success) {
-                setEnergyTypes(res.data || []);
+                setEnergyTypeOptions(res.data || []);
             }
         });
     }, []);
 
     // 加载产品列表
     useEffect(() => {
-        getEnabledProducts().then(res => {
+        getProductOptions().then(res => {
             if (res.success && res.data) {
-                // 提取唯一的产品名称
-                const names = res.data.map(p => p.name);
-                setProductNames(names);
+                setProductOptions(res.data);
             }
         });
     }, []);
@@ -61,7 +59,7 @@ const UnitConsumptionPage: React.FC = () => {
                 timeType,
                 dataTime: dataTime.format('YYYY-MM-DD HH:mm:ss'),
                 energyTypeId: selectedEnergyType,
-                productName: selectedProductName,
+                productId: selectedProductId,
             });
 
             if (res.success) {
@@ -74,7 +72,7 @@ const UnitConsumptionPage: React.FC = () => {
 
     useEffect(() => {
         fetchAnalysis();
-    }, [selectedUnitId, timeType, dataTime, selectedEnergyType, selectedProductName]);
+    }, [selectedUnitId, timeType, dataTime, selectedEnergyType, selectedProductId]);
 
     const getPickerType = () => {
         switch (timeType) {
@@ -118,7 +116,7 @@ const UnitConsumptionPage: React.FC = () => {
                                             style={{ width: 140 }}
                                             value={selectedEnergyType}
                                             onChange={setSelectedEnergyType}
-                                            options={energyTypes.map(t => ({ label: t.name, value: t.id }))}
+                                            options={energyTypeOptions}
                                         />
                                     </Space>
                                     <Space>
@@ -127,9 +125,9 @@ const UnitConsumptionPage: React.FC = () => {
                                             placeholder="全部产品"
                                             allowClear
                                             style={{ width: 120 }}
-                                            value={selectedProductName}
-                                            onChange={setSelectedProductName}
-                                            options={productNames.map(p => ({ label: p, value: p }))}
+                                            value={selectedProductId}
+                                            onChange={setSelectedProductId}
+                                            options={productOptions}
                                         />
                                     </Space>
                                     <Select
@@ -205,7 +203,7 @@ const UnitConsumptionPage: React.FC = () => {
                                                 <Space orientation="vertical" style={{ width: '100%' }}>
                                                     <Text type="secondary">本期综合能耗</Text>
                                                     <Title level={4} style={{ margin: 0 }}>
-                                                        {data?.energyConsumption?.toFixed(2)} <Text type="secondary" style={{ fontSize: 14 }}>{data?.energyUnit || 'tce'}</Text>
+                                                        {(data?.energyConsumption ?? 0).toFixed(2)} <Text type="secondary" style={{ fontSize: 14 }}>{data?.energyUnit || 'tce'}</Text>
                                                     </Title>
                                                 </Space>
                                             </Card>
@@ -215,7 +213,7 @@ const UnitConsumptionPage: React.FC = () => {
                                                 <Space orientation="vertical" style={{ width: '100%' }}>
                                                     <Text type="secondary">本期总产量</Text>
                                                     <Title level={4} style={{ margin: 0 }}>
-                                                        {data?.production?.toFixed(2)} <Text type="secondary" style={{ fontSize: 14 }}>{data?.productionUnit || 't'}</Text>
+                                                        {(data?.production ?? 0).toFixed(2)} <Text type="secondary" style={{ fontSize: 14 }}>{data?.productionUnit || 't'}</Text>
                                                     </Title>
                                                 </Space>
                                             </Card>

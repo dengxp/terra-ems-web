@@ -44,6 +44,14 @@ declare namespace API {
         [key: string]: any;
     };
 
+    /** 通用选项 */
+    type Option = {
+        label: string;
+        value: string | number;
+        disabled?: boolean;
+        [key: string]: any;
+    };
+
     /** 规则列表项 */
     type RuleListItem = {
         key?: number;

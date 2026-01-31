@@ -127,7 +127,7 @@ export interface UnitConsumption {
 // 单耗分析查询参数
 export interface UnitConsumptionQueryParams extends StatisticsQueryParams {
     energyTypeId?: number;
-    productName?: string;
+    productId?: number;
 }
 
 /**

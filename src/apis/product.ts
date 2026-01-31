@@ -101,3 +101,12 @@ export async function updateProductStatus(id: number, status: number) {
         params: { status },
     });
 }
+
+/**
+ * 获取产品选项列表
+ */
+export async function getProductOptions() {
+    return request<API.Result<API.Option[]>>('/api/products/options', {
+        method: 'GET',
+    });
+}

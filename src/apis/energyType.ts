@@ -50,11 +50,17 @@ export async function getEnergyTypes(params: {
     });
 }
 
-/**
- * 查询所有启用的能源类型
- */
 export async function getEnabledEnergyTypes() {
     return request<API.Result<EnergyType[]>>('/api/energy-types/enabled', {
+        method: 'GET',
+    });
+}
+
+/**
+ * 获取能源类型选项 (Label/Value)
+ */
+export async function getEnergyTypeOptions() {
+    return request<API.Result<API.Option[]>>('/api/energy-types/options', {
         method: 'GET',
     });
 }

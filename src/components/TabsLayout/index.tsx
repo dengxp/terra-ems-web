@@ -57,6 +57,8 @@ const Index: React.FC<TabsLayoutProps> = (props) => {
   useEffect(() => {
     if (isKeep && !restored) {
       const savedTabs = localStorage.getItem(TAB_STORAGE_KEY);
+      const savedActiveTab = localStorage.getItem(TAB_STORAGE_KEY + '_active');
+
       if (savedTabs) {
         try {
           const paths = JSON.parse(savedTabs);
@@ -69,6 +71,12 @@ const Index: React.FC<TabsLayoutProps> = (props) => {
               if (index >= paths.length) {
                 clearInterval(timer);
                 setRestored(true);
+
+                // 恢复完所有标签后，跳转到之前激活的标签
+                if (savedActiveTab && paths.some(p => p.toLowerCase().startsWith(savedActiveTab.toLowerCase()))) {
+                  console.log('[TabsLayout] Restoring active tab:', savedActiveTab);
+                  navigate(savedActiveTab);
+                }
                 return;
               }
               const path = paths[index++];
@@ -76,10 +84,12 @@ const Index: React.FC<TabsLayoutProps> = (props) => {
 
               // 如果页签尚未打开，则进行导航
               if (pathname && !keepElements.current[pathname]) {
-                console.log(`[TabsLayout] Restoring tab ${index}/${paths.length}:`, path);
+                // 如果当前要恢复的 tab 就是之前激活的 tab，暂时跳过，留到最后再激活 (避免跳来跳去)
+                // 但如果不 navigate，keepElements 里就没有它。必须 navigate。
+                // 只是最后再 navigate 一次 active tab 即可。
                 navigate(path);
               }
-            }, 150); // 150ms 间隔，给路由系统一点喘息时间
+            }, 100); // 稍微加快一点速度
           } else {
             setRestored(true);
           }
@@ -97,18 +107,63 @@ const Index: React.FC<TabsLayoutProps> = (props) => {
   useEffect(() => {
     // 只有在恢复流程走完（或者确定没有需要恢复的）之后，才允许保存，防止启动时的竞态覆盖
     if (isKeep && restored && keepElements.current) {
-      const paths = Object.values(keepElements.current)
-        .map((item: any) => {
-          const loc = item.location;
-          if (loc) {
-            return `${loc.pathname}${loc.search || ''}${loc.hash || ''}`;
-          }
-          return null;
-        })
-        .filter(Boolean);
+      // 保存当前激活的 Tab
+      const currentActiveLocation = keepElements.current[activeKey?.toLowerCase()]?.location;
+      if (currentActiveLocation) {
+        const activePath = `${currentActiveLocation.pathname}${currentActiveLocation.search || ''}${currentActiveLocation.hash || ''}`;
+        localStorage.setItem(TAB_STORAGE_KEY + '_active', activePath);
+      }
 
-      console.log('[TabsLayout] Synchronizing tabs to localStorage:', paths);
-      localStorage.setItem(TAB_STORAGE_KEY, JSON.stringify(paths));
+      // 获取当前所有活跃的 pathname
+      const currentPathnames = Object.keys(keepElements.current).map(k => k.toLowerCase());
+
+      // 读取当前的存储顺序（如果存在）
+      let orderedByStorage: string[] = [];
+      try {
+        const saved = localStorage.getItem(TAB_STORAGE_KEY);
+        if (saved) {
+          orderedByStorage = JSON.parse(saved);
+        }
+      } catch (e) { }
+
+      // 提取存储中的 pathname 用于匹配
+      const storedPathnames = orderedByStorage.map(p => p.split(/[?#]/)[0].toLowerCase());
+
+      // 构建新的保存列表：
+      // 1. 按照存储顺序，保留依然存在的 tab
+      // 2. 追加新出现的 tab (storage 中没有但 keepElements 中有的)
+      const newPaths: string[] = [];
+      const processedPathnames = new Set<string>();
+
+      // 第一步：保留原有顺序
+      orderedByStorage.forEach((fullPath, index) => {
+        const pathname = storedPathnames[index];
+        if (currentPathnames.includes(pathname)) {
+          // 使用 keepElements 中的最新 location 信息（这就保证了 query param 的更新），但维持 storage 的顺序
+          // 或者是直接用 storage 的 path？
+          // 通常我们希望保留最新的 query params，所以最好从 keepElements 取
+          const item = keepElements.current[pathname];
+          if (item && item.location) {
+            const loc = item.location;
+            newPaths.push(`${loc.pathname}${loc.search || ''}${loc.hash || ''}`);
+            processedPathnames.add(pathname);
+          }
+        }
+      });
+
+      // 第二步：追加新 Tab
+      currentPathnames.forEach(pathname => {
+        if (!processedPathnames.has(pathname)) {
+          const item = keepElements.current[pathname];
+          if (item && item.location) {
+            const loc = item.location;
+            newPaths.push(`${loc.pathname}${loc.search || ''}${loc.hash || ''}`);
+          }
+        }
+      });
+
+      console.log('[TabsLayout] Synchronizing tabs to localStorage (Sorted):', newPaths);
+      localStorage.setItem(TAB_STORAGE_KEY, JSON.stringify(newPaths));
     }
   }, [activeKey, Object.keys(keepElements.current).length, restored]);
 
@@ -171,6 +226,52 @@ const Index: React.FC<TabsLayoutProps> = (props) => {
 
   if (!isKeep) return null;
 
+  // 计算渲染用的 Tab Items (排序)
+  const getSortedItems = () => {
+    const entries = Object.entries(keepElements.current);
+
+    // 读取存储顺序
+    let storedPathnames: string[] = [];
+    try {
+      const saved = localStorage.getItem(TAB_STORAGE_KEY);
+      if (saved) {
+        const paths: string[] = JSON.parse(saved);
+        storedPathnames = paths.map(p => p.split(/[?#]/)[0].toLowerCase());
+      }
+    } catch (e) { }
+
+    // 排序：如果 pathname 在存储列表中，使用其索引；否则排在最后
+    entries.sort((a, b) => {
+      const pathA = a[0].toLowerCase();
+      const pathB = b[0].toLowerCase();
+
+      let indexA = storedPathnames.indexOf(pathA);
+      let indexB = storedPathnames.indexOf(pathB);
+
+      if (indexA === -1) indexA = 9999;
+      if (indexB === -1) indexB = 9999;
+
+      return indexA - indexB;
+    });
+
+    return entries.map(
+      ([pathname, { name, icon, closable, children, ...other }]: any) => ({
+        label: (
+          <Dropdown menu={{ items, onClick: selectAction }} trigger={['contextMenu']}>
+            <Space align={'center'} size={4}>
+              {icon}
+              {name}
+            </Space>
+          </Dropdown>
+        ),
+        key: `${pathname?.toLowerCase()}::${tabNameMap[pathname?.toLowerCase()]}`,
+        closable: Object.entries(keepElements.current).length === 1 ? false : closable,
+        style: { paddingTop: '20px' },
+        ...other
+      })
+    );
+  };
+
   return (
     <div
       className="runtime-keep-alive-tabs-layout"
@@ -214,22 +315,7 @@ const Index: React.FC<TabsLayoutProps> = (props) => {
           closeTab(targetKey?.toLowerCase());
         }}
         {...tabProps}
-        items={Object.entries(keepElements.current).map(
-          ([pathname, { name, icon, closable, children, ...other }]: any) => ({
-            label: (
-              <Dropdown menu={{ items, onClick: selectAction }} trigger={['contextMenu']}>
-                <Space align={'center'} size={4}>
-                  {icon}
-                  {name}
-                </Space>
-              </Dropdown>
-            ),
-            key: `${pathname?.toLowerCase()}::${tabNameMap[pathname?.toLowerCase()]}`,
-            closable: Object.entries(keepElements.current).length === 1 ? false : closable,
-            style: { paddingTop: '20px' },
-            ...other
-          })
-        )}
+        items={getSortedItems()}
       ></Tabs>
     </div>
   );
