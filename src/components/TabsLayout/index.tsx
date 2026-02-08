@@ -10,6 +10,7 @@ import {
 } from '@ant-design/icons';
 import { useIntl } from '@umijs/max';
 import { TAB_STORAGE_KEY } from "@/config/constants";
+import { isUserLoggedIn } from "@/utils/auth";
 
 export interface TabConfig extends TabPaneProps {
   icon?: React.ReactNode;
@@ -55,6 +56,13 @@ const Index: React.FC<TabsLayoutProps> = (props) => {
 
   // 1. 恢复页签逻辑 (增加延时和错开并发，防止 Umi 路由冲突)
   useEffect(() => {
+    // 如果未登录，不执行恢复逻辑，防止与 onPageChange 的重定向形成死循环
+    if (!isUserLoggedIn()) {
+      console.log('[TabsLayout] User not logged in, skipping tab restoration');
+      setRestored(true);
+      return;
+    }
+
     if (isKeep && !restored) {
       const savedTabs = localStorage.getItem(TAB_STORAGE_KEY);
       const savedActiveTab = localStorage.getItem(TAB_STORAGE_KEY + '_active');
