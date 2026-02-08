@@ -27,7 +27,7 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ visible, onVisibleChange, onSuc
     } = useCrud<Policy>({
         pathname: '/energy-saving/policy',
         entityName: '政策法规',
-        baseUrl: '/api/policies',
+        baseUrl: '/api/ems/policies',
         onOpenChange: onVisibleChange
     });
 
