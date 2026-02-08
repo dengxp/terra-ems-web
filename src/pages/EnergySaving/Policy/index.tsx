@@ -80,6 +80,15 @@ const PolicyPage: React.FC = () => {
             dataIndex: 'title',
             ellipsis: true,
             width: 200,
+            hideInSearch: true,
+        },
+        {
+            title: '关键词',
+            dataIndex: 'keyword',
+            hideInTable: true,
+            fieldProps: {
+                placeholder: '搜索标题/摘要/备注',
+            },
         },
         {
             title: '政策类型',
@@ -186,7 +195,7 @@ const PolicyPage: React.FC = () => {
                     const res = await getPolicyPage({
                         current: params.current,
                         pageSize: params.pageSize,
-                        title: params.title,
+                        keyword: params.keyword,
                         type: params.type,
                     });
                     return wrapperResult(res);

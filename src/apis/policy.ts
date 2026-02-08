@@ -33,7 +33,7 @@ export const policyTypeOptions = [
 export interface PolicyPageParams {
     current?: number;
     pageSize?: number;
-    title?: string;
+    keyword?: string;
     type?: PolicyType;
     status?: number;
 }
@@ -47,7 +47,7 @@ export async function getPolicyPage(params: PolicyPageParams) {
         params: {
             pageNumber: (params.current || 1) - 1,
             pageSize: params.pageSize || 10,
-            title: params.title,
+            keyword: params.keyword,
             type: params.type,
             status: params.status,
         },
