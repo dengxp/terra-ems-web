@@ -30,7 +30,7 @@ const BenchmarkPage: React.FC = () => {
     } = useCrud<Benchmark>({
         pathname: '/energy-saving/benchmark',
         entityName: '对标值',
-        baseUrl: '/api/benchmarks',
+        baseUrl: '/api/ems/benchmarks',
     });
 
     const state = getState('/energy-saving/benchmark');
@@ -84,6 +84,15 @@ const BenchmarkPage: React.FC = () => {
             dataIndex: 'name',
             ellipsis: true,
             width: 150,
+            hideInSearch: true,
+        },
+        {
+            title: '关键词',
+            dataIndex: 'keyword',
+            hideInTable: true,
+            fieldProps: {
+                placeholder: '搜索名称/备注',
+            },
         },
         {
             title: '标杆类型',
@@ -197,7 +206,7 @@ const BenchmarkPage: React.FC = () => {
                         current: params.current,
                         pageSize: params.pageSize,
                         code: params.code,
-                        name: params.name,
+                        keyword: params.keyword,
                         type: params.type,
                     });
                     return wrapperResult(res);

@@ -27,7 +27,7 @@ const BenchmarkForm: React.FC<BenchmarkFormProps> = ({ visible, onVisibleChange,
     } = useCrud<Benchmark>({
         pathname: '/energy-saving/benchmark',
         entityName: '对标值',
-        baseUrl: '/api/benchmarks',
+        baseUrl: '/api/ems/benchmarks',
         onOpenChange: onVisibleChange
     });
 

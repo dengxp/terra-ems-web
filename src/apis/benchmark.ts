@@ -40,7 +40,7 @@ export interface BenchmarkPageParams {
     current?: number;
     pageSize?: number;
     code?: string;
-    name?: string;
+    keyword?: string;
     type?: BenchmarkType;
     status?: number;
 }
@@ -55,7 +55,7 @@ export async function getBenchmarkPage(params: BenchmarkPageParams) {
             pageNumber: (params.current || 1) - 1,
             pageSize: params.pageSize || 10,
             code: params.code,
-            name: params.name,
+            keyword: params.keyword,
             type: params.type,
             status: params.status,
         },
