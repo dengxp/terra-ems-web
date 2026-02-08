@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { ProPageContainer } from '@/components/container';
 import { ProTable, ProColumns } from '@ant-design/pro-components';
 import { Button, Space, Tag } from 'antd';
@@ -27,6 +27,7 @@ const EnergySavingProjectPage: React.FC = () => {
         toDelete,
         toBatchDelete,
         setDialogVisible,
+        setShouldRefresh,
     } = useCrud<EnergySavingProject>({
         pathname: '/energy-saving/project',
         entityName: '节能项目',
@@ -34,6 +35,14 @@ const EnergySavingProjectPage: React.FC = () => {
     });
 
     const state = getState('/energy-saving/project');
+
+    // 监听 shouldRefresh 状态，触发表格刷新
+    useEffect(() => {
+        if (state?.shouldRefresh) {
+            actionRef.current?.reload();
+            setShouldRefresh(false);
+        }
+    }, [state?.shouldRefresh, setShouldRefresh, actionRef]);
 
     const toEditSelected = () => {
         if (editDisabled) return;
