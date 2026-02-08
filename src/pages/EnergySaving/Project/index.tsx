@@ -30,7 +30,7 @@ const EnergySavingProjectPage: React.FC = () => {
     } = useCrud<EnergySavingProject>({
         pathname: '/energy-saving/project',
         entityName: '节能项目',
-        baseUrl: '/api/energy-saving-projects',
+        baseUrl: '/api/ems/saving-projects',
     });
 
     const state = getState('/energy-saving/project');
