@@ -78,6 +78,7 @@ const BenchmarkPage: React.FC = () => {
             title: '标杆编码',
             dataIndex: 'code',
             width: 120,
+            hideInSearch: true,
         },
         {
             title: '标杆名称',
@@ -205,7 +206,6 @@ const BenchmarkPage: React.FC = () => {
                     const res = await getBenchmarkPage({
                         current: params.current,
                         pageSize: params.pageSize,
-                        code: params.code,
                         keyword: params.keyword,
                         type: params.type,
                     });
