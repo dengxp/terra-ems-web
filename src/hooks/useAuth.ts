@@ -2,6 +2,7 @@ import { useModel } from "@umijs/max";
 import { login as loginApi, logout as logoutApi } from '@/apis/login';
 import { removeToken, setToken } from "@/utils/auth";
 import { history } from "@@/core/history";
+import { TAB_STORAGE_KEY } from "@/config/constants";
 
 export default function useAuth() {
   const { setInitialState } = useModel('@@initialState');
@@ -34,6 +35,9 @@ export default function useAuth() {
       await logoutApi();
     } finally {
       removeToken();
+      // 清除 TabsLayout 缓存，避免下次登录时恢复之前的页签
+      localStorage.removeItem(TAB_STORAGE_KEY);
+      localStorage.removeItem(TAB_STORAGE_KEY + '_active');
       setInitialState(s => ({ ...s, currentUser: undefined }));
       redirect();
     }
