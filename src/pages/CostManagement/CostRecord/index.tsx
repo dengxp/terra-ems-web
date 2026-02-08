@@ -30,7 +30,7 @@ const CostRecordPage: React.FC = () => {
     } = useCrud<EnergyCostRecord>({
         pathname: '/cost-management/cost-record',
         entityName: '成本记录',
-        baseUrl: '/api/energy-cost-records',
+        baseUrl: '/api/ems/energy-cost-records',
     });
 
     const state = getState('/cost-management/cost-record');

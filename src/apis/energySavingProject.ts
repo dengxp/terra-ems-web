@@ -34,6 +34,7 @@ export const projectStatusOptions = [
 export interface ProjectPageParams {
     current?: number;
     pageSize?: number;
+    keyword?: string;
     name?: string;
     status?: ProjectStatus;
 }
@@ -47,6 +48,7 @@ export async function getProjectPage(params: ProjectPageParams) {
         params: {
             pageNumber: (params.current || 1) - 1,
             pageSize: params.pageSize || 10,
+            keyword: params.keyword,
             name: params.name,
             status: params.status,
         },

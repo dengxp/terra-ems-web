@@ -76,10 +76,19 @@ const EnergySavingProjectPage: React.FC = () => {
 
     const columns: ProColumns<EnergySavingProject>[] = [
         {
+            title: '关键词',
+            dataIndex: 'keyword',
+            hideInTable: true,
+            fieldProps: {
+                placeholder: '名称/负责人/备注',
+            },
+        },
+        {
             title: '项目名称',
             dataIndex: 'name',
             ellipsis: true,
             width: 180,
+            hideInSearch: true,
         },
         {
             title: '项目负责人',
@@ -188,7 +197,7 @@ const EnergySavingProjectPage: React.FC = () => {
                     const res = await getProjectPage({
                         current: params.current,
                         pageSize: params.pageSize,
-                        name: params.name,
+                        keyword: params.keyword,
                         status: params.status,
                     });
                     return wrapperResult(res);

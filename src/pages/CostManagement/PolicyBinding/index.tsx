@@ -31,7 +31,7 @@ const PolicyBindingPage: React.FC = () => {
     } = useCrud<CostPolicyBinding>({
         pathname: '/cost-management/policy-binding',
         entityName: '策略绑定',
-        baseUrl: '/api/cost-policy-bindings',
+        baseUrl: '/api/ems/cost-policy-bindings',
     });
 
     const state = getState('/cost-management/policy-binding');
