@@ -27,6 +27,7 @@ const PolicyBindingPage: React.FC = () => {
         toDelete,
         toBatchDelete,
         setDialogVisible,
+        setShouldRefresh,
     } = useCrud<CostPolicyBinding>({
         pathname: '/cost-management/policy-binding',
         entityName: '策略绑定',
@@ -34,6 +35,14 @@ const PolicyBindingPage: React.FC = () => {
     });
 
     const state = getState('/cost-management/policy-binding');
+
+    // 监听 shouldRefresh 状态，触发表格刷新
+    useEffect(() => {
+        if (state?.shouldRefresh) {
+            actionRef.current?.reload();
+            setShouldRefresh(false);
+        }
+    }, [state?.shouldRefresh, setShouldRefresh, actionRef]);
 
     useEffect(() => {
         loadOptions();

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { ProPageContainer } from '@/components/container';
 import { ProTable, ProColumns } from '@ant-design/pro-components';
 import { Button, Space, Tag } from 'antd';
@@ -26,6 +26,7 @@ const CostRecordPage: React.FC = () => {
         toEdit,
         toBatchDelete,
         setDialogVisible,
+        setShouldRefresh,
     } = useCrud<EnergyCostRecord>({
         pathname: '/cost-management/cost-record',
         entityName: '成本记录',
@@ -33,6 +34,14 @@ const CostRecordPage: React.FC = () => {
     });
 
     const state = getState('/cost-management/cost-record');
+
+    // 监听 shouldRefresh 状态，触发表格刷新
+    useEffect(() => {
+        if (state?.shouldRefresh) {
+            actionRef.current?.reload();
+            setShouldRefresh(false);
+        }
+    }, [state?.shouldRefresh, setShouldRefresh, actionRef]);
 
     const toEditSelected = () => {
         if (editDisabled) return;
