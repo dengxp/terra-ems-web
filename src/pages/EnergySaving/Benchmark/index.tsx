@@ -6,7 +6,7 @@ import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import {
     Benchmark,
     BenchmarkType,
-    BenchmarkTypeOptions,
+    benchmarkTypeOptions,
     getBenchmarkPage,
 } from '@/apis/benchmark';
 import BenchmarkForm from './components/BenchmarkForm';
@@ -60,7 +60,7 @@ const BenchmarkPage: React.FC = () => {
     }, [selectedRowKeys]);
 
     const getTypeTag = (type: BenchmarkType) => {
-        const option = BenchmarkTypeOptions.find((o) => o.value === type);
+        const option = benchmarkTypeOptions.find((o) => o.value === type);
         return <Tag color={option?.color}>{option?.label || type}</Tag>;
     };
 
@@ -82,7 +82,7 @@ const BenchmarkPage: React.FC = () => {
             width: 100,
             valueType: 'select',
             fieldProps: {
-                options: BenchmarkTypeOptions,
+                options: benchmarkTypeOptions,
             },
             render: (_, record) => getTypeTag(record.type),
         },

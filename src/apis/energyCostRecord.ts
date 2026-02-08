@@ -35,7 +35,7 @@ export type RecordPeriodType = 'DAY' | 'MONTH' | 'YEAR';
 /**
  * 周期类型选项
  */
-export const RecordPeriodTypeOptions = [
+export const recordPeriodTypeOptions = [
     { label: '日', value: 'DAY' },
     { label: '月', value: 'MONTH' },
     { label: '年', value: 'YEAR' },

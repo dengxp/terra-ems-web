@@ -9,7 +9,7 @@ import {
 import { ProModalForm } from '@/components/container';
 import {
     EnergySavingProject,
-    ProjectStatusOptions,
+    projectStatusOptions,
 } from '@/apis/energySavingProject';
 import useCrud from '@/hooks/common/useCrud';
 import { OperationEnum } from '@/enums';
@@ -81,7 +81,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ visible, onVisibleChange, onS
             <ProFormSelect
                 name="status"
                 label="项目状态"
-                options={ProjectStatusOptions}
+                options={projectStatusOptions}
                 rules={[{ required: true, message: '请选择项目状态' }]}
             />
             <ProFormDatePicker

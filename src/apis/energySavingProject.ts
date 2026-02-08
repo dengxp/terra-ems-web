@@ -24,7 +24,7 @@ export type ProjectStatus = 'PLANNING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLE
 /**
  * 项目状态选项
  */
-export const ProjectStatusOptions = [
+export const projectStatusOptions = [
     { label: '规划中', value: 'PLANNING', color: '#1890ff' },
     { label: '进行中', value: 'IN_PROGRESS', color: '#faad14' },
     { label: '已完成', value: 'COMPLETED', color: '#52c41a' },

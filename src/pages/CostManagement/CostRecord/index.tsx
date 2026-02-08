@@ -5,7 +5,7 @@ import { Button, Space, Tag } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import {
     EnergyCostRecord,
-    RecordPeriodTypeOptions,
+    recordPeriodTypeOptions,
     getEnergyCostRecordPage,
     deleteEnergyCostRecord,
 } from '@/apis/energyCostRecord';
@@ -63,7 +63,7 @@ const CostRecordPage: React.FC = () => {
     const deleteDisabled = useMemo(() => !selectedRowKeys || selectedRowKeys.length === 0, [selectedRowKeys]);
 
     const getPeriodTypeTag = (type: string) => {
-        const option = RecordPeriodTypeOptions.find((o) => o.value === type);
+        const option = recordPeriodTypeOptions.find((o) => o.value === type);
         return <Tag>{option?.label || type}</Tag>;
     };
 
@@ -92,7 +92,7 @@ const CostRecordPage: React.FC = () => {
             dataIndex: 'periodType',
             width: 80,
             valueType: 'select',
-            fieldProps: { options: RecordPeriodTypeOptions },
+            fieldProps: { options: recordPeriodTypeOptions },
             render: (_, record) => getPeriodTypeTag(record.periodType),
         },
         {

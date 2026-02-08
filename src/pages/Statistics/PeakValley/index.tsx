@@ -11,7 +11,7 @@ import {
     getMonthlyAnalysis,
     getYearlyAnalysis,
     PeakValleyAnalysisResult,
-    TimePeriodTypeOptions,
+    timePeriodTypeOptions,
     PeriodSummary,
 } from '@/apis/peakValley';
 import StatisticsCard from '../components/StatisticsCard';
@@ -73,7 +73,7 @@ const PeakValleyPage: React.FC = () => {
 
     // 获取时段颜色
     const getPeriodColor = (periodType: string) => {
-        const option = TimePeriodTypeOptions.find(o => o.value === periodType);
+        const option = timePeriodTypeOptions.find(o => o.value === periodType);
         return option?.color || '#999';
     };
 
@@ -93,7 +93,7 @@ const PeakValleyPage: React.FC = () => {
         legend: {
             position: 'bottom' as const,
         },
-        color: TimePeriodTypeOptions.map(o => o.color),
+        color: timePeriodTypeOptions.map(o => o.color),
     };
 
     // 表格列定义
@@ -199,7 +199,7 @@ const PeakValleyPage: React.FC = () => {
                                 {/* 时段统计卡片 - 增加适度的顶部间距 */}
                                 <div className="period-cards-container" style={{ marginTop: 8 }}>
                                     {/* 始终渲染所有时段类型的卡片，确保布局固定 */}
-                                    {TimePeriodTypeOptions.map((option) => {
+                                    {timePeriodTypeOptions.map((option) => {
                                         // 查找对应的数据，如果没有则显示 0
                                         const item = analysisResult?.periodSummaries?.find(s => s.periodType === option.value) || {
                                             periodType: option.value,

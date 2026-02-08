@@ -6,7 +6,7 @@ import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import {
     EnergySavingProject,
     ProjectStatus,
-    ProjectStatusOptions,
+    projectStatusOptions,
     getProjectPage,
 } from '@/apis/energySavingProject';
 import ProjectForm from './components/ProjectForm';
@@ -61,7 +61,7 @@ const EnergySavingProjectPage: React.FC = () => {
     }, [selectedRowKeys]);
 
     const getStatusTag = (status: ProjectStatus) => {
-        const option = ProjectStatusOptions.find((o) => o.value === status);
+        const option = projectStatusOptions.find((o) => o.value === status);
         return <Tag color={option?.color}>{option?.label || status}</Tag>;
     };
 
@@ -84,7 +84,7 @@ const EnergySavingProjectPage: React.FC = () => {
             width: 100,
             valueType: 'select',
             fieldProps: {
-                options: ProjectStatusOptions,
+                options: projectStatusOptions,
             },
             render: (_, record) => getStatusTag(record.status),
         },

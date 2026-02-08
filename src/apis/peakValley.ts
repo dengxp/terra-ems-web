@@ -12,7 +12,7 @@ export type TimePeriodType = 'SHARP' | 'PEAK' | 'FLAT' | 'VALLEY' | 'DEEP_VALLEY
 /**
  * 时段类型选项
  */
-export const TimePeriodTypeOptions = [
+export const timePeriodTypeOptions = [
     { label: '尖', value: 'SHARP', color: '#f5222d' },
     { label: '峰', value: 'PEAK', color: '#fa8c16' },
     { label: '平', value: 'FLAT', color: '#52c41a' },

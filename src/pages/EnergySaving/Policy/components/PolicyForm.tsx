@@ -8,7 +8,7 @@ import {
 import { ProModalForm } from '@/components/container';
 import {
     Policy,
-    PolicyTypeOptions,
+    policyTypeOptions,
 } from '@/apis/policy';
 import useCrud from '@/hooks/common/useCrud';
 import { OperationEnum } from '@/enums';
@@ -75,7 +75,7 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ visible, onVisibleChange, onSuc
             <ProFormSelect
                 name="type"
                 label="政策类型"
-                options={PolicyTypeOptions}
+                options={policyTypeOptions}
                 rules={[{ required: true, message: '请选择政策类型' }]}
             />
             <ProFormText

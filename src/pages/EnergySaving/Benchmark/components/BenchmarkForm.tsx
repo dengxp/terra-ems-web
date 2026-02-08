@@ -8,7 +8,7 @@ import {
 import { ProModalForm } from '@/components/container';
 import {
     Benchmark,
-    BenchmarkTypeOptions,
+    benchmarkTypeOptions,
 } from '@/apis/benchmark';
 import useCrud from '@/hooks/common/useCrud';
 import { OperationEnum } from '@/enums';
@@ -82,7 +82,7 @@ const BenchmarkForm: React.FC<BenchmarkFormProps> = ({ visible, onVisibleChange,
             <ProFormSelect
                 name="type"
                 label="标杆类型"
-                options={BenchmarkTypeOptions}
+                options={benchmarkTypeOptions}
                 rules={[{ required: true, message: '请选择标杆类型' }]}
             />
             <ProFormText

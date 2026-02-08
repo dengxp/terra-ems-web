@@ -23,7 +23,7 @@ export type PolicyType = 'NATIONAL' | 'LOCAL' | 'INDUSTRY' | 'OTHER';
 /**
  * 政策类型选项
  */
-export const PolicyTypeOptions = [
+export const policyTypeOptions = [
     { label: '国家级', value: 'NATIONAL', color: '#f5222d' },
     { label: '地方级', value: 'LOCAL', color: '#fa8c16' },
     { label: '行业标准', value: 'INDUSTRY', color: '#1890ff' },

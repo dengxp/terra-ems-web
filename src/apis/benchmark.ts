@@ -29,7 +29,7 @@ export type BenchmarkType = 'NATIONAL' | 'INDUSTRY' | 'ENTERPRISE' | 'REGIONAL';
 /**
  * 对标类型选项
  */
-export const BenchmarkTypeOptions = [
+export const benchmarkTypeOptions = [
     { label: '国家标准', value: 'NATIONAL', color: '#f5222d' },
     { label: '行业标准', value: 'INDUSTRY', color: '#fa8c16' },
     { label: '企业标准', value: 'ENTERPRISE', color: '#1890ff' },

@@ -6,7 +6,7 @@ import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import {
     Policy,
     PolicyType,
-    PolicyTypeOptions,
+    policyTypeOptions,
     getPolicyPage,
 } from '@/apis/policy';
 import PolicyForm from './components/PolicyForm';
@@ -61,7 +61,7 @@ const PolicyPage: React.FC = () => {
     }, [selectedRowKeys]);
 
     const getTypeTag = (type: PolicyType) => {
-        const option = PolicyTypeOptions.find((o) => o.value === type);
+        const option = policyTypeOptions.find((o) => o.value === type);
         return <Tag color={option?.color}>{option?.label || type}</Tag>;
     };
 
@@ -78,7 +78,7 @@ const PolicyPage: React.FC = () => {
             width: 100,
             valueType: 'select',
             fieldProps: {
-                options: PolicyTypeOptions,
+                options: policyTypeOptions,
             },
             render: (_, record) => getTypeTag(record.type),
         },

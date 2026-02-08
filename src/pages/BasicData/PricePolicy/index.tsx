@@ -3,7 +3,7 @@ import { ProPageContainer } from '@/components/container';
 import { ProTable, ProColumns } from '@ant-design/pro-components';
 import { Button, Space, Tag } from 'antd';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
-import { PricePolicy, PeriodTypeOptions, getPricePolicyPage } from '@/apis/pricePolicy';
+import { PricePolicy, periodTypeOptions, getPricePolicyPage } from '@/apis/pricePolicy';
 import PricePolicyForm from './components/PricePolicyForm';
 import StatusIcon from '@/components/icons/StatusIcon';
 import { EditButton, DeleteButton } from '@/components/button';
@@ -79,7 +79,7 @@ const PricePolicyPage: React.FC = () => {
         return (
             <Space size={4} wrap>
                 {items.map((item, index) => {
-                    const opt = PeriodTypeOptions.find(o => o.value === item.periodType);
+                    const opt = periodTypeOptions.find(o => o.value === item.periodType);
                     const timeRange = item.startTime && item.endTime
                         ? `${item.startTime}-${item.endTime}`
                         : '';

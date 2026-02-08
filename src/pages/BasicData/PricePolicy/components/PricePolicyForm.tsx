@@ -13,7 +13,7 @@ import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import {
     PricePolicy,
     PricePolicyItem,
-    PeriodTypeOptions,
+    periodTypeOptions,
 } from '@/apis/pricePolicy';
 import useCrud from '@/hooks/common/useCrud';
 import { OperationEnum } from '@/enums';
@@ -163,7 +163,7 @@ const PricePolicyForm: React.FC<PricePolicyFormProps> = ({
                 <Select
                     value={record.periodType}
                     style={{ width: '100%' }}
-                    options={PeriodTypeOptions.map(opt => ({ label: opt.label, value: opt.value }))}
+                    options={periodTypeOptions.map(opt => ({ label: opt.label, value: opt.value }))}
                     onChange={(value) => handleItemChange(index, 'periodType', value)}
                     disabled={!isMultiRate}
                 />

@@ -9,7 +9,7 @@ import {
 import { Form, message, Row, Col } from 'antd';
 import {
     EnergyCostRecord,
-    RecordPeriodTypeOptions,
+    recordPeriodTypeOptions,
     createEnergyCostRecord,
     updateEnergyCostRecord,
 } from '@/apis/energyCostRecord';
@@ -130,7 +130,7 @@ const CostRecordForm: React.FC<CostRecordFormProps> = (props) => {
                     <ProFormSelect
                         name="periodType"
                         label="周期类型"
-                        options={RecordPeriodTypeOptions}
+                        options={recordPeriodTypeOptions}
                         rules={[{ required: true }]}
                     />
                 </Col>
