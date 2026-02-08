@@ -31,7 +31,7 @@ const PolicyPage: React.FC = () => {
     } = useCrud<Policy>({
         pathname: '/energy-saving/policy',
         entityName: '政策法规',
-        baseUrl: '/api/policies',
+        baseUrl: '/api/ems/policies',
     });
 
     const state = getState('/energy-saving/policy');
