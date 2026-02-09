@@ -5,6 +5,7 @@ import {
     ProFormTextArea,
     ProFormDatePicker,
     ProFormDigit,
+    ProFormTreeSelect,
 } from '@ant-design/pro-components';
 import { Form, message, Row, Col } from 'antd';
 import {
@@ -13,7 +14,7 @@ import {
     createEnergyCostRecord,
     updateEnergyCostRecord,
 } from '@/apis/energyCostRecord';
-import { getEnabledEnergyUnits, EnergyUnit } from '@/apis/energyUnit';
+import { getEnabledEnergyUnitTree, EnergyUnit } from '@/apis/energyUnit';
 import { getEnabledEnergyTypes, EnergyType } from '@/apis/energyType';
 
 interface CostRecordFormProps {
@@ -29,6 +30,7 @@ const CostRecordForm: React.FC<CostRecordFormProps> = (props) => {
     const [form] = Form.useForm();
     const [energyUnits, setEnergyUnits] = useState<EnergyUnit[]>([]);
     const [energyTypes, setEnergyTypes] = useState<EnergyType[]>([]);
+    const [periodType, setPeriodType] = useState<string>('DAY');
 
     useEffect(() => {
         loadOptions();
@@ -37,7 +39,7 @@ const CostRecordForm: React.FC<CostRecordFormProps> = (props) => {
     const loadOptions = async () => {
         try {
             const [unitRes, typeRes] = await Promise.all([
-                getEnabledEnergyUnits(),
+                getEnabledEnergyUnitTree(),
                 getEnabledEnergyTypes(),
             ]);
             setEnergyUnits(unitRes.data || []);
@@ -55,15 +57,38 @@ const CostRecordForm: React.FC<CostRecordFormProps> = (props) => {
                     energyUnitId: currentRecord.energyUnit?.id,
                     energyTypeId: currentRecord.energyType?.id,
                 });
+                setPeriodType(currentRecord.periodType || 'DAY');
             } else {
                 form.resetFields();
                 form.setFieldsValue({ periodType: 'DAY' });
+                setPeriodType('DAY');
             }
         }
     }, [visible, isEdit, currentRecord, form]);
 
     const handleSubmit = async (values: any) => {
         try {
+            // 数据一致性校验：尖峰平谷用量之和应等于总用量
+            const consumption = values.consumption || 0;
+            const sharpConsumption = values.sharpConsumption || 0;
+            const peakConsumption = values.peakConsumption || 0;
+            const flatConsumption = values.flatConsumption || 0;
+            const valleyConsumption = values.valleyConsumption || 0;
+
+            const periodSum = sharpConsumption + peakConsumption + flatConsumption + valleyConsumption;
+
+            // 如果填写了分时段用量，检查总和是否匹配
+            if (periodSum > 0 && consumption > 0) {
+                const diff = Math.abs(periodSum - consumption);
+                // 允许小数精度误差（0.0001）
+                if (diff > 0.0001) {
+                    message.warning(
+                        `尖峰平谷用量之和（${periodSum.toFixed(4)}）与总用量（${consumption.toFixed(4)}）不一致，差值：${diff.toFixed(4)}`
+                    );
+                    return false;
+                }
+            }
+
             const data = {
                 ...currentRecord, // 重点：合并旧数据
                 ...values,
@@ -103,10 +128,17 @@ const CostRecordForm: React.FC<CostRecordFormProps> = (props) => {
         >
             <Row gutter={16}>
                 <Col span={12}>
-                    <ProFormSelect
+                    <ProFormTreeSelect
                         name="energyUnitId"
                         label="用能单元"
-                        options={energyUnits.map((u) => ({ label: u.name, value: u.id }))}
+                        fieldProps={{
+                            treeData: energyUnits,
+                            fieldNames: { label: 'name', value: 'id', children: 'children' },
+                            showSearch: true,
+                            treeDefaultExpandAll: true,
+                            filterTreeNode: (input: string, node: any) =>
+                                (node?.name as string)?.toLowerCase().includes(input.toLowerCase()),
+                        }}
                     />
                 </Col>
                 <Col span={12}>
@@ -119,19 +151,29 @@ const CostRecordForm: React.FC<CostRecordFormProps> = (props) => {
             </Row>
             <Row gutter={16}>
                 <Col span={12}>
-                    <ProFormDatePicker
-                        name="recordDate"
-                        label="记录日期"
-                        width="md"
-                        rules={[{ required: true, message: '请选择记录日期' }]}
-                    />
-                </Col>
-                <Col span={12}>
                     <ProFormSelect
                         name="periodType"
                         label="周期类型"
                         options={recordPeriodTypeOptions}
-                        rules={[{ required: true }]}
+                        rules={[{ required: true, message: '请选择周期类型' }]}
+                        fieldProps={{
+                            onChange: (value) => {
+                                setPeriodType(value as string);
+                                // 清空日期字段，让用户重新选择
+                                form.setFieldValue('recordDate', undefined);
+                            },
+                        }}
+                    />
+                </Col>
+                <Col span={12}>
+                    <ProFormDatePicker
+                        name="recordDate"
+                        label="记录周期"
+                        width="md"
+                        rules={[{ required: true, message: '请选择记录周期' }]}
+                        fieldProps={{
+                            picker: periodType === 'YEAR' ? 'year' : periodType === 'MONTH' ? 'month' : 'date',
+                        }}
                     />
                 </Col>
             </Row>

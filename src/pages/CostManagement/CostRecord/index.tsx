@@ -1,7 +1,8 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { ProPageContainer } from '@/components/container';
-import { ProTable, ProColumns } from '@ant-design/pro-components';
-import { Button, Space, Tag } from 'antd';
+import { ProTable, ProColumns, ProFormInstance } from '@ant-design/pro-components';
+import { Button, Space, Tag, DatePicker } from 'antd';
+const { RangePicker } = DatePicker;
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import {
     EnergyCostRecord,
@@ -18,6 +19,8 @@ import dayjs from 'dayjs';
 const CostRecordPage: React.FC = () => {
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     const [selectedRows, setSelectedRows] = useState<EnergyCostRecord[]>([]);
+    const [searchPeriodType, setSearchPeriodType] = useState<string>('DAY');
+    const formRef = useRef<ProFormInstance>();
 
     const {
         getState,
@@ -78,11 +81,56 @@ const CostRecordPage: React.FC = () => {
 
     const columns: ProColumns<EnergyCostRecord>[] = [
         {
-            title: '记录日期',
+            title: '周期类型',
+            dataIndex: 'periodType',
+            width: 80,
+            valueType: 'select',
+            fieldProps: {
+                options: recordPeriodTypeOptions,
+                allowClear: true,
+                placeholder: '全部',
+                onChange: (value: string) => {
+                    // 当清空或选择时，更新日期选择器格式，默认使用 'DAY'
+                    setSearchPeriodType(value || 'DAY');
+                    // 清空记录周期字段
+                    formRef.current?.setFieldValue('recordDateRange', undefined);
+                },
+            },
+            render: (_, record) => getPeriodTypeTag(record.periodType),
+        },
+        {
+            title: '记录周期',
+            dataIndex: 'recordDateRange',
+            key: `recordDateRange_${searchPeriodType}`,
+            width: 200,
+            hideInTable: true,
+            renderFormItem: () => {
+                const picker = searchPeriodType === 'YEAR' ? 'year' : searchPeriodType === 'MONTH' ? 'month' : 'date';
+                const format = searchPeriodType === 'YEAR' ? 'YYYY' : searchPeriodType === 'MONTH' ? 'YYYY-MM' : 'YYYY-MM-DD';
+                return (
+                    <RangePicker
+                        picker={picker}
+                        format={format}
+                        style={{ width: '100%' }}
+                    />
+                );
+            },
+        },
+        {
+            title: '记录周期',
             dataIndex: 'recordDate',
             width: 110,
-            valueType: 'date',
-            render: (_, record) => dayjs(record.recordDate).format('YYYY-MM-DD'),
+            hideInSearch: true,
+            render: (_, record) => {
+                // 根据周期类型显示不同格式
+                if (record.periodType === 'YEAR') {
+                    return dayjs(record.recordDate).format('YYYY');
+                } else if (record.periodType === 'MONTH') {
+                    return dayjs(record.recordDate).format('YYYY-MM');
+                } else {
+                    return dayjs(record.recordDate).format('YYYY-MM-DD');
+                }
+            },
         },
         {
             title: '用能单元',
@@ -95,14 +143,6 @@ const CostRecordPage: React.FC = () => {
             dataIndex: ['energyType', 'name'],
             width: 100,
             hideInSearch: true,
-        },
-        {
-            title: '周期类型',
-            dataIndex: 'periodType',
-            width: 80,
-            valueType: 'select',
-            fieldProps: { options: recordPeriodTypeOptions },
-            render: (_, record) => getPeriodTypeTag(record.periodType),
         },
         {
             title: '用量',
@@ -140,6 +180,7 @@ const CostRecordPage: React.FC = () => {
     return (
         <ProPageContainer className={'pt-1'}>
             <ProTable<EnergyCostRecord>
+                formRef={formRef}
                 actionRef={actionRef}
                 rowKey="id"
                 tableAlertRender={false}
@@ -172,11 +213,31 @@ const CostRecordPage: React.FC = () => {
                     ),
                 }}
                 request={async (params) => {
+                    // 使用日期范围选择器的值
+                    let startDate: string | undefined;
+                    let endDate: string | undefined;
+
+                    if (params.recordDateRange && Array.isArray(params.recordDateRange)) {
+                        const [start, end] = params.recordDateRange;
+                        if (start && end) {
+                            startDate = dayjs(start).format('YYYY-MM-DD');
+                            endDate = dayjs(end).format('YYYY-MM-DD');
+                        }
+                    }
+
+                    console.log('查询参数:', {
+                        periodType: params.periodType,
+                        recordDateRange: params.recordDateRange,
+                        startDate,
+                        endDate,
+                    });
+
                     const res = await getEnergyCostRecordPage({
                         current: params.current,
                         pageSize: params.pageSize,
                         periodType: params.periodType,
-                        startDate: params.recordDate,
+                        startDate,
+                        endDate,
                     });
                     return wrapperResult(res);
                 }}
