@@ -191,7 +191,7 @@ const CostRecordPage: React.FC = () => {
             <CostRecordForm
                 visible={state?.dialogVisible || false}
                 onVisibleChange={(v) => setDialogVisible(v)}
-                isEdit={!!state?.editData}
+                isEdit={state?.operation === 'edit'}
                 currentRecord={state?.operation === 'edit' ? (state?.editData as EnergyCostRecord | undefined) : undefined}
                 onSuccess={() => {
                     setDialogVisible(false);

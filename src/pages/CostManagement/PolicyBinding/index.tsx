@@ -1,15 +1,16 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { ProPageContainer } from '@/components/container';
 import { ProTable, ProColumns } from '@ant-design/pro-components';
-import { Button, Space, Tag, Select } from 'antd';
+import { Button, Space, TreeSelect } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import {
     CostPolicyBinding,
     getCostPolicyBindingPage,
 } from '@/apis/costPolicyBinding';
-import { getEnabledEnergyUnits, EnergyUnit } from '@/apis/energyUnit';
+import { getEnabledEnergyUnitTree, EnergyUnit } from '@/apis/energyUnit';
 import BindingForm from './components/BindingForm';
 import { EditButton, DeleteButton } from '@/components/button';
+import StatusIcon from '@/components/icons/StatusIcon';
 import useCrud from '@/hooks/common/useCrud';
 import { wrapperResult } from '@/utils';
 import dayjs from 'dayjs';
@@ -50,7 +51,7 @@ const PolicyBindingPage: React.FC = () => {
 
     const loadOptions = async () => {
         try {
-            const unitRes = await getEnabledEnergyUnits();
+            const unitRes = await getEnabledEnergyUnitTree();
             setEnergyUnits(unitRes.data || []);
         } catch (error) {
             console.error(error);
@@ -80,12 +81,19 @@ const PolicyBindingPage: React.FC = () => {
         {
             title: '用能单元',
             dataIndex: ['energyUnit', 'name'],
+            key: 'energyUnitId',
             width: 150,
             renderFormItem: () => (
-                <Select
+                <TreeSelect
                     allowClear
-                    placeholder="请选择"
-                    options={energyUnits.map((u) => ({ label: u.name, value: u.id }))}
+                    showSearch
+                    placeholder="请选择用能单元"
+                    treeData={energyUnits}
+                    fieldNames={{ label: 'name', value: 'id', children: 'children' }}
+                    treeDefaultExpandAll
+                    filterTreeNode={(input, node) =>
+                        (node?.name as string)?.toLowerCase().includes(input.toLowerCase())
+                    }
                 />
             ),
         },
@@ -107,18 +115,20 @@ const PolicyBindingPage: React.FC = () => {
             dataIndex: 'effectiveEndDate',
             width: 120,
             hideInSearch: true,
-            render: (val) => (val ? dayjs(val as string).format('YYYY-MM-DD') : '长期有效'),
+            render: (val) => {
+                if (!val || val === '' || val === null || val === undefined) {
+                    return '长期有效';
+                }
+                const date = dayjs(val as string);
+                return date.isValid() ? date.format('YYYY-MM-DD') : '长期有效';
+            },
         },
         {
             title: '状态',
             dataIndex: 'status',
             width: 80,
             hideInSearch: true,
-            render: (val) => (
-                <Tag color={val === 0 ? 'success' : 'default'}>
-                    {val === 0 ? '启用' : '禁用'}
-                </Tag>
-            ),
+            render: (_, record) => <StatusIcon value={record.status} />,
         },
         {
             title: '备注',
@@ -174,10 +184,11 @@ const PolicyBindingPage: React.FC = () => {
                     ),
                 }}
                 request={async (params) => {
+                    console.log('搜索参数:', params);
                     const res = await getCostPolicyBindingPage({
                         current: params.current,
                         pageSize: params.pageSize,
-                        energyUnitId: params.energyUnit?.id,
+                        energyUnitId: params.energyUnitId,
                     });
                     return wrapperResult(res);
                 }}

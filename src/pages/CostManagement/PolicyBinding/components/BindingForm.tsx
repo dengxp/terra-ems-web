@@ -4,13 +4,15 @@ import {
     ProFormTextArea,
     ProFormDatePicker,
     ProFormText,
+    ProFormTreeSelect,
+    ProFormRadio,
 } from '@ant-design/pro-components';
 import { Form } from 'antd';
 import { ProModalForm } from '@/components/container';
 import {
     CostPolicyBinding,
 } from '@/apis/costPolicyBinding';
-import { getEnabledEnergyUnits } from '@/apis/energyUnit';
+import { getEnabledEnergyUnitTree, EnergyUnit } from '@/apis/energyUnit';
 import { getEnabledPricePolicies } from '@/apis/pricePolicy';
 import useCrud from '@/hooks/common/useCrud';
 import { OperationEnum } from '@/enums';
@@ -29,7 +31,7 @@ const BindingForm: React.FC<BindingFormProps> = ({ visible, onVisibleChange, onS
     } = useCrud<CostPolicyBinding>({
         pathname: '/cost-management/policy-binding',
         entityName: '策略绑定',
-        baseUrl: '/api/cost-policy-bindings',
+        baseUrl: '/api/ems/cost-policy-bindings',
         onOpenChange: onVisibleChange
     });
 
@@ -42,8 +44,6 @@ const BindingForm: React.FC<BindingFormProps> = ({ visible, onVisibleChange, onS
                     ...state.editData,
                     energyUnitId: state.editData?.energyUnit?.id,
                     pricePolicyId: state.editData?.pricePolicy?.id,
-                    startDate: state.editData?.effectiveStartDate,
-                    endDate: state.editData?.effectiveEndDate,
                 });
             } else {
                 form.resetFields();
@@ -73,14 +73,22 @@ const BindingForm: React.FC<BindingFormProps> = ({ visible, onVisibleChange, onS
             loading={state.loading}
         >
             <ProFormText name="id" hidden />
-            <ProFormSelect
+            <ProFormTreeSelect
                 name="energyUnitId"
                 label="用能单元"
+                colProps={{ span: 24 }}
                 disabled={state.operation === OperationEnum.EDIT}
                 rules={[{ required: true, message: '请选择用能单元' }]}
                 request={async () => {
-                    const res = await getEnabledEnergyUnits();
-                    return (res.data || []).map((u: any) => ({ label: u.name, value: u.id }));
+                    const res = await getEnabledEnergyUnitTree();
+                    return res.data || [];
+                }}
+                fieldProps={{
+                    fieldNames: { label: 'name', value: 'id', children: 'children' },
+                    showSearch: true,
+                    treeDefaultExpandAll: true,
+                    filterTreeNode: (input: string, node: any) =>
+                        (node?.name as string)?.toLowerCase().includes(input.toLowerCase()),
                 }}
             />
             <ProFormSelect
@@ -93,16 +101,25 @@ const BindingForm: React.FC<BindingFormProps> = ({ visible, onVisibleChange, onS
                 }}
             />
             <ProFormDatePicker
-                name="startDate"
+                name="effectiveStartDate"
                 label="生效开始日期"
                 width="md"
                 rules={[{ required: true, message: '请选择生效开始日期' }]}
             />
             <ProFormDatePicker
-                name="endDate"
+                name="effectiveEndDate"
                 label="生效结束日期"
                 width="md"
                 tooltip="为空表示长期有效"
+            />
+            <ProFormRadio.Group
+                name="status"
+                label="状态"
+                hidden={state.operation === OperationEnum.CREATE}
+                options={[
+                    { label: '启用', value: 0 },
+                    { label: '禁用', value: 1 },
+                ]}
             />
             <ProFormTextArea
                 name="remark"

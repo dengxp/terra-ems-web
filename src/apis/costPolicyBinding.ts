@@ -130,7 +130,7 @@ export async function deleteCostPolicyBinding(id: number) {
  */
 export async function updateCostPolicyBindingStatus(id: number, status: number) {
     return request<API.Result<CostPolicyBinding>>(`/api/ems/cost-policy-bindings/${id}/status`, {
-        method: 'POST',
+        method: 'PUT',
         params: { status },
     });
 }

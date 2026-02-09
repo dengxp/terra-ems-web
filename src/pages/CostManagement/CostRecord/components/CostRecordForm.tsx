@@ -164,7 +164,14 @@ const CostRecordForm: React.FC<CostRecordFormProps> = (props) => {
                     <ProFormDigit name="powerFactor" label="功率因数" fieldProps={{ precision: 2, max: 1, min: 0 }} />
                 </Col>
             </Row>
-            <ProFormTextArea name="remark" label="备注" placeholder="备注信息" fieldProps={{ rows: 2 }} />
+            <ProFormTextArea
+                name="remark"
+                label="备注"
+                placeholder="备注信息"
+                labelCol={{ span: 4 }}
+                wrapperCol={{ span: 20 }}
+                fieldProps={{ rows: 2 }}
+            />
         </ModalForm>
     );
 };
