@@ -26,9 +26,19 @@ const DeviationAnalysisPage: React.FC = () => {
 
         setLoading(true);
         try {
+            // 后端接收 LocalDate 类型，需要 YYYY-MM-DD 格式
+            // 年份：传递该年第一天（如 2026-01-01）
+            // 月份：传递该月第一天（如 2026-02-01）
+            let dateStr = values.dataTime.format('YYYY-MM-DD');
+            if (values.timeType === 'YEAR') {
+                dateStr = values.dataTime.startOf('year').format('YYYY-MM-DD');
+            } else if (values.timeType === 'MONTH') {
+                dateStr = values.dataTime.startOf('month').format('YYYY-MM-DD');
+            }
+
             const res = await getCostDeviationAnalysis({
                 timeType: values.timeType,
-                dataTime: values.dataTime.format('YYYY-MM-DD'),
+                dataTime: dateStr,
             });
             if (res.success && res.data) {
                 setData(res.data);
@@ -67,10 +77,17 @@ const DeviationAnalysisPage: React.FC = () => {
             <Card size="small">
                 <Form form={form} layout="inline" onFinish={fetchData}>
                     <Form.Item name="timeType" label="周期类型">
-                        <Select options={timeTypeOptions} style={{ width: 100 }} />
+                        <Select
+                            options={timeTypeOptions}
+                            style={{ width: 100 }}
+                            onChange={() => form.setFieldValue('dataTime', undefined)}
+                        />
                     </Form.Item>
                     <Form.Item name="dataTime" label="时间">
-                        <DatePicker picker={timeType === 'YEAR' ? 'year' : 'month'} />
+                        <DatePicker
+                            picker={timeType === 'YEAR' ? 'year' : 'month'}
+                            placeholder={timeType === 'YEAR' ? '选择年份' : '选择月份'}
+                        />
                     </Form.Item>
                     <Form.Item>
                         <Space>
