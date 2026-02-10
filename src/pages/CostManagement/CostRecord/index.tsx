@@ -19,7 +19,6 @@ import dayjs from 'dayjs';
 const CostRecordPage: React.FC = () => {
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     const [selectedRows, setSelectedRows] = useState<EnergyCostRecord[]>([]);
-    const [searchPeriodType, setSearchPeriodType] = useState<string>('DAY');
     const formRef = useRef<ProFormInstance>();
 
     const {
@@ -89,48 +88,22 @@ const CostRecordPage: React.FC = () => {
                 options: recordPeriodTypeOptions,
                 allowClear: true,
                 placeholder: '全部',
-                onChange: (value: string) => {
-                    // 当清空或选择时，更新日期选择器格式，默认使用 'DAY'
-                    setSearchPeriodType(value || 'DAY');
-                    // 清空记录周期字段
-                    formRef.current?.setFieldValue('recordDateRange', undefined);
-                },
             },
             render: (_, record) => getPeriodTypeTag(record.periodType),
         },
         {
-            title: '记录周期',
+            title: '记录日期',
             dataIndex: 'recordDateRange',
-            key: `recordDateRange_${searchPeriodType}`,
             width: 200,
             hideInTable: true,
-            renderFormItem: () => {
-                const picker = searchPeriodType === 'YEAR' ? 'year' : searchPeriodType === 'MONTH' ? 'month' : 'date';
-                const format = searchPeriodType === 'YEAR' ? 'YYYY' : searchPeriodType === 'MONTH' ? 'YYYY-MM' : 'YYYY-MM-DD';
-                return (
-                    <RangePicker
-                        picker={picker}
-                        format={format}
-                        style={{ width: '100%' }}
-                    />
-                );
-            },
+            valueType: 'dateRange',
         },
         {
-            title: '记录周期',
+            title: '记录日期',
             dataIndex: 'recordDate',
             width: 110,
             hideInSearch: true,
-            render: (_, record) => {
-                // 根据周期类型显示不同格式
-                if (record.periodType === 'YEAR') {
-                    return dayjs(record.recordDate).format('YYYY');
-                } else if (record.periodType === 'MONTH') {
-                    return dayjs(record.recordDate).format('YYYY-MM');
-                } else {
-                    return dayjs(record.recordDate).format('YYYY-MM-DD');
-                }
-            },
+            render: (_, record) => dayjs(record.recordDate).format('YYYY-MM-DD'),
         },
         {
             title: '用能单元',

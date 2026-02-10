@@ -10,7 +10,6 @@ import {
 import { Form, message, Row, Col } from 'antd';
 import {
     EnergyCostRecord,
-    recordPeriodTypeOptions,
     createEnergyCostRecord,
     updateEnergyCostRecord,
 } from '@/apis/energyCostRecord';
@@ -30,7 +29,6 @@ const CostRecordForm: React.FC<CostRecordFormProps> = (props) => {
     const [form] = Form.useForm();
     const [energyUnits, setEnergyUnits] = useState<EnergyUnit[]>([]);
     const [energyTypes, setEnergyTypes] = useState<EnergyType[]>([]);
-    const [periodType, setPeriodType] = useState<string>('DAY');
 
     useEffect(() => {
         loadOptions();
@@ -57,11 +55,8 @@ const CostRecordForm: React.FC<CostRecordFormProps> = (props) => {
                     energyUnitId: currentRecord.energyUnit?.id,
                     energyTypeId: currentRecord.energyType?.id,
                 });
-                setPeriodType(currentRecord.periodType || 'DAY');
             } else {
                 form.resetFields();
-                form.setFieldsValue({ periodType: 'DAY' });
-                setPeriodType('DAY');
             }
         }
     }, [visible, isEdit, currentRecord, form]);
@@ -92,6 +87,7 @@ const CostRecordForm: React.FC<CostRecordFormProps> = (props) => {
             const data = {
                 ...currentRecord, // 重点：合并旧数据
                 ...values,
+                periodType: 'DAY', // 强制设置为日粒度
                 energyUnit: values.energyUnitId ? { id: values.energyUnitId } : null,
                 energyType: values.energyTypeId ? { id: values.energyTypeId } : null,
             };
@@ -151,38 +147,23 @@ const CostRecordForm: React.FC<CostRecordFormProps> = (props) => {
             </Row>
             <Row gutter={16}>
                 <Col span={12}>
-                    <ProFormSelect
-                        name="periodType"
-                        label="周期类型"
-                        options={recordPeriodTypeOptions}
-                        rules={[{ required: true, message: '请选择周期类型' }]}
-                        fieldProps={{
-                            onChange: (value) => {
-                                setPeriodType(value as string);
-                                // 清空日期字段，让用户重新选择
-                                form.setFieldValue('recordDate', undefined);
-                            },
-                        }}
+                    <ProFormDatePicker
+                        name="recordDate"
+                        label="记录日期"
+                        width="md"
+                        rules={[{ required: true, message: '请选择记录日期' }]}
                     />
                 </Col>
                 <Col span={12}>
-                    <ProFormDatePicker
-                        name="recordDate"
-                        label="记录周期"
-                        width="md"
-                        rules={[{ required: true, message: '请选择记录周期' }]}
-                        fieldProps={{
-                            picker: periodType === 'YEAR' ? 'year' : periodType === 'MONTH' ? 'month' : 'date',
-                        }}
-                    />
+                    <ProFormDigit name="consumption" label="用量" fieldProps={{ precision: 4 }} />
                 </Col>
             </Row>
             <Row gutter={16}>
                 <Col span={12}>
-                    <ProFormDigit name="consumption" label="用量" fieldProps={{ precision: 4 }} />
+                    <ProFormDigit name="cost" label="成本(元)" fieldProps={{ precision: 2 }} />
                 </Col>
                 <Col span={12}>
-                    <ProFormDigit name="cost" label="成本(元)" fieldProps={{ precision: 2 }} />
+                    <ProFormDigit name="powerFactor" label="功率因数" fieldProps={{ precision: 2, max: 1, min: 0 }} />
                 </Col>
             </Row>
             <Row gutter={16}>
@@ -199,11 +180,6 @@ const CostRecordForm: React.FC<CostRecordFormProps> = (props) => {
                 </Col>
                 <Col span={12}>
                     <ProFormDigit name="valleyConsumption" label="谷时段用量" fieldProps={{ precision: 4 }} />
-                </Col>
-            </Row>
-            <Row gutter={16}>
-                <Col span={12}>
-                    <ProFormDigit name="powerFactor" label="功率因数" fieldProps={{ precision: 2, max: 1, min: 0 }} />
                 </Col>
             </Row>
             <ProFormTextArea
