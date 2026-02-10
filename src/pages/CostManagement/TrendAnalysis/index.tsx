@@ -53,12 +53,6 @@ const TrendAnalysisPage: React.FC = () => {
         fetchData();
     }, []);
 
-    const getPickerType = () => {
-        const timeType = form.getFieldValue('timeType');
-        if (timeType === 'DAY') return 'date';
-        if (timeType === 'YEAR') return 'year';
-        return 'month';
-    };
 
     // 转换数据为 @ant-design/plots 格式
     const transformLineData = (chartData: TrendChartData) => {
@@ -126,15 +120,26 @@ const TrendAnalysisPage: React.FC = () => {
                             }}
                         />
                     </Form.Item>
-                    <Form.Item name="dataTime" label="时间">
-                        <DatePicker
-                            picker={getPickerType()}
-                            placeholder={
-                                form.getFieldValue('timeType') === 'YEAR' ? '选择年份' :
-                                    form.getFieldValue('timeType') === 'MONTH' ? '选择月份' :
-                                        '选择日期'
-                            }
-                        />
+                    <Form.Item
+                        name="dataTime"
+                        label="时间"
+                        dependencies={['timeType']}
+                    >
+                        {({ getFieldValue }) => {
+                            const currentTimeType = getFieldValue('timeType');
+                            const pickerType = currentTimeType === 'DAY' ? 'date' :
+                                currentTimeType === 'YEAR' ? 'year' : 'month';
+                            return (
+                                <DatePicker
+                                    picker={pickerType}
+                                    placeholder={
+                                        currentTimeType === 'YEAR' ? '选择年份' :
+                                            currentTimeType === 'MONTH' ? '选择月份' :
+                                                '选择日期'
+                                    }
+                                />
+                            );
+                        }}
                     </Form.Item>
                     <Form.Item>
                         <Space>
