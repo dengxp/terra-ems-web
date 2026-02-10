@@ -71,6 +71,8 @@ const DeviationAnalysisPage: React.FC = () => {
     const ed = data.electricityData || {};
     const sd = data.statisticsData || {};
 
+    const timeType = Form.useWatch('timeType', form);
+
     return (
         <ProPageContainer className="pt-1">
             <Card size="small">
@@ -82,20 +84,11 @@ const DeviationAnalysisPage: React.FC = () => {
                             onChange={() => form.setFieldValue('dataTime', undefined)}
                         />
                     </Form.Item>
-                    <Form.Item
-                        name="dataTime"
-                        label="时间"
-                        dependencies={['timeType']}
-                    >
-                        {({ getFieldValue }) => {
-                            const currentTimeType = getFieldValue('timeType');
-                            return (
-                                <DatePicker
-                                    picker={currentTimeType === 'YEAR' ? 'year' : 'month'}
-                                    placeholder={currentTimeType === 'YEAR' ? '选择年份' : '选择月份'}
-                                />
-                            );
-                        }}
+                    <Form.Item name="dataTime" label="时间">
+                        <DatePicker
+                            picker={timeType === 'YEAR' ? 'year' : 'month'}
+                            placeholder={timeType === 'YEAR' ? '选择年份' : '选择月份'}
+                        />
                     </Form.Item>
                     <Form.Item>
                         <Space>

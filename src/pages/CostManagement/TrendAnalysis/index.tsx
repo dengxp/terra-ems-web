@@ -106,6 +106,8 @@ const TrendAnalysisPage: React.FC = () => {
         },
     });
 
+    const timeType = Form.useWatch('timeType', form);
+
     return (
         <ProPageContainer className="pt-1">
             <Card size="small">
@@ -120,26 +122,15 @@ const TrendAnalysisPage: React.FC = () => {
                             }}
                         />
                     </Form.Item>
-                    <Form.Item
-                        name="dataTime"
-                        label="时间"
-                        dependencies={['timeType']}
-                    >
-                        {({ getFieldValue }) => {
-                            const currentTimeType = getFieldValue('timeType');
-                            const pickerType = currentTimeType === 'DAY' ? 'date' :
-                                currentTimeType === 'YEAR' ? 'year' : 'month';
-                            return (
-                                <DatePicker
-                                    picker={pickerType}
-                                    placeholder={
-                                        currentTimeType === 'YEAR' ? '选择年份' :
-                                            currentTimeType === 'MONTH' ? '选择月份' :
-                                                '选择日期'
-                                    }
-                                />
-                            );
-                        }}
+                    <Form.Item name="dataTime" label="时间">
+                        <DatePicker
+                            picker={timeType === 'DAY' ? 'date' : timeType === 'YEAR' ? 'year' : 'month'}
+                            placeholder={
+                                timeType === 'YEAR' ? '选择年份' :
+                                    timeType === 'MONTH' ? '选择月份' :
+                                        '选择日期'
+                            }
+                        />
                     </Form.Item>
                     <Form.Item>
                         <Space>
