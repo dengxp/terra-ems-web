@@ -74,8 +74,8 @@ const DeviationAnalysisPage: React.FC = () => {
                     </Form.Item>
                     <Form.Item>
                         <Space>
-                            <Button type="primary" htmlType="submit" icon={<SearchOutlined />}>搜索</Button>
                             <Button icon={<ReloadOutlined />} onClick={() => { form.resetFields(); fetchData(); }}>重置</Button>
+                            <Button type="primary" htmlType="submit" icon={<SearchOutlined />}>搜索</Button>
                         </Space>
                     </Form.Item>
                 </Form>
