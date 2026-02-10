@@ -6,7 +6,6 @@ const { RangePicker } = DatePicker;
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import {
     EnergyCostRecord,
-    recordPeriodTypeOptions,
     getEnergyCostRecordPage,
     deleteEnergyCostRecord,
 } from '@/apis/energyCostRecord';
@@ -73,24 +72,9 @@ const CostRecordPage: React.FC = () => {
     const editDisabled = useMemo(() => !selectedRowKeys || selectedRowKeys.length !== 1, [selectedRowKeys]);
     const deleteDisabled = useMemo(() => !selectedRowKeys || selectedRowKeys.length === 0, [selectedRowKeys]);
 
-    const getPeriodTypeTag = (type: string) => {
-        const option = recordPeriodTypeOptions.find((o) => o.value === type);
-        return <Tag>{option?.label || type}</Tag>;
-    };
 
     const columns: ProColumns<EnergyCostRecord>[] = [
-        {
-            title: '周期类型',
-            dataIndex: 'periodType',
-            width: 80,
-            valueType: 'select',
-            fieldProps: {
-                options: recordPeriodTypeOptions,
-                allowClear: true,
-                placeholder: '全部',
-            },
-            render: (_, record) => getPeriodTypeTag(record.periodType),
-        },
+
         {
             title: '记录日期',
             dataIndex: 'recordDateRange',
@@ -199,7 +183,6 @@ const CostRecordPage: React.FC = () => {
                     }
 
                     console.log('查询参数:', {
-                        periodType: params.periodType,
                         recordDateRange: params.recordDateRange,
                         startDate,
                         endDate,
@@ -208,7 +191,6 @@ const CostRecordPage: React.FC = () => {
                     const res = await getEnergyCostRecordPage({
                         current: params.current,
                         pageSize: params.pageSize,
-                        periodType: params.periodType,
                         startDate,
                         endDate,
                     });
