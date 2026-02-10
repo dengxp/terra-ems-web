@@ -4,14 +4,13 @@ import { Col, Row, Progress, Tag, List, Avatar, Typography, Space } from 'antd';
 import {
     ThunderboltOutlined,
     CloudOutlined,
-    RiseOutlined,
-    FallOutlined,
     AlertOutlined,
     SettingOutlined,
     BarChartOutlined,
     DashboardOutlined,
     FireOutlined,
 } from '@ant-design/icons';
+import StatCard from '@/components/stat-card';
 
 const { Text } = Typography;
 
@@ -31,55 +30,7 @@ const gradients = {
     cyan: 'linear-gradient(135deg, #e6fffb 0%, #87e8de 100%)',
 };
 
-/**
- * 渐变统计卡片
- */
-const StatCard: React.FC<{
-    title: string;
-    value: string | number;
-    unit: string;
-    icon: React.ReactNode;
-    trend: 'up' | 'down';
-    trendValue: string;
-    gradient: string;
-    color: string;
-}> = ({ title, value, unit, icon, trend, trendValue, gradient, color }) => (
-    <div
-        style={{
-            background: gradient,
-            borderRadius: 12,
-            padding: '20px',
-            position: 'relative',
-            overflow: 'hidden',
-            height: 120,
-            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)',
-            transition: 'all 0.3s ease',
-            cursor: 'pointer',
-        }}
-        onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'translateY(-2px)';
-            e.currentTarget.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.1)';
-        }}
-        onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.06)';
-        }}
-    >
-        <div style={{ position: 'absolute', top: 16, right: 16, fontSize: 40, color, opacity: 0.15 }}>{icon}</div>
-        <div style={{ position: 'relative', zIndex: 1 }}>
-            <div style={{ fontSize: 13, color: '#666', marginBottom: 6 }}>{title}</div>
-            <div style={{ marginBottom: 6 }}>
-                <span style={{ fontSize: 26, fontWeight: 'bold', color }}>{value}</span>
-                <span style={{ fontSize: 13, marginLeft: 4, color: '#999' }}>{unit}</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}>
-                {trend === 'up' ? <RiseOutlined style={{ color: colors.success }} /> : <FallOutlined style={{ color: '#ff4d4f' }} />}
-                <span style={{ color: trend === 'up' ? colors.success : '#ff4d4f' }}>{trendValue}</span>
-                <span style={{ color: '#999', marginLeft: 4 }}>较上月</span>
-            </div>
-        </div>
-    </div>
-);
+
 
 /**
  * 能源管理系统 Dashboard
@@ -132,16 +83,16 @@ const Dashboard: React.FC = () => {
             {/* 统计卡片 */}
             <Row gutter={[16, 16]}>
                 <Col xs={24} sm={12} lg={6}>
-                    <StatCard title="今日总能耗" value="12,458" unit="kWh" icon={<ThunderboltOutlined />} trend="up" trendValue="8.5%" gradient={gradients.blue} color={colors.primary} />
+                    <StatCard mode="gradient" title="今日总能耗" value="12,458" unit="kWh" icon={<ThunderboltOutlined />} trend="up" trendValue="8.5%" gradient={gradients.blue} color={colors.primary} />
                 </Col>
                 <Col xs={24} sm={12} lg={6}>
-                    <StatCard title="电力消耗" value="8,234" unit="kWh" icon={<ThunderboltOutlined />} trend="down" trendValue="3.2%" gradient={gradients.green} color={colors.success} />
+                    <StatCard mode="gradient" title="电力消耗" value="8,234" unit="kWh" icon={<ThunderboltOutlined />} trend="down" trendValue="3.2%" gradient={gradients.green} color={colors.success} />
                 </Col>
                 <Col xs={24} sm={12} lg={6}>
-                    <StatCard title="碳排放量" value="2,156" unit="tCO₂" icon={<CloudOutlined />} trend="down" trendValue="5.8%" gradient={gradients.orange} color="#d48806" />
+                    <StatCard mode="gradient" title="碳排放量" value="2,156" unit="tCO₂" icon={<CloudOutlined />} trend="down" trendValue="5.8%" gradient={gradients.orange} color="#d48806" />
                 </Col>
                 <Col xs={24} sm={12} lg={6}>
-                    <StatCard title="综合节能率" value="15.8" unit="%" icon={<FireOutlined />} trend="up" trendValue="2.1%" gradient={gradients.cyan} color={colors.info} />
+                    <StatCard mode="gradient" title="综合节能率" value="15.8" unit="%" icon={<FireOutlined />} trend="up" trendValue="2.1%" gradient={gradients.cyan} color={colors.info} />
                 </Col>
             </Row>
 

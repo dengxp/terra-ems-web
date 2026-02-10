@@ -4,6 +4,8 @@ import { Card, Form, Select, DatePicker, Button, Row, Col, Statistic, Table, Spa
 import { SearchOutlined, ReloadOutlined } from '@ant-design/icons';
 import dayjs, { Dayjs } from 'dayjs';
 import { getCostDeviationAnalysis, CostDeviation, ElectricityData, StatisticsData, ConsumptionDetail } from '@/apis/energyCostRecord';
+import StatCard from '@/components/stat-card';
+import PeakValleyCard from '@/components/peak-valley-card';
 import styles from './index.less';
 
 const timeTypeOptions = [
@@ -11,49 +13,7 @@ const timeTypeOptions = [
     { label: '年', value: 'YEAR' },
 ];
 
-// 统计卡片组件
-const StatCard: React.FC<{
-    title: string;
-    value?: number;
-    yoy?: number;
-    mom?: number;
-    diff?: number;
-    unit?: string;
-    color?: string;
-}> = ({ title, value = 0, yoy, mom, diff, unit = '', color = '#1890ff' }) => (
-    <Card size="small" className={styles.statCard}>
-        <div className={styles.statTitle}>{title}</div>
-        <div className={styles.statValue} style={{ color }}>{value?.toLocaleString()}{unit}</div>
-        <div className={styles.statDetails}>
-            {yoy !== undefined && <span>同比: {yoy}%</span>}
-            {mom !== undefined && <span>环比: {mom}%</span>}
-            {diff !== undefined && <span>差值: {diff?.toLocaleString()}</span>}
-        </div>
-    </Card>
-);
 
-// 尖峰平谷卡片组件
-const PeakValleyCard: React.FC<{
-    title: string;
-    sharp?: number;
-    peak?: number;
-    flat?: number;
-    valley?: number;
-    sharpDiff?: number;
-    peakDiff?: number;
-    flatDiff?: number;
-    valleyDiff?: number;
-}> = ({ title, sharp = 0, peak = 0, flat = 0, valley = 0, sharpDiff, peakDiff, flatDiff, valleyDiff }) => (
-    <Card size="small" className={styles.statCard}>
-        <div className={styles.statTitle}>{title}</div>
-        <div className={styles.peakValleyGrid}>
-            <div>尖: {sharp?.toLocaleString()}{sharpDiff !== undefined && <span className={styles.diff}>({sharpDiff > 0 ? '+' : ''}{sharpDiff})</span>}</div>
-            <div>峰: {peak?.toLocaleString()}{peakDiff !== undefined && <span className={styles.diff}>({peakDiff > 0 ? '+' : ''}{peakDiff})</span>}</div>
-            <div>平: {flat?.toLocaleString()}{flatDiff !== undefined && <span className={styles.diff}>({flatDiff > 0 ? '+' : ''}{flatDiff})</span>}</div>
-            <div>谷: {valley?.toLocaleString()}{valleyDiff !== undefined && <span className={styles.diff}>({valleyDiff > 0 ? '+' : ''}{valleyDiff})</span>}</div>
-        </div>
-    </Card>
-);
 
 const DeviationAnalysisPage: React.FC = () => {
     const [form] = Form.useForm();
