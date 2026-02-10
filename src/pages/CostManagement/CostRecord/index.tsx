@@ -81,7 +81,7 @@ const CostRecordPage: React.FC = () => {
             hideInTable: true,
             valueType: 'dateRange',
             fieldProps: {
-                style: { width: '300px' },
+                style: { width: '280px' },
             },
         },
         {
