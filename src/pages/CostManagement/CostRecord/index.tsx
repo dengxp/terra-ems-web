@@ -80,7 +80,9 @@ const CostRecordPage: React.FC = () => {
             dataIndex: 'recordDateRange',
             hideInTable: true,
             valueType: 'dateRange',
-            colSize: 2,
+            fieldProps: {
+                style: { width: '300px' },
+            },
         },
         {
             title: '记录日期',
