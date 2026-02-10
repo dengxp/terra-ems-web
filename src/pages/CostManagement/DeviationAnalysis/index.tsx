@@ -106,7 +106,7 @@ const DeviationAnalysisPage: React.FC = () => {
         <ProPageContainer className="pt-1">
             <Card size="small">
                 <Form form={form} layout="inline" onFinish={fetchData}>
-                    <Form.Item name="timeType" label="期间">
+                    <Form.Item name="timeType" label="周期类型">
                         <Select options={timeTypeOptions} style={{ width: 100 }} />
                     </Form.Item>
                     <Form.Item name="dataTime" label="时间">
