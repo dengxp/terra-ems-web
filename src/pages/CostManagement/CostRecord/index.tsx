@@ -78,9 +78,9 @@ const CostRecordPage: React.FC = () => {
         {
             title: '记录日期',
             dataIndex: 'recordDateRange',
-            width: 200,
             hideInTable: true,
             valueType: 'dateRange',
+            colSize: 2,
         },
         {
             title: '记录日期',

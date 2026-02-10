@@ -146,24 +146,22 @@ const CostRecordForm: React.FC<CostRecordFormProps> = (props) => {
                 </Col>
             </Row>
             <Row gutter={16}>
-                <Col span={24}>
+                <Col span={12}>
                     <ProFormDatePicker
                         name="recordDate"
                         label="记录日期"
-                        fieldProps={{ style: { width: '100%' } }}
+                        width="md"
                         rules={[{ required: true, message: '请选择记录日期' }]}
                     />
                 </Col>
-            </Row>
-            <Row gutter={16}>
                 <Col span={12}>
                     <ProFormDigit name="consumption" label="用量" fieldProps={{ precision: 4 }} />
                 </Col>
+            </Row>
+            <Row gutter={16}>
                 <Col span={12}>
                     <ProFormDigit name="cost" label="成本(元)" fieldProps={{ precision: 2 }} />
                 </Col>
-            </Row>
-            <Row gutter={16}>
                 <Col span={12}>
                     <ProFormDigit name="powerFactor" label="功率因数" fieldProps={{ precision: 2, max: 1, min: 0 }} />
                 </Col>
