@@ -1,6 +1,5 @@
-import React from 'react';
-import { Button, Tooltip } from "antd";
 import { ToolFilled } from "@ant-design/icons";
+import { Button, Tooltip } from "antd";
 
 const ConfigButton = (props: any) => {
     const { tooltip, ...rest } = props;

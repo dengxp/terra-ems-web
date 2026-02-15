@@ -1,21 +1,17 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Card, Col, Row, Tree, DatePicker, Select, Space, Tabs, Empty, Typography, Input, Splitter, message } from 'antd';
-import { PageContainer } from '@ant-design/pro-components';
-import { getEnabledEnergyTypes, EnergyType } from '@/apis/energyType';
-import EnergyUnitTree from '@/components/EnergyUnitTree';
+import { EnergyType, getEnabledEnergyTypes } from '@/apis/energyType';
 import {
-    getStatisticsSummary,
-    getYoYAnalysis,
-    getMoMAnalysis,
-    EnergyStatisticsSummary,
-    ComparisonAnalysis,
-    StatisticsQueryParams,
+  ComparisonAnalysis, EnergyStatisticsSummary, getMoMAnalysis, getStatisticsSummary,
+  getYoYAnalysis, StatisticsQueryParams
 } from '@/apis/statistics';
+import EnergyUnitTree from '@/components/EnergyUnitTree';
+import { FireOutlined, RetweetOutlined, SwapOutlined } from '@ant-design/icons';
+import { PageContainer } from '@ant-design/pro-components';
+import { Card, Col, DatePicker, Empty, message, Row, Select, Space, Splitter, Tabs, Typography } from 'antd';
+import dayjs from 'dayjs';
+import React, { useEffect, useMemo, useState } from 'react';
+import ComparisonTable from './components/ComparisonTable';
 import StatisticsCard from './components/StatisticsCard';
 import TrendChart from './components/TrendChart';
-import ComparisonTable from './components/ComparisonTable';
-import dayjs from 'dayjs';
-import { ApartmentOutlined, BarChartOutlined, LineChartOutlined, SwapOutlined, RetweetOutlined, FireOutlined } from '@ant-design/icons';
 
 const StatisticsPage: React.FC = () => {
     const [selectedUnitId, setSelectedUnitId] = useState<number | null>(null);
@@ -90,13 +86,6 @@ const StatisticsPage: React.FC = () => {
     useEffect(() => {
         fetchStatistics();
     }, [selectedUnitId, timeType, dataTime, selectedEnergyTypeId]);
-
-    const handleTreeSelect = (selectedKeys: React.Key[], info: any) => {
-        if (selectedKeys.length > 0) {
-            setSelectedUnitId(selectedKeys[0] as number);
-            setSelectedUnitName(info.node.title || '');
-        }
-    };
 
     const getPickerType = () => {
         switch (timeType) {

@@ -1,20 +1,19 @@
-import React, { useState } from 'react';
+import { exportTemplate, importUser } from "@/apis";
 import { ProModalForm } from "@/components/container";
 import { ProModalFormProps } from "@/components/container/ProModalForm";
+import { downloadFailed, downloadSuccess } from "@/utils/download";
 import { ProFormCheckbox, ProFormUploadDragger } from "@ant-design/pro-components";
 import { Button, Form, GetProp, message, Upload, UploadProps } from "antd";
-import type { UploadChangeParam, UploadFile } from "antd/es/upload";
-import { exportTemplate, importUser } from "@/apis";
-import { downloadFailed, downloadSuccess } from "@/utils/download";
+import type { UploadFile } from "antd/es/upload";
+import { useState } from 'react';
 
 type Props = ProModalFormProps;
-type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
 
 const accept = 'application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 
 const UserImportDialog = (props: Props) => {
   const [uploading, setUploading] = useState(false);
-  const [fileList, setFileList] = useState<UploadFile[]>([]);
+  const [_fileList, _setFileList] = useState<UploadFile[]>([]);
   const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
 

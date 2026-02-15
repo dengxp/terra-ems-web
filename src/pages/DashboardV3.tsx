@@ -1,17 +1,11 @@
-import React from 'react';
-import { Row, Col, Typography, Space, Progress, Tag, Tooltip } from 'antd';
 import {
-    ThunderboltOutlined,
-    CloudOutlined,
-    RiseOutlined,
-    FallOutlined,
-    FireOutlined,
-    SafetyCertificateOutlined,
-    GlobalOutlined,
-    NodeIndexOutlined,
-    AppstoreOutlined,
+  AppstoreOutlined, CloudOutlined, FallOutlined,
+  FireOutlined, GlobalOutlined,
+  NodeIndexOutlined, RiseOutlined, SafetyCertificateOutlined, ThunderboltOutlined
 } from '@ant-design/icons';
 import { Area, Pie } from '@ant-design/plots';
+import { Col, Progress, Row, Space, Tag, Tooltip, Typography } from 'antd';
+import React from 'react';
 import './DashboardV3.less';
 
 const { Title, Text } = Typography;

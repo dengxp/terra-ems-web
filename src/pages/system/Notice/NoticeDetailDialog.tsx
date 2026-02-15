@@ -1,10 +1,10 @@
-import React, { useEffect } from 'react';
+import { noticeApi, SysNotice } from "@/apis/system/notice";
 import { ProModalForm } from "@/components/container";
 import { ProModalFormProps } from "@/components/container/ProModalForm";
-import useCrud from "@/hooks/common/useCrud";
-import { ProForm, ProFormText, ProFormTextArea, ProFormRadio, ProFormSelect } from "@ant-design/pro-components";
 import { DataItemStatus, OperationEnum } from "@/enums";
-import { SysNotice, noticeApi } from "@/apis/system/notice";
+import useCrud from "@/hooks/common/useCrud";
+import { ProForm, ProFormRadio, ProFormText, ProFormTextArea } from "@ant-design/pro-components";
+import React, { useEffect } from 'react';
 
 import { MdEditor, MdPreview } from 'md-editor-rt';
 import 'md-editor-rt/lib/style.css';
@@ -33,7 +33,6 @@ const NoticeDetailDialog = (props: NoticeDetailDialogProps) => {
         open,
         onOpenChange,
         title: propsTitle,
-        ...restProps
     } = props;
 
     const {

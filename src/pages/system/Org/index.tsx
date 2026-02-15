@@ -1,18 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import { ProPageContainer } from "@/components/container";
-import { Flex, Splitter, Tree, TreeDataNode, message } from "antd";
 import { findDeptTree } from "@/apis";
-import { filterTree, findNode, getTreeKeys } from "@/utils";
 import { IconButton } from "@/components/button";
-import Icon, { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
-import { ReactComponent as MoveTo } from '@/icons/svg/move-to.svg'
+import { ProPageContainer } from "@/components/container";
 import useCrud from "@/hooks/common/useCrud";
-import DetailPanel from "@/pages/system/Org/DetailPanel";
+import { ReactComponent as MoveTo } from '@/icons/svg/move-to.svg';
 import DepartmentPanel from "@/pages/system/Org/DepartmentPanel";
+import DetailPanel from "@/pages/system/Org/DetailPanel";
 import MoveDepartmentDialog from "@/pages/system/Org/MoveDepartmentDialog";
+import { findNode, getTreeKeys } from "@/utils";
+import Icon, { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
+import { Flex, message, Splitter, Tree } from "antd";
+import React, { useEffect, useState } from 'react';
 
 type Props = {}
-const Index = (props: Props) => {
+const Index = (_props: Props) => {
   const [departmentId, setDepartmentId] = useState<number | undefined>();
   const [selectedKeys, setSelectedKeys] = useState<React.Key[]>([]);
   const [expandedKeys, setExpandedKeys] = useState<React.Key[]>([]);

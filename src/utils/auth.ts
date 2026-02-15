@@ -1,5 +1,5 @@
-import Cookie from 'js-cookie';
 import { TOKEN_HEADER_NAME, X_TERRA_SESSION_ID } from "@/config/constants";
+import Cookie from 'js-cookie';
 
 export function getSessionId() {
   return Cookie.get(X_TERRA_SESSION_ID) || '';

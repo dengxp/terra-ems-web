@@ -1,16 +1,13 @@
-import React, { useEffect } from 'react';
-import { Form, Tooltip } from 'antd';
+import { getRole } from "@/apis";
 import { ProModalForm } from "@/components/container";
 import { ProModalFormProps } from "@/components/container/ProModalForm";
-import useCrud from "@/hooks/common/useCrud";
-import { ProFormDigit, ProFormText, ProFormTextArea } from "@ant-design/pro-components";
 import ProFormDictRadioGroup from "@/components/radio/ProFormDictRadioGroup";
-import MenuTree from "@/pages/system/Role/components/MenuTree";
 import { OperationEnum } from "@/enums";
-import editButton from "@/components/button/EditButton";
-import { getRole } from "@/apis";
-import { Question } from "@/components";
-import { QuestionCircleFilled } from "@ant-design/icons";
+import useCrud from "@/hooks/common/useCrud";
+import MenuTree from "@/pages/system/Role/components/MenuTree";
+import { ProFormDigit, ProFormText, ProFormTextArea } from "@ant-design/pro-components";
+import { Form } from 'antd';
+import { useEffect } from 'react';
 
 type Props = ProModalFormProps;
 

@@ -1,17 +1,16 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import {
+  getMeters, Meter
+} from '@/apis/meter';
+import { DeleteButton, EditButton } from '@/components/button';
 import { ProPageContainer } from '@/components/container';
-import { Button, Space, Tag } from 'antd';
+import StatusIcon from '@/components/icons/StatusIcon';
+import useCrud from '@/hooks/common/useCrud';
+import { wrapperResult } from '@/utils';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ProColumns, ProTable } from '@ant-design/pro-components';
-import useCrud from '@/hooks/common/useCrud';
-import { DeleteButton, EditButton } from '@/components/button';
-import {
-    Meter,
-    getMeters,
-} from '@/apis/meter';
+import { Button, Space, Tag } from 'antd';
+import React, { useEffect, useMemo, useState } from 'react';
 import MeterForm from './components/MeterForm';
-import StatusIcon from '@/components/icons/StatusIcon';
-import { wrapperResult } from '@/utils';
 
 /**
  * 计量器具管理页面

@@ -1,15 +1,13 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Card, Col, Row, DatePicker, Select, Space, Empty, Table, Splitter } from 'antd';
-import { PageContainer } from '@ant-design/pro-components';
-import EnergyUnitTree from '@/components/EnergyUnitTree';
 import {
-    getRankingAnalysis,
-    ComparisonAnalysis,
+  ComparisonAnalysis, getRankingAnalysis
 } from '@/apis/statistics';
-import RankingChart from '../components/RankingChart';
+import EnergyUnitTree from '@/components/EnergyUnitTree';
+import { TrophyOutlined } from '@ant-design/icons';
+import { PageContainer } from '@ant-design/pro-components';
+import { Card, Col, DatePicker, Empty, Row, Select, Space, Splitter, Table, Typography } from 'antd';
 import dayjs from 'dayjs';
-import { ApartmentOutlined, BarChartOutlined, TrophyOutlined } from '@ant-design/icons';
-import { Typography } from 'antd';
+import React, { useEffect, useState } from 'react';
+import RankingChart from '../components/RankingChart';
 
 const { Title, Text } = Typography;
 

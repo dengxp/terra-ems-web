@@ -1,17 +1,14 @@
-import React, { useEffect } from 'react';
 import {
-    ProFormText,
-    ProFormSelect,
-    ProFormTextArea,
-    ProFormDatePicker,
-} from '@ant-design/pro-components';
-import { ProModalForm } from '@/components/container';
-import {
-    Policy,
-    policyTypeOptions,
+  Policy,
+  policyTypeOptions
 } from '@/apis/policy';
-import useCrud from '@/hooks/common/useCrud';
+import { ProModalForm } from '@/components/container';
 import { OperationEnum } from '@/enums';
+import useCrud from '@/hooks/common/useCrud';
+import {
+  ProFormDatePicker, ProFormSelect, ProFormText, ProFormTextArea
+} from '@ant-design/pro-components';
+import React, { useEffect } from 'react';
 
 interface PolicyFormProps {
     visible: boolean;

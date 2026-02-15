@@ -1,11 +1,10 @@
-import React, { useMemo } from 'react';
+import { EnergyUnit, moveEnergyUnit } from "@/apis/energyUnit";
 import { ProModalForm } from "@/components/container";
 import { ProModalFormProps } from "@/components/container/ProModalForm";
-import { ProFormText, ProFormTreeSelect } from "@ant-design/pro-components";
-import { filterTree } from "@/utils/tree";
 import useCrud from "@/hooks/common/useCrud";
-import { moveEnergyUnit, EnergyUnit } from "@/apis/energyUnit";
+import { ProFormText, ProFormTreeSelect } from "@ant-design/pro-components";
 import { message, TreeDataNode } from "antd";
+import { useMemo } from 'react';
 
 type Props = ProModalFormProps & {
     energyUnit: EnergyUnit;

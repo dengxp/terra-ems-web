@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { Button, Col, Input, Modal, ModalProps, PaginationProps, Row, message, Table } from "antd";
+import { addMembers, findUsersWithoutDepartment } from "@/apis";
 import GenderIcon from "@/components/icons/GenderIcon";
+import { Button, Col, Input, message, Modal, ModalProps, PaginationProps, Row, Table } from "antd";
 import { TableRowSelection } from "antd/es/table/interface";
 import { AnyObject } from "antd/es/_util/type";
-import { addMembers, findUsersWithoutDepartment } from "@/apis";
+import React, { useEffect, useState } from 'react';
 
 
 type Props = Omit<ModalProps, 'onCancel'> & {
@@ -111,7 +111,7 @@ function AddMemberDialog(props: Props) {
       })
   }
 
-  const onCancel = (e?: any) => {
+  const onCancel = (_e?: any) => {
     setKeyword('');
     setSelectedRows([]);
     setSelectedRowKeys([]);

@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
-import { ModalForm, ProFormText, ProFormTextArea, ProFormRadio } from '@ant-design/pro-components';
-import useCrud from '@/hooks/common/useCrud';
 import { SysDictType } from '@/apis/system/dict';
+import useCrud from '@/hooks/common/useCrud';
+import { ModalForm, ProFormRadio, ProFormText, ProFormTextArea } from '@ant-design/pro-components';
+import React, { useEffect } from 'react';
 
 interface DictTypeFormProps {
     open: boolean;

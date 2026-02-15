@@ -1,9 +1,9 @@
-import React, { useEffect } from 'react';
 import { ProModalForm } from "@/components/container";
 import { ProModalFormProps } from "@/components/container/ProModalForm";
+import { DataItemStatus, OperationEnum } from "@/enums";
 import useCrud from "@/hooks/common/useCrud";
 import { ProFormDigit, ProFormText, ProFormTextArea } from "@ant-design/pro-components";
-import { DataItemStatus, OperationEnum } from "@/enums";
+import { useEffect } from 'react';
 
 import { ProFormRadio } from "@ant-design/pro-components";
 

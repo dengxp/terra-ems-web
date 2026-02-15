@@ -1,7 +1,7 @@
-import React, {useState} from "react";
-import {findDeptTree} from "@/apis";
-import {ProFormTreeSelect} from "@ant-design/pro-components";
-import {getTreeKeys} from "@/utils";
+import { findDeptTree } from "@/apis";
+import { getTreeKeys } from "@/utils";
+import { ProFormTreeSelect } from "@ant-design/pro-components";
+import React, { useState } from "react";
 
 type Props = Record<string, any>
 

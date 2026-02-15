@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import type { MenuProps, TabPaneProps } from 'antd';
-import { Button, Dropdown, Space, Tabs } from 'antd';
+import { TAB_STORAGE_KEY } from "@/config/constants";
+import { isUserLoggedIn } from "@/utils/auth";
 import {
   CloseOutlined,
   EllipsisOutlined,
@@ -9,8 +8,9 @@ import {
   VerticalRightOutlined
 } from '@ant-design/icons';
 import { useIntl } from '@umijs/max';
-import { TAB_STORAGE_KEY } from "@/config/constants";
-import { isUserLoggedIn } from "@/utils/auth";
+import type { MenuProps, TabPaneProps } from 'antd';
+import { Button, Dropdown, Space, Tabs } from 'antd';
+import React, { useEffect, useState } from 'react';
 
 export interface TabConfig extends TabPaneProps {
   icon?: React.ReactNode;
@@ -144,7 +144,7 @@ const Index: React.FC<TabsLayoutProps> = (props) => {
       const processedPathnames = new Set<string>();
 
       // 第一步：保留原有顺序
-      orderedByStorage.forEach((fullPath, index) => {
+      orderedByStorage.forEach((_fullPath, index) => {
         const pathname = storedPathnames[index];
         if (currentPathnames.includes(pathname)) {
           // 使用 keepElements 中的最新 location 信息（这就保证了 query param 的更新），但维持 storage 的顺序

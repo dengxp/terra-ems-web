@@ -1,12 +1,11 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { CostDeviation, getCostDeviationAnalysis } from '@/apis/energyCostRecord';
 import { ProPageContainer } from '@/components/container';
-import { Card, Form, Select, DatePicker, Button, Row, Col, Statistic, Table, Space } from 'antd';
-import { SearchOutlined, ReloadOutlined } from '@ant-design/icons';
-import dayjs, { Dayjs } from 'dayjs';
-import { getCostDeviationAnalysis, CostDeviation, ElectricityData, StatisticsData, ConsumptionDetail } from '@/apis/energyCostRecord';
-import StatCard from '@/components/StatCard';
 import PeakValleyCard from '@/components/PeakValleyCard';
-import styles from './index.less';
+import StatCard from '@/components/StatCard';
+import { ReloadOutlined, SearchOutlined } from '@ant-design/icons';
+import { Button, Card, Col, DatePicker, Form, Row, Select, Space, Table } from 'antd';
+import dayjs from 'dayjs';
+import React, { useEffect, useMemo, useState } from 'react';
 
 const timeTypeOptions = [
     { label: '月', value: 'MONTH' },

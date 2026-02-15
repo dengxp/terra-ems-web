@@ -1,16 +1,14 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Card, Col, Row, Tree, DatePicker, Select, Space, Empty, Input, Splitter } from 'antd';
-import { PageContainer } from '@ant-design/pro-components';
-import EnergyUnitTree from '@/components/EnergyUnitTree';
 import {
-    getComprehensiveSummary,
-    EnergyStatisticsSummary,
+  EnergyStatisticsSummary, getComprehensiveSummary
 } from '@/apis/statistics';
+import EnergyUnitTree from '@/components/EnergyUnitTree';
+import { PageContainer } from '@ant-design/pro-components';
+import { Card, Col, DatePicker, Empty, Row, Select, Space, Splitter, Typography } from 'antd';
+import dayjs from 'dayjs';
+import React, { useEffect, useState } from 'react';
+import ProportionChart from '../components/ProportionChart';
 import StatisticsCard from '../components/StatisticsCard';
 import TrendChart from '../components/TrendChart';
-import ProportionChart from '../components/ProportionChart';
-import dayjs from 'dayjs';
-import { Typography } from 'antd';
 
 const { Title, Text } = Typography;
 

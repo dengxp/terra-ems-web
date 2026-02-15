@@ -1,11 +1,11 @@
-import {ProFormSelect, ProFormSelectProps} from "@ant-design/pro-components";
+import { ProFormSelect, ProFormSelectProps } from "@ant-design/pro-components";
 
 type Props = ProFormSelectProps & {
   dickey: string;
 }
 
-import React, {useMemo} from 'react';
-import {useModel} from "@umijs/max";
+import { useModel } from "@umijs/max";
+import { useMemo } from 'react';
 
 const ProFormDictSelect = (props: Props) => {
   const {dickey, fieldProps, ...rest} = props;

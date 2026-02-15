@@ -1,7 +1,7 @@
-import React from 'react';
-import { Empty, Spin } from 'antd';
-import { Pie } from '@ant-design/plots';
 import { EnergyTypeDistribution } from '@/apis/statistics';
+import { Pie } from '@ant-design/plots';
+import { Empty, Spin } from 'antd';
+import React from 'react';
 
 interface ProportionChartProps {
     data: EnergyTypeDistribution[];
@@ -72,7 +72,7 @@ const ProportionChart: React.FC<ProportionChartProps> = ({
                     textOverflow: 'ellipsis',
                     fontSize: '18px',
                 },
-                formatter: (datum: any, data: any[]) => {
+                formatter: (_datum: any, data: any[]) => {
                     const total = data.reduce((a, b) => a + b.value, 0);
                     return total.toFixed(2);
                 },

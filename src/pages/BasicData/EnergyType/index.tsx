@@ -1,20 +1,16 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import {
+  EnergyCategory,
+  EnergyCategoryLabel, EnergyType
+} from '@/apis/energyType';
+import { DeleteButton, EditButton } from '@/components/button';
 import { ProPageContainer } from '@/components/container';
-import { Button, Space } from 'antd';
+import StatusIcon from '@/components/icons/StatusIcon';
+import useCrud from '@/hooks/common/useCrud';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ProColumns, ProTable } from '@ant-design/pro-components';
-import useCrud from '@/hooks/common/useCrud';
-import { DeleteButton, EditButton } from '@/components/button';
-import {
-    EnergyType,
-    EnergyCategory,
-    EnergyCategoryLabel,
-    getEnergyTypes,
-    deleteEnergyType,
-} from '@/apis/energyType';
+import { Button, Space } from 'antd';
+import React, { useEffect, useMemo, useState } from 'react';
 import EnergyTypeForm from './components/EnergyTypeForm';
-import StatusIcon from '@/components/icons/StatusIcon';
-import { wrapperResult } from '@/utils';
 
 /**
  * 能源类型管理页面

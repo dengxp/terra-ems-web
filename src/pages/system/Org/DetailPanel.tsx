@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { ProForm, ProFormDigit, ProFormText, ProFormTextArea } from "@ant-design/pro-components";
-import useCrud from "@/hooks/common/useCrud";
-import { ProModalFormProps } from "@/components/container/ProModalForm";
-import { Button, Form, Space } from "antd";
-import { DataItemStatus, OperationEnum } from "@/enums";
-import ProFormDeptSelect from "@/components/select/ProFormDeptSelect";
-import ProFormRemoteSearchSelect from "@/components/select/ProFormRemoteSearchSelect";
 import { findOptionsForDepartmentManager } from "@/apis";
+import { ProModalFormProps } from "@/components/container/ProModalForm";
+import ProFormDeptSelect from "@/components/select/ProFormDeptSelect";
 import ProFormDictSelect from "@/components/select/ProFormDictSelect";
+import ProFormRemoteSearchSelect from "@/components/select/ProFormRemoteSearchSelect";
+import { DataItemStatus, OperationEnum } from "@/enums";
+import useCrud from "@/hooks/common/useCrud";
+import { ProForm, ProFormDigit, ProFormText, ProFormTextArea } from "@ant-design/pro-components";
+import { Button, Form, Space } from "antd";
+import { useEffect, useState } from 'react';
 
 type Props = ProModalFormProps
 

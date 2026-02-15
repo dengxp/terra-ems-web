@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { Card, Button, Form, TreeSelect, message, Typography, Space, Alert, Divider } from 'antd';
-import { PageContainer } from '@ant-design/pro-components';
-import { getEnabledEnergyUnitTree, EnergyUnit } from '@/apis/energyUnit';
 import { generateRankingData } from '@/apis/demo';
+import { EnergyUnit, getEnabledEnergyUnitTree } from '@/apis/energyUnit';
 import { getToken } from '@/utils/auth';
-import { RocketOutlined, DatabaseOutlined } from '@ant-design/icons';
+import { DatabaseOutlined, RocketOutlined } from '@ant-design/icons';
+import { PageContainer } from '@ant-design/pro-components';
+import { Alert, Button, Card, Divider, Form, message, Space, TreeSelect, Typography } from 'antd';
+import React, { useEffect, useState } from 'react';
 
 const { Title, Paragraph, Text } = Typography;
 

@@ -1,22 +1,16 @@
-import React, { useEffect } from 'react';
-import { message, ColorPicker, Form, Col } from 'antd';
-import type { Color } from 'antd/es/color-picker';
 import {
-    ProFormText,
-    ProFormSelect,
-    ProFormDigit,
-    ProFormSwitch,
-    ProFormTextArea,
-    ProFormRadio,
-} from '@ant-design/pro-components';
-import { ProModalForm } from '@/components/container';
-import {
-    EnergyType,
-    EnergyCategory,
-    EnergyCategoryLabel,
+  EnergyCategory,
+  EnergyCategoryLabel, EnergyType
 } from '@/apis/energyType';
-import useCrud from '@/hooks/common/useCrud';
+import { ProModalForm } from '@/components/container';
 import { OperationEnum } from '@/enums';
+import useCrud from '@/hooks/common/useCrud';
+import {
+  ProFormDigit, ProFormRadio, ProFormSelect, ProFormSwitch, ProFormText, ProFormTextArea
+} from '@ant-design/pro-components';
+import { Col, ColorPicker, Form } from 'antd';
+import type { Color } from 'antd/es/color-picker';
+import React, { useEffect } from 'react';
 
 interface EnergyTypeFormProps {
     visible: boolean;

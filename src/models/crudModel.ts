@@ -1,6 +1,6 @@
-import { useState, useCallback } from 'react';
 import { OperationEnum } from "@/enums";
 import { PaginationProps } from "antd";
+import { useCallback, useState } from 'react';
 
 interface CrudState {
   operation: OperationEnum;

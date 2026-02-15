@@ -1,9 +1,9 @@
 import { Product, ProductType } from '@/apis/product';
 import { ProModalForm } from "@/components/container";
-import useCrud from "@/hooks/common/useCrud";
-import { ProFormDigit, ProFormSelect, ProFormText, ProFormTextArea, ProFormRadio } from "@ant-design/pro-components";
-import React, { useEffect } from "react";
 import { OperationEnum } from '@/enums';
+import useCrud from "@/hooks/common/useCrud";
+import { ProFormDigit, ProFormRadio, ProFormSelect, ProFormText, ProFormTextArea } from "@ant-design/pro-components";
+import React, { useEffect } from "react";
 
 interface ProductFormProps {
     visible: boolean;

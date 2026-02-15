@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Card, Tree, DatePicker, Select, Space, Table, Empty, Typography, Tag, Spin, Progress, Input, Splitter } from 'antd';
-import { PageContainer } from '@ant-design/pro-components';
+import { BranchAnalysis, getBranchAnalysis } from '@/apis/statistics';
 import EnergyUnitTree from '@/components/EnergyUnitTree';
-import { getBranchAnalysis, BranchAnalysis } from '@/apis/statistics';
 import { ApartmentOutlined, ThunderboltOutlined } from '@ant-design/icons';
-import dayjs from 'dayjs';
+import { PageContainer } from '@ant-design/pro-components';
+import { Card, DatePicker, Empty, Progress, Select, Space, Spin, Splitter, Table, Tag, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
+import dayjs from 'dayjs';
+import React, { useEffect, useState } from 'react';
 
 const { Title, Text } = Typography;
 

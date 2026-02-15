@@ -1,8 +1,8 @@
 /* eslint-disable compat/compat */
-import React, { useState } from 'react';
-import { Select } from 'antd';
 import type { SelectProps } from 'antd';
+import { Select } from 'antd';
 import type { AnyObject } from 'antd/es/_util/type';
+import React, { useState } from 'react';
 
 let timeout: ReturnType<typeof setTimeout> | null;
 let currentValue: string;

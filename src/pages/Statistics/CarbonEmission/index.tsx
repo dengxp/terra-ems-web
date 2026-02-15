@@ -1,18 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { Card, Col, Row, Tree, DatePicker, Select, Space, Empty, Table, Splitter } from 'antd';
-import { PageContainer } from '@ant-design/pro-components';
-import EnergyUnitTree from '@/components/EnergyUnitTree';
 import {
-    getCarbonSummary,
-    getCarbonRanking,
+  getCarbonRanking, getCarbonSummary
 } from '@/apis/carbonEmission';
-import { EnergyStatisticsSummary, ComparisonAnalysis } from '@/apis/statistics';
+import { ComparisonAnalysis, EnergyStatisticsSummary } from '@/apis/statistics';
+import EnergyUnitTree from '@/components/EnergyUnitTree';
+import { TrophyOutlined } from '@ant-design/icons';
+import { PageContainer } from '@ant-design/pro-components';
+import { Card, Col, DatePicker, Empty, Row, Select, Space, Splitter, Table, Typography } from 'antd';
+import dayjs from 'dayjs';
+import React, { useEffect, useState } from 'react';
+import RankingChart from '../components/RankingChart';
 import StatisticsCard from '../components/StatisticsCard';
 import TrendChart from '../components/TrendChart';
-import RankingChart from '../components/RankingChart';
-import dayjs from 'dayjs';
-import { CloudOutlined, DatabaseOutlined, BarChartOutlined, TrophyOutlined } from '@ant-design/icons';
-import { Typography } from 'antd';
 
 const { Title, Text } = Typography;
 

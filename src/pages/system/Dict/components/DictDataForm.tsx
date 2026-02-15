@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react';
-import { ModalForm, ProFormText, ProFormTextArea, ProFormRadio, ProFormDigit, ProFormSelect } from '@ant-design/pro-components';
-import { Space, Badge } from 'antd';
-import useCrud from '@/hooks/common/useCrud';
 import { SysDictData } from '@/apis/system/dict';
+import useCrud from '@/hooks/common/useCrud';
+import { ModalForm, ProFormDigit, ProFormRadio, ProFormSelect, ProFormText, ProFormTextArea } from '@ant-design/pro-components';
+import { Badge, Space } from 'antd';
+import React, { useEffect } from 'react';
 
 interface DictDataFormProps {
     open: boolean;

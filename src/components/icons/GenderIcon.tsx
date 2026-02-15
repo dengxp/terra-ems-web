@@ -1,9 +1,9 @@
-import React, { forwardRef, useMemo } from 'react';
+import { forwardRef, useMemo } from 'react';
 
-import Icon, { ManOutlined, WomanOutlined } from "@ant-design/icons";
-import { Tooltip } from "antd";
 import { ReactComponent as UnknownSvg } from '@/icons/svg/unknown.svg';
+import Icon, { ManOutlined, WomanOutlined } from "@ant-design/icons";
 import { useModel } from "@umijs/max";
+import { Tooltip } from "antd";
 
 type Props = {
   value?: number;

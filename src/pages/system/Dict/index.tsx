@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { ProTable, ProColumns } from '@ant-design/pro-components';
-import { Space, Modal, Tag } from 'antd';
-import { SettingFilled } from '@ant-design/icons';
-import { ProPageContainer } from '@/components/container';
-import { EditButton, DeleteButton, IconButton, AddButton } from '@/components/button';
-import useCrud from '@/hooks/common/useCrud';
 import { SysDictType } from '@/apis/system/dict';
+import { AddButton, DeleteButton, EditButton, IconButton } from '@/components/button';
+import { ProPageContainer } from '@/components/container';
+import useCrud from '@/hooks/common/useCrud';
+import { SettingFilled } from '@ant-design/icons';
+import { ProColumns, ProTable } from '@ant-design/pro-components';
+import { Modal, Space, Tag } from 'antd';
+import React, { useState } from 'react';
 import DictTypeForm from './components/DictTypeForm';
 import DictDataList from './DataList';
 

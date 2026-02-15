@@ -1,23 +1,20 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { ProDescriptions } from '@ant-design/pro-components';
+import { EnergyUnit, getEnergyUnitTree } from '@/apis/energyUnit';
+import { assignEnergyUnits, getMeterPointsByEnergyUnitId, MeterPoint } from '@/apis/meterPoint';
+import { DeleteButton, IconButton } from '@/components/button';
 import { ProPageContainer } from '@/components/container';
-import { Tree, Flex, Splitter, message, Empty, Tag, Input, Space, Dropdown, Button, List } from 'antd';
+import useCrud from "@/hooks/common/useCrud";
+import { ReactComponent as MoveTo } from '@/icons/svg/move-to.svg';
+import { generateList, getParentKey } from "@/utils/tree";
 import Icon, {
-    PlusOutlined,
-    EditOutlined,
-    DeleteOutlined,
-    SettingOutlined,
+  DeleteOutlined, EditOutlined, PlusOutlined, SettingOutlined
 } from '@ant-design/icons';
+import { ProDescriptions } from '@ant-design/pro-components';
 import type { TreeDataNode } from 'antd';
-import { IconButton, DeleteButton } from '@/components/button';
-import { getEnergyUnitTree, EnergyUnit } from '@/apis/energyUnit';
-import { getMeterPointsByEnergyUnitId, MeterPoint, assignEnergyUnits } from '@/apis/meterPoint';
+import { Button, Dropdown, Empty, Flex, Input, List, message, Space, Splitter, Tag, Tree } from 'antd';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import EnergyUnitForm from './components/EnergyUnitForm';
 import MeterPointsManageDialog from './components/MeterPointsManageDialog';
-import { ReactComponent as MoveTo } from '@/icons/svg/move-to.svg';
 import MoveEnergyUnitDialog from './components/MoveEnergyUnitDialog';
-import useCrud from "@/hooks/common/useCrud";
-import { generateList, getParentKey } from "@/utils/tree";
 
 /**
  * 用能单元管理页面
@@ -31,7 +28,7 @@ const EnergyUnitPage: React.FC = () => {
     const [searchValue, setSearchValue] = useState('');
     const [autoExpandParent, setAutoExpandParent] = useState(true);
     // 用于保存原始数据以便查找节点
-    const [rawData, setRawData] = useState<EnergyUnit[]>([]);
+    const [_rawData, setRawData] = useState<EnergyUnit[]>([]);
     const [messageApi, contextHolder] = message.useMessage();
     const [contextMenuVisible, setContextMenuVisible] = useState(false);
     const [contextMenuPos, setContextMenuPos] = useState({ x: 0, y: 0 });

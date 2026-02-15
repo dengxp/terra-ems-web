@@ -1,16 +1,12 @@
-import React, { useEffect } from 'react';
-import {
-    ProFormText,
-    ProFormDigit,
-    ProFormRadio,
-    ProFormTextArea,
-    ProFormSelect,
-    ProFormDependency,
-} from '@ant-design/pro-components';
 import { EnergyUnit } from '@/apis/energyUnit';
 import { ProModalForm } from "@/components/container";
-import useCrud from "@/hooks/common/useCrud";
 import { OperationEnum } from '@/enums';
+import useCrud from "@/hooks/common/useCrud";
+import {
+  ProFormDependency, ProFormDigit,
+  ProFormRadio, ProFormSelect, ProFormText, ProFormTextArea
+} from '@ant-design/pro-components';
+import React, { useEffect } from 'react';
 
 interface EnergyUnitFormProps {
     visible: boolean;

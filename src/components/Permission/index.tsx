@@ -1,5 +1,5 @@
-import React from 'react';
 import { useAccess } from '@umijs/max';
+import React from 'react';
 
 /**
  * 权限控制组件属性

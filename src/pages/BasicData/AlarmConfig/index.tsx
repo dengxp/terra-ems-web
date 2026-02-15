@@ -1,19 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { Card, List, Empty, Button, Space, message, Tag, Tooltip, Splitter } from 'antd';
-import { PageContainer, ProTable, ProColumns } from '@ant-design/pro-components';
-import EnergyUnitTree from '@/components/EnergyUnitTree';
+import { AlarmConfig, getAlarmConfigsByMeterPoint } from '@/apis/alarm';
 import { getMeterPointsByEnergyUnitId, MeterPoint } from '@/apis/meterPoint';
-import { getAlarmConfigsByMeterPoint, AlarmConfig } from '@/apis/alarm';
-import {
-    PlusOutlined,
-    UnorderedListOutlined,
-    SettingOutlined,
-    ThunderboltOutlined
-} from '@ant-design/icons';
-import AlarmConfigForm from './components/AlarmConfigForm';
-import { EditButton, DeleteButton } from '@/components/button';
+import { DeleteButton, EditButton } from '@/components/button';
+import EnergyUnitTree from '@/components/EnergyUnitTree';
 import ModalConfirm from '@/components/ModalConfirm';
 import useCrud from '@/hooks/common/useCrud';
+import {
+  PlusOutlined, SettingOutlined,
+  ThunderboltOutlined, UnorderedListOutlined
+} from '@ant-design/icons';
+import { PageContainer, ProColumns, ProTable } from '@ant-design/pro-components';
+import { Button, Card, Empty, List, message, Space, Splitter, Tag, Tooltip } from 'antd';
+import React, { useEffect, useState } from 'react';
+import AlarmConfigForm from './components/AlarmConfigForm';
 
 const AlarmConfigPage: React.FC = () => {
     const {

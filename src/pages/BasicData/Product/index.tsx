@@ -1,13 +1,13 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import { Product } from '@/apis/product';
+import { DeleteButton, EditButton } from '@/components/button';
 import { ProPageContainer } from '@/components/container';
-import { Button, Space } from 'antd';
+import StatusIcon from '@/components/icons/StatusIcon';
+import useCrud from '@/hooks/common/useCrud';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ProColumns, ProTable } from '@ant-design/pro-components';
-import useCrud from '@/hooks/common/useCrud';
-import { DeleteButton, EditButton } from '@/components/button';
-import { Product } from '@/apis/product';
+import { Button, Space } from 'antd';
+import React, { useEffect, useMemo, useState } from 'react';
 import ProductForm from './components/ProductForm';
-import StatusIcon from '@/components/icons/StatusIcon';
 
 /**
  * 产品管理页面

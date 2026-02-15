@@ -1,18 +1,18 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { ProPageContainer } from '@/components/container';
-import { ProTable, ProColumns } from '@ant-design/pro-components';
-import { Button, Space, Tag } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import {
-    Benchmark,
-    BenchmarkType,
-    benchmarkTypeOptions,
-    getBenchmarkPage,
+  Benchmark,
+  BenchmarkType,
+  benchmarkTypeOptions,
+  getBenchmarkPage
 } from '@/apis/benchmark';
-import BenchmarkForm from './components/BenchmarkForm';
-import { EditButton, DeleteButton } from '@/components/button';
+import { DeleteButton, EditButton } from '@/components/button';
+import { ProPageContainer } from '@/components/container';
 import useCrud from '@/hooks/common/useCrud';
 import { wrapperResult } from '@/utils';
+import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
+import { ProColumns, ProTable } from '@ant-design/pro-components';
+import { Button, Space, Tag } from 'antd';
+import React, { useEffect, useMemo, useState } from 'react';
+import BenchmarkForm from './components/BenchmarkForm';
 
 const BenchmarkPage: React.FC = () => {
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);

@@ -1,5 +1,5 @@
-import { Permissions } from "@/enums";
 import { PERMISSIONS } from "@/config/permissions";
+import { Permissions } from "@/enums";
 
 /**
  * @see https://umijs.org/docs/max/access#access

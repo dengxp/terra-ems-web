@@ -1,20 +1,14 @@
-import React, { useEffect } from 'react';
-import {
-    ProFormText,
-    ProFormDigit,
-    ProFormDatePicker,
-    ProFormDateTimePicker,
-    ProFormSelect,
-    ProFormRadio,
-    ProFormDependency,
-    ProFormTextArea,
-} from '@ant-design/pro-components';
-import { ProModalForm } from '@/components/container';
-import { ProductionRecord } from '@/apis/productionRecord';
 import { getEnabledEnergyUnits } from '@/apis/energyUnit';
-import useCrud from '@/hooks/common/useCrud';
+import { ProductionRecord } from '@/apis/productionRecord';
+import { ProModalForm } from '@/components/container';
 import { OperationEnum } from '@/enums';
+import useCrud from '@/hooks/common/useCrud';
+import {
+  ProFormDatePicker,
+  ProFormDateTimePicker, ProFormDependency, ProFormDigit, ProFormRadio, ProFormSelect, ProFormText, ProFormTextArea
+} from '@ant-design/pro-components';
 import dayjs from 'dayjs';
+import React, { useEffect } from 'react';
 
 interface ProductionRecordFormProps {
     open: boolean;
@@ -66,7 +60,6 @@ const ProductionRecordForm: React.FC<ProductionRecordFormProps> = ({
         }
     };
 
-    const labels = getLabels();
 
     return (
         <ProModalForm

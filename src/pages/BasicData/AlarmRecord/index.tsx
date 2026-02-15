@@ -1,12 +1,12 @@
-import React, { useRef, useState } from 'react';
-import { PageContainer, ProTable, ActionType, ProColumns, ProFormTextArea, ProFormSelect } from '@ant-design/pro-components';
-import { message, Space, Typography, Tooltip, Button, Modal, Descriptions } from 'antd';
-import { CheckCircleFilled, EyeFilled } from '@ant-design/icons';
-import { AlarmRecord, getAlarmRecordPage, handleAlarmRecord, getAllAlarmLimitTypes } from '@/apis/alarm';
+import { AlarmRecord, getAlarmRecordPage, getAllAlarmLimitTypes, handleAlarmRecord } from '@/apis/alarm';
 import { getAllMeterPoints } from '@/apis/meterPoint';
-import { wrapperResult } from '@/utils';
 import { ProModalForm } from "@/components/container";
+import { wrapperResult } from '@/utils';
+import { CheckCircleFilled, EyeFilled } from '@ant-design/icons';
+import { ActionType, PageContainer, ProColumns, ProFormSelect, ProFormTextArea, ProTable } from '@ant-design/pro-components';
+import { Button, Descriptions, message, Modal, Space, Tooltip, Typography } from 'antd';
 import dayjs from 'dayjs';
+import React, { useRef, useState } from 'react';
 
 const { Text } = Typography;
 

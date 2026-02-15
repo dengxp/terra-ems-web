@@ -1,30 +1,29 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import { DeleteButton, EditButton } from "@/components/button";
 import { ProPageContainer } from "@/components/container";
-import { Button, message, Space } from "antd";
+import useCrud from "@/hooks/common/useCrud";
+import { useAccess, useModel } from "@@/exports";
 import {
   DeleteOutlined,
   EditOutlined,
   ExportOutlined,
-  PlusOutlined,
+  PlusOutlined
 } from "@ant-design/icons";
 import { ProColumns, ProTable } from "@ant-design/pro-components";
-import useCrud from "@/hooks/common/useCrud";
-import { DeleteButton, EditButton } from "@/components/button";
-import { useAccess, useModel } from "@@/exports";
+import { Button, Space } from "antd";
+import React, { useEffect, useMemo, useState } from 'react';
 
-import PostDetailDialog from "@/pages/system/Post/PostDetailDialog";
-import StatusIcon from "@/components/icons/StatusIcon";
-import { downloadFailed, downloadSuccess } from "@/utils/download";
 import { exportPost } from "@/apis/post";
 import { Permission } from "@/components";
+import StatusIcon from "@/components/icons/StatusIcon";
 import { PERMISSIONS } from "@/config/permissions";
+import PostDetailDialog from "@/pages/system/Post/PostDetailDialog";
+import { downloadFailed, downloadSuccess } from "@/utils/download";
 
 const Index = () => {
-  const [params, setParams] = useState<Record<string, any>>({});
+  const [params] = useState<Record<string, any>>({});
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [selectedRows, setSelectedRows] = useState<any[]>([]);
-  const [tip, setTip] = useState('正在处理中，请稍等...');
-  const { optionMap } = useModel('constantModel');
+  const [tip] = useState('正在处理中，请稍等...');
 
 
   const {
@@ -44,7 +43,6 @@ const Index = () => {
     baseUrl: '/api/system/post'
   });
 
-  const { hasPermission } = useAccess();
   const state = getState('/system/post');
 
   // const onStatusChange = (record: any) => {

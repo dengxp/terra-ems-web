@@ -1,6 +1,5 @@
-import React from 'react';
-import MemberPanel from "./MemberPanel";
 import { ProDescriptions } from "@ant-design/pro-components";
+import MemberPanel from "./MemberPanel";
 
 type Props = {
   department?: SysDept

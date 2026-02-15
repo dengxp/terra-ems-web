@@ -1,27 +1,27 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import { findDeptTreeByCondition } from "@/apis";
+import { DeleteButton, EditButton, IconButton } from "@/components/button";
 import { ProPageContainer } from "@/components/container";
-import { Button, Space } from "antd";
+import StatusIcon from "@/components/icons/StatusIcon";
+import useCrud from "@/hooks/common/useCrud";
+import DeptDetailDialog from "@/pages/system/Dept/DeptDetailDialog";
+import { wrapperResult } from "@/utils";
+import { useAccess } from "@@/exports";
 import {
   NodeCollapseOutlined, NodeExpandOutlined, PlusCircleFilled,
-  PlusOutlined,
+  PlusOutlined
 } from "@ant-design/icons";
 import { ProColumns, ProTable } from "@ant-design/pro-components";
-import { findDeptTreeByCondition } from "@/apis";
-import useCrud from "@/hooks/common/useCrud";
-import { useAccess } from "@@/exports";
 import { useModel } from "@umijs/max";
-import { wrapperResult } from "@/utils";
-import DeptDetailDialog from "@/pages/system/Dept/DeptDetailDialog";
-import StatusIcon from "@/components/icons/StatusIcon";
-import { DeleteButton, EditButton, IconButton } from "@/components/button";
+import { Button, Space } from "antd";
+import React, { useCallback, useEffect, useState } from 'react';
 
 const Index = () => {
-  const [params, setParams] = useState<Record<string, any>>({});
+  const [params] = useState<Record<string, any>>({});
   const [expand, setExpand] = useState(true);
   const [defaultExpandedRowKeys, setDefaultExpandedRowKeys] = useState<React.Key[]>([]);
   const [expandedRowKeys, setExpandedRowKeys] = useState<React.Key[]>([]);
-  const [tip, setTip] = useState('正在处理中，请稍等...');
-  const { optionMap, mapMaps } = useModel('constantModel');
+  const [_tip, _setTip] = useState('正在处理中，请稍等...');
+  const { optionMap } = useModel('constantModel');
 
   const {
     getState,
@@ -39,7 +39,6 @@ const Index = () => {
     baseUrl: '/api/system/dept'
   });
 
-  const { hasPermission } = useAccess();
   // const dictMap = useDict('sys_normal_disable');
   const state = getState('/system/dept');
 

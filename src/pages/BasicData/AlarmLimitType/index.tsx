@@ -1,12 +1,12 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { ProPageContainer } from '@/components/container';
-import { ProTable, ProColumns } from '@ant-design/pro-components';
-import { Button, Space, Tag } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { AlarmLimitType } from '@/apis/alarm';
-import AlarmLimitTypeForm from './components/AlarmLimitTypeForm';
-import { EditButton, DeleteButton } from '@/components/button';
+import { DeleteButton, EditButton } from '@/components/button';
+import { ProPageContainer } from '@/components/container';
 import useCrud from '@/hooks/common/useCrud';
+import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
+import { ProColumns, ProTable } from '@ant-design/pro-components';
+import { Button, Space, Tag } from 'antd';
+import React, { useEffect, useMemo, useState } from 'react';
+import AlarmLimitTypeForm from './components/AlarmLimitTypeForm';
 
 const AlarmLimitTypePage: React.FC = () => {
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);

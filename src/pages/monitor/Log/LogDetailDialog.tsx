@@ -1,7 +1,7 @@
-import React from 'react';
-import { Drawer } from "antd";
-import { ProDescriptions } from "@ant-design/pro-components";
 import { SysLog } from "@/apis/system/log";
+import { ProDescriptions } from "@ant-design/pro-components";
+import { Drawer } from "antd";
+import React from 'react';
 
 interface Props {
     open: boolean;
@@ -72,7 +72,7 @@ const LogDetailDialog: React.FC<Props> = (props) => {
                         {
                             title: '消耗时间',
                             dataIndex: 'costTime',
-                            render: (dom, entity) => `${entity.costTime}ms`,
+                            render: (_dom, entity) => `${entity.costTime}ms`,
                         },
                         {
                             title: '请求方法',

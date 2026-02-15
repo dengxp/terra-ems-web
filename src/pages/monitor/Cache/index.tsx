@@ -1,19 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { Row, Col, Card, Typography, Descriptions, List, Button, Space, App } from 'antd';
-import { ProPageContainer } from '@/components/container';
-import { Pie } from '@ant-design/plots';
 import {
-    getCacheInfo,
-    listCacheNames,
-    listCacheKeys,
-    getCacheValue,
-    clearCacheName,
-    clearCacheKey,
-    clearCacheAll,
-    SysCache,
-    CacheInfo
+  CacheInfo, clearCacheAll, clearCacheKey, clearCacheName, getCacheInfo, getCacheValue, listCacheKeys, listCacheNames, SysCache
 } from '@/apis/monitor/cache';
-import { DeleteOutlined, ReloadOutlined, DatabaseOutlined, KeyOutlined, FileTextOutlined } from '@ant-design/icons';
+import { ProPageContainer } from '@/components/container';
+import { DatabaseOutlined, DeleteOutlined, FileTextOutlined, KeyOutlined, ReloadOutlined } from '@ant-design/icons';
+import { Pie } from '@ant-design/plots';
+import { App, Button, Card, Col, Descriptions, List, Row, Space, Typography } from 'antd';
+import React, { useEffect, useState } from 'react';
 
 const { Title } = Typography;
 

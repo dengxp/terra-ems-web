@@ -1,5 +1,22 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import { exportUser, findDeptTree } from "@/apis";
+import { DeleteButton, EditButton } from "@/components/button";
 import { ProPageContainer } from "@/components/container";
+import useCrud from "@/hooks/common/useCrud";
+import { ReactComponent as RoleIcon } from "@/icons/svg/role.svg";
+import PasswordDialog from "@/pages/system/User/PasswordDialog";
+import RoleDialog from "@/pages/system/User/RoleDialog";
+import UserDetailDialog from "@/pages/system/User/UserDetailDialog";
+import UserImportDialog from "@/pages/system/User/UserImportDialog";
+import { downloadFailed, downloadSuccess } from "@/utils/download";
+import { generateList, getParentKey, getTreeKeys } from "@/utils/tree";
+import Icon, {
+  DeleteOutlined, EditOutlined, ExportOutlined,
+  LockFilled,
+  MoreOutlined,
+  PlusOutlined, UploadOutlined
+} from "@ant-design/icons";
+import { ProColumns, ProTable } from "@ant-design/pro-components";
+import { useAccess } from '@umijs/max';
 import {
   Button,
   Dropdown,
@@ -13,37 +30,20 @@ import {
   TreeDataNode,
   TreeProps
 } from "antd";
-import Icon, {
-  DeleteOutlined, EditOutlined, ExportOutlined,
-  LockFilled,
-  MoreOutlined,
-  PlusOutlined, UploadOutlined,
-} from "@ant-design/icons";
-import { exportUser, findDeptTree } from "@/apis";
-import { generateList, getParentKey, getTreeKeys } from "@/utils/tree";
-import { ProColumns, ProTable } from "@ant-design/pro-components";
-import useCrud from "@/hooks/common/useCrud";
-import { DeleteButton, EditButton } from "@/components/button";
 import { MenuInfo } from "rc-menu/lib/interface";
-import UserDetailDialog from "@/pages/system/User/UserDetailDialog";
-import { useAccess } from '@umijs/max';
-import PasswordDialog from "@/pages/system/User/PasswordDialog";
-import { ReactComponent as RoleIcon } from "@/icons/svg/role.svg";
-import RoleDialog from "@/pages/system/User/RoleDialog";
-import UserImportDialog from "@/pages/system/User/UserImportDialog";
-import { downloadFailed, downloadSuccess } from "@/utils/download";
+import React, { useEffect, useMemo, useState } from 'react';
 
-import { useModel } from "@umijs/max";
 import StatusIcon from "@/components/icons/StatusIcon";
+import { useModel } from "@umijs/max";
 
 const Index = () => {
   const [deptTree, setDeptTree] = useState<any[]>([]);
   const [expandedKeys, setExpandedKeys] = useState<React.Key[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
   const [params, setParams] = useState<Record<string, any>>({});
-  const [tip, setTip] = useState('正在处理中，请稍等...');
+  const [tip] = useState('正在处理中，请稍等...');
   const [searchValue, setSearchValue] = useState('');
-  const [autoExpandParent, setAutoExpandParent] = useState(true);
+  const [_autoExpandParent, setAutoExpandParent] = useState(true);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [selectedRows, setSelectedRows] = useState<any[]>([]);
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -252,7 +252,7 @@ const Index = () => {
     return generateList(deptTree);
   }, [deptTree]);
 
-  const onSelect: TreeProps['onSelect'] = (selectedKeys, info) => {
+  const onSelect: TreeProps['onSelect'] = (selectedKeys, _info) => {
     const deptId = selectedKeys?.[0];
     setParams(prevState => ({ ...prevState, deptId }));
   };

@@ -1,10 +1,10 @@
-﻿import type { RequestConfig, RequestOptions } from '@umijs/max';
+﻿import { ContentType } from '@/enums';
+import { getSessionId, getToken, removeToken } from "@/utils/auth";
+import type { RequestConfig, RequestOptions } from '@umijs/max';
 import { history } from "@umijs/max";
 import { message, notification } from 'antd';
-import { ContentType } from '@/enums';
 import qs from 'qs';
 import { EXPIRATION_CODE, LOGIN_PATH, TOKEN_HEADER_NAME, WHITE_LIST, X_TERRA_SESSION_ID } from "./config/constants";
-import { getSessionId, getToken, removeToken } from "@/utils/auth";
 
 
 // 错误处理方案： 错误类型

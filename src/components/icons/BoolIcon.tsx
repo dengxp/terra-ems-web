@@ -1,14 +1,13 @@
-import React, { forwardRef } from 'react';
-import { Tooltip } from "antd";
 import { CheckCircleFilled, CloseCircleFilled } from "@ant-design/icons";
+import { Tooltip } from "antd";
+import { forwardRef } from 'react';
 
 type Props = {
   value: boolean;
   trueText?: string;
-  falseText?: string;
 }
 
-const BoolIcon = forwardRef<HTMLSpanElement, Props>(({ value, trueText, falseText }, ref) => {
+const BoolIcon = forwardRef<HTMLSpanElement, Props>(({ value, trueText }, ref) => {
   return (
     <Tooltip title={trueText ? trueText : '是'}>
       <span ref={ref}>

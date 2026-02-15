@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { ProTable } from "@ant-design/pro-components";
-import GenderIcon from "@/components/icons/GenderIcon";
-import { IconButton } from "@/components/button";
-import { Button, message, Space } from "antd";
-import useCrud from "@/hooks/common/useCrud";
 import { findMembers, removeMembers } from "@/apis";
-import { DeleteFilled, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
-import AddMemberDialog from "./AddMemberDialog";
-import { TableRowSelection } from "antd/es/table/interface";
+import { IconButton } from "@/components/button";
+import GenderIcon from "@/components/icons/GenderIcon";
 import ModalConfirm from "@/components/ModalConfirm";
+import useCrud from "@/hooks/common/useCrud";
 import { wrapperResult } from "@/utils";
+import { DeleteFilled, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import { ProTable } from "@ant-design/pro-components";
+import { Button, message, Space } from "antd";
+import { TableRowSelection } from "antd/es/table/interface";
+import React, { useEffect, useState } from 'react';
+import AddMemberDialog from "./AddMemberDialog";
 
 type Props = {
   departmentId: number;
@@ -19,7 +19,7 @@ function MemberPanel({ departmentId }: Props) {
   const [params, setParams] = useState<Record<string, any>>({});
   const [addVisible, setAddVisible] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-  const [selectedRows, setSelectedRows] = useState<any[]>([]);
+  const [, setSelectedRows] = useState<any[]>([]);
 
   const {
     formRef,

@@ -1,19 +1,17 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { ProPageContainer } from '@/components/container';
-import { ProTable, ProColumns } from '@ant-design/pro-components';
-import { Button, Space, Tag } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import {
-    EnergySavingProject,
-    ProjectStatus,
-    projectStatusOptions,
-    getProjectPage,
+  EnergySavingProject, getProjectPage, ProjectStatus,
+  projectStatusOptions
 } from '@/apis/energySavingProject';
-import ProjectForm from './components/ProjectForm';
-import { EditButton, DeleteButton } from '@/components/button';
+import { DeleteButton, EditButton } from '@/components/button';
+import { ProPageContainer } from '@/components/container';
 import useCrud from '@/hooks/common/useCrud';
 import { wrapperResult } from '@/utils';
+import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
+import { ProColumns, ProTable } from '@ant-design/pro-components';
+import { Button, Space, Tag } from 'antd';
 import dayjs from 'dayjs';
+import React, { useEffect, useMemo, useState } from 'react';
+import ProjectForm from './components/ProjectForm';
 
 const EnergySavingProjectPage: React.FC = () => {
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);

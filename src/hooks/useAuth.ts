@@ -1,8 +1,8 @@
-import { useModel } from "@umijs/max";
 import { login as loginApi, logout as logoutApi } from '@/apis/login';
+import { TAB_STORAGE_KEY } from "@/config/constants";
 import { removeToken, setToken } from "@/utils/auth";
 import { history } from "@@/core/history";
-import { TAB_STORAGE_KEY } from "@/config/constants";
+import { useModel } from "@umijs/max";
 
 export default function useAuth() {
   const { setInitialState } = useModel('@@initialState');

@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import { CostTrend, getCostTrendAnalysis, TrendChartData } from '@/apis/energyCostRecord';
 import { ProPageContainer } from '@/components/container';
-import { Card, Form, Select, DatePicker, Button, Row, Col, Space } from 'antd';
-import { SearchOutlined, ReloadOutlined } from '@ant-design/icons';
+import { ReloadOutlined, SearchOutlined } from '@ant-design/icons';
+import { Column, Line } from '@ant-design/plots';
+import { Button, Card, Col, DatePicker, Form, Row, Select, Space } from 'antd';
 import dayjs from 'dayjs';
-import { Line, Column } from '@ant-design/plots';
-import { getCostTrendAnalysis, CostTrend, TrendChartData } from '@/apis/energyCostRecord';
+import React, { useEffect, useState } from 'react';
 
 const timeTypeOptions = [
     { label: '日', value: 'DAY' },

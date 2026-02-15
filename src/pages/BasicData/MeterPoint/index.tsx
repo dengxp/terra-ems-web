@@ -1,14 +1,14 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import { getMeterPointPage, MeterPoint } from '@/apis/meterPoint';
+import { DeleteButton, EditButton } from '@/components/button';
 import { ProPageContainer } from '@/components/container';
-import { ProTable, ProColumns } from '@ant-design/pro-components';
-import { Button, Space } from 'antd';
-import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
-import { MeterPoint, getMeterPointPage } from '@/apis/meterPoint';
-import MeterPointForm from './components/MeterPointForm';
 import StatusIcon from '@/components/icons/StatusIcon';
-import { EditButton, DeleteButton } from '@/components/button';
 import useCrud from '@/hooks/common/useCrud';
 import { wrapperResult } from '@/utils';
+import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
+import { ProColumns, ProTable } from '@ant-design/pro-components';
+import { Button, Space } from 'antd';
+import React, { useEffect, useMemo, useState } from 'react';
+import MeterPointForm from './components/MeterPointForm';
 
 /**
  * 采集点位管理页面

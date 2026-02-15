@@ -1,15 +1,11 @@
-import React, { CSSProperties } from 'react';
 import { ModalForm, ModalFormProps } from "@ant-design/pro-components";
+import React from 'react';
 
 export type ProModalFormProps = Omit<ModalFormProps, 'children'> & {
   children?: React.ReactNode;
 }
 const ProModalForm = (props: ProModalFormProps) => {
 
-  const formItemLayout = {
-    labelCol: { span: 6 },
-    wrapperCol: { span: 14, offset: 1 },
-  }
 
   const { title, open, children, ...rest } = props;
 

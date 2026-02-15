@@ -1,7 +1,7 @@
+import { getKnowledgeArticle, KnowledgeArticle } from '@/apis/knowledge';
+import { ClockCircleOutlined, EyeOutlined, UserOutlined } from '@ant-design/icons';
+import { Descriptions, Divider, Modal, Space, Spin, Tag, Typography } from 'antd';
 import React, { useEffect, useState } from 'react';
-import { Modal, Spin, Typography, Tag, Space, Divider, Descriptions } from 'antd';
-import { EyeOutlined, ClockCircleOutlined, UserOutlined } from '@ant-design/icons';
-import { KnowledgeArticle, getKnowledgeArticle } from '@/apis/knowledge';
 
 const { Title, Paragraph, Text } = Typography;
 

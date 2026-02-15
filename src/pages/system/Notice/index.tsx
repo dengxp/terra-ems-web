@@ -1,24 +1,22 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import { DeleteButton, EditButton, IconButton } from "@/components/button";
 import { ProPageContainer } from "@/components/container";
-import { Button, Space, Tag } from "antd";
+import useCrud from "@/hooks/common/useCrud";
 import {
-    DeleteOutlined,
-    EditOutlined,
-    PlusOutlined,
-    EyeFilled
+  DeleteOutlined,
+  EditOutlined, EyeFilled, PlusOutlined
 } from "@ant-design/icons";
 import { ProColumns, ProTable } from "@ant-design/pro-components";
-import useCrud from "@/hooks/common/useCrud";
-import { DeleteButton, EditButton, IconButton } from "@/components/button";
+import { Button, Space, Tag } from "antd";
+import React, { useEffect, useMemo, useState } from 'react';
 
-import NoticeDetailDialog from "@/pages/system/Notice/NoticeDetailDialog";
+import { SysNotice } from "@/apis/system/notice";
 import { Permission } from "@/components";
 import { PERMISSIONS } from "@/config/permissions";
-import { SysNotice } from "@/apis/system/notice";
 import { DataItemStatus, OperationEnum } from "@/enums";
+import NoticeDetailDialog from "@/pages/system/Notice/NoticeDetailDialog";
 
 const Index = () => {
-    const [params, setParams] = useState<Record<string, any>>({});
+    const [params] = useState<Record<string, any>>({});
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     const [selectedRows, setSelectedRows] = useState<SysNotice[]>([]);
 

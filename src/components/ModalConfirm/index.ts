@@ -1,5 +1,5 @@
-import {Modal} from "antd";
-import {ModalFuncProps} from "antd/es/modal/interface";
+import { Modal } from "antd";
+import { ModalFuncProps } from "antd/es/modal/interface";
 import styles from "./index.less";
 
 type Props = ModalFuncProps;

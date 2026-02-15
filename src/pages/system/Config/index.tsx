@@ -1,23 +1,22 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import { DeleteButton, EditButton } from "@/components/button";
 import { ProPageContainer } from "@/components/container";
-import { Button, Space, Tag } from "antd";
+import useCrud from "@/hooks/common/useCrud";
 import {
-    DeleteOutlined,
-    EditOutlined,
-    PlusOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  PlusOutlined
 } from "@ant-design/icons";
 import { ProColumns, ProTable } from "@ant-design/pro-components";
-import useCrud from "@/hooks/common/useCrud";
-import { DeleteButton, EditButton } from "@/components/button";
-import { useAccess } from "@@/exports";
+import { Button, Space, Tag } from "antd";
+import React, { useEffect, useMemo, useState } from 'react';
 
-import ConfigDetailDialog from "@/pages/system/Config/ConfigDetailDialog";
+import { SysConfig } from "@/apis/system/config";
 import { Permission } from "@/components";
 import { PERMISSIONS } from "@/config/permissions";
-import { SysConfig } from "@/apis/system/config";
+import ConfigDetailDialog from "@/pages/system/Config/ConfigDetailDialog";
 
 const Index = () => {
-    const [params, setParams] = useState<Record<string, any>>({});
+    const [params] = useState<Record<string, any>>({});
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     const [selectedRows, setSelectedRows] = useState<SysConfig[]>([]);
 

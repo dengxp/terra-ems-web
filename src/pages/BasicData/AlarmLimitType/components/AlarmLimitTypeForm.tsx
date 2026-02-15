@@ -1,10 +1,10 @@
-import React, { useEffect } from 'react';
-import { ProFormText, ProFormSelect } from '@ant-design/pro-components';
-import { Form, ColorPicker } from 'antd';
-import { ProModalForm } from '@/components/container';
 import { AlarmLimitType } from '@/apis/alarm';
-import useCrud from '@/hooks/common/useCrud';
+import { ProModalForm } from '@/components/container';
 import { OperationEnum } from '@/enums';
+import useCrud from '@/hooks/common/useCrud';
+import { ProFormSelect, ProFormText } from '@ant-design/pro-components';
+import { ColorPicker, Form } from 'antd';
+import React, { useEffect } from 'react';
 
 interface AlarmLimitTypeFormProps {
     visible: boolean;

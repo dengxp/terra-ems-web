@@ -1,12 +1,12 @@
-import { BellOutlined } from '@ant-design/icons';
-import { Badge, List, Popover, Spin, Tabs, Typography, notification } from 'antd';
-import React, { useEffect, useState, useCallback } from 'react';
 import { noticeApi, SysNotice } from '@/apis/system/notice';
-import { createStyles } from 'antd-style';
-import { useWebSocket } from '@/hooks/common/useWebSocket';
-import { history } from '@umijs/max';
-import NoticeDetailDialog from '@/pages/system/Notice/NoticeDetailDialog';
 import { OperationEnum } from '@/enums';
+import { useWebSocket } from '@/hooks/common/useWebSocket';
+import NoticeDetailDialog from '@/pages/system/Notice/NoticeDetailDialog';
+import { BellOutlined } from '@ant-design/icons';
+import { history } from '@umijs/max';
+import { Badge, List, notification, Popover, Spin, Tabs, Typography } from 'antd';
+import { createStyles } from 'antd-style';
+import React, { useCallback, useEffect, useState } from 'react';
 
 const { Text } = Typography;
 

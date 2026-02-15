@@ -1,6 +1,5 @@
-import React from 'react';
-import {EditFilled} from '@ant-design/icons';
-import {IconButton} from "@/components/button/index";
+import { IconButton } from "@/components/button/index";
+import { EditFilled } from '@ant-design/icons';
 
 const EditButton = (props: any) => {
   const {tooltip, ...rest} = props;

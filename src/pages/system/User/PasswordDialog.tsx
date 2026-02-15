@@ -1,10 +1,10 @@
-import React, {useEffect, useState} from 'react';
-import {ProModalForm} from "@/components/container";
-import {ProModalFormProps} from "@/components/container/ProModalForm";
-import {ProFormText} from "@ant-design/pro-components";
+import { resetUserPwd } from "@/apis";
+import { ProModalForm } from "@/components/container";
+import { ProModalFormProps } from "@/components/container/ProModalForm";
 import useCrud from "@/hooks/common/useCrud";
-import {message} from "antd";
-import {resetUserPwd} from "@/apis";
+import { ProFormText } from "@ant-design/pro-components";
+import { message } from "antd";
+import { useEffect, useState } from 'react';
 
 type Props = ProModalFormProps;
 

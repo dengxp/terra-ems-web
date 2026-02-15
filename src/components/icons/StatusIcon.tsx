@@ -1,8 +1,8 @@
-import React, { forwardRef, useMemo } from 'react';
-import { CheckCircleFilled, CloseCircleFilled, ExclamationCircleFilled, LockFilled } from "@ant-design/icons";
-import { Tooltip } from "antd";
-import { useModel } from "@umijs/max";
 import { DataItemStatus } from "@/enums";
+import { CheckCircleFilled, CloseCircleFilled, ExclamationCircleFilled, LockFilled } from "@ant-design/icons";
+import { useModel } from "@umijs/max";
+import { Tooltip } from "antd";
+import { forwardRef, useMemo } from 'react';
 
 type Props = {
   value?: number;

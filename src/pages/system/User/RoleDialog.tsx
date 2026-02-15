@@ -1,20 +1,20 @@
-import React, { useEffect, useState } from 'react';
-import useCrud from "@/hooks/common/useCrud";
-import { message, PaginationProps, Table, TableColumnProps } from "antd";
 import { getAuthRole, updateAuthRole } from "@/apis";
 import { ProModalForm } from "@/components/container";
 import { ProModalFormProps } from "@/components/container/ProModalForm";
+import useCrud from "@/hooks/common/useCrud";
 import { ProFormText } from "@ant-design/pro-components";
+import { message, PaginationProps, Table, TableColumnProps } from "antd";
+import React, { useEffect, useState } from 'react';
 
 
 type Props = ProModalFormProps;
 
 const RoleDialog = (props: Props) => {
   const [loading, setLoading] = useState(false);
-  const [tip, setTip] = useState('正在加载数据...');
+  const [tip] = useState('正在加载数据...');
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [dataSource, setDataSource] = useState<any[]>([]);
-  const [total, setTotal] = useState(0);
+  const [total] = useState(0);
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize, setPageSize] = useState(10000);
 

@@ -1,8 +1,8 @@
-import React from 'react';
-import { Table, Tag } from 'antd';
-import { ArrowUpOutlined, ArrowDownOutlined, MinusOutlined } from '@ant-design/icons';
-import type { ColumnsType } from 'antd/es/table';
 import { ComparisonAnalysis } from '@/apis/statistics';
+import { ArrowDownOutlined, ArrowUpOutlined, MinusOutlined } from '@ant-design/icons';
+import { Table, Tag } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
+import React from 'react';
 
 interface ComparisonTableProps {
     data: ComparisonAnalysis[];

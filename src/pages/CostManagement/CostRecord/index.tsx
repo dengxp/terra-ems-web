@@ -1,19 +1,17 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { ProPageContainer } from '@/components/container';
-import { ProTable, ProColumns, ProFormInstance } from '@ant-design/pro-components';
-import { Button, Space, Tag, DatePicker } from 'antd';
-const { RangePicker } = DatePicker;
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import {
-    EnergyCostRecord,
-    getEnergyCostRecordPage,
-    deleteEnergyCostRecord,
+  deleteEnergyCostRecord, EnergyCostRecord,
+  getEnergyCostRecordPage
 } from '@/apis/energyCostRecord';
-import CostRecordForm from './components/CostRecordForm';
-import { EditButton, DeleteButton } from '@/components/button';
+import { DeleteButton, EditButton } from '@/components/button';
+import { ProPageContainer } from '@/components/container';
 import useCrud from '@/hooks/common/useCrud';
 import { wrapperResult } from '@/utils';
+import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
+import { ProColumns, ProFormInstance, ProTable } from '@ant-design/pro-components';
+import { Button, Space } from 'antd';
 import dayjs from 'dayjs';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import CostRecordForm from './components/CostRecordForm';
 
 const CostRecordPage: React.FC = () => {
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);

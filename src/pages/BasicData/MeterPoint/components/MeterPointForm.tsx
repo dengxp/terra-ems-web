@@ -1,20 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import {
-    ProFormText,
-    ProFormDigit,
-    ProFormRadio,
-    ProFormTextArea,
-    ProFormSelect,
-    ProFormTreeSelect,
-} from '@ant-design/pro-components';
-import { ProModalForm } from '@/components/container';
-import { MeterPoint, saveMeterPoint, assignEnergyUnits } from '@/apis/meterPoint';
 import { getEnabledEnergyTypes } from '@/apis/energyType';
+import { EnergyUnit, getEnabledEnergyUnitTree } from '@/apis/energyUnit';
 import { getMeters, Meter } from '@/apis/meter';
-import { getEnabledEnergyUnitTree, EnergyUnit } from '@/apis/energyUnit';
-import { getToken } from '@/utils/auth';
-import useCrud from '@/hooks/common/useCrud';
+import { assignEnergyUnits, MeterPoint, saveMeterPoint } from '@/apis/meterPoint';
+import { ProModalForm } from '@/components/container';
 import { OperationEnum } from '@/enums';
+import useCrud from '@/hooks/common/useCrud';
+import { getToken } from '@/utils/auth';
+import {
+  ProFormDigit,
+  ProFormRadio, ProFormSelect, ProFormText, ProFormTextArea, ProFormTreeSelect
+} from '@ant-design/pro-components';
+import React, { useEffect, useState } from 'react';
 
 interface MeterPointFormProps {
     visible: boolean;

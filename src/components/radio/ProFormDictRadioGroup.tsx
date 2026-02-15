@@ -1,6 +1,6 @@
-import React, { useMemo } from 'react';
 import { ProFormRadio, ProFormRadioGroupProps } from "@ant-design/pro-components";
-import {useModel} from "@umijs/max";
+import { useModel } from "@umijs/max";
+import { useMemo } from 'react';
 
 type Props = ProFormRadioGroupProps & {
   dictKey: string;

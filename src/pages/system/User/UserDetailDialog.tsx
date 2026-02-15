@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { ProModalForm } from "@/components/container";
-import { ProModalFormProps } from "@/components/container/ProModalForm";
-import useCrud from "@/hooks/common/useCrud";
-import { ProFormSelect, ProFormText, ProFormTextArea } from "@ant-design/pro-components";
-import ProFormDictRadioGroup from "@/components/radio/ProFormDictRadioGroup";
-import { OperationEnum } from "@/enums";
-import ProFormDeptSelect from "@/components/select/ProFormDeptSelect";
 import { findUserById } from "@/apis";
 import { findPostOptions } from "@/apis/post";
+import { ProModalForm } from "@/components/container";
+import { ProModalFormProps } from "@/components/container/ProModalForm";
+import ProFormDictRadioGroup from "@/components/radio/ProFormDictRadioGroup";
+import ProFormDeptSelect from "@/components/select/ProFormDeptSelect";
+import { OperationEnum } from "@/enums";
+import useCrud from "@/hooks/common/useCrud";
+import { ProFormSelect, ProFormText, ProFormTextArea } from "@ant-design/pro-components";
+import { useEffect, useState } from 'react';
 
 type Props = ProModalFormProps;
 
@@ -23,7 +23,7 @@ const defaultValue = {
   roles: []
 }
 const UserDetailDialog = (props: Props) => {
-  const [postList, setPostList] = useState<any[]>([]);
+  const [_postList, _setPostList] = useState<any[]>([]);
   const [roleList, setRoleList] = useState<any[]>([]);
 
   const {

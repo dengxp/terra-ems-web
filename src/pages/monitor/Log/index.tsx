@@ -1,14 +1,14 @@
-import React, { useRef, useState } from 'react';
-import { ProPageContainer } from "@/components/container";
-import { ActionType, ProColumns, ProTable } from "@ant-design/pro-components";
-import { Button, Space, Tag } from "antd";
-import { EyeOutlined } from "@ant-design/icons";
 import { logApi, SysLog } from "@/apis/system/log";
+import { ProPageContainer } from "@/components/container";
 import LogDetailDialog from "@/pages/monitor/Log/LogDetailDialog";
+import { EyeOutlined } from "@ant-design/icons";
+import { ActionType, ProColumns, ProTable } from "@ant-design/pro-components";
+import { Button } from "antd";
+import { useRef, useState } from 'react';
 
 const Index = () => {
     const actionRef = useRef<ActionType>();
-    const [params, setParams] = useState<Record<string, any>>({});
+    const [params] = useState<Record<string, any>>({});
     const [showDetail, setShowDetail] = useState<boolean>(false);
     const [currentRow, setCurrentRow] = useState<SysLog>();
 

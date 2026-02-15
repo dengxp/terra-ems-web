@@ -1,13 +1,13 @@
 
-import React, { useRef, useState } from 'react';
-import { PageContainer, ProTable, ProColumns, ActionType } from '@ant-design/pro-components';
-import { Button, message, Space, Modal, Descriptions } from 'antd';
-import { DeleteOutlined, EyeOutlined, ExportOutlined } from '@ant-design/icons';
-import { list, clean, exportOperlog, OperationLog } from '@/apis/monitor/operationLog';
-import useCrud from '@/hooks/common/useCrud';
-import { Access, useAccess } from '@umijs/max';
+import { clean, exportOperlog, list, OperationLog } from '@/apis/monitor/operationLog';
 import { IconButton } from '@/components/button';
+import useCrud from '@/hooks/common/useCrud';
 import { wrapperResult } from '@/utils';
+import { DeleteOutlined, ExportOutlined, EyeOutlined } from '@ant-design/icons';
+import { ActionType, PageContainer, ProColumns, ProTable } from '@ant-design/pro-components';
+import { Access, useAccess } from '@umijs/max';
+import { Button, Descriptions, message, Modal, Space } from 'antd';
+import React, { useRef, useState } from 'react';
 
 const OperLogTable: React.FC = () => {
     const access = useAccess();
@@ -123,11 +123,6 @@ const OperLogTable: React.FC = () => {
         },
     ];
 
-    const handleDelete = async (record: OperationLog) => {
-        await toDelete(record.operId);
-        actionRef.current?.reload();
-    };
-
     const handleBatchDelete = async (selectedRowKeys: React.Key[]) => {
         await toBatchDelete(selectedRowKeys as (string | number)[]);
         actionRef.current?.reload();
@@ -193,11 +188,11 @@ const OperLogTable: React.FC = () => {
                 }}
                 columns={columns}
                 rowSelection={{
-                    onChange: (_, selectedRows) => {
+                    onChange: (_selectedKeys, _selectedRows) => {
                         // console.log(selectedRows);
                     },
                 }}
-                tableAlertOptionRender={({ selectedRowKeys, selectedRows, onCleanSelected }) => (
+                tableAlertOptionRender={({ selectedRowKeys, selectedRows: _sr, onCleanSelected }) => (
                     <Space size={16}>
                         <Access accessible={access.hasPermission('monitor:operlog:remove')}>
                             <a onClick={() => handleBatchDelete(selectedRowKeys)}>批量删除</a>

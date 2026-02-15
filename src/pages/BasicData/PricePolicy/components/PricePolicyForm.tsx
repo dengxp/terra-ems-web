@@ -1,22 +1,16 @@
-import React, { useEffect, useState } from 'react';
 import {
-    ProFormText,
-    ProFormDigit,
-    ProFormRadio,
-    ProFormTextArea,
-    ProFormSwitch,
-    ProFormDateRangePicker,
-    ProForm,
-} from '@ant-design/pro-components';
-import { Button, Drawer, Form, Input, InputNumber, Select, Space, Table, message } from 'antd';
+  periodTypeOptions, PricePolicy,
+  PricePolicyItem
+} from '@/apis/pricePolicy';
+import { OperationEnum } from '@/enums';
+import useCrud from '@/hooks/common/useCrud';
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import {
-    PricePolicy,
-    PricePolicyItem,
-    periodTypeOptions,
-} from '@/apis/pricePolicy';
-import useCrud from '@/hooks/common/useCrud';
-import { OperationEnum } from '@/enums';
+  ProForm, ProFormDateRangePicker, ProFormDigit,
+  ProFormRadio, ProFormSwitch, ProFormText, ProFormTextArea
+} from '@ant-design/pro-components';
+import { Button, Drawer, Form, Input, InputNumber, message, Select, Space, Table } from 'antd';
+import React, { useEffect, useState } from 'react';
 
 interface PricePolicyFormProps {
     visible: boolean;

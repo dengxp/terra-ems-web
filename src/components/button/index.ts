@@ -1,13 +1,13 @@
-import ConfigButton from './ConfigButton';
-import EditButton from "./EditButton";
-import DeleteButton from './DeleteButton';
-import IconButton from './IconButton';
 import AddButton from './AddButton';
+import ConfigButton from './ConfigButton';
+import DeleteButton from './DeleteButton';
+import EditButton from "./EditButton";
+import IconButton from './IconButton';
 
 export {
-    ConfigButton,
-    EditButton,
-    DeleteButton,
-    IconButton,
-    AddButton
+  ConfigButton,
+  EditButton,
+  DeleteButton,
+  IconButton,
+  AddButton
 };

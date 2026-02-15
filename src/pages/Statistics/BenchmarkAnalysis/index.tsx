@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Card, Tree, DatePicker, Select, Space, Table, Empty, Typography, Tag, Spin, Badge, Input, Splitter } from 'antd';
-import { PageContainer } from '@ant-design/pro-components';
+import { BenchmarkAnalysis, getBenchmarkAnalysis } from '@/apis/statistics';
 import EnergyUnitTree from '@/components/EnergyUnitTree';
-import { getBenchmarkAnalysis, BenchmarkAnalysis } from '@/apis/statistics';
-import { ApartmentOutlined, AimOutlined, CheckCircleOutlined, CloseCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
-import dayjs from 'dayjs';
+import { AimOutlined, CheckCircleOutlined, CloseCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
+import { PageContainer } from '@ant-design/pro-components';
+import { Badge, Card, DatePicker, Empty, Select, Space, Spin, Splitter, Table, Tag, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
+import dayjs from 'dayjs';
+import React, { useEffect, useState } from 'react';
 
 const { Title, Text } = Typography;
 

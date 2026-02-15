@@ -1,27 +1,25 @@
-import React, { useState, useEffect } from 'react';
 import {
-    Card, Col, Row, DatePicker, Select, Space, Empty, Table, Statistic, Typography, Splitter
-} from 'antd';
-import type { ColumnsType } from 'antd/es/table';
-import { PageContainer } from '@ant-design/pro-components';
-import { Pie } from '@ant-design/plots';
+  getDailyAnalysis,
+  getMonthlyAnalysis,
+  getYearlyAnalysis,
+  PeakValleyAnalysisResult, PeriodSummary, timePeriodTypeOptions
+} from '@/apis/peakValley';
 import EnergyUnitTree from '@/components/EnergyUnitTree';
 import {
-    getDailyAnalysis,
-    getMonthlyAnalysis,
-    getYearlyAnalysis,
-    PeakValleyAnalysisResult,
-    timePeriodTypeOptions,
-    PeriodSummary,
-} from '@/apis/peakValley';
-import StatisticsCard from '../components/StatisticsCard';
-import {
-    DollarOutlined,
+  DollarOutlined
 } from '@ant-design/icons';
+import { Pie } from '@ant-design/plots';
+import { PageContainer } from '@ant-design/pro-components';
+import {
+  Card, Col, DatePicker, Empty, Row, Select, Space, Splitter, Statistic, Table, Typography
+} from 'antd';
+import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
+import React, { useEffect, useState } from 'react';
+import StatisticsCard from '../components/StatisticsCard';
+import './index.less';
 
 const { Title, Text } = Typography;
-import './index.less';
 
 const PeakValleyPage: React.FC = () => {
     const [selectedUnitId, setSelectedUnitId] = useState<number | null>(null);

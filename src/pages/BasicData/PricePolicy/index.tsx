@@ -1,14 +1,14 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import { getPricePolicyPage, periodTypeOptions, PricePolicy } from '@/apis/pricePolicy';
+import { DeleteButton, EditButton } from '@/components/button';
 import { ProPageContainer } from '@/components/container';
-import { ProTable, ProColumns } from '@ant-design/pro-components';
-import { Button, Space, Tag } from 'antd';
-import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
-import { PricePolicy, periodTypeOptions, getPricePolicyPage } from '@/apis/pricePolicy';
-import PricePolicyForm from './components/PricePolicyForm';
 import StatusIcon from '@/components/icons/StatusIcon';
-import { EditButton, DeleteButton } from '@/components/button';
 import useCrud from '@/hooks/common/useCrud';
 import { wrapperResult } from '@/utils';
+import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
+import { ProColumns, ProTable } from '@ant-design/pro-components';
+import { Button, Space, Tag } from 'antd';
+import React, { useEffect, useMemo, useState } from 'react';
+import PricePolicyForm from './components/PricePolicyForm';
 
 /**
  * 电价策略管理页面

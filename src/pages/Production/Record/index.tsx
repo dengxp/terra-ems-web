@@ -1,18 +1,17 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import {
+  getProductionRecords, ProductionRecord
+} from '@/apis/productionRecord';
+import { DeleteButton, EditButton } from '@/components/button';
 import { ProPageContainer } from '@/components/container';
-import { Col, Row, Tree, Button, Space, DatePicker, Tabs, Splitter } from 'antd';
+import EnergyUnitTree from '@/components/EnergyUnitTree';
+import useCrud from '@/hooks/common/useCrud';
+import { wrapperResult } from '@/utils';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ProColumns, ProTable } from '@ant-design/pro-components';
-import useCrud from '@/hooks/common/useCrud';
-import { DeleteButton, EditButton } from '@/components/button';
-import {
-    ProductionRecord,
-    getProductionRecords,
-} from '@/apis/productionRecord';
-import ProductionRecordForm from './components/ProductionRecordForm';
+import { Button, DatePicker, Space, Splitter, Tabs } from 'antd';
 import dayjs from 'dayjs';
-import EnergyUnitTree from '@/components/EnergyUnitTree';
-import { wrapperResult } from '@/utils';
+import React, { useEffect, useMemo, useState } from 'react';
+import ProductionRecordForm from './components/ProductionRecordForm';
 
 const { RangePicker } = DatePicker;
 

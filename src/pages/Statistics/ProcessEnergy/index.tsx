@@ -1,19 +1,18 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Card, Col, Row, Tree, DatePicker, Select, Space, Empty, Spin, Table, Typography, Input, Splitter } from 'antd';
-import { PageContainer } from '@ant-design/pro-components';
-import EnergyUnitTree from '@/components/EnergyUnitTree';
-import { getEnabledEnergyTypes, EnergyType } from '@/apis/energyType';
+import { EnergyType, getEnabledEnergyTypes } from '@/apis/energyType';
 import {
-    getProcessEnergyAnalysis,
-    ProcessEnergyAnalysis,
-    TimeSlotEnergy
+  getProcessEnergyAnalysis,
+  ProcessEnergyAnalysis
 } from '@/apis/statistics';
+import EnergyUnitTree from '@/components/EnergyUnitTree';
+import { LineChartOutlined, PartitionOutlined, PieChartOutlined } from '@ant-design/icons';
+import { PageContainer } from '@ant-design/pro-components';
+import { Card, Col, DatePicker, Row, Select, Space, Splitter, Table, Typography } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
+import dayjs from 'dayjs';
+import React, { useEffect, useState } from 'react';
 import StatisticsCard from '../components/StatisticsCard';
 import ProcessEnergyPieChart from './components/ProcessEnergyPieChart';
 import ProcessEnergyTrendChart from './components/ProcessEnergyTrendChart';
-import dayjs from 'dayjs';
-import { ApartmentOutlined, PartitionOutlined, PieChartOutlined, LineChartOutlined } from '@ant-design/icons';
-import type { ColumnsType } from 'antd/es/table';
 
 const { Text, Title } = Typography;
 

@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { Modal, Transfer, message, Spin, Tag, Alert } from 'antd';
-import type { TransferProps } from 'antd';
-import { getMeterPointPage, MeterPoint } from '@/apis/meterPoint';
 import { EnergyUnit } from '@/apis/energyUnit';
+import { getMeterPointPage, MeterPoint } from '@/apis/meterPoint';
 import { request } from '@umijs/max';
+import type { TransferProps } from 'antd';
+import { Alert, message, Modal, Spin, Tag, Transfer } from 'antd';
+import React, { useEffect, useState } from 'react';
 
 interface MeterPointsManageDialogProps {
     open: boolean;

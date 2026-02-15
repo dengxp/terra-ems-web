@@ -1,4 +1,3 @@
-import React from 'react';
 import { DeleteFilled } from '@ant-design/icons';
 import { Popconfirm } from 'antd';
 import IconButton from "./IconButton";

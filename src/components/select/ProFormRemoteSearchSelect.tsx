@@ -1,9 +1,9 @@
-import React, {useState, useRef, useMemo, useEffect} from 'react';
-import {ProFormSelect} from '@ant-design/pro-components';
-import {Form, Spin} from 'antd';
+import type { ProFormSelectProps } from '@ant-design/pro-components';
+import { ProFormSelect } from '@ant-design/pro-components';
+import type { SelectProps } from 'antd';
+import { Form, Spin } from 'antd';
 import debounce from 'lodash/debounce';
-import type {ProFormSelectProps} from '@ant-design/pro-components';
-import type {SelectProps} from 'antd';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 export interface RemoteSearchOptions<ValueType = any> {
   label: React.ReactNode;

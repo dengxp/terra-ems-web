@@ -1,5 +1,5 @@
 import { request } from '@umijs/max';
-import { EnergyStatisticsSummary, ComparisonAnalysis, StatisticsQueryParams } from './statistics';
+import { ComparisonAnalysis, EnergyStatisticsSummary, StatisticsQueryParams } from './statistics';
 
 /**
  * 碳排放管理 API

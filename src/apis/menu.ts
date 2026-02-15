@@ -1,4 +1,4 @@
-import {request} from "@@/exports";
+import { request } from "@@/exports";
 
 export async function getMenuTree() {
   return request(

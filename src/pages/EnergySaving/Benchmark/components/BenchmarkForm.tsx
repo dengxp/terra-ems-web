@@ -1,17 +1,14 @@
-import React, { useEffect } from 'react';
 import {
-    ProFormText,
-    ProFormSelect,
-    ProFormTextArea,
-    ProFormDigit,
-} from '@ant-design/pro-components';
-import { ProModalForm } from '@/components/container';
-import {
-    Benchmark,
-    benchmarkTypeOptions,
+  Benchmark,
+  benchmarkTypeOptions
 } from '@/apis/benchmark';
-import useCrud from '@/hooks/common/useCrud';
+import { ProModalForm } from '@/components/container';
 import { OperationEnum } from '@/enums';
+import useCrud from '@/hooks/common/useCrud';
+import {
+  ProFormDigit, ProFormSelect, ProFormText, ProFormTextArea
+} from '@ant-design/pro-components';
+import React, { useEffect } from 'react';
 
 interface BenchmarkFormProps {
     visible: boolean;

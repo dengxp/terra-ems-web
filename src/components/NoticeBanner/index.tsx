@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { Alert, Carousel } from 'antd';
-import { useWebSocket } from '@/hooks/common/useWebSocket';
-import { noticeApi } from '@/apis/system/notice';
 import type { SysNotice } from '@/apis/system/notice';
-import NoticeDetailDialog from '@/pages/system/Notice/NoticeDetailDialog';
+import { noticeApi } from '@/apis/system/notice';
 import { OperationEnum } from '@/enums';
+import { useWebSocket } from '@/hooks/common/useWebSocket';
+import NoticeDetailDialog from '@/pages/system/Notice/NoticeDetailDialog';
+import { Alert, Carousel } from 'antd';
+import React, { useEffect, useState } from 'react';
 
 const BANNER_HIDDEN_KEY = 'terra_notice_banner_hidden_id';
 

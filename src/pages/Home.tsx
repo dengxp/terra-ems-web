@@ -1,8 +1,8 @@
-import {PageContainer} from '@ant-design/pro-components';
-import {useModel} from '@umijs/max';
-import {Button, Card, Col, Row, Space, theme} from 'antd';
+import { MoneyCollectOutlined } from "@ant-design/icons";
+import { PageContainer } from '@ant-design/pro-components';
+import { useModel } from '@umijs/max';
+import { Button, Card, Col, Row, Space, theme } from 'antd';
 import React from 'react';
-import {MoneyCollectOutlined} from "@ant-design/icons";
 
 /**
  * 每个单独的卡片，为了复用样式抽成了组件

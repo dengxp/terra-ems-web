@@ -1,11 +1,11 @@
-import React, { useMemo } from 'react';
+import { moveDepartment } from "@/apis";
 import { ProModalForm } from "@/components/container";
 import { ProModalFormProps } from "@/components/container/ProModalForm";
-import { ProFormText, ProFormTreeSelect } from "@ant-design/pro-components";
-import { filterTree } from "@/utils/tree";
 import useCrud from "@/hooks/common/useCrud";
-import { moveDepartment } from "@/apis";
+import { filterTree } from "@/utils/tree";
+import { ProFormText, ProFormTreeSelect } from "@ant-design/pro-components";
 import { message, TreeDataNode } from "antd";
+import { useMemo } from 'react';
 
 type Props = ProModalFormProps & {
   department: SysDept,
@@ -14,7 +14,7 @@ type Props = ProModalFormProps & {
 
 function MoveDepartmentDialog(props: Props) {
   const { department, treeData, ...rest } = props;
-  const [messageApi, contextHolder] = message.useMessage();
+  const [messageApi] = message.useMessage();
 
   const {
     setShouldRefresh,

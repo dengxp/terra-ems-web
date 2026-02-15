@@ -1,3 +1,4 @@
+import useAuth from "@/hooks/useAuth";
 import { LockOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons';
 import { history, useModel } from '@umijs/max';
 import { Spin } from 'antd';
@@ -6,7 +7,6 @@ import type { MenuInfo } from 'rc-menu/lib/interface';
 import React, { useCallback } from 'react';
 import { flushSync } from 'react-dom';
 import HeaderDropdown from '../HeaderDropdown';
-import useAuth from "@/hooks/useAuth";
 
 export type GlobalHeaderRightProps = {
     menu?: boolean;

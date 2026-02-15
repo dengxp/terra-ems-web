@@ -1,6 +1,6 @@
-import React, {useMemo} from 'react';
-import {Select, SelectProps} from "antd";
-import {useModel} from "@umijs/max";
+import { useModel } from "@umijs/max";
+import { Select, SelectProps } from "antd";
+import { useMemo } from 'react';
 
 type Props = SelectProps & {
   dickey: string

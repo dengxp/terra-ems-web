@@ -3,17 +3,17 @@
  * 左右布局 + 精致输入框 + Tab切换登录方式
  */
 
-import { LockOutlined, MobileOutlined, SafetyOutlined, UserOutlined } from '@ant-design/icons';
-import { Button, Checkbox, Form, Input, message, Tabs } from 'antd';
-import React, { useEffect, useState } from 'react';
-import { Helmet, useModel } from '@umijs/max';
-import { flushSync } from 'react-dom';
-import Cookie from 'js-cookie';
-import useAuth from '@/hooks/useAuth';
-import { getSessionId, isUserLoggedIn, setSessionId } from '@/utils/auth';
-import { generateUUID } from '@/utils';
-import { createCaptcha, sendSmsCode, loginBySms } from '@/apis/login';
+import { createCaptcha, loginBySms, sendSmsCode } from '@/apis/login';
 import { CAPTCHA_CATEGORY } from '@/config/constants';
+import useAuth from '@/hooks/useAuth';
+import { generateUUID } from '@/utils';
+import { getSessionId, isUserLoggedIn, setSessionId } from '@/utils/auth';
+import { LockOutlined, MobileOutlined, SafetyOutlined, UserOutlined } from '@ant-design/icons';
+import { Helmet, useModel } from '@umijs/max';
+import { Button, Checkbox, Form, Input, message, Tabs } from 'antd';
+import Cookie from 'js-cookie';
+import React, { useEffect, useState } from 'react';
+import { flushSync } from 'react-dom';
 import defaultSettings from '../../../../config/defaultSettings';
 // import terraLogo from '@/assets/images/terra-logo.svg?url';
 import './index.less';

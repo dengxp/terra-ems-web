@@ -1,19 +1,15 @@
-import React, { useEffect } from 'react';
-import {
-    ProFormText,
-    ProFormSelect,
-    ProFormTextArea,
-    ProFormDigit,
-} from '@ant-design/pro-components';
-import { ProModalForm } from '@/components/container';
-import {
-    KnowledgeArticle,
-    getKnowledgeCategories,
-} from '@/apis/knowledge';
 import { getEnergyTypes } from '@/apis/energyType';
+import {
+  getKnowledgeCategories, KnowledgeArticle
+} from '@/apis/knowledge';
+import { ProModalForm } from '@/components/container';
+import { OperationEnum } from '@/enums';
 import useCrud from '@/hooks/common/useCrud';
 import { getToken } from "@/utils/auth";
-import { OperationEnum } from '@/enums';
+import {
+  ProFormDigit, ProFormSelect, ProFormText, ProFormTextArea
+} from '@ant-design/pro-components';
+import React, { useEffect } from 'react';
 
 interface KnowledgeArticleFormProps {
     visible: boolean;

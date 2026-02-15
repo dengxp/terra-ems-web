@@ -1,18 +1,9 @@
-import React from 'react';
-import { PageContainer } from '@ant-design/pro-components';
-import { Row, Col } from 'antd';
 import {
-    ThunderboltOutlined,
-    CloudOutlined,
-    RiseOutlined,
-    FallOutlined,
-    AlertOutlined,
-    SettingOutlined,
-    BarChartOutlined,
-    DashboardOutlined,
-    FireOutlined,
-    AppstoreOutlined,
+  AlertOutlined, AppstoreOutlined, BarChartOutlined, CloudOutlined, DashboardOutlined, FallOutlined, FireOutlined, RiseOutlined, SettingOutlined, ThunderboltOutlined
 } from '@ant-design/icons';
+import { PageContainer } from '@ant-design/pro-components';
+import { Col, Row } from 'antd';
+import React from 'react';
 import './DashboardV2.less';
 
 

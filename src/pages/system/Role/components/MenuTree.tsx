@@ -1,7 +1,7 @@
-import React, {useEffect, useRef, useState} from 'react';
-import {Checkbox, Flex, Tree} from "antd";
-import {getMenuTree} from "@/apis/menu";
-import {isEqual} from "lodash";
+import { getMenuTree } from "@/apis/menu";
+import { Checkbox, Flex, Tree } from "antd";
+import { isEqual } from "lodash";
+import React, { useEffect, useRef, useState } from 'react';
 
 type TreeCheckedValue = {
   checked: React.Key[];
@@ -71,7 +71,7 @@ const MenuTree = ({value, onChange}: Props) => {
   //   onChange?.({checked: newCheckedKeys, halfChecked: newHalfCheckedKeys});
   // };
 
-  const onCheck = (checked: any, info: any) => {
+  const onCheck = (checked: any, _info: any) => {
     debugger;
     if (checkStrictlyRef.current) {
       setCheckedKeys(checked); // 直接是数组

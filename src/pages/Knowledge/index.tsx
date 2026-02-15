@@ -1,23 +1,20 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { history } from '@umijs/max';
-import { getToken } from "@/utils/auth";
-import { LOGIN_PATH } from "@/config/constants";
-import { ProPageContainer } from '@/components/container';
-import { Button, Space, Tag, Typography } from 'antd';
-import { DeleteOutlined, EditOutlined, PlusOutlined, EyeFilled } from '@ant-design/icons';
-import { ProColumns, ProTable } from '@ant-design/pro-components';
-import useCrud from '@/hooks/common/useCrud';
-import { DeleteButton, EditButton, IconButton } from '@/components/button';
 import {
-    KnowledgeArticle,
-    getKnowledgeArticles,
-    searchKnowledgeArticles,
-    getKnowledgeCategories,
+  getKnowledgeArticles, getKnowledgeCategories, KnowledgeArticle
 } from '@/apis/knowledge';
-import KnowledgeArticleForm from './components/KnowledgeArticleForm';
-import KnowledgeArticleDetail from './components/KnowledgeArticleDetail';
+import { DeleteButton, EditButton, IconButton } from '@/components/button';
+import { ProPageContainer } from '@/components/container';
 import StatusIcon from '@/components/icons/StatusIcon';
+import { LOGIN_PATH } from "@/config/constants";
+import useCrud from '@/hooks/common/useCrud';
 import { wrapperResult } from '@/utils';
+import { getToken } from "@/utils/auth";
+import { DeleteOutlined, EditOutlined, EyeFilled, PlusOutlined } from '@ant-design/icons';
+import { ProColumns, ProTable } from '@ant-design/pro-components';
+import { history } from '@umijs/max';
+import { Button, Space, Tag, Typography } from 'antd';
+import React, { useEffect, useMemo, useState } from 'react';
+import KnowledgeArticleDetail from './components/KnowledgeArticleDetail';
+import KnowledgeArticleForm from './components/KnowledgeArticleForm';
 
 /**
  * 知识库管理页面

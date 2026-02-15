@@ -1,6 +1,6 @@
 import React from 'react';
-import { PeakValleyCardProps } from './types';
 import styles from './index.less';
+import { PeakValleyCardProps } from './types';
 
 const PeakValleyCard: React.FC<PeakValleyCardProps> = ({
     title,

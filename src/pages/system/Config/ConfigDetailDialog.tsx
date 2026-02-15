@@ -1,10 +1,10 @@
-import React, { useEffect } from 'react';
+import { SysConfig } from "@/apis/system/config";
 import { ProModalForm } from "@/components/container";
 import { ProModalFormProps } from "@/components/container/ProModalForm";
-import useCrud from "@/hooks/common/useCrud";
-import { ProFormText, ProFormTextArea, ProFormRadio } from "@ant-design/pro-components";
 import { OperationEnum } from "@/enums";
-import { SysConfig } from "@/apis/system/config";
+import useCrud from "@/hooks/common/useCrud";
+import { ProFormRadio, ProFormText, ProFormTextArea } from "@ant-design/pro-components";
+import { useEffect } from 'react';
 
 type Props = ProModalFormProps;
 

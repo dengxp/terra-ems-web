@@ -1,7 +1,7 @@
-import React from 'react';
-import { Empty, Spin } from 'antd';
-import { Bar } from '@ant-design/plots';
 import { ComparisonAnalysis } from '@/apis/statistics';
+import { Bar } from '@ant-design/plots';
+import { Empty, Spin } from 'antd';
+import React from 'react';
 
 interface RankingChartProps {
     data: ComparisonAnalysis[];

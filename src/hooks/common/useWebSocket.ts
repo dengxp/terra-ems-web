@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
 import { useModel } from '@umijs/max';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 interface UseWebSocketOptions {
     onMessage?: (data: any) => void;

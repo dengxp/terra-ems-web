@@ -1,25 +1,25 @@
-import React, {useEffect, useMemo, useState} from 'react';
-import {ProPageContainer} from "@/components/container";
-import {Button, message, Space, Switch} from "antd";
+import { changeUserStatus } from "@/apis";
+import { ProPageContainer } from "@/components/container";
+import ModalConfirm from "@/components/ModalConfirm";
+import useCrud from "@/hooks/common/useCrud";
+import { useDict } from "@/hooks/common/useDict";
+import RoleDetailDialog from "@/pages/system/Role/RoleDetailDialog";
+import { useAccess } from "@@/exports";
 import {
     DeleteOutlined,
     EditOutlined,
     ExportOutlined,
-    PlusOutlined,
+    PlusOutlined
 } from "@ant-design/icons";
-import {ProColumns, ProTable} from "@ant-design/pro-components";
-import {useDict} from "@/hooks/common/useDict";
-import ModalConfirm from "@/components/ModalConfirm";
-import {changeUserStatus} from "@/apis";
-import useCrud from "@/hooks/common/useCrud";
-import {useAccess} from "@@/exports";
-import RoleDetailDialog from "@/pages/system/Role/RoleDetailDialog";
+import { ProColumns, ProTable } from "@ant-design/pro-components";
+import { Button, message, Space, Switch } from "antd";
+import React, { useEffect, useMemo, useState } from 'react';
 
 const Index = () => {
-    const [params, setParams] = useState<Record<string, any>>({});
+    const [params] = useState<Record<string, any>>({});
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     const [selectedRows, setSelectedRows] = useState<any[]>([]);
-    const [tip, setTip] = useState('正在处理中，请稍等...');
+    const [tip] = useState('正在处理中，请稍等...');
 
     const {
         getState,
@@ -36,7 +36,7 @@ const Index = () => {
         baseUrl: '/api/system/role'
     });
 
-    const {hasPermission} = useAccess();
+    const { hasPermission } = useAccess();
     const dictMap = useDict('sys_normal_disable');
     const state = getState('/system/role');
 
@@ -96,7 +96,7 @@ const Index = () => {
             },
             render: (_, record) => {
                 const value = record.status === '0';
-                return <Switch size={'small'} value={value} onChange={() => onStatusChange(record)}/>
+                return <Switch size={'small'} value={value} onChange={() => onStatusChange(record)} />
             }
         },
         {
@@ -117,7 +117,7 @@ const Index = () => {
             dataIndex: 'actions',
             key: 'actions',
             hideInSearch: true,
-            render: (_: any, row: any) => {
+            render: (_: any, _row: any) => {
                 return '';
                 // 动态生成菜单项
                 // const rawItems: Record<string, any> = [
@@ -166,9 +166,7 @@ const Index = () => {
         return (!selectedRowKeys || selectedRowKeys.length !== 1);
     }, [selectedRowKeys]);
 
-    const deleteDisabled = useMemo(() => {
-        return (!selectedRowKeys || selectedRowKeys.length === 0);
-    }, [selectedRowKeys]);
+
 
     useEffect(() => {
         if (state.shouldRefresh) {
@@ -181,91 +179,91 @@ const Index = () => {
         <>
             <ProPageContainer className={'pt-1'}>
                 <ProTable columns={columns}
-                          rowKey={'roleId'}
-                          formRef={formRef}
-                          actionRef={actionRef}
-                          params={params}
-                          tableAlertRender={false}
-                          tableAlertOptionRender={false}
-                          rowSelection={{
-                              selectedRowKeys,
-                              onChange: (selectedRowKeys, selectedRows) => {
-                                  setSelectedRowKeys(selectedRowKeys);
-                                  setSelectedRows(selectedRows);
-                              }
-                          }}
-                          form={{span: 6}}
-                          cardProps={{variant: 'borderless'} as any}
-                          search={{
-                              collapseRender: false, // 完全移除折叠按钮
-                              defaultCollapsed: false // 默认不折叠
-                          }}
-                          loading={{spinning: state.loading, tip}}
-                          toolbar={{
-                              title:
-                                  <Space>
-                                      {
-                                          hasPermission('system:role:add') &&
-                                          <Button color={'primary'}
-                                                  icon={<PlusOutlined/>}
-                                                  variant={'outlined'}
-                                                  size={'small'}
-                                                  onClick={toCreate}
-                                          >新建</Button>
-                                      }
-                                      {
-                                          hasPermission('system:user:edit') &&
-                                          <Button color={"green"}
-                                                  icon={<EditOutlined/>}
-                                                  disabled={editDisabled}
-                                                  size={'small'}
-                                                  variant={'outlined'}
-                                                  onClick={toEditSelected}
-                                          >修改</Button>
-                                      }
-                                      {
-                                          hasPermission('system:user:remove') &&
-                                          <Button color={"danger"}
-                                                  icon={<DeleteOutlined/>}
-                                              // disabled={deleteDisabled}
-                                                  size={'small'}
-                                                  variant={'outlined'}
-                                              // onClick={toDeleteBatch}
-                                          >删除</Button>
-                                      }
-                                      {
-                                          hasPermission('system:user:export') &&
-                                          <Button color={"orange"}
-                                                  icon={<ExportOutlined/>}
-                                                  size={'small'}
-                                                  variant={'outlined'}
-                                              // onClick={toExportUser}
-                                          >导出</Button>
-                                      }
+                    rowKey={'roleId'}
+                    formRef={formRef}
+                    actionRef={actionRef}
+                    params={params}
+                    tableAlertRender={false}
+                    tableAlertOptionRender={false}
+                    rowSelection={{
+                        selectedRowKeys,
+                        onChange: (selectedRowKeys, selectedRows) => {
+                            setSelectedRowKeys(selectedRowKeys);
+                            setSelectedRows(selectedRows);
+                        }
+                    }}
+                    form={{ span: 6 }}
+                    cardProps={{ variant: 'borderless' } as any}
+                    search={{
+                        collapseRender: false, // 完全移除折叠按钮
+                        defaultCollapsed: false // 默认不折叠
+                    }}
+                    loading={{ spinning: state.loading, tip }}
+                    toolbar={{
+                        title:
+                            <Space>
+                                {
+                                    hasPermission('system:role:add') &&
+                                    <Button color={'primary'}
+                                        icon={<PlusOutlined />}
+                                        variant={'outlined'}
+                                        size={'small'}
+                                        onClick={toCreate}
+                                    >新建</Button>
+                                }
+                                {
+                                    hasPermission('system:user:edit') &&
+                                    <Button color={"green"}
+                                        icon={<EditOutlined />}
+                                        disabled={editDisabled}
+                                        size={'small'}
+                                        variant={'outlined'}
+                                        onClick={toEditSelected}
+                                    >修改</Button>
+                                }
+                                {
+                                    hasPermission('system:user:remove') &&
+                                    <Button color={"danger"}
+                                        icon={<DeleteOutlined />}
+                                        // disabled={deleteDisabled}
+                                        size={'small'}
+                                        variant={'outlined'}
+                                    // onClick={toDeleteBatch}
+                                    >删除</Button>
+                                }
+                                {
+                                    hasPermission('system:user:export') &&
+                                    <Button color={"orange"}
+                                        icon={<ExportOutlined />}
+                                        size={'small'}
+                                        variant={'outlined'}
+                                    // onClick={toExportUser}
+                                    >导出</Button>
+                                }
 
-                                  </Space>
-                          }}
-                          request={
-                              async (params = {}) => {
-                                  const {createTimeRange, ...rest} = params;
-                                  if (createTimeRange) {
-                                      const [beginTime, endTime] = createTimeRange;
-                                      params = {...rest, params: {beginTime, endTime}};
-                                  }
-                                  const result = await fetchPage(params);
-                                  console.log("result: ", result);
-                                  return result;
-                              }
-                          }
-                          pagination={{
-                              showSizeChanger: true,
-                              showQuickJumper: true,
-                              pageSizeOptions: ['10', '20', '50', '100'],
-                              defaultPageSize: 20,
-                          }}
+                            </Space>
+                    }}
+                    request={
+                        async (params = {}) => {
+                            const { createTimeRange, ...rest } = params;
+                            if (createTimeRange) {
+                                const [beginTime, endTime] = createTimeRange;
+                                params = { ...rest, params: { beginTime, endTime } };
+                            }
+                            const result = await fetchPage(params);
+                            console.log("result: ", result);
+                            return result;
+                        }
+                    }
+                    pagination={{
+                        showSizeChanger: true,
+                        showQuickJumper: true,
+                        pageSizeOptions: ['10', '20', '50', '100'],
+                        defaultPageSize: 20,
+                    }}
                 />
             </ProPageContainer>
-            <RoleDetailDialog title={state?.dialogTitle} open={state?.dialogVisible} onOpenChange={setDialogVisible}/>
+            <RoleDetailDialog title={state?.dialogTitle} open={state?.dialogVisible} onOpenChange={setDialogVisible} />
         </>
     )
 }

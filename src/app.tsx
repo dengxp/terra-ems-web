@@ -1,4 +1,4 @@
-import { Footer, Question, SelectLang, AvatarDropdown, AvatarName, IconMap, NoticeIcon, NoticeBanner } from '@/components';
+import { AvatarDropdown, AvatarName, Footer, IconMap, NoticeBanner, NoticeIcon, Question, SelectLang } from '@/components';
 import Icon, { LinkOutlined } from '@ant-design/icons';
 import type { MenuDataItem, Settings as LayoutSettings } from '@ant-design/pro-components';
 import { SettingDrawer } from '@ant-design/pro-components';
@@ -7,13 +7,13 @@ import { history, Link } from '@umijs/max';
 import defaultSettings from '../config/defaultSettings';
 import { errorConfig } from './requestErrorConfig';
 
-import React from 'react';
-import { generateAvatar } from "@/utils/avatar";
-import { getToken, removeToken } from "@/utils/auth";
-import { LOGIN_PATH } from "@/config/constants";
-import TabsLayout, { TabsLayoutProps } from "@/components/TabsLayout";
 import { fetchCurrentUser } from "@/apis";
+import TabsLayout, { TabsLayoutProps } from "@/components/TabsLayout";
+import { LOGIN_PATH } from "@/config/constants";
 import { PERMISSIONS } from "@/config/permissions";
+import { getToken, removeToken } from "@/utils/auth";
+import { generateAvatar } from "@/utils/avatar";
+import React from 'react';
 
 const isDev = process.env.NODE_ENV === 'development';
 

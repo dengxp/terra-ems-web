@@ -1,21 +1,15 @@
-import React, { useEffect } from 'react';
 import {
-    ProFormSelect,
-    ProFormTextArea,
-    ProFormDatePicker,
-    ProFormText,
-    ProFormTreeSelect,
-    ProFormRadio,
-} from '@ant-design/pro-components';
-import { Form } from 'antd';
-import { ProModalForm } from '@/components/container';
-import {
-    CostPolicyBinding,
+  CostPolicyBinding
 } from '@/apis/costPolicyBinding';
-import { getEnabledEnergyUnitTree, EnergyUnit } from '@/apis/energyUnit';
+import { getEnabledEnergyUnitTree } from '@/apis/energyUnit';
 import { getEnabledPricePolicies } from '@/apis/pricePolicy';
-import useCrud from '@/hooks/common/useCrud';
+import { ProModalForm } from '@/components/container';
 import { OperationEnum } from '@/enums';
+import useCrud from '@/hooks/common/useCrud';
+import {
+  ProFormDatePicker, ProFormRadio, ProFormSelect, ProFormText, ProFormTextArea, ProFormTreeSelect
+} from '@ant-design/pro-components';
+import React, { useEffect } from 'react';
 
 interface BindingFormProps {
     visible: boolean;

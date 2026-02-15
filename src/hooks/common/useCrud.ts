@@ -1,10 +1,10 @@
-import { OperationEnum } from "@/enums";
-import { history, useModel, request } from "@umijs/max";
-import React, { useCallback, useEffect, useRef } from "react";
-import { Form, message } from "antd";
-import { ActionType, ProFormInstance } from "@ant-design/pro-components";
 import ModalConfirm from "@/components/ModalConfirm";
+import { OperationEnum } from "@/enums";
 import { wrapperResult } from '@/utils';
+import { ActionType, ProFormInstance } from "@ant-design/pro-components";
+import { history, request, useModel } from "@umijs/max";
+import { Form, message } from "antd";
+import React, { useCallback, useEffect, useRef } from "react";
 
 type Props = {
   entityName?: string;

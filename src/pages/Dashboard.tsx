@@ -1,16 +1,11 @@
-import React from 'react';
-import { PageContainer, ProCard } from '@ant-design/pro-components';
-import { Col, Row, Progress, Tag, List, Avatar, Typography, Space } from 'antd';
-import {
-    ThunderboltOutlined,
-    CloudOutlined,
-    AlertOutlined,
-    SettingOutlined,
-    BarChartOutlined,
-    DashboardOutlined,
-    FireOutlined,
-} from '@ant-design/icons';
 import StatCard from '@/components/StatCard';
+import {
+  AlertOutlined, BarChartOutlined, CloudOutlined, DashboardOutlined,
+  FireOutlined, SettingOutlined, ThunderboltOutlined
+} from '@ant-design/icons';
+import { PageContainer, ProCard } from '@ant-design/pro-components';
+import { Avatar, Col, List, Progress, Row, Space, Tag, Typography } from 'antd';
+import React from 'react';
 
 const { Text } = Typography;
 
@@ -71,7 +66,6 @@ const Dashboard: React.FC = () => {
 
     // 统一卡片样式
     const cardStyle = { borderRadius: 12, boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)' };
-    const cardMinHeight = 300;
 
     return (
         <PageContainer

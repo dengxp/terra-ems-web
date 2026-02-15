@@ -1,7 +1,7 @@
-import React from 'react';
-import { Empty, Spin } from 'antd';
-import { Column } from '@ant-design/plots';
 import { TrendDataItem } from '@/apis/statistics';
+import { Column } from '@ant-design/plots';
+import { Empty, Spin } from 'antd';
+import React from 'react';
 
 interface TrendChartProps {
     data: TrendDataItem[];

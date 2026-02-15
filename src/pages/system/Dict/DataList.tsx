@@ -1,9 +1,9 @@
-import React from 'react';
-import { ProTable, ProColumns } from '@ant-design/pro-components';
-import { Space } from 'antd';
-import { EditButton, DeleteButton, AddButton } from '@/components/button';
-import useCrud from '@/hooks/common/useCrud';
 import { SysDictData } from '@/apis/system/dict';
+import { AddButton, DeleteButton, EditButton } from '@/components/button';
+import useCrud from '@/hooks/common/useCrud';
+import { ProColumns, ProTable } from '@ant-design/pro-components';
+import { Space } from 'antd';
+import React from 'react';
 import DictDataForm from './components/DictDataForm';
 
 interface Props {

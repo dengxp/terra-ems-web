@@ -1,6 +1,6 @@
-import React from 'react';
-import { Empty, Spin } from 'antd';
 import { Pie } from '@ant-design/plots';
+import { Empty, Spin } from 'antd';
+import React from 'react';
 
 interface ProcessEnergyPieChartProps {
     data: { name: string; value: number }[];

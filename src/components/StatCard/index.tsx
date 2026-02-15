@@ -1,7 +1,7 @@
+import { FallOutlined, RiseOutlined } from '@ant-design/icons';
 import React from 'react';
-import { RiseOutlined, FallOutlined } from '@ant-design/icons';
-import { StatCardProps } from './types';
 import styles from './index.less';
+import { StatCardProps } from './types';
 
 const StatCard: React.FC<StatCardProps> = (props) => {
     const { title, value = 0, unit = '', mode = 'simple', color = '#1890ff' } = props;

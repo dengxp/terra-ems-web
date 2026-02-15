@@ -1,10 +1,10 @@
 import type { RequestData } from '@ant-design/pro-components';
 
 export * from './auth';
-export * from './uuid';
 export * from './avatar';
-export * from './validate';
 export * from './tree';
+export * from './uuid';
+export * from './validate';
 
 
 /**

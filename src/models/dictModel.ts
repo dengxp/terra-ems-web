@@ -1,6 +1,6 @@
 // src/models/dict.ts
+import { getDictList } from '@/apis/data'; // 假设你这有 getDicts 方法
 import { useState } from 'react';
-import { getDictList } from '@/apis/data';  // 假设你这有 getDicts 方法
 
 interface DictItem {
   label: string;
