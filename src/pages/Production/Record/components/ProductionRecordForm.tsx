@@ -17,14 +17,14 @@ import { OperationEnum } from '@/enums';
 import dayjs from 'dayjs';
 
 interface ProductionRecordFormProps {
-    visible: boolean;
-    onCancel: () => void;
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
     onSuccess: () => void;
 }
 
 const ProductionRecordForm: React.FC<ProductionRecordFormProps> = ({
-    visible,
-    onCancel,
+    open,
+    onOpenChange,
     onSuccess,
 }) => {
     const {
@@ -35,13 +35,13 @@ const ProductionRecordForm: React.FC<ProductionRecordFormProps> = ({
         pathname: '/production/record',
         entityName: '产量记录',
         baseUrl: '/api/ems/production-records',
-        onOpenChange: (open) => !open && onCancel()
+        onOpenChange
     });
 
     const state = getState('/production/record');
 
     useEffect(() => {
-        if (visible) {
+        if (open) {
             if (state.operation === OperationEnum.EDIT) {
                 form.setFieldsValue({ ...state.editData });
             } else {
@@ -52,7 +52,7 @@ const ProductionRecordForm: React.FC<ProductionRecordFormProps> = ({
                 });
             }
         }
-    }, [visible, state.operation, state.editData, form]);
+    }, [open, state.operation, state.editData, form]);
 
     const getLabels = () => {
         const type = state.editData?.dataType || '1';
@@ -71,8 +71,8 @@ const ProductionRecordForm: React.FC<ProductionRecordFormProps> = ({
     return (
         <ProModalForm
             title={state.dialogTitle || (state.operation === OperationEnum.EDIT ? '编辑记录' : '新建记录')}
-            open={visible}
-            onOpenChange={(open) => !open && onCancel()}
+            open={open}
+            onOpenChange={onOpenChange}
             form={form}
             onFinish={async (values) => {
                 const submitData = {

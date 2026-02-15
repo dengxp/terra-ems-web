@@ -1,7 +1,6 @@
 import { OperationEnum } from "@/enums";
-import { history, useModel } from "@umijs/max";
-import { useCallback, useEffect, useRef } from "react";
-import { request } from "@@/exports";
+import { history, useModel, request } from "@umijs/max";
+import React, { useCallback, useEffect, useRef } from "react";
 import { Form, message } from "antd";
 import { ActionType, ProFormInstance } from "@ant-design/pro-components";
 import ModalConfirm from "@/components/ModalConfirm";
@@ -12,6 +11,39 @@ type Props = {
   pathname: string;
   baseUrl: string;
   onOpenChange?: (visible: boolean) => void;
+}
+
+/**
+ * useCrud Hook 返回值接口定义
+ */
+export interface CrudHookResult<T extends Entity> {
+  fetchPage: (params: Record<string, any>) => Promise<any>;
+  // search: (params: Record<string, any>) => Promise<any>;
+  handleSaveOrUpdate: (values: Record<string, any>) => Promise<void>;
+  handleCreate: (values: Record<string, any>) => Promise<void>;
+  handleUpdate: (values: Record<string, any>) => Promise<void>;
+  saveOrUpdate: (data: any) => Promise<API.Result<T>>;
+  create: (data: Record<string, any>) => Promise<API.Result<T>>;
+  update: (data: Record<string, any>) => Promise<API.Result<T>>;
+  deleteById: (id: any) => Promise<API.Result<void>>;
+  batchDeleteByIds: (ids: any[]) => Promise<API.Result<void>>;
+  toCreate: (initialData?: any) => void;
+  toEdit: (editData?: T) => void;
+  toDialog: (editData: T) => void;
+  toDelete: (id: any, refresh?: boolean) => Promise<void>;
+  toBatchDelete: (ids: (number | string)[], refresh?: boolean) => Promise<void>;
+  toPage: (editData: T, targetPath: string) => void;
+  setDialogVisible: (visible: boolean) => void;
+  setLoading: (loading: boolean) => void;
+  setDialogTitle: (title: string) => void;
+  setShouldRefresh: (shouldRefresh: boolean) => void;
+  setEditData: (editData: T | null) => void;
+  form: import('antd').FormInstance;
+  formRef: React.MutableRefObject<ProFormInstance | undefined>;
+  actionRef: React.MutableRefObject<ActionType | undefined>;
+  getState: (pathname: string) => any;
+  updateState: (pathname: string, newState: Partial<any>) => void;
+  resetState: (pathname: string, full?: boolean) => void;
 }
 
 /**
@@ -27,11 +59,12 @@ type Props = {
  * - PUT    baseUrl          → 复杂更新 (update)
  * - DELETE baseUrl/{id}     → 删除
  */
-export default function useCrud<T extends Entity>({ entityName, pathname, baseUrl, onOpenChange }: Props) {
+export default function useCrud<T extends Entity>({ entityName, pathname, baseUrl, onOpenChange }: Props): CrudHookResult<T> {
   const { getState, initState, updateState, resetState } = useModel('crudModel');
 
+  // 使用 Ant Design 的 useForm，这在 React 渲染周期内是绝对稳定的
   const [form] = Form.useForm();
-  // const formRef = useRef<ProFormInstance>();
+  // @ts-ignore
   const formRef = useRef<ProFormInstance>();
   const actionRef = useRef<ActionType | undefined>();
 
@@ -143,7 +176,7 @@ export default function useCrud<T extends Entity>({ entityName, pathname, baseUr
   /**
    * 复杂搜索 (适配 ProTable request，当前与 fetchPage 一致)
    */
-  const search = fetchPage;
+  // const search = fetchPage;
 
   // ============================================================================
   // 带 UI 交互的操作方法 (第 1 层)
@@ -266,29 +299,20 @@ export default function useCrud<T extends Entity>({ entityName, pathname, baseUr
    * 删除确认
    */
   const toDelete = useCallback((id: any, refresh: boolean = false) => {
-    return new Promise<void>((resolve, reject) => {
-      ModalConfirm({
-        title: '删除' + entityName,
-        content: (entityName || '数据') + '删除后将无法恢复，请确认是否删除？',
-        async onOk() {
-          try {
-            const result = await deleteById(id);
-            message.success(result.message || '删除成功');
-            if (refresh) {
-              updateState(pathname, { shouldRefresh: true });
-            }
-            resolve();
-          } catch (error: any) {
-            console.error(error.message);
-            reject(error);
-          }
-        },
-        onCancel() {
-          // 用户取消，不做处理
+    return new Promise<void>(async (resolve, reject) => {
+      try {
+        const result = await deleteById(id);
+        message.success(result.message || '删除成功');
+        if (refresh) {
+          updateState(pathname, { shouldRefresh: true });
         }
-      });
+        resolve();
+      } catch (error: any) {
+        console.error(error.message);
+        reject(error);
+      }
     });
-  }, [pathname, updateState, entityName, deleteById]);
+  }, [pathname, updateState, deleteById]);
 
   /**
    * 批量删除确认
@@ -296,7 +320,7 @@ export default function useCrud<T extends Entity>({ entityName, pathname, baseUr
   const toBatchDelete = useCallback((ids: (number | string)[], refresh: boolean = false) => {
     return new Promise<void>((resolve, reject) => {
       if (!ids || ids.length === 0) {
-        message.warning('请选择要删除的数据');
+        void message.warning('请选择要删除的数据');
         reject(new Error('未选择数据'));
         return;
       }
@@ -307,7 +331,7 @@ export default function useCrud<T extends Entity>({ entityName, pathname, baseUr
         async onOk() {
           try {
             const result = await batchDeleteByIds(ids);
-            message.success(result.message || '批量删除成功');
+            void message.success(result.message || '批量删除成功');
             if (refresh) {
               updateState(pathname, { shouldRefresh: true });
             }
@@ -349,38 +373,30 @@ export default function useCrud<T extends Entity>({ entityName, pathname, baseUr
   }, [pathname, updateState]);
 
   return {
-    // 分页查询
     fetchPage,
-    // 搜索
-    search,
-    // 带 UI 交互的操作
+    // search,
     handleSaveOrUpdate,
     handleCreate,
     handleUpdate,
-    // 纯 API 调用
     saveOrUpdate,
     create,
     update,
     deleteById,
     batchDeleteByIds,
-    // UI 状态变化
     toCreate,
     toEdit,
     toDialog,
     toDelete,
     toBatchDelete,
     toPage,
-    // 状态设置
     setDialogVisible,
     setLoading,
     setDialogTitle,
     setShouldRefresh,
     setEditData,
-    // 表单/表格引用
     form,
     formRef,
     actionRef,
-    // 状态获取/更新
     getState,
     updateState,
     resetState

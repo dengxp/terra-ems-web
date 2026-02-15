@@ -159,7 +159,7 @@ const Index: React.FC = () => {
             render: (_, record) => (
                 <Space>
                     <EditButton onClick={() => toEdit(record)} />
-                    <DeleteButton onClick={() => toDelete(record.id, true)} />
+                    <DeleteButton onConfirm={() => toDelete(record.id, true)} />
                 </Space>
             ),
         },

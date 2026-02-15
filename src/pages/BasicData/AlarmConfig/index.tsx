@@ -127,7 +127,7 @@ const AlarmConfigPage: React.FC = () => {
             render: (_, record) => (
                 <Space>
                     <EditButton onClick={() => handleEdit(record)} />
-                    <DeleteButton onClick={() => handleDelete(record.id)} />
+                    <DeleteButton onConfirm={() => handleDelete(record.id)} />
                 </Space>
             )
         }
@@ -163,7 +163,7 @@ const AlarmConfigPage: React.FC = () => {
                             <List
                                 dataSource={points}
                                 size="small"
-                                renderItem={(item) => {
+                                renderItem={(item: MeterPoint) => {
                                     const isSelected = selectedPoint?.id === item.id;
                                     return (
                                         <List.Item
@@ -253,7 +253,7 @@ const AlarmConfigPage: React.FC = () => {
                                 options={false}
                                 pagination={false}
                                 request={async () => {
-                                    const res = await getAlarmConfigsByMeterPoint(selectedPoint.id);
+                                    const res = await getAlarmConfigsByMeterPoint(selectedPoint.id as number);
                                     return {
                                         data: res.data || [],
                                         success: res.success,

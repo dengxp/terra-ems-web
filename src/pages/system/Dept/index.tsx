@@ -125,7 +125,7 @@ const Index = () => {
             <EditButton onClick={() => toEdit(row)} />
             {
               (!row || !row.children || row.children.length === 0 || !row.memberCount) &&
-              <DeleteButton onClick={async () => {
+              <DeleteButton onConfirm={async () => {
                 await toDelete(row.id, true);
               }} />
             }

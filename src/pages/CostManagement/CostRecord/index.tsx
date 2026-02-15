@@ -130,7 +130,7 @@ const CostRecordPage: React.FC = () => {
             render: (_, record) => (
                 <Space>
                     <EditButton onClick={() => toEdit(record)} />
-                    <DeleteButton onClick={() => handleDelete(record.id)} />
+                    <DeleteButton onConfirm={() => handleDelete(record.id)} />
                 </Space>
             ),
         },
@@ -207,14 +207,8 @@ const CostRecordPage: React.FC = () => {
                 }}
             />
             <CostRecordForm
-                visible={state?.dialogVisible || false}
-                onVisibleChange={(v) => setDialogVisible(v)}
-                isEdit={state?.operation === 'edit'}
-                currentRecord={state?.operation === 'edit' ? (state?.editData as EnergyCostRecord | undefined) : undefined}
-                onSuccess={() => {
-                    setDialogVisible(false);
-                    actionRef.current?.reload();
-                }}
+                open={state?.dialogVisible || false}
+                onOpenChange={setDialogVisible}
             />
         </ProPageContainer>
     );

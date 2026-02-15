@@ -15,13 +15,13 @@ const AlarmLimitTypePage: React.FC = () => {
     const {
         getState,
         actionRef,
-        search,
         toCreate,
         toEdit,
         toDelete,
         toBatchDelete,
         setDialogVisible,
         setShouldRefresh,
+        fetchPage
     } = useCrud<AlarmLimitType>({
         pathname: '/basic-data/alarm-limit-type',
         entityName: '报警限值类型',
@@ -115,7 +115,7 @@ const AlarmLimitTypePage: React.FC = () => {
             render: (_, record) => (
                 <Space>
                     <EditButton onClick={() => toEdit(record)} />
-                    <DeleteButton onClick={() => handleDelete(record.id as number)} />
+                    <DeleteButton onConfirm={() => handleDelete(record.id as number)} />
                 </Space>
             ),
         },
@@ -130,7 +130,7 @@ const AlarmLimitTypePage: React.FC = () => {
                 tableAlertOptionRender={false}
                 rowSelection={{
                     selectedRowKeys,
-                    onChange: (keys, rows) => {
+                    onChange: (keys, rows: AlarmLimitType[]) => {
                         setSelectedRowKeys(keys);
                         setSelectedRows(rows);
                     },
@@ -175,15 +175,7 @@ const AlarmLimitTypePage: React.FC = () => {
                         </Space>
                     ),
                 }}
-                request={async (params) => {
-                    // 将 ProTable 的 limitName/limitCode 转换为后端的 name/code
-                    const { limitName, limitCode, ...rest } = params;
-                    return search({
-                        ...rest,
-                        name: limitName,
-                        code: limitCode,
-                    });
-                }}
+                request={fetchPage}
                 columns={columns}
                 pagination={{
                     showSizeChanger: true,

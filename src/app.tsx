@@ -1,4 +1,4 @@
-import { Footer, Question, SelectLang, AvatarDropdown, AvatarName, IconMap } from '@/components';
+import { Footer, Question, SelectLang, AvatarDropdown, AvatarName, IconMap, NoticeIcon, NoticeBanner } from '@/components';
 import Icon, { LinkOutlined } from '@ant-design/icons';
 import type { MenuDataItem, Settings as LayoutSettings } from '@ant-design/pro-components';
 import { SettingDrawer } from '@ant-design/pro-components';
@@ -98,7 +98,7 @@ export async function getInitialState(): Promise<{
 export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) => {
 
   return {
-    actionsRender: () => [<Question key="doc" />, <SelectLang key="SelectLang" />],
+    actionsRender: () => [<NoticeIcon key="NoticeIcon" />, <Question key="doc" />, <SelectLang key="SelectLang" />],
     avatarProps: {
       src: initialState?.currentUser?.avatar || generateAvatar(),
       title: <AvatarName />,
@@ -154,6 +154,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
       // if (initialState?.loading) return <PageLoading />;
       return (
         <>
+          <NoticeBanner />
           {children}
           {isDev && (
             <SettingDrawer

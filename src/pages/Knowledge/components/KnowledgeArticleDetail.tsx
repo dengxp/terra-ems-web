@@ -58,7 +58,7 @@ const KnowledgeArticleDetail: React.FC<KnowledgeArticleDetailProps> = ({
                                 <Descriptions.Item label="创建时间">{article.createdAt}</Descriptions.Item>
                             </Descriptions>
                         )}
-                        <Space separator={<Divider type="vertical" />} style={{ marginBottom: 16 }}>
+                        <Space split={<Divider type="vertical" />} style={{ marginBottom: 16 }}>
                             {article.category && <Tag color="blue">{article.category}</Tag>}
                             {article.author && (
                                 <Text type="secondary">

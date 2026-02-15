@@ -39,12 +39,31 @@ export const PERMISSIONS = {
             EDIT: 'system:menu:edit',
             REMOVE: 'system:menu:remove',
         },
+        NOTICE: {
+            LIST: 'system:notice:list',
+            ADD: 'system:notice:add',
+            EDIT: 'system:notice:edit',
+            REMOVE: 'system:notice:remove',
+        },
+        CONFIG: {
+            LIST: 'system:config:list',
+            ADD: 'system:config:add',
+            EDIT: 'system:config:edit',
+            REMOVE: 'system:config:remove',
+        },
     },
     // 监控管理
     MONITOR: {
         ONLINE: 'monitor:online:list',
         JOB: 'monitor:job:list',
         LOGININFOR: 'monitor:logininfor:list',
+        LOG: {
+            LIST: 'system:log:list',
+            REMOVE: 'system:log:remove',
+        },
+        CACHE: {
+            LIST: 'monitor:cache:list',
+        }
     },
     // 超级管理员权限
     SUPER_ADMIN: '*:*:*',

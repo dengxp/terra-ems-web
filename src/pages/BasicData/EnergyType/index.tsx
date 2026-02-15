@@ -33,6 +33,7 @@ const Index: React.FC = () => {
         toBatchDelete,
         setDialogVisible,
         setShouldRefresh,
+        fetchPage,
     } = useCrud<EnergyType>({
         pathname: '/basic-data/energy-type',
         entityName: '能源类型',
@@ -202,7 +203,7 @@ const Index: React.FC = () => {
             render: (_, record) => (
                 <Space>
                     <EditButton onClick={() => toEdit(record)} />
-                    <DeleteButton onClick={() => toDelete(record.id, true)} />
+                    <DeleteButton onConfirm={() => toDelete(record.id, true)} />
                 </Space>
             ),
         },
@@ -220,7 +221,7 @@ const Index: React.FC = () => {
                     tableAlertOptionRender={false}
                     rowSelection={{
                         selectedRowKeys,
-                        onChange: (keys, rows) => {
+                        onChange: (keys, rows: EnergyType[]) => {
                             setSelectedRowKeys(keys);
                             setSelectedRows(rows);
                         },
@@ -266,15 +267,7 @@ const Index: React.FC = () => {
                             </Space>
                         ),
                     }}
-                    request={async (params) => {
-                        const { current, pageSize, ...rest } = params;
-                        const res = await getEnergyTypes({
-                            ...rest,
-                            pageNumber: (current || 1) - 1,
-                            pageSize: pageSize,
-                        });
-                        return wrapperResult(res);
-                    }}
+                    request={fetchPage}
                     pagination={{
                         showSizeChanger: true,
                         showQuickJumper: true,

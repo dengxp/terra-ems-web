@@ -8,8 +8,6 @@ import {
   PlusOutlined,
 } from "@ant-design/icons";
 import { ProColumns, ProTable } from "@ant-design/pro-components";
-import ModalConfirm from "@/components/ModalConfirm";
-import { changeUserStatus, exportUser } from "@/apis";
 import useCrud from "@/hooks/common/useCrud";
 import { DeleteButton, EditButton } from "@/components/button";
 import { useAccess, useModel } from "@@/exports";
@@ -28,6 +26,7 @@ const Index = () => {
   const [tip, setTip] = useState('正在处理中，请稍等...');
   const { optionMap } = useModel('constantModel');
 
+
   const {
     getState,
     formRef,
@@ -35,10 +34,10 @@ const Index = () => {
     toCreate,
     toEdit,
     toDelete,
-    search,
+    toBatchDelete,
+    fetchPage,
     setDialogVisible,
     setShouldRefresh,
-    updateState
   } = useCrud<SysPost>({
     entityName: '岗位',
     pathname: '/system/post',
@@ -70,7 +69,7 @@ const Index = () => {
   const toDeleteBatch = () => {
     if (deleteDisabled) return;
     if (!selectedRowKeys || selectedRowKeys.length === 0) return;
-    void toDelete(selectedRowKeys, true);
+    void toBatchDelete(selectedRowKeys as (string | number)[], true);
   }
 
   const columns: ProColumns[] = [
@@ -78,7 +77,8 @@ const Index = () => {
       title: '岗位编号',
       dataIndex: 'id',
       key: 'id',
-      hideInSearch: true
+      hideInSearch: true,
+      hideInTable: true
     },
     {
       title: '岗位名称',
@@ -98,8 +98,8 @@ const Index = () => {
     },
     {
       title: '岗位排序',
-      dataIndex: 'ranking',
-      key: 'ranking',
+      dataIndex: 'sortOrder',
+      key: 'sortOrder',
       hideInSearch: true
     },
     {
@@ -107,16 +107,22 @@ const Index = () => {
       dataIndex: 'status',
       key: 'status',
       valueType: 'select',
-      fieldProps: {
-        placeholder: '请选择状态',
-        options: optionMap.status
+      valueEnum: {
+        0: { text: '正常', status: 'Success' },
+        1: { text: '停用', status: 'Error' },
       },
-      render: (_, record) => <StatusIcon value={record.status} />
+      fieldProps: {
+        placeholder: '请选择状态'
+      },
+      render: (_, record) => {
+        return <StatusIcon value={record.status} />
+      }
     },
     {
       title: '创建时间',
       dataIndex: 'createdAt',
       key: 'createdAt',
+      valueType: 'dateTime',
       hideInSearch: true
     },
     {
@@ -149,7 +155,7 @@ const Index = () => {
         return (
           <Space>
             <EditButton onClick={() => toEdit(row)} />
-            <DeleteButton onClick={async () => {
+            <DeleteButton onConfirm={async () => {
               await toDelete(row.id, true);
             }} />
             {/*<Dropdown menu={{items, onClick: (info) => onMenuClick(info, row)}}>*/}
@@ -169,7 +175,8 @@ const Index = () => {
   }
 
   const toExportPost = async () => {
-    exportPost()
+    const values = formRef.current?.getFieldsValue();
+    exportPost(values)
       .then(data => {
         downloadSuccess(data, `post_${new Date().getTime()}.xlsx`);
       })
@@ -268,7 +275,7 @@ const Index = () => {
                 const [beginTime, endTime] = createTimeRange;
                 params = { ...rest, params: { beginTime, endTime } };
               }
-              const result = await search(params);
+              const result = await fetchPage(params);
               console.log("result: ", result);
               return result;
             }

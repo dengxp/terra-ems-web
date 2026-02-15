@@ -1,10 +1,12 @@
 import React, { useRef, useState } from 'react';
-import { PageContainer, ProTable, ActionType, ProColumns, ModalForm, ProFormTextArea, ProFormSelect } from '@ant-design/pro-components';
+import { PageContainer, ProTable, ActionType, ProColumns, ProFormTextArea, ProFormSelect } from '@ant-design/pro-components';
 import { message, Space, Typography, Tooltip, Button, Modal, Descriptions } from 'antd';
 import { CheckCircleFilled, EyeFilled } from '@ant-design/icons';
 import { AlarmRecord, getAlarmRecordPage, handleAlarmRecord, getAllAlarmLimitTypes } from '@/apis/alarm';
 import { getAllMeterPoints } from '@/apis/meterPoint';
 import { wrapperResult } from '@/utils';
+import { ProModalForm } from "@/components/container";
+import dayjs from 'dayjs';
 
 const { Text } = Typography;
 
@@ -29,7 +31,7 @@ const AlarmRecordPage: React.FC = () => {
                     value: item.id,
                 }));
             },
-            render: (_, record) => (
+            render: (_, record: AlarmRecord) => (
                 <Tooltip title={record.alarmConfig?.meterPoint?.code}>
                     <Text strong>{record.alarmConfig?.meterPoint?.name}</Text>
                 </Tooltip>
@@ -58,7 +60,7 @@ const AlarmRecordPage: React.FC = () => {
                     value: item.id,
                 }));
             },
-            render: (_, record) => (
+            render: (_, record: AlarmRecord) => (
                 <Space>
                     <div
                         style={{
@@ -76,7 +78,7 @@ const AlarmRecordPage: React.FC = () => {
             title: '触发数值',
             dataIndex: 'triggerValue',
             hideInSearch: true,
-            render: (val, record) => (
+            render: (val, record: AlarmRecord) => (
                 <Text type="danger">
                     {val} {record.alarmConfig?.alarmLimitType?.comparatorOperator} {record.alarmConfig?.limitValue}
                 </Text>
@@ -92,12 +94,12 @@ const AlarmRecordPage: React.FC = () => {
                 showTime: { format: 'HH:mm' },
             },
             search: {
-                transform: (value) => ({
+                transform: (value: string[]) => ({
                     startTime: `${value[0]}:00`,
                     endTime: `${value[1]}:59`,
                 }),
             },
-            render: (_, record) => record.triggerTime?.replace('T', ' ').split('.')[0],
+            render: (_, record: AlarmRecord) => record.triggerTime ? dayjs(record.triggerTime).format('YYYY-MM-DD HH:mm:ss') : '-',
         },
         {
             title: '状态',
@@ -118,7 +120,7 @@ const AlarmRecordPage: React.FC = () => {
             title: '操作',
             valueType: 'option',
             width: 80,
-            render: (_, record) => (
+            render: (_, record: AlarmRecord) => (
                 <Space size={4}>
                     {record.status === 0 && (
                         <Tooltip title="处理">
@@ -170,12 +172,7 @@ const AlarmRecordPage: React.FC = () => {
                 rowKey="id"
                 columns={columns}
                 request={async (params) => {
-                    const { current, pageSize, ...rest } = params;
-                    const res = await getAlarmRecordPage({
-                        current,
-                        pageSize,
-                        ...rest
-                    });
+                    const res = await getAlarmRecordPage(params);
                     return wrapperResult(res);
                 }}
                 search={{
@@ -189,7 +186,7 @@ const AlarmRecordPage: React.FC = () => {
                 }}
             />
 
-            <ModalForm
+            <ProModalForm
                 title="处理报警"
                 open={handleVisible}
                 onOpenChange={setHandleVisible}
@@ -197,10 +194,10 @@ const AlarmRecordPage: React.FC = () => {
                 layout="horizontal"
                 labelCol={{ span: 5 }}
                 wrapperCol={{ span: 19 }}
+                width={420}
                 modalProps={{
-                    destroyOnHidden: true,
+                    destroyOnClose: true,
                     maskClosable: false,
-                    width: 420,
                 }}
             >
                 <ProFormSelect
@@ -219,7 +216,7 @@ const AlarmRecordPage: React.FC = () => {
                     placeholder="请输入处理备注或原因"
                     rules={[{ required: true, message: '请输入处理备注' }]}
                 />
-            </ModalForm>
+            </ProModalForm>
 
             <Modal
                 title="报警详情"
@@ -256,7 +253,7 @@ const AlarmRecordPage: React.FC = () => {
                             <Text type="danger">{currentRecord.triggerValue}</Text>
                         </Descriptions.Item>
                         <Descriptions.Item label="触发时间">
-                            {currentRecord.triggerTime?.replace('T', ' ').split('.')[0]}
+                            {currentRecord.triggerTime ? dayjs(currentRecord.triggerTime).format('YYYY-MM-DD HH:mm:ss') : '-'}
                         </Descriptions.Item>
                         <Descriptions.Item label="处理状态">
                             {currentRecord.status === 0 ? '未处理' : currentRecord.status === 1 ? '已处理' : '忽略'}
@@ -264,7 +261,7 @@ const AlarmRecordPage: React.FC = () => {
                         {currentRecord.status !== 0 && (
                             <>
                                 <Descriptions.Item label="处理时间">
-                                    {currentRecord.handleTime?.replace('T', ' ').split('.')[0]}
+                                    {currentRecord.handleTime ? dayjs(currentRecord.handleTime).format('YYYY-MM-DD HH:mm:ss') : '-'}
                                 </Descriptions.Item>
                                 <Descriptions.Item label="处理备注">{currentRecord.handleRemark || '-'}</Descriptions.Item>
                             </>
@@ -272,7 +269,7 @@ const AlarmRecordPage: React.FC = () => {
                     </Descriptions>
                 )}
             </Modal>
-        </PageContainer>
+        </PageContainer >
     );
 };
 

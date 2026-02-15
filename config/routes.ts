@@ -311,6 +311,36 @@ export default [
     component: './404',
   },
   {
+    title: '系统监控',
+    name: '系统监控',
+    path: '/monitor',
+    icon: 'monitor',
+    routes: [
+      {
+        path: '/monitor',
+        redirect: '/monitor/log',
+      },
+      {
+        title: '操作日志',
+        name: '操作日志',
+        path: '/monitor/log',
+        icon: 'file-text',
+        component: './monitor/Log',
+        access: 'canAccess',
+        permissions: ['system:log:list']
+      },
+      {
+        title: '缓存监控',
+        name: '缓存监控',
+        path: '/monitor/cache',
+        icon: 'database',
+        component: './monitor/Cache',
+        access: 'canAccess',
+        permissions: ['monitor:cache:list']
+      }
+    ]
+  },
+  {
     title: '系统管理',
     name: '系统管理',
     path: '/system',
@@ -364,11 +394,29 @@ export default [
         permissions: ['system:post:list']
       },
       {
+        title: '通知公告',
+        name: '通知公告',
+        path: '/system/notice',
+        icon: 'notification',
+        component: './system/Notice',
+        access: 'canAccess',
+        permissions: ['system:notice:list']
+      },
+      {
         title: '字典管理',
         name: '字典管理',
         path: '/system/dict',
         icon: 'book',
         component: './system/Dict'
+      },
+      {
+        title: '参数配置',
+        name: '参数配置',
+        path: '/system/config',
+        icon: 'setting',
+        component: './system/Config',
+        access: 'canAccess',
+        permissions: ['system:config:list']
       },
       {
         title: '演示数据生成',

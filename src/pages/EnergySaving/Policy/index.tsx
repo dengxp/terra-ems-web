@@ -131,7 +131,7 @@ const PolicyPage: React.FC = () => {
             render: (_, record) => (
                 <Space>
                     <EditButton onClick={() => toEdit(record)} />
-                    <DeleteButton onClick={() => toDelete(record.id as number, true)} />
+                    <DeleteButton onConfirm={() => toDelete(record.id as number, true)} />
                 </Space>
             ),
         },

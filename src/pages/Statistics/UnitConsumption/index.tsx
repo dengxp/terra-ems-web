@@ -11,7 +11,6 @@ import {
 import StatisticsCard from '../components/StatisticsCard';
 import UnitConsumptionTrendChart from './components/UnitConsumptionTrendChart';
 import dayjs from 'dayjs';
-import { ApartmentOutlined, BarChartOutlined, LineChartOutlined, DashboardOutlined } from '@ant-design/icons';
 
 const { Text, Title } = Typography;
 
@@ -200,7 +199,7 @@ const UnitConsumptionPage: React.FC = () => {
                                     <Row gutter={16} style={{ marginBottom: 16 }}>
                                         <Col span={12}>
                                             <Card size="small" style={{ backgroundColor: '#fcfcfc' }}>
-                                                <Space orientation="vertical" style={{ width: '100%' }}>
+                                                <Space direction="vertical" style={{ width: '100%' }}>
                                                     <Text type="secondary">本期综合能耗</Text>
                                                     <Title level={4} style={{ margin: 0 }}>
                                                         {(data?.energyConsumption ?? 0).toFixed(2)} <Text type="secondary" style={{ fontSize: 14 }}>{data?.energyUnit || 'tce'}</Text>
@@ -210,7 +209,7 @@ const UnitConsumptionPage: React.FC = () => {
                                         </Col>
                                         <Col span={12}>
                                             <Card size="small" style={{ backgroundColor: '#fcfcfc' }}>
-                                                <Space orientation="vertical" style={{ width: '100%' }}>
+                                                <Space direction="vertical" style={{ width: '100%' }}>
                                                     <Text type="secondary">本期总产量</Text>
                                                     <Title level={4} style={{ margin: 0 }}>
                                                         {(data?.production ?? 0).toFixed(2)} <Text type="secondary" style={{ fontSize: 14 }}>{data?.productionUnit || 't'}</Text>

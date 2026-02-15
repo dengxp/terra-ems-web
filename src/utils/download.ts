@@ -1,6 +1,6 @@
-import { saveAs } from 'file-saver'
 import {message} from "antd";
 import errorCode from "@/config/errorCode";
+import {saveAs} from "file-saver";
 
 export function blobValidate(data: any) {
   return data.type !== 'application/json'

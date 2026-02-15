@@ -25,6 +25,7 @@ export enum DictKeyEnum {
 export enum DataItemStatus {
   ENABLE,
   FORBIDDEN,
+  DISABLE = 1,
   LOCKING,
   EXPIRED
 }

@@ -7,26 +7,32 @@ import {
     ProFormDigit,
     ProFormTreeSelect,
 } from '@ant-design/pro-components';
-import { Form, message, Row, Col } from 'antd';
-import {
-    EnergyCostRecord,
-    createEnergyCostRecord,
-    updateEnergyCostRecord,
-} from '@/apis/energyCostRecord';
+import { message, Row, Col } from 'antd';
+import useCrud from '@/hooks/common/useCrud';
+import { EnergyCostRecord } from '@/apis/energyCostRecord';
 import { getEnabledEnergyUnitTree, EnergyUnit } from '@/apis/energyUnit';
 import { getEnabledEnergyTypes, EnergyType } from '@/apis/energyType';
+import { OperationEnum } from '@/enums';
 
 interface CostRecordFormProps {
-    visible: boolean;
-    onVisibleChange: (visible: boolean) => void;
-    isEdit: boolean;
-    currentRecord?: EnergyCostRecord;
-    onSuccess: () => void;
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
 }
 
-const CostRecordForm: React.FC<CostRecordFormProps> = (props) => {
-    const { visible, onVisibleChange, isEdit, currentRecord, onSuccess } = props;
-    const [form] = Form.useForm();
+const CostRecordForm: React.FC<CostRecordFormProps> = ({ open, onOpenChange }) => {
+    const pathname = '/cost-management/cost-record';
+    const {
+        form,
+        getState,
+        handleSaveOrUpdate,
+    } = useCrud<EnergyCostRecord>({
+        entityName: '成本记录',
+        pathname,
+        baseUrl: '/api/ems/energy-cost-records',
+        onOpenChange,
+    });
+
+    const state = getState(pathname);
     const [energyUnits, setEnergyUnits] = useState<EnergyUnit[]>([]);
     const [energyTypes, setEnergyTypes] = useState<EnergyType[]>([]);
 
@@ -48,76 +54,64 @@ const CostRecordForm: React.FC<CostRecordFormProps> = (props) => {
     };
 
     useEffect(() => {
-        if (visible) {
-            if (isEdit && currentRecord) {
+        if (open) {
+            if (state.operation === OperationEnum.EDIT && state.editData) {
                 form.setFieldsValue({
-                    ...currentRecord,
-                    energyUnitId: currentRecord.energyUnit?.id,
-                    energyTypeId: currentRecord.energyType?.id,
+                    ...state.editData,
+                    energyUnitId: state.editData.energyUnit?.id,
+                    energyTypeId: state.editData.energyType?.id,
                 });
             } else {
                 form.resetFields();
             }
         }
-    }, [visible, isEdit, currentRecord, form]);
+    }, [open, state.operation, state.editData, form]);
 
-    const handleSubmit = async (values: any) => {
-        try {
-            // 数据一致性校验：尖峰平谷用量之和应等于总用量
-            const consumption = values.consumption || 0;
-            const sharpConsumption = values.sharpConsumption || 0;
-            const peakConsumption = values.peakConsumption || 0;
-            const flatConsumption = values.flatConsumption || 0;
-            const valleyConsumption = values.valleyConsumption || 0;
+    const onFinish = async (values: any) => {
+        // 数据一致性校验：尖峰平谷用量之和应等于总用量
+        const consumption = values.consumption || 0;
+        const sharpConsumption = values.sharpConsumption || 0;
+        const peakConsumption = values.peakConsumption || 0;
+        const flatConsumption = values.flatConsumption || 0;
+        const valleyConsumption = values.valleyConsumption || 0;
 
-            const periodSum = sharpConsumption + peakConsumption + flatConsumption + valleyConsumption;
+        const periodSum = sharpConsumption + peakConsumption + flatConsumption + valleyConsumption;
 
-            // 如果填写了分时段用量，检查总和是否匹配
-            if (periodSum > 0 && consumption > 0) {
-                const diff = Math.abs(periodSum - consumption);
-                // 允许小数精度误差（0.0001）
-                if (diff > 0.0001) {
-                    message.warning(
-                        `尖峰平谷用量之和（${periodSum.toFixed(4)}）与总用量（${consumption.toFixed(4)}）不一致，差值：${diff.toFixed(4)}`
-                    );
-                    return false;
-                }
+        // 如果填写了分时段用量，检查总和是否匹配
+        if (periodSum > 0 && consumption > 0) {
+            const diff = Math.abs(periodSum - consumption);
+            if (diff > 0.0001) {
+                message.warning(
+                    `尖峰平谷用量之和（${periodSum.toFixed(4)}）与总用量（${consumption.toFixed(4)}）不一致，差值：${diff.toFixed(4)}`
+                );
+                return false;
             }
-
-            const data = {
-                ...currentRecord, // 重点：合并旧数据
-                ...values,
-                periodType: 'DAY', // 强制设置为日粒度
-                energyUnit: values.energyUnitId ? { id: values.energyUnitId } : null,
-                energyType: values.energyTypeId ? { id: values.energyTypeId } : null,
-            };
-            if (isEdit && currentRecord) {
-                await updateEnergyCostRecord(currentRecord.id, data);
-                message.success('更新成功');
-            } else {
-                await createEnergyCostRecord(data);
-                message.success('创建成功');
-            }
-            onSuccess();
-            return true;
-        } catch (error) {
-            console.error(error);
-            return false;
         }
+
+        const data = {
+            ...state.editData, // 合并旧数据
+            ...values,
+            periodType: 'DAY',
+            energyUnit: values.energyUnitId ? { id: values.energyUnitId } : null,
+            energyType: values.energyTypeId ? { id: values.energyTypeId } : null,
+        };
+
+        await handleSaveOrUpdate(data);
+        return true;
     };
 
     return (
         <ModalForm
-            title={isEdit ? '编辑成本记录' : '新增成本记录'}
-            open={visible}
-            onOpenChange={onVisibleChange}
+            title={state.dialogTitle}
+            open={open}
+            onOpenChange={onOpenChange}
             form={form}
-            onFinish={handleSubmit}
+            onFinish={onFinish}
             layout="horizontal"
             labelCol={{ span: 8 }}
             wrapperCol={{ span: 16 }}
             modalProps={{
-                destroyOnHidden: true,
+                destroyOnClose: true,
                 maskClosable: false,
                 width: 680,
             }}

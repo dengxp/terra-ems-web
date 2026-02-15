@@ -100,9 +100,13 @@ export async function changePostStatus(postId: number, status: string) {
 /**
  * 导出岗位
  */
-export async function exportPost() {
-  console.warn('exportPost not implemented yet');
-  return Promise.resolve();
+export async function exportPost(params: Record<string, any>) {
+  return request<Blob>(`${BASE_URL}/export`, {
+    method: 'POST',
+    data: params,
+    requestType: 'form',
+    responseType: 'blob',
+  });
 }
 
 // 兼容旧名称

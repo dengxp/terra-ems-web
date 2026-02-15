@@ -172,7 +172,7 @@ const Index: React.FC = () => {
                         onClick={() => handleView(record)}
                     />
                     <EditButton onClick={() => toEdit(record)} />
-                    <DeleteButton onClick={() => record.id && toDelete(record.id, true)} />
+                    <DeleteButton onConfirm={() => record.id && toDelete(record.id, true)} />
                 </Space>
             ),
         },

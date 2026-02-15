@@ -10,7 +10,6 @@ import StatisticsCard from '../components/StatisticsCard';
 import TrendChart from '../components/TrendChart';
 import ProportionChart from '../components/ProportionChart';
 import dayjs from 'dayjs';
-import { ApartmentOutlined, LineChartOutlined, DashboardOutlined } from '@ant-design/icons';
 import { Typography } from 'antd';
 
 const { Title, Text } = Typography;

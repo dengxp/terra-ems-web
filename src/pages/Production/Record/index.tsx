@@ -167,7 +167,7 @@ const Index: React.FC = () => {
             render: (_, record) => (
                 <Space>
                     <EditButton onClick={() => toEdit(record)} />
-                    <DeleteButton onClick={() => record.id && toDelete(record.id, true)} />
+                    <DeleteButton onConfirm={() => record.id && toDelete(record.id, true)} />
                 </Space>
             ),
         },
@@ -290,8 +290,8 @@ const Index: React.FC = () => {
             </ProPageContainer>
 
             <ProductionRecordForm
-                visible={state?.dialogVisible || false}
-                onCancel={() => setDialogVisible(false)}
+                open={state?.dialogVisible || false}
+                onOpenChange={setDialogVisible}
                 onSuccess={handleFormSuccess}
             />
         </>

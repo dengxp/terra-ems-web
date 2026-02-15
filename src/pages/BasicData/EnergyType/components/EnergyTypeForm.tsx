@@ -227,7 +227,7 @@ const EnergyTypeForm: React.FC<EnergyTypeFormProps> = ({
                 labelCol={{ span: 3 }}
                 wrapperCol={{ span: 21 }}
                 fieldProps={{
-                    rows: 2,
+                    autoSize: {minRows: 3, maxRows: 6}
                 }}
             />
         </ProModalForm>

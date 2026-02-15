@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { ProDescriptions } from '@ant-design/pro-components';
 import { ProPageContainer } from '@/components/container';
 import { Tree, Flex, Splitter, message, Empty, Tag, Input, Space, Dropdown, Button, List } from 'antd';
-import type { MenuProps } from 'antd';
 import Icon, {
     PlusOutlined,
     EditOutlined,

@@ -6,8 +6,10 @@
  * 布局组件
  */
 import Footer from './Footer';
-import { Question, SelectLang } from './RightContent';
+import { Question, SelectLang, NoticeIcon } from './RightContent';
 import { AvatarDropdown, AvatarName } from './RightContent/AvatarDropdown';
 import Permission from './Permission';
+import NoticeBanner from './NoticeBanner';
+
 export * from './icons';
-export { Footer, Question, SelectLang, AvatarDropdown, AvatarName, Permission };
+export { Footer, Question, SelectLang, NoticeIcon, AvatarDropdown, AvatarName, Permission, NoticeBanner };

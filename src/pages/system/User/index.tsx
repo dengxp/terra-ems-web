@@ -19,13 +19,12 @@ import Icon, {
   MoreOutlined,
   PlusOutlined, UploadOutlined,
 } from "@ant-design/icons";
-import { changeUserStatus, exportUser, findDeptTree } from "@/apis";
+import { exportUser, findDeptTree } from "@/apis";
 import { generateList, getParentKey, getTreeKeys } from "@/utils/tree";
 import { ProColumns, ProTable } from "@ant-design/pro-components";
 import useCrud from "@/hooks/common/useCrud";
 import { DeleteButton, EditButton } from "@/components/button";
 import { MenuInfo } from "rc-menu/lib/interface";
-import ModalConfirm from "@/components/ModalConfirm";
 import UserDetailDialog from "@/pages/system/User/UserDetailDialog";
 import { useAccess } from '@umijs/max';
 import PasswordDialog from "@/pages/system/User/PasswordDialog";
@@ -59,7 +58,7 @@ const Index = () => {
     toCreate,
     toEdit,
     toDelete,
-    search,
+    fetchPage,
     setDialogVisible,
     setShouldRefresh,
     updateState
@@ -236,7 +235,7 @@ const Index = () => {
         return (
           <Space>
             <EditButton onClick={() => toEdit(row)} />
-            <DeleteButton onClick={async () => {
+            <DeleteButton onConfirm={async () => {
               await toDelete(row.id, true);
             }} />
             <Dropdown menu={{ items, onClick: (info) => onMenuClick(info, row) }}>
@@ -487,7 +486,7 @@ const Index = () => {
                     const [beginTime, endTime] = createTimeRange;
                     params = { ...rest, beginTime, endTime };
                   }
-                  return search(params);
+                  return fetchPage(params);
                 }
               }
               pagination={{

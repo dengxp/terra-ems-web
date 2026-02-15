@@ -4,8 +4,8 @@ import { Card, Form, Select, DatePicker, Button, Row, Col, Statistic, Table, Spa
 import { SearchOutlined, ReloadOutlined } from '@ant-design/icons';
 import dayjs, { Dayjs } from 'dayjs';
 import { getCostDeviationAnalysis, CostDeviation, ElectricityData, StatisticsData, ConsumptionDetail } from '@/apis/energyCostRecord';
-import StatCard from '@/components/stat-card';
-import PeakValleyCard from '@/components/peak-valley-card';
+import StatCard from '@/components/StatCard';
+import PeakValleyCard from '@/components/PeakValleyCard';
 import styles from './index.less';
 
 const timeTypeOptions = [

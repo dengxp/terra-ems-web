@@ -5,7 +5,7 @@ import useCrud from "@/hooks/common/useCrud";
 import { ProFormDigit, ProFormText, ProFormTextArea } from "@ant-design/pro-components";
 import { DataItemStatus, OperationEnum } from "@/enums";
 
-import ProFormDictRadioGroup from "@/components/radio/ProFormDictRadioGroup";
+import { ProFormRadio } from "@ant-design/pro-components";
 
 type Props = ProModalFormProps;
 
@@ -73,19 +73,20 @@ const PostDetailDialog = (props: Props) => {
             message: '岗位代码不能为空'
           }
         ]} />
-      <ProFormDigit label={'显示排序'} name={'ranking'} min={0} max={1000}
-        rules={[
-          { required: true, message: '请输入排序值' }
-        ]}
+      <ProFormDigit label={'显示排序'} name={'sortOrder'} min={0} max={1000}
         width={120}
       />
-      <ProFormDictRadioGroup label={'状态'} name={'status'} dictKey={'status'}
+      <ProFormRadio.Group label={'状态'} name={'status'}
+        options={[
+          { label: '正常', value: 0 },
+          { label: '停用', value: 1 }
+        ]}
         rules={[
           { required: true, message: '请选择岗位状态' }
         ]}
       />
       <ProFormTextArea label={'备注'}
-        name={'description'}
+        name={'remark'}
         placeholder={'请输入岗位备注信息'}
       />
     </ProModalForm>

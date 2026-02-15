@@ -30,6 +30,8 @@ export default {
       // 配置了这个可以从 http 代理到 https
       // 依赖 origin 的功能可能需要这个，比如 cookie
       changeOrigin: true,
+      // 启用 WebSocket 代理
+      ws: true,
       // 后端已配置 context-path: /api，无需 pathRewrite
       // pathRewrite: {
       //   '^/api': ''
