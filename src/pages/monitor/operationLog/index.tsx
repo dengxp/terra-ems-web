@@ -27,7 +27,7 @@ const OperLogTable: React.FC = () => {
     const columns: ProColumns<OperationLog>[] = [
         {
             title: '日志编号',
-            dataIndex: 'operId',
+            dataIndex: 'id',
             hideInSearch: true,
             hideInTable: true,
         },
@@ -157,7 +157,7 @@ const OperLogTable: React.FC = () => {
             <ProTable<OperationLog>
                 headerTitle="操作日志列表"
                 actionRef={actionRef}
-                rowKey="operId"
+                rowKey="id"
                 search={{
                     labelWidth: 120,
                 }}

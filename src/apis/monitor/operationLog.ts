@@ -5,8 +5,7 @@ import { request } from '@umijs/max';
  * 操作日志记录对象
  */
 export interface OperationLog {
-    id?: number;
-    operId: number;
+    id: number;
     title: string;
     businessType: number;
     method: string;
@@ -43,10 +42,10 @@ export async function list(params: any) {
 
 /**
  * 删除操作日志
- * @param operIds
+ * @param ids
  */
-export async function del(operIds: number[]) {
-    return request<API.Result<void>>(`/monitor/operationLog/${operIds}`, {
+export async function del(ids: number[]) {
+    return request<API.Result<void>>(`/monitor/operationLog/${ids}`, {
         method: 'DELETE',
     });
 }
