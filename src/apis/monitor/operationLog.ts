@@ -29,7 +29,7 @@ export interface OperationLog {
  * @param params
  */
 export async function list(params: any) {
-    return request<API.Result<API.PageResult<OperationLog>>>('/monitor/operationLog/list', {
+    return request<API.Result<API.PageResult<OperationLog>>>('/monitor/operation-log/list', {
         method: 'GET',
         params: {
             ...params,
@@ -45,7 +45,7 @@ export async function list(params: any) {
  * @param ids
  */
 export async function del(ids: number[]) {
-    return request<API.Result<void>>(`/monitor/operationLog/${ids}`, {
+    return request<API.Result<void>>(`/monitor/operation-log/${ids}`, {
         method: 'DELETE',
     });
 }
@@ -54,7 +54,7 @@ export async function del(ids: number[]) {
  * 清空操作日志
  */
 export async function clean() {
-    return request<API.Result<void>>('/monitor/operationLog/clean', {
+    return request<API.Result<void>>('/monitor/operation-log/clean', {
         method: 'DELETE',
     });
 }
@@ -64,7 +64,7 @@ export async function clean() {
  * @param params
  */
 export async function exportOperlog(params: any) {
-    return request<Blob>('/monitor/operationLog/export', {
+    return request<Blob>('/monitor/operation-log/export', {
         method: 'POST',
         data: params,
         responseType: 'blob',

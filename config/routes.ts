@@ -323,7 +323,7 @@ export default [
       {
         title: '操作日志',
         name: '操作日志',
-        path: '/monitor/operationLog',
+        path: '/monitor/operation-log',
         icon: 'file-text',
         component: './monitor/operationLog',
         access: 'canAccess',
