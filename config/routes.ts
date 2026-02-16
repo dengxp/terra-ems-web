@@ -318,7 +318,7 @@ export default [
     routes: [
       {
         path: '/monitor',
-        redirect: '/monitor/log',
+        redirect: '/monitor/operation-log',
       },
       {
         title: '操作日志',
@@ -328,6 +328,15 @@ export default [
         component: './monitor/operationLog',
         access: 'canAccess',
         permissions: ['monitor:operlog:list']
+      },
+      {
+        title: '系统日志',
+        name: '系统日志',
+        path: '/monitor/log',
+        icon: 'read',
+        component: './monitor/Log',
+        access: 'canAccess',
+        permissions: ['system:log:list']
       },
       {
         title: '缓存监控',
