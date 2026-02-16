@@ -12,16 +12,16 @@ export interface OperationLog {
     method: string;
     requestMethod: string;
     operatorType: number;
-    operName: string;
+    operationName: string;
     deptName: string;
-    operUrl: string;
-    operIp: string;
-    operLocation: string;
-    operParam: string;
+    operationUrl: string;
+    operationIp: string;
+    operationLocation: string;
+    operationParam: string;
     jsonResult: string;
     status: number;
     errorMsg: string;
-    operTime: Date;
+    operationTime: Date;
     costTime: number;
 }
 

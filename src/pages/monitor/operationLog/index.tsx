@@ -57,16 +57,16 @@ const OperLogTable: React.FC = () => {
         },
         {
             title: '操作人员',
-            dataIndex: 'operName',
+            dataIndex: 'operationName',
         },
         {
             title: '主机',
-            dataIndex: 'operIp',
+            dataIndex: 'operationIp',
             hideInSearch: true,
         },
         {
             title: '操作地点',
-            dataIndex: 'operLocation',
+            dataIndex: 'operationLocation',
             hideInSearch: true,
         },
         {
@@ -79,14 +79,14 @@ const OperLogTable: React.FC = () => {
         },
         {
             title: '操作时间',
-            dataIndex: 'operTime',
+            dataIndex: 'operationTime',
             valueType: 'dateTime',
             sorter: true,
             hideInSearch: true,
         },
         {
             title: '操作时间',
-            dataIndex: 'operTimeRange',
+            dataIndex: 'operationTimeRange',
             valueType: 'dateTimeRange',
             hideInTable: true,
             search: {
@@ -222,17 +222,17 @@ const OperLogTable: React.FC = () => {
                             }[currentRow.businessType]
                         }</Descriptions.Item>
                         <Descriptions.Item label="请求方式">{currentRow.requestMethod}</Descriptions.Item>
-                        <Descriptions.Item label="登录信息">{currentRow.operName} / {currentRow.operIp} / {currentRow.operLocation}</Descriptions.Item>
+                        <Descriptions.Item label="登录信息">{currentRow.operationName} / {currentRow.operationIp} / {currentRow.operationLocation}</Descriptions.Item>
                         <Descriptions.Item label="操作方法">{currentRow.method}</Descriptions.Item>
-                        <Descriptions.Item label="操作时间">{currentRow.operTime ? new Date(currentRow.operTime).toLocaleString() : '-'}</Descriptions.Item>
+                        <Descriptions.Item label="操作时间">{currentRow.operationTime ? new Date(currentRow.operationTime).toLocaleString() : '-'}</Descriptions.Item>
                         <Descriptions.Item label="操作状态">
                             {currentRow.status === 0 ? '正常' : '失败'}
                         </Descriptions.Item>
-                        <Descriptions.Item label="请求地址" span={2}>{currentRow.operUrl}</Descriptions.Item>
+                        <Descriptions.Item label="请求地址" span={2}>{currentRow.operationUrl}</Descriptions.Item>
 
                         <Descriptions.Item label="请求参数" span={2}>
                             <div style={{ wordBreak: 'break-all', maxHeight: '200px', overflowY: 'auto' }}>
-                                {currentRow.operParam}
+                                {currentRow.operationParam}
                             </div>
                         </Descriptions.Item>
                         <Descriptions.Item label="返回参数" span={2}>
