@@ -56,7 +56,7 @@ export const PERMISSIONS = {
     MONITOR: {
         ONLINE: 'monitor:online:list',
         JOB: 'monitor:job:list',
-        LOGININFOR: 'monitor:logininfor:list',
+        LOGIN_LOG: 'monitor:login-log:list',
         LOG: {
             LIST: 'system:log:list',
             REMOVE: 'system:log:remove',
