@@ -323,11 +323,11 @@ export default [
       {
         title: '操作日志',
         name: '操作日志',
-        path: '/monitor/log',
+        path: '/monitor/operationLog',
         icon: 'file-text',
-        component: './monitor/Log',
+        component: './monitor/operationLog',
         access: 'canAccess',
-        permissions: ['system:log:list']
+        permissions: ['monitor:operlog:list']
       },
       {
         title: '缓存监控',
