@@ -21,7 +21,7 @@ const OperLogTable: React.FC = () => {
     } = useCrud<OperationLog>({
         pathname: '/monitor/operationLog',
         entityName: '操作日志',
-        baseUrl: '/monitor/operlog',
+        baseUrl: '/monitor/operationLog',
     });
 
     const columns: ProColumns<OperationLog>[] = [

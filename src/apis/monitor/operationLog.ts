@@ -46,7 +46,7 @@ export async function list(params: any) {
  * @param operIds
  */
 export async function del(operIds: number[]) {
-    return request<API.Result<void>>(`/monitor/operlog/${operIds}`, {
+    return request<API.Result<void>>(`/monitor/operationLog/${operIds}`, {
         method: 'DELETE',
     });
 }
@@ -55,7 +55,7 @@ export async function del(operIds: number[]) {
  * 清空操作日志
  */
 export async function clean() {
-    return request<API.Result<void>>('/monitor/operlog/clean', {
+    return request<API.Result<void>>('/monitor/operationLog/clean', {
         method: 'DELETE',
     });
 }
@@ -65,7 +65,7 @@ export async function clean() {
  * @param params
  */
 export async function exportOperlog(params: any) {
-    return request<Blob>('/monitor/operlog/export', {
+    return request<Blob>('/monitor/operationLog/export', {
         method: 'POST',
         data: params,
         responseType: 'blob',
