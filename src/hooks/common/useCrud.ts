@@ -24,7 +24,7 @@ export interface CrudHookResult<T extends Entity> {
   handleUpdate: (values: Record<string, any>) => Promise<void>;
   saveOrUpdate: (data: any) => Promise<API.Result<T>>;
   create: (data: Record<string, any>) => Promise<API.Result<T>>;
-  update: (data: Record<string, any>) => Promise<API.Result<T>>;
+  update: (id: React.Key, data: Record<string, any>) => Promise<API.Result<T>>;
   deleteById: (id: any) => Promise<API.Result<void>>;
   batchDeleteByIds: (ids: any[]) => Promise<API.Result<void>>;
   toCreate: (initialData?: any) => void;
@@ -98,6 +98,15 @@ export default function useCrud<T extends Entity>({ entityName, pathname, baseUr
    * 简单新增或更新 (后端根据 id 判断)
    */
   const saveOrUpdate = useCallback(async (data: any) => {
+    if (data.id) {
+      return request<API.Result<T>>(
+        `${baseUrl}/${data.id}`,
+        {
+          method: 'PUT',
+          data
+        }
+      )
+    }
     return request<API.Result<T>>(
       baseUrl,
       {
@@ -123,9 +132,9 @@ export default function useCrud<T extends Entity>({ entityName, pathname, baseUr
   /**
    * 复杂更新 (有特殊业务逻辑)
    */
-  const update = useCallback(async (data: Record<string, any>) => {
+  const update = useCallback(async (id: React.Key, data: Record<string, any>) => {
     return request<API.Result<T>>(
-      baseUrl,
+      `${baseUrl}/${id}`,
       {
         method: 'PUT',
         data
@@ -233,7 +242,10 @@ export default function useCrud<T extends Entity>({ entityName, pathname, baseUr
         // 自动合并逻辑
         const data = state?.editData ? { ...state.editData, ...values } : values;
 
-        const result = await update(data);
+        if (!data.id) {
+          throw new Error('Update requires an ID');
+        }
+        const result = await update(data.id, data);
         void message.success(result.message || '更新成功');
         updateState(pathname, { loading: false, shouldRefresh: true, dialogVisible: false });
         onOpenChange?.(false);

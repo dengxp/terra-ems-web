@@ -21,7 +21,7 @@ const OperLogTable: React.FC = () => {
     } = useCrud<OperationLog>({
         pathname: '/monitor/operationLog',
         entityName: '操作日志',
-        baseUrl: '/monitor/operation-log',
+        baseUrl: '/api/monitor/operation-log',
     });
 
     const columns: ProColumns<OperationLog>[] = [
@@ -161,27 +161,34 @@ const OperLogTable: React.FC = () => {
                 search={{
                     labelWidth: 120,
                 }}
-                toolBarRender={() => [
-                    <Access accessible={access.hasPermission('monitor:operlog:remove')} key="clean">
-                        <Button
-                            type="primary"
-                            danger
-                            icon={<DeleteOutlined />}
-                            onClick={handleClean}
-                        >
-                            清空
-                        </Button>
-                    </Access>,
-                    <Access accessible={access.hasPermission('monitor:operlog:export')} key="export">
-                        <Button
-                            type="dashed"
-                            icon={<ExportOutlined />}
-                            onClick={handleExport}
-                        >
-                            导出
-                        </Button>
-                    </Access>,
-                ]}
+                toolbar={{
+                    title: (
+                        <Space>
+                            <Access accessible={access.hasPermission('monitor:operlog:remove')} key="clean">
+                                <Button
+                                    color="danger"
+                                    icon={<DeleteOutlined />}
+                                    size="small"
+                                    variant="outlined"
+                                    onClick={handleClean}
+                                >
+                                    清空
+                                </Button>
+                            </Access>
+                            <Access accessible={access.hasPermission('monitor:operlog:export')} key="export">
+                                <Button
+                                    color="orange"
+                                    icon={<ExportOutlined />}
+                                    size="small"
+                                    variant="outlined"
+                                    onClick={handleExport}
+                                >
+                                    导出
+                                </Button>
+                            </Access>
+                        </Space>
+                    )
+                }}
                 request={async (params) => {
                     const res = await list(params);
                     return wrapperResult(res);

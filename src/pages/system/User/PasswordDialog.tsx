@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react';
 type Props = ProModalFormProps;
 
 function PasswordDialog(props: Props) {
+  const { onOpenChange, ...restProps } = props;
   const [loading, setLoading] = useState(false);
   const {
     form,
@@ -23,9 +24,9 @@ function PasswordDialog(props: Props) {
   const state = getState('/system/user');
 
   const onFinish = async (values: Record<string, any>) => {
-    const {userId, newPassword} = values;
+    const { id, newPassword } = values;
     setLoading(true);
-    resetUserPwd(userId, newPassword)
+    resetUserPwd(id, newPassword)
       .then(res => {
         setLoading(false);
         void message.success(res.message || '操作成功');
@@ -39,55 +40,60 @@ function PasswordDialog(props: Props) {
 
   useEffect(() => {
     if (props.open && state.editData) {
-      form.setFieldValue('userId', state.editData.userId);
+      form.setFieldValue('id', state.editData.id);
     }
   }, [props.open]);
 
   return (
-    <ProModalForm {...props}
-                  form={form}
-                  width={480}
-                  loading={loading}
-                  onFinish={onFinish}
+    <ProModalForm {...restProps}
+      onOpenChange={onOpenChange}
+      form={form}
+      width={480}
+      loading={loading}
+      onFinish={onFinish}
+      grid={true}
+      layout="horizontal"
+      labelCol={{ span: 6 }}
+      rowProps={{ gutter: 24 }}
     >
-      <ProFormText label={'ID'} name={'userId'} hidden={true}/>
+      <ProFormText label={'ID'} name={'id'} hidden={true} />
       <ProFormText.Password name={'newPassword'}
-                            label={'新密码'}
-                            placeholder={'请输入新密码'}
-                            tooltip={'最少8位，包含大写、小写字母、数字以及特殊字符，最长20位'}
-                            hasFeedback
-                            fieldProps={{
-                              autoComplete: 'new-password'
-                            }}
-                            rules={[
-                              {required: true, message: '新密码不能为空'},
-                              {
-                                pattern: new RegExp('^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$ %^&*-]).{8,20}$'),
-                                message: '最少8位, 包含大写、小写字母、数字以及特殊字符'
-                              }
-                            ]}
+        label={'新密码'}
+        placeholder={'请输入新密码'}
+        tooltip={'最少8位，包含大写、小写字母、数字以及特殊字符，最长20位'}
+        hasFeedback
+        fieldProps={{
+          autoComplete: 'new-password'
+        }}
+        rules={[
+          { required: true, message: '新密码不能为空' },
+          {
+            pattern: new RegExp('^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$ %^&*-]).{8,20}$'),
+            message: '最少8位, 包含大写、小写字母、数字以及特殊字符'
+          }
+        ]}
       />
       <ProFormText.Password name={'confirmPassword'}
-                            label={'确认密码'}
-                            placeholder={'请输入确认密码'}
-                            dependencies={['newPassword']}
-                            hasFeedback
-                            fieldProps={{
-                              autoComplete: 'new-password'
-                            }}
-                            rules={[
-                              {required: true, message: '请输入确认密码'},
-                              {
-                                validator: (_, value) => {
-                                  const password = form.getFieldValue('newPassword');
-                                  if (value && value !== password) {
-                                    return Promise.reject(new Error('两次输入密码不一致'));
-                                  }
+        label={'确认密码'}
+        placeholder={'请输入确认密码'}
+        dependencies={['newPassword']}
+        hasFeedback
+        fieldProps={{
+          autoComplete: 'new-password'
+        }}
+        rules={[
+          { required: true, message: '请输入确认密码' },
+          {
+            validator: (_, value) => {
+              const password = form.getFieldValue('newPassword');
+              if (value && value !== password) {
+                return Promise.reject(new Error('两次输入密码不一致'));
+              }
 
-                                  return Promise.resolve();
-                                }
-                              }
-                            ]}
+              return Promise.resolve();
+            }
+          }
+        ]}
       />
 
     </ProModalForm>

@@ -1,14 +1,14 @@
 import { getEnabledEnergyTypes } from '@/apis/energyType';
 import { EnergyUnit, getEnabledEnergyUnitTree } from '@/apis/energyUnit';
 import { getMeters, Meter } from '@/apis/meter';
-import { assignEnergyUnits, MeterPoint, saveMeterPoint } from '@/apis/meterPoint';
+import { assignEnergyUnits, getMeterPointById, MeterPoint, saveMeterPoint } from '@/apis/meterPoint';
 import { ProModalForm } from '@/components/container';
 import { OperationEnum } from '@/enums';
 import useCrud from '@/hooks/common/useCrud';
 import { getToken } from '@/utils/auth';
 import {
-  ProFormDigit,
-  ProFormRadio, ProFormSelect, ProFormText, ProFormTextArea, ProFormTreeSelect
+    ProFormDigit,
+    ProFormRadio, ProFormSelect, ProFormText, ProFormTextArea, ProFormTreeSelect
 } from '@ant-design/pro-components';
 import React, { useEffect, useState } from 'react';
 
@@ -99,19 +99,36 @@ const MeterPointForm: React.FC<MeterPointFormProps> = ({
 
     useEffect(() => {
         if (visible) {
-            if (state.operation === OperationEnum.EDIT) {
+            form.resetFields();
+
+            // 1. 初步回显：利用列表已有的数据
+            if (state.editData) {
                 form.setFieldsValue({
                     ...state.editData,
                     meterId: state.editData?.meter?.id,
                     energyTypeId: state.editData?.energyType?.id,
-                    energyUnitIds: state.editData?.energyUnits?.map((u: EnergyUnit) => u.id) || [],
+                    energyUnitIds: state.editData?.energyUnits?.map((u: any) => u.id) || [],
                 });
-            } else {
-                form.resetFields();
+            }
+
+            // 2. 深度加载：如果是编辑模式，拉取完整的详情数据（包含关联的用能单元等）
+            if (state.operation === OperationEnum.EDIT && state.editData?.id) {
+                getMeterPointById(state.editData.id).then((res: any) => {
+                    if (res.success && res.data) {
+                        const fullData = res.data;
+                        form.setFieldsValue({
+                            ...fullData,
+                            meterId: fullData?.meter?.id,
+                            energyTypeId: fullData?.energyType?.id,
+                            energyUnitIds: fullData?.energyUnits?.map((u: any) => u.id) || [],
+                        });
+                    }
+                });
+            } else if (state.operation === OperationEnum.CREATE) {
                 form.setFieldsValue({ status: 0, sortOrder: 0, pointType: 'COLLECT', category: 'ENERGY', energyUnitIds: [] });
             }
         }
-    }, [visible, state.operation, state.editData, form]);
+    }, [visible, state.operation, state.editData?.id]);
 
     return (
         <ProModalForm

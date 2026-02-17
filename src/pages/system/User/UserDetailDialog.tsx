@@ -1,4 +1,4 @@
-import { findUserById } from "@/apis";
+import { findUserById, getRoleOptions } from "@/apis";
 import { findPostOptions } from "@/apis/post";
 import { ProModalForm } from "@/components/container";
 import { ProModalFormProps } from "@/components/container/ProModalForm";
@@ -14,17 +14,18 @@ type Props = ProModalFormProps;
 const defaultValue = {
   username: '',
   password: '',
-  name: '',
-  gender: 0,
-  status: 0,
+  realName: '',
+  gender: 2,
+  status: 1,
   phone: '',
   email: '',
   departmentId: undefined,
   roles: []
 }
 const UserDetailDialog = (props: Props) => {
+  const { open } = props;
   const [_postList, _setPostList] = useState<any[]>([]);
-  const [roleList, setRoleList] = useState<any[]>([]);
+  const [_roleList, setRoleList] = useState<any[]>([]);
 
   const {
     form,
@@ -50,52 +51,34 @@ const UserDetailDialog = (props: Props) => {
   }
 
   useEffect(() => {
-    if (props.open) {
-      if (state.operation === OperationEnum.EDIT) {
-        findUserById(state.editData?.id)
+    if (open) {
+      // 0. Reset: 确保表单状态重置
+      form.resetFields();
+
+      // 1. Echo: 无论新增还是编辑，如果有 editData (比如复制新增场景)，先行回显
+      if (state.editData) {
+        form.setFieldsValue({ ...state.editData });
+      }
+
+      // 2. Logic Branch
+      if (state.operation === OperationEnum.EDIT && state.editData?.id) {
+        // Fetch: 编辑模式下异步拉取完整详情
+        findUserById(state.editData.id)
           .then(res => {
             const userData = res.data;
-            // 如果后端返回的 SysUser 包含 roles 属性
             if (userData?.roles) {
               setRoleList(userData.roles);
             }
-            if (state.operation === OperationEnum.EDIT) {
-              form.setFieldsValue({
-                ...userData,
-                postIds: userData?.roleIds,  // 使用 SysUser 中的字段
-                roleIds: userData?.roleIds
-              });
-            }
+            form.setFieldsValue(userData);
           })
-      } else {
-        form.setFieldsValue({ ...defaultValue });
+      } else if (state.operation === OperationEnum.CREATE) {
+        // Create: 新建模式下设置默认值 (如果 editData 为空)
+        if (!state.editData) {
+          form.setFieldsValue({ ...defaultValue });
+        }
       }
-
     }
-    // form.setFieldsValue({...state.editData});
-  }, [props.open, state.operation]);
-
-  // useEffect(() => {
-  //   if (props.open) {
-  //     if (snap.operation === OperationEnum.EDIT) {
-  //       let roles = snap.editData?.roles ?? [];
-  //       if(roles && roles.length > 0) {
-  //         roles = roles.map((role: Role) => role.id);
-  //       }
-  //       form.setFieldsValue({...snap.editData, roles});
-  //
-  //     } else {
-  //       form.setFieldsValue({...defaultValue});
-  //     }
-  //   }
-  // }, [props.open, snap.operation]);
-
-  // useEffect(() => {
-  //   findOptions()
-  //     .then(res => {
-  //       setRoleOptions(res.data || []);
-  //     })
-  // }, []);
+  }, [open, state.operation, state.editData, form]);
 
   return (
     <ProModalForm {...props}
@@ -104,47 +87,65 @@ const UserDetailDialog = (props: Props) => {
       grid={true}
       rowProps={{ gutter: 0 }}
       labelCol={{ span: 6 }}
+      modalProps={{
+        destroyOnHidden: true,
+        maskClosable: false,
+      }}
       loading={state.loading} onFinish={onFinish}>
       <ProFormText label={'ID'}
         name={'id'}
         hidden={true} />
-      {
-        state.operation === OperationEnum.CREATE &&
-        <>
-          <ProFormText label={'用户名称'}
-            name={'username'}
-            placeholder={'请输入用户名称'}
-            colProps={{ span: 12 }}
-            rules={[
-              {
-                required: true,
-                message: '用户名称不能为空'
-              }
-            ]} />
-          <ProFormText.Password label={'用户密码'}
-            name={'password'}
-            placeholder={'请输入用户密码'}
-            colProps={{ span: 12 }}
-            fieldProps={{
-              autoComplete: 'new-password'
-            }}
-            rules={[
-              {
-                required: true,
-                message: '用户密码不能为空'
-              }
-            ]}
-          />
-        </>
-      }
-      <ProFormText label={'用户昵称'}
-        name={'nickname'}
-        placeholder={'请输入用户昵称'}
+
+      <ProFormText label={'登录账号'}
+        name={'username'}
+        placeholder={'请输入登录账号'}
+        colProps={{ span: 12 }}
+        fieldProps={{
+          disabled: state.operation === OperationEnum.EDIT
+        }}
+        rules={[
+          {
+            required: true,
+            message: '登录账号不能为空'
+          },
+          {
+            min: 4,
+            message: '账号长度不能少于4位'
+          },
+          {
+            max: 20,
+            message: '账号长度不能超过20位'
+          },
+          {
+            pattern: /^[a-zA-Z][a-zA-Z0-9_]*$/,
+            message: '账号必须以字母开头，只能包含字母、数字和下划线'
+          }
+        ]} />
+
+      <ProFormText.Password label={'用户密码'}
+        name={'password'}
+        placeholder={'请输入用户密码'}
+        colProps={{ span: 12 }}
+        fieldProps={{
+          autoComplete: 'new-password',
+          disabled: state.operation === OperationEnum.EDIT
+        }}
+        rules={[
+          {
+            required: state.operation === OperationEnum.CREATE,
+            message: '用户密码不能为空'
+          }
+        ]}
+      />
+
+      <ProFormText label={'用户姓名'}
+        name={'realName'}
+        placeholder={'请输入用户姓名'}
         colProps={{ span: 12 }}
         rules={[
           {
             required: true,
-            message: '用户昵称不能为空'
+            message: '用户姓名不能为空'
           }
         ]}
       />
@@ -152,7 +153,7 @@ const UserDetailDialog = (props: Props) => {
         colProps={{ span: 12 }}
       />
       <ProFormText label={'手机号'}
-        name={'phoneNumber'}
+        name={'phone'}
         placeholder={'请输入手机号'}
         colProps={{ span: 12 }}
       />
@@ -163,13 +164,14 @@ const UserDetailDialog = (props: Props) => {
       />
       <ProFormDictRadioGroup label={'性别'}
         name={'gender'}
-        initialValue={'2'}
+        initialValue={2}
         dictKey={'gender'}
         colProps={{ span: 12 }}
       />
       <ProFormDictRadioGroup dictKey={'status'}
         label={'状态'}
         name={'status'}
+        initialValue={1}
         colProps={{ span: 12 }}
       />
       <ProFormSelect label={'岗位'}
@@ -181,39 +183,27 @@ const UserDetailDialog = (props: Props) => {
           const result = await findPostOptions();
           return result.data;
         }}
-      // fieldProps={{
-      //   options: postList.map(item => ({key: item.postId, value: item.postId, label: item.postName}))
-      // }}
-      // request={async () => {
-      //   const result = await getPostListAll();
-      //   if (result.success) {
-      //     return result.data.map((item: Record<string, any>) => ({
-      //       key: item.postId,
-      //       value: item.postId,
-      //       label: item.postName
-      //     }));
-      //   }
-      //   return [];
-      // }}
       />
       <ProFormSelect label={'角色'}
         name={'roles'}
         mode={'multiple'}
         colProps={{ span: 12 }}
-        fieldProps={{
-          options: roleList.map(item => ({ key: item.roleId, value: item.roleId, label: item.roleName }))
+        placeholder={'请选择角色'}
+        request={async () => {
+          const result = await getRoleOptions();
+          // 需要去重吗？后端一般返回去重列表
+          // 前端之前的代码曾做过去重，这里暂时直接返回
+          // 如果需要去重，可以参考之前的 filter 逻辑
+          // 但 getRoleOptions 应该是返回 Option 列表
+          const data = result.data || [];
+          // 简单去重
+          const seen = new Set();
+          return data.filter((item: any) => {
+            if (seen.has(item.value)) return false;
+            seen.add(item.value);
+            return true;
+          });
         }}
-      // request={async () => {
-      //   const result = await getRoleListAll();
-      //   if (result.success) {
-      //     return result.data.map((item: Record<string, any>) => ({
-      //       key: item.roleId,
-      //       value: item.roleId,
-      //       label: item.roleName
-      //     }));
-      //   }
-      //   return [];
-      // }}
       />
       <ProFormTextArea label={'备注'}
         name={'remark'}

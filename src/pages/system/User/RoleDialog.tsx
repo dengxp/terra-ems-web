@@ -33,8 +33,8 @@ const RoleDialog = (props: Props) => {
   const column: TableColumnProps[] = [
     {
       title: '角色编号',
-      dataIndex: 'roleId',
-      key: 'roleId'
+      dataIndex: 'id',
+      key: 'id'
     },
     {
       title: '角色名称',
@@ -65,7 +65,7 @@ const RoleDialog = (props: Props) => {
         setDataSource(roles);
         const selectedKeys = roles
           .filter((item: Record<string, any>) => item.flag)
-          .map((item: Record<string, any>) => item.roleId);
+          .map((item: Record<string, any>) => item.id || item.roleId);
         setSelectedRowKeys(selectedKeys);
         setLoading(false);
       })
@@ -116,11 +116,11 @@ const RoleDialog = (props: Props) => {
       <ProFormText label={'登录账号'} name={'username'}
         fieldProps={{ disabled: true }}
       />
-      <ProFormText label={'用户昵称'} name={'nickname'}
+      <ProFormText label={'用户姓名'} name={'realName'}
         fieldProps={{ disabled: true }}
       />
       <Table columns={column}
-        rowKey={'roleId'}
+        rowKey={(record) => record.id || record.roleId}
         rowSelection={rowSelection}
         dataSource={dataSource}
         loading={{ spinning: loading, tip }}

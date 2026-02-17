@@ -249,11 +249,11 @@ const LoginPage: React.FC = () => {
           <Form form={form} onFinish={handleSubmit} className="login-form">
             {loginType === 'account' ? (
               <>
-                <Form.Item name="username" rules={[{ required: true, message: '请输入用户名' }]}>
+                <Form.Item name="username" rules={[{ required: true, message: '请输入登录账号' }]}>
                   <Input
                     size="large"
                     prefix={<UserOutlined />}
-                    placeholder="用户名"
+                    placeholder="登录账号 / 手机号"
                     autoComplete="off"
                   />
                 </Form.Item>

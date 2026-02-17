@@ -17,64 +17,11 @@ export interface SysPost {
 }
 
 /**
- * 分页查询岗位列表
- */
-export async function findPostsByPage(params: API.PageParams & { current?: number; pageNumber?: number }) {
-  const { current, pageNumber, pageSize, ...rest } = params;
-  return request<API.Result<API.PageResult<SysPost>>>(`${BASE_URL}/page`, {
-    method: 'GET',
-    params: {
-      pageNumber: pageNumber ?? (current ? current - 1 : 0),
-      pageSize: pageSize ?? 10,
-      ...rest,
-    },
-  });
-}
-
-/**
- * 查询所有岗位
- */
-export async function findAllPosts() {
-  return request<API.Result<SysPost[]>>(BASE_URL, {
-    method: 'GET',
-  });
-}
-
-/**
  * 根据ID查询岗位详情
  */
 export async function findPostById(postId: number) {
   return request<API.Result<SysPost>>(`${BASE_URL}/${postId}`, {
     method: 'GET',
-  });
-}
-
-/**
- * 创建岗位
- */
-export async function createPost(post: Partial<SysPost>) {
-  return request<API.Result<SysPost>>(BASE_URL, {
-    method: 'POST',
-    data: post,
-  });
-}
-
-/**
- * 更新岗位信息
- */
-export async function updatePost(postId: number, post: Partial<SysPost>) {
-  return request<API.Result<SysPost>>(`${BASE_URL}`, {
-    method: 'POST',
-    data: { ...post, id: postId },
-  });
-}
-
-/**
- * 删除岗位
- */
-export async function deletePost(postId: number) {
-  return request<API.Result<void>>(`${BASE_URL}/${postId}`, {
-    method: 'DELETE',
   });
 }
 

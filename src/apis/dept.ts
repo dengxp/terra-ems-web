@@ -30,59 +30,11 @@ export async function getDeptTree() {
 }
 
 /**
- * 分页查询部门列表
- */
-export async function findDeptsByPage(params: API.PageParams) {
-  return request<API.Result<API.PageResult<SysDept>>>(`${BASE_URL}/page`, {
-    method: 'GET',
-    params,
-  });
-}
-
-/**
- * 查询所有部门
- */
-export async function findDeptListAll() {
-  return request<API.Result<SysDept[]>>(BASE_URL, {
-    method: 'GET',
-  });
-}
-
-/**
  * 根据ID查询部门详情
  */
 export async function findDeptById(deptId: number) {
   return request<API.Result<SysDept>>(`${BASE_URL}/${deptId}`, {
     method: 'GET',
-  });
-}
-
-/**
- * 创建部门
- */
-export async function createDept(dept: Partial<SysDept>) {
-  return request<API.Result<SysDept>>(BASE_URL, {
-    method: 'POST',
-    data: dept,
-  });
-}
-
-/**
- * 更新部门信息
- */
-export async function updateDept(deptId: number, dept: Partial<SysDept>) {
-  return request<API.Result<SysDept>>(`${BASE_URL}`, {
-    method: 'POST',
-    data: { ...dept, id: deptId },
-  });
-}
-
-/**
- * 删除部门
- */
-export async function deleteDept(deptId: number) {
-  return request<API.Result<void>>(`${BASE_URL}/${deptId}`, {
-    method: 'DELETE',
   });
 }
 
@@ -144,9 +96,11 @@ export async function getDeptTreeSelect() {
  * 移动部门
  */
 export async function moveDepartment(id: number, parentId: number) {
-  return updateDept(id, { parentId });
+  return request<API.Result<SysDept>>(BASE_URL, {
+    method: 'POST',
+    data: { id, parentId },
+  });
 }
 
 // 兼容旧名称
 export const findDeptTree = getDeptTree;
-export const findDeptTreeByCondition = findDeptsByPage;

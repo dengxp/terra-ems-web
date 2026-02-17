@@ -58,6 +58,7 @@ const Index = () => {
     toCreate,
     toEdit,
     toDelete,
+    toBatchDelete,
     fetchPage,
     setDialogVisible,
     setShouldRefresh,
@@ -125,24 +126,24 @@ const Index = () => {
       hideInSearch: true
     },
     {
-      title: '用户名称',
+      title: '登录账号',
       dataIndex: 'keyword',
       key: 'keyword',
       fieldProps: {
-        placeholder: '请输入用户名称'
+        placeholder: '请输入登录账号'
       },
       hideInTable: true
     },
     {
-      title: '用户名称',
+      title: '登录账号',
       dataIndex: 'username',
       key: 'username',
       hideInSearch: true
     },
     {
-      title: '用户昵称',
-      dataIndex: 'nickname',
-      key: 'nickname',
+      title: '用户姓名',
+      dataIndex: 'realName',
+      key: 'realName',
       hideInSearch: true
     },
     {
@@ -153,8 +154,8 @@ const Index = () => {
     },
     {
       title: '手机号',
-      dataIndex: 'phoneNumber',
-      key: 'phoneNumber',
+      dataIndex: 'phone',
+      key: 'phone',
       fieldProps: {
         placeholder: '请输入手机号码'
       }
@@ -189,6 +190,7 @@ const Index = () => {
       title: '创建时间',
       dataIndex: 'createdAt',
       key: 'createdAt',
+      valueType: 'dateTime',
       hideInSearch: true
     },
     {
@@ -253,8 +255,18 @@ const Index = () => {
   }, [deptTree]);
 
   const onSelect: TreeProps['onSelect'] = (selectedKeys, _info) => {
-    const deptId = selectedKeys?.[0];
-    setParams(prevState => ({ ...prevState, deptId }));
+    const key = selectedKeys?.[0];
+    if (key === params.deptId) {
+      setParams(prevState => {
+        const { deptId, ...rest } = prevState;
+        return rest;
+      });
+      setSelectedRowKeys([]);
+    } else {
+      setParams(prevState => ({ ...prevState, deptId: key }));
+      setSelectedRowKeys([]);
+      setSelectedRows([]);
+    }
   };
 
   // 输入框变化时过滤树
@@ -263,7 +275,6 @@ const Index = () => {
     setSearchValue(value);
     const newExpandedKeys = dataList
       .map((item) => {
-        console.log("item: ", item);
         if (item.title.indexOf(value) > -1) {
           return getParentKey(item.key, deptTree);
         }
@@ -285,7 +296,7 @@ const Index = () => {
   const toDeleteBatch = () => {
     if (deleteDisabled) return;
     if (!selectedRowKeys || selectedRowKeys.length === 0) return;
-    void toDelete(selectedRowKeys, true);
+    void toBatchDelete(selectedRowKeys as (string | number)[], true);
   }
 
   const toResetPassword = (user: SysUser) => {
@@ -317,45 +328,33 @@ const Index = () => {
   }
 
   const treeData = useMemo(() => {
-    const loop = (tree: TreeDataNode[]): TreeDataNode[] =>
+    const loop = (tree: any[]): any[] =>
       tree
         .map((item) => {
-          const strTitle = item.title as string;
+          const strTitle = item.name as string;
           const index = strTitle.indexOf(searchValue);
-
-          // 只有当前节点标题匹配时，才处理其子节点
           const beforeStr = strTitle.substring(0, index);
           const afterStr = strTitle.slice(index + searchValue.length);
-
           const title =
             index > -1 ? (
-              <span key={item.key}>
+              <span key={item.id}>
                 {beforeStr}
                 <span className="text-red-500">{searchValue}</span>
                 {afterStr}
               </span>
             ) : (
-              <span key={item.key}>{strTitle}</span>
+              <span key={item.id}>{strTitle}</span>
             );
-
-          // 递归处理子节点
-          let children = item.children ? loop(item.children) : [];
-
-          // 如果当前节点包含搜索值，或者子节点中有符合条件的节点，则保留当前节点
-          if (index > -1 || children.length > 0) {
-            return {
-              title,
-              key: item.key,
-              children,
-            };
+          if (item.children) {
+            return { ...item, title, key: item.id, children: loop(item.children) };
           }
-
-          // 如果没有匹配，则返回 null，进行过滤
-          return null;
-        })
-        .filter(item => item !== null) as TreeDataNode[]; // 强制类型转换为 TreeDataNode[]
-
-    return searchValue ? loop(deptTree) : deptTree;
+          return {
+            ...item,
+            title,
+            key: item.id
+          };
+        });
+    return loop(deptTree);
   }, [searchValue, deptTree]);
 
   const editDisabled = useMemo(() => {
@@ -381,6 +380,8 @@ const Index = () => {
     if (state.shouldRefresh) {
       actionRef.current?.reload();
       setShouldRefresh(false); // 重置标志位
+      setSelectedRowKeys([]);
+      setSelectedRows([]);
     }
   }, [state.shouldRefresh]);
 
@@ -499,10 +500,10 @@ const Index = () => {
           </Splitter.Panel>
         </Splitter>
       </ProPageContainer>
-      <UserDetailDialog title={state?.dialogTitle} open={state?.dialogVisible} onOpenChange={setDialogVisible} />
+      <UserDetailDialog title={state?.dialogTitle} open={state?.dialogVisible || false} onOpenChange={setDialogVisible} />
       <PasswordDialog title={'重置用户密码'} open={passwordVisible} onOpenChange={setPasswordVisible} />
       <RoleDialog title={'分配角色'} open={roleVisible} onOpenChange={setRoleVisible} />
-      <UserImportDialog title={'用户导入'} open={userImportVisible} onOpenChange={setUserImportVisible} />
+      <UserImportDialog title={'用户导入'} open={userImportVisible} onOpenChange={setUserImportVisible} onReload={() => actionRef.current?.reload()} />
     </>
   )
 }

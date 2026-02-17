@@ -12,6 +12,10 @@ import { useEffect } from 'react';
 type Props = ProModalFormProps;
 
 const RoleDetailDialog = (props: Props) => {
+  const {
+    open,
+    onOpenChange,
+  } = props;
 
   const {
     form,
@@ -22,17 +26,21 @@ const RoleDetailDialog = (props: Props) => {
     pathname: '/system/role',
     entityName: '角色',
     baseUrl: '/api/system/role',
-    onOpenChange: props.onOpenChange
+    onOpenChange
   });
 
   const state = getState('/system/role');
+  const operation = state.operation;
+  const record = state.editData as SysRole | null;
 
   const onFinish = async (values: Record<string, any>) => {
     const { menuIds, ...rest } = values;
     const { checked, halfChecked } = menuIds;
     const newValues = { ...rest, menuIds: [...checked, ...halfChecked] };
-    if (values.roleId) {
-      const data = { ...state.editData, ...newValues };
+
+    // 确保 ID 被包含
+    const data = (values.id || record?.id) ? { ...record, ...newValues } : { ...newValues };
+    if (data.id) {
       await handleUpdate(data);
     } else {
       await handleCreate(newValues);
@@ -40,16 +48,28 @@ const RoleDetailDialog = (props: Props) => {
   }
 
   useEffect(() => {
-    if (props.open && state.operation === OperationEnum.EDIT) {
-      getRole(state.editData?.roleId)
-        .then(res => {
-          if (res.data) {
-            // 用返回的角色数据填充表单
-            form.setFieldsValue({ ...res.data });
-          }
-        })
+    if (open) {
+      // 1. 初步回显
+      if (record) {
+        form.setFieldsValue({ ...record });
+
+        // 2. 深度加载
+        if (operation === OperationEnum.EDIT && record.id) {
+          getRole(record.id)
+            .then(res => {
+              if (res.data) {
+                form.setFieldsValue({ ...res.data });
+              }
+            })
+            .catch(err => {
+              console.error('获取角色详情失败', err);
+            });
+        }
+      } else if (operation === OperationEnum.CREATE) {
+        form.resetFields();
+      }
     }
-  }, [props.open, state.operation]);
+  }, [open, operation, record, form]);
 
   return (
     <ProModalForm {...props}
@@ -58,12 +78,16 @@ const RoleDetailDialog = (props: Props) => {
       labelCol={{ span: 5 }}
       wrapperCol={{ span: 18 }}
       width={600}
+      modalProps={{
+        destroyOnClose: true,
+        centered: true
+      }}
       loading={state.loading} onFinish={onFinish}>
       <ProFormText label={'ID'}
-        name={'roleId'}
+        name={'id'}
         hidden={true} />
       <ProFormText label={'角色名称'}
-        name={'roleName'}
+        name={'name'}
         placeholder={'请输入角色名称'}
         rules={[
           {
@@ -71,29 +95,29 @@ const RoleDetailDialog = (props: Props) => {
             message: '角色名称不能为空'
           }
         ]} />
-      <ProFormText name={'roleKey'}
-        label={'角色键值'}
-        placeholder={'请输入角色键值'}
+      <ProFormText name={'code'}
+        label={'角色代码'}
+        placeholder={'请输入角色代码'}
         tooltip={'控制器中定义的权限字符，如：@PreAuthorize(`@ss.hasRole(\'admin\')`)'}
         rules={[
           {
             required: true,
-            message: '角色键值不能为空'
+            message: '角色代码不能为空'
           }
         ]}
       />
-      <ProFormDigit label={'角色顺序'}
-        name={'roleSort'}
+      <ProFormDigit label={'显示顺序'}
+        name={'sortOrder'}
         min={0}
         max={1000}
         fieldProps={{ precision: 0 }}
         initialValue={0}
-        placeholder={'请输入角色顺序'}
+        placeholder={'请输入显示顺序'}
         wrapperCol={{ span: 10 }}
         rules={[
           {
             required: true,
-            message: '角色顺序不能为空'
+            message: '显示顺序不能为空'
           },
         ]}
       />

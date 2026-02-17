@@ -1,13 +1,13 @@
 import {
-  periodTypeOptions, PricePolicy,
-  PricePolicyItem
+    periodTypeOptions, PricePolicy,
+    PricePolicyItem, getPricePolicyById
 } from '@/apis/pricePolicy';
 import { OperationEnum } from '@/enums';
 import useCrud from '@/hooks/common/useCrud';
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import {
-  ProForm, ProFormDateRangePicker, ProFormDigit,
-  ProFormRadio, ProFormSwitch, ProFormText, ProFormTextArea
+    ProForm, ProFormDateRangePicker, ProFormDigit,
+    ProFormRadio, ProFormSwitch, ProFormText, ProFormTextArea
 } from '@ant-design/pro-components';
 import { Button, Drawer, Form, Input, InputNumber, message, Select, Space, Table } from 'antd';
 import React, { useEffect, useState } from 'react';
@@ -43,8 +43,10 @@ const PricePolicyForm: React.FC<PricePolicyFormProps> = ({
 
     useEffect(() => {
         if (visible) {
-            if (state.operation === OperationEnum.EDIT && state.editData) {
-                // 编辑模式：处理生效日期回显
+            form.resetFields();
+
+            // 1. 初步回显：利用列表已有的数据
+            if (state.editData) {
                 const initialValues = { ...state.editData };
                 if (state.editData.effectiveStartDate || state.editData.effectiveEndDate) {
                     initialValues.effectiveDateRange = [
@@ -53,11 +55,30 @@ const PricePolicyForm: React.FC<PricePolicyFormProps> = ({
                     ];
                 }
                 form.setFieldsValue(initialValues);
-                setIsMultiRate(state.editData.isMultiRate);
+                setIsMultiRate(!!state.editData.isMultiRate);
                 setItems(state.editData.items || []);
-            } else {
-                form.resetFields();
-                form.setFieldsValue({ isMultiRate: true }); // 默认开启分时电价
+            }
+
+            // 2. 深度加载：如果是编辑模式，拉取完整的详情数据（包含时段明细等）
+            if (state.operation === OperationEnum.EDIT && state.editData?.id) {
+                getPricePolicyById(state.editData.id).then((res) => {
+                    if (res.success && res.data) {
+                        const fullData = res.data;
+                        const finalValues = { ...fullData };
+                        if (fullData.effectiveStartDate || fullData.effectiveEndDate) {
+                            finalValues.effectiveDateRange = [
+                                fullData.effectiveStartDate || '',
+                                fullData.effectiveEndDate || '',
+                            ];
+                        }
+                        form.setFieldsValue(finalValues);
+                        setIsMultiRate(!!fullData.isMultiRate);
+                        setItems(fullData.items || []);
+                    }
+                });
+            } else if (state.operation === OperationEnum.CREATE) {
+                // 新建模式，初始化默认配置
+                form.setFieldsValue({ isMultiRate: true });
                 setIsMultiRate(true);
                 setItems([
                     { periodType: 'DEEP', price: 0, startTime: '00:00', endTime: '07:00', sortOrder: 1 },
@@ -72,7 +93,7 @@ const PricePolicyForm: React.FC<PricePolicyFormProps> = ({
                 ]);
             }
         }
-    }, [visible, state.operation, state.editData, form]);
+    }, [visible, state.operation, state.editData?.id]);
 
     const handleAddItem = () => {
         setItems([...items, { periodType: 'FLAT', price: 0, startTime: '', endTime: '', sortOrder: items.length + 1 }]);

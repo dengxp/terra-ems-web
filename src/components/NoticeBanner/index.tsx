@@ -48,8 +48,16 @@ const NoticeBanner: React.FC = () => {
     useWebSocket({
         onMessage: (msg: any) => {
             if (msg.type === 'NOTICE_NEW' && msg.data?.noticeType === '2') {
-                // 新公告插入最前
-                setNotices(prev => [msg.data, ...prev].slice(0, 5));
+                // 新公告插入最前，带去重
+                setNotices(prev => {
+                    const list = [msg.data, ...prev];
+                    const seen = new Set();
+                    return list.filter(item => {
+                        if (!item.id || seen.has(item.id)) return false;
+                        seen.add(item.id);
+                        return true;
+                    }).slice(0, 5);
+                });
                 setVisible(true);
                 localStorage.removeItem(BANNER_HIDDEN_KEY);
             } else if (msg.type === 'NOTICE_DELETE') {

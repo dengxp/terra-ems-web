@@ -1,4 +1,6 @@
+import { changeRoleStatus } from "@/apis/role";
 import { changeUserStatus } from "@/apis";
+import { DeleteButton, EditButton } from "@/components/button";
 import { ProPageContainer } from "@/components/container";
 import ModalConfirm from "@/components/ModalConfirm";
 import useCrud from "@/hooks/common/useCrud";
@@ -27,6 +29,8 @@ const Index = () => {
         actionRef,
         toCreate,
         toEdit,
+        toDelete,
+        toBatchDelete,
         setDialogVisible,
         setShouldRefresh,
         fetchPage
@@ -44,16 +48,16 @@ const Index = () => {
         const action = record.status === '0' ? '禁用' : '启用';
         ModalConfirm({
             title: '启用/禁用',
-            content: `您确定要${action}角色[${record.roleName}]么？`,
+            content: `您确定要${action}角色[${record.name}]么？`,
             onOk() {
                 const status = record.status === '0' ? '1' : '0';
-                changeUserStatus(record.userId, status)
+                changeRoleStatus(record.id, status)
                     .then(res => {
-                        void message.success(res.message || `${action}用户[${record.userName}]成功`);
+                        void message.success(res.message || `${action}角色[${record.name}]成功`);
                         actionRef.current?.reload();
                     })
                     .catch(err => {
-                        void message.error(err.message || `${action}用户[${record.userName}]失败`);
+                        void message.error(err.message || `${action}角色[${record.name}]失败`);
                     });
             }
         });
@@ -62,22 +66,22 @@ const Index = () => {
     const columns: ProColumns[] = [
         {
             title: '角色编号',
-            dataIndex: 'roleId',
-            key: 'roleId',
+            dataIndex: 'id',
+            key: 'id',
             hideInSearch: true
         },
         {
             title: '角色名称',
-            dataIndex: 'roleName',
-            key: 'roleName',
+            dataIndex: 'name',
+            key: 'name',
             fieldProps: {
                 placeholder: '请输入角色名称'
             }
         },
         {
             title: '权限字符',
-            dataIndex: 'roleKey',
-            key: 'roleKey',
+            dataIndex: 'code',
+            key: 'code',
         },
         {
             title: '显示顺序',
@@ -117,53 +121,31 @@ const Index = () => {
             dataIndex: 'actions',
             key: 'actions',
             hideInSearch: true,
-            render: (_: any, _row: any) => {
-                return '';
-                // 动态生成菜单项
-                // const rawItems: Record<string, any> = [
-                //   {
-                //     label: '重置密码',
-                //     key: 'resetPassword',
-                //     icon: <LockFilled/>,
-                //     disabled: state.loading,
-                //     permission: 'system:user:resetPwd'
-                //   },
-                //   {
-                //     label: '分配角色',
-                //     key: 'assignRole',
-                //     icon: <Icon component={RoleIcon}/>,
-                //     disabled: loading,
-                //     permission: 'system:user:edit'
-                //   }
-                // ];
-                //
-                // const items: MenuProps['items'] = rawItems
-                //   .filter((item: Record<string, any>) => !item.permission || hasPermission(item.permission));
-                //
-                // return (
-                //   <Space>
-                //     <EditButton onClick={() => toEdit(row)}/>
-                //     <DeleteButton onClick={async () => {
-                //       await toDelete(row.userId, true);
-                //     }}/>
-                //     <Dropdown menu={{items, onClick: (info) => onMenuClick(info, row)}}>
-                //       <Button type={'text'} shape={'circle'} size={'small'}
-                //               icon={<MoreOutlined/>}/>
-                //     </Dropdown>
-                //   </Space>
-                // )
+            render: (_: any, record: any) => {
+                return (
+                    <Space>
+                        <EditButton onClick={() => toEdit(record)} />
+                        <DeleteButton onConfirm={async () => {
+                            await toDelete(record.id, true);
+                        }} />
+                    </Space>
+                );
             }
         }
     ];
 
-    const toEditSelected = () => {
-        if (editDisabled) return;
-        if (!selectedRows || selectedRows.length !== 1) return;
-        toEdit(selectedRows[0]);
+    const toDeleteBatch = () => {
+        if (deleteDisabled) return;
+        if (!selectedRowKeys || selectedRowKeys.length === 0) return;
+        void toBatchDelete(selectedRowKeys as (string | number)[], true);
     }
 
     const editDisabled = useMemo(() => {
         return (!selectedRowKeys || selectedRowKeys.length !== 1);
+    }, [selectedRowKeys]);
+
+    const deleteDisabled = useMemo(() => {
+        return (!selectedRowKeys || selectedRowKeys.length === 0);
     }, [selectedRowKeys]);
 
 
@@ -179,7 +161,7 @@ const Index = () => {
         <>
             <ProPageContainer className={'pt-1'}>
                 <ProTable columns={columns}
-                    rowKey={'roleId'}
+                    rowKey={'id'}
                     formRef={formRef}
                     actionRef={actionRef}
                     params={params}
@@ -218,17 +200,20 @@ const Index = () => {
                                         disabled={editDisabled}
                                         size={'small'}
                                         variant={'outlined'}
-                                        onClick={toEditSelected}
+                                        onClick={() => {
+                                            if (selectedRows && selectedRows.length === 1) {
+                                                toEdit(selectedRows[0]);
+                                            }
+                                        }}
                                     >修改</Button>
                                 }
                                 {
-                                    hasPermission('system:user:remove') &&
                                     <Button color={"danger"}
                                         icon={<DeleteOutlined />}
-                                        // disabled={deleteDisabled}
+                                        disabled={deleteDisabled}
                                         size={'small'}
                                         variant={'outlined'}
-                                    // onClick={toDeleteBatch}
+                                        onClick={toDeleteBatch}
                                     >删除</Button>
                                 }
                                 {

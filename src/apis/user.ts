@@ -3,21 +3,6 @@ import { request } from '@umijs/max';
 const BASE_URL = '/api/system/user';
 
 /**
- * 分页查询用户列表
- */
-export async function findByPage(params: API.PageParams & { current?: number; pageNumber?: number }) {
-  const { current, pageNumber, pageSize, ...rest } = params;
-  return request<API.Result<API.PageResult<SysUser>>>(`${BASE_URL}`, {
-    method: 'GET',
-    params: {
-      pageNumber: pageNumber ?? (current ? current - 1 : 0),
-      pageSize: pageSize ?? 10,
-      ...rest,
-    },
-  });
-}
-
-/**
  * 根据ID查询用户详情
  */
 export async function findUserById(userId: number | string) {
@@ -42,45 +27,6 @@ export async function fetchCurrentUser(options?: { [key: string]: any }) {
 export async function findByUsername(username: string) {
   return request<API.Result<SysUser>>(`${BASE_URL}/username/${username}`, {
     method: 'GET',
-  });
-}
-
-/**
- * 创建用户
- */
-export async function createUser(user: Partial<SysUser>) {
-  return request<API.Result<SysUser>>(BASE_URL, {
-    method: 'POST',
-    data: user,
-  });
-}
-
-/**
- * 更新用户信息
- */
-export async function updateUser(userId: number, user: Partial<SysUser>) {
-  return request<API.Result<SysUser>>(`${BASE_URL}`, {
-    method: 'POST',
-    data: { ...user, id: userId },
-  });
-}
-
-/**
- * 删除用户
- */
-export async function deleteUser(userId: number) {
-  return request<API.Result<void>>(`${BASE_URL}/${userId}`, {
-    method: 'DELETE',
-  });
-}
-
-/**
- * 批量删除用户
- */
-export async function batchDeleteUsers(userIds: number[]) {
-  return request<API.Result<void>>(`${BASE_URL}`, {
-    method: 'DELETE',
-    data: userIds,
   });
 }
 
@@ -131,6 +77,17 @@ export async function importUser(formData: FormData) {
     method: 'POST',
     data: formData,
     skipErrorHandler: true,
+  });
+}
+
+/**
+ * 下载导入结果
+ */
+export async function downloadImportResult(fileName: string) {
+  return request(`${BASE_URL}/import/result/download`, {
+    method: 'GET',
+    params: { fileName },
+    responseType: 'blob',
   });
 }
 

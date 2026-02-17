@@ -1,4 +1,3 @@
-import { findDeptTreeByCondition } from "@/apis";
 import { DeleteButton, EditButton, IconButton } from "@/components/button";
 import { ProPageContainer } from "@/components/container";
 import StatusIcon from "@/components/icons/StatusIcon";
@@ -30,6 +29,7 @@ const Index = () => {
     toCreate,
     toEdit,
     toDelete,
+    fetchPage,
     setDialogVisible,
     setShouldRefresh,
     updateState
@@ -68,13 +68,13 @@ const Index = () => {
   };
 
   const fetchDeptTreeWithParams = useCallback(async (params: Record<string, any>) => {
-    const result = await findDeptTreeByCondition(params);
-    const data = result?.data?.content || [];
+    const result = await fetchPage(params);
+    const data = result?.data || [];
     const keys = getTreeKeys(data);
     setDefaultExpandedRowKeys(keys);
     setExpandedRowKeys(keys);
-    return wrapperResult(result);
-  }, [findDeptTreeByCondition]);
+    return result;
+  }, [fetchPage]);
 
   const columns: ProColumns[] = [
     {
@@ -193,12 +193,7 @@ const Index = () => {
                 }
               </Space>
           }}
-          request={
-            async (params = {}) => {
-              const { current, pageSize, ...rest } = params;
-              return fetchDeptTreeWithParams(rest);
-            }
-          }
+          request={fetchDeptTreeWithParams}
         />
       </ProPageContainer>
       <DeptDetailDialog title={state?.dialogTitle} open={state?.dialogVisible} onOpenChange={setDialogVisible} />

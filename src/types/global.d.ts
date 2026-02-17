@@ -107,7 +107,7 @@ declare type CurrentUser = {
 declare type SysUser = {
     id?: number;
     username?: string;
-    nickname?: string;
+    realName?: string;
     email?: string;
     phone?: string;
     avatar?: string;
@@ -117,8 +117,10 @@ declare type SysUser = {
     lastLoginAt?: string;
     deptId?: number;
     dept?: SysDept;
-    roleIds?: number[];
-    roles?: SysRole[];
+    roles?: number[];       // 用于前端表单提交和接收的 ID 数组
+    positions?: number[];   // 用于前端表单提交和接收的 ID 数组
+    roleList?: SysRole[];   // 原始对象列表 (配合后端 @JsonIgnore，前端通常用不到)
+    postList?: SysPost[];   // 原始对象列表 (配合后端 @JsonIgnore，前端通常用不到)
     permissions?: string[];
     createdAt?: string;
     updatedAt?: string;
@@ -176,7 +178,7 @@ declare type SysPost = {
     id?: number;
     code: string;
     name: string;
-    ranking?: number;
+    sortOrder?: number;
     status?: import("@/enums").DataItemStatus;
 }
 

@@ -58,3 +58,14 @@ trigger: always_on
     - **语言约定**：Commit Message 必须使用**简体中文**。
     - **格式**：遵循 `type: 描述` (如 `fix: 修复搜索分页失效`)。
 2. **文档同步**：重大交互变更或技术选型变更后，需同步更新 `.agent/rules/` 下的文档。
+
+## 六、 UI 设计规范 (UI Design Standards)
+
+1. **表单布局标准 (Form Layout)**:
+    - **Grid 模式**: 所有 `ProForm` / `ProModalForm` 必须开启 `grid={true}` 并设置 `rowProps={{ gutter: 0 }}`。
+    - **标签对齐 (关键)**:
+        - 半宽字段 (`span=12`): 设置 `labelCol={{ span: 6 }}`。
+        - 全宽字段 (`span=24`): 设置 `labelCol={{ span: 3 }}`。
+        - **原理**: 保持标签占据相同的绝对宽度 (3/24 of total)，实现垂直左对齐。
+2. **组件分组 (Component Grouping)**:
+    - **同类项合并**: 将交互类型相似的组件（如 `RadioGroup`, `Checkbox`）尽量安排在同一行，增强视觉一致性（如：性别 + 状态）。
