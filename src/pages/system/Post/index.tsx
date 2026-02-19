@@ -232,7 +232,7 @@ const Index = () => {
                     icon={<PlusOutlined />}
                     variant={'outlined'}
                     size={'small'}
-                    onClick={toCreate}
+                    onClick={() => toCreate()}
                   >新建</Button>
                 </Permission>
 

@@ -2,33 +2,27 @@ import { findMembers, removeMembers } from "@/apis";
 import { IconButton } from "@/components/button";
 import GenderIcon from "@/components/icons/GenderIcon";
 import ModalConfirm from "@/components/ModalConfirm";
-import useCrud from "@/hooks/common/useCrud";
 import { wrapperResult } from "@/utils";
 import { DeleteFilled, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
-import { ProTable } from "@ant-design/pro-components";
+import { ActionType, ProFormInstance, ProTable } from "@ant-design/pro-components";
 import { Button, message, Space } from "antd";
 import { TableRowSelection } from "antd/es/table/interface";
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import AddMemberDialog from "./AddMemberDialog";
 
 type Props = {
   departmentId: number;
+  onRefresh?: () => void;
 }
 
-function MemberPanel({ departmentId }: Props) {
+function MemberPanel({ departmentId, onRefresh }: Props) {
   const [params, setParams] = useState<Record<string, any>>({});
   const [addVisible, setAddVisible] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [, setSelectedRows] = useState<any[]>([]);
 
-  const {
-    formRef,
-    actionRef,
-  } = useCrud<SysDept>({
-    entityName: '部门',
-    pathname: '/system/org',
-    baseUrl: '/api/system/department'
-  });
+  const actionRef = useRef<ActionType>();
+  const formRef = useRef<ProFormInstance>();
 
   const columns = [
     {
@@ -37,10 +31,11 @@ function MemberPanel({ departmentId }: Props) {
       key: 'username',
     },
     {
-      title: '用户昵称',
-      dataIndex: 'nickname',
-      key: 'nickname',
+      title: '用户姓名',
+      dataIndex: 'realName',
+      key: 'realName',
     },
+
     {
       title: '性别',
       dataIndex: 'gender',
@@ -49,8 +44,8 @@ function MemberPanel({ departmentId }: Props) {
     },
     {
       title: '手机号',
-      dataIndex: 'phoneNumber',
-      key: 'phoneNumber',
+      dataIndex: 'phone',
+      key: 'phone',
     },
     {
       title: '操作',
@@ -78,6 +73,7 @@ function MemberPanel({ departmentId }: Props) {
 
   const onAddMembers = () => {
     actionRef.current?.reload();
+    onRefresh?.();
   }
 
   const handleRemove = (ids?: number[]) => {
@@ -100,6 +96,7 @@ function MemberPanel({ departmentId }: Props) {
             actionRef.current?.reload();
             setSelectedRowKeys([]);
             setSelectedRows([]);
+            onRefresh?.();
           });
       }
     });
@@ -157,22 +154,10 @@ function MemberPanel({ departmentId }: Props) {
         }}
         request={async (params) => {
           const { current, pageSize, ...rest } = params;
-          const result = await findMembers(departmentId, { pageNumber: current, pageSize, ...rest });
+          const result = await findMembers(departmentId, { pageNumber: (current || 1) - 1, pageSize, ...rest });
           return wrapperResult(result);
         }}
       />
-      {/*<div className={'-mt-10'}>*/}
-      {/*  <Space>*/}
-      {/*    <Button type={'primary'} variant={'solid'}*/}
-      {/*            size={'small'} icon={<PlusOutlined/>}*/}
-      {/*            onClick={() => setAddVisible(true)}*/}
-      {/*    >增加成员</Button>*/}
-      {/*    <Button variant={'outlined'} size={'small'} icon={<DeleteOutlined/>}*/}
-      {/*            disabled={!selectedRowKeys || selectedRowKeys.length === 0}*/}
-      {/*            onClick={() => handleRemove()}*/}
-      {/*    >移除成员</Button>*/}
-      {/*  </Space>*/}
-      {/*</div>*/}
       <AddMemberDialog departmentId={departmentId} open={addVisible}
         onAddMembers={() => onAddMembers()}
         onOpenChange={(setAddVisible)} />

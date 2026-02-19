@@ -117,8 +117,8 @@ const UserDetailDialog = (props: Props) => {
             message: '账号长度不能超过20位'
           },
           {
-            pattern: /^[a-zA-Z][a-zA-Z0-9_]*$/,
-            message: '账号必须以字母开头，只能包含字母、数字和下划线'
+            pattern: /^[a-zA-Z][a-zA-Z0-9_.]*$/,
+            message: '账号必须以字母开头，只能包含字母、数字、下划线和点'
           }
         ]} />
 
@@ -175,7 +175,7 @@ const UserDetailDialog = (props: Props) => {
         colProps={{ span: 12 }}
       />
       <ProFormSelect label={'岗位'}
-        name={'positions'}
+        name={'posts'}
         mode={'multiple'}
         colProps={{ span: 12 }}
         placeholder={'请选择岗位'}

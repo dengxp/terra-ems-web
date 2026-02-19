@@ -1,4 +1,4 @@
-import { addMembers, findUsersWithoutDepartment } from "@/apis";
+import { addMembers, findUserPage } from "@/apis";
 import GenderIcon from "@/components/icons/GenderIcon";
 import { Button, Col, Input, message, Modal, ModalProps, PaginationProps, Row, Table } from "antd";
 import { TableRowSelection } from "antd/es/table/interface";
@@ -33,8 +33,8 @@ function AddMemberDialog(props: Props) {
     },
     {
       title: '用户姓名',
-      dataIndex: 'name',
-      key: 'name',
+      dataIndex: 'realName',
+      key: 'realName',
     },
     {
       title: '性别',
@@ -72,6 +72,8 @@ function AddMemberDialog(props: Props) {
       .then(res => {
         message.success(res.message);
         props.onAddMembers?.(selectedRows);
+        setSelectedRowKeys([]);
+        setSelectedRows([]);
         props.onOpenChange?.(false);
         setLoading(false);
       })
@@ -90,12 +92,13 @@ function AddMemberDialog(props: Props) {
     setLoading(true);
     setTip('正在加载数据...');
     const params = {
-      pageNumber: pagination?.current || pageNumber,
+      pageNumber: (pagination?.current || pageNumber) - 1, // Fix: Frontend 1-based to Backend 0-based
       pageSize: pagination?.pageSize || pageSize,
-      keyword
+      keyword,
+      excludeDeptId: departmentId
     }
 
-    findUsersWithoutDepartment(params)
+    findUserPage(params)
       .then(res => {
         const data = res.data;
         setTotal(data?.totalElements || 0);
@@ -124,6 +127,9 @@ function AddMemberDialog(props: Props) {
 
   useEffect(() => {
     if (props.open) {
+      setKeyword('');
+      setSelectedRowKeys([]);
+      setSelectedRows([]);
       handleTableChange();
     }
   }, [props.open]);

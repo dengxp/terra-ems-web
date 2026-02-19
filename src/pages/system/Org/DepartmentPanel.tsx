@@ -1,5 +1,5 @@
 import { ProDescriptions } from "@ant-design/pro-components";
-import MemberPanel from "./MemberPanel";
+// import MemberPanel from "./MemberPanel";
 
 type Props = {
   department?: SysDept
@@ -19,10 +19,7 @@ function DepartmentPanel({ department }: Props) {
       </ProDescriptions>
 
       <div className={'mt-4'}>
-        {
-          department?.id &&
-          <MemberPanel departmentId={department.id} />
-        }
+        {/* MemberPanel moved to parent component */}
       </div>
     </div>
   );

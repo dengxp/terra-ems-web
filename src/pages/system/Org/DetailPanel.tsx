@@ -1,15 +1,21 @@
 import { findOptionsForDepartmentManager } from "@/apis";
-import { ProModalFormProps } from "@/components/container/ProModalForm";
 import ProFormDeptSelect from "@/components/select/ProFormDeptSelect";
 import ProFormDictSelect from "@/components/select/ProFormDictSelect";
 import ProFormRemoteSearchSelect from "@/components/select/ProFormRemoteSearchSelect";
 import { DataItemStatus, OperationEnum } from "@/enums";
-import useCrud from "@/hooks/common/useCrud";
 import { ProForm, ProFormDigit, ProFormText, ProFormTextArea } from "@ant-design/pro-components";
-import { Button, Form, Space } from "antd";
+import { Button, Form, FormInstance, Space, message } from "antd";
 import { useEffect, useState } from 'react';
 
-type Props = ProModalFormProps
+type Props = {
+  form: FormInstance;
+  sysDept: SysDept;
+  title: string;
+  operation: OperationEnum;
+  loading: boolean;
+  onFinish: (values: any) => Promise<void>;
+  onCancel: () => void;
+}
 
 const defaultValue = {
   parentId: undefined,
@@ -20,24 +26,8 @@ const defaultValue = {
 }
 
 function DetailPanel(props: Props) {
+  const { form, sysDept, title, operation, loading, onFinish, onCancel } = props;
   const [departmentId, setDepartmentId] = useState<number | undefined>();
-  const {
-    form,
-    getState,
-    // operation,
-    // dialogTitle,
-    // loading,
-    setDialogVisible,
-    handleSaveOrUpdate,
-    // editData
-  } = useCrud<SysDept>({
-    pathname: '/system/org',
-    entityName: '部门',
-    baseUrl: '/api/system/dept',
-    onOpenChange: props.onOpenChange
-  });
-
-  const state = getState('/system/org');
 
   const formItemLayout = {
     labelCol: { span: 5 },
@@ -49,42 +39,38 @@ function DetailPanel(props: Props) {
     return result.data || [];
   }
 
-  const onFinish = async (values: Record<string, any>) => {
-    const data = values.id ? { ...state.editData, ...values } : { ...values };
-    handleSaveOrUpdate(data)
-      .then(() => {
-        onCancel();
-      })
-  }
-
   const onReset = () => {
     form.resetFields();
-    form.setFieldsValue({ ...defaultValue });
-  }
-
-  const onCancel = () => {
-    onReset();
-    setDialogVisible(false);
+    if (operation === OperationEnum.CREATE) {
+      form.setFieldsValue({ ...defaultValue, parentId: sysDept?.id || sysDept?.parentId });
+    } else {
+      form.setFieldsValue({ ...sysDept });
+    }
   }
 
   useEffect(() => {
-    if (state.dialogVisible) {
-      if (state.operation === OperationEnum.EDIT) {
-        form.setFieldsValue({ ...state.editData });
-        setDepartmentId(state.editData?.id);
-      } else {
-        form.setFieldsValue({ ...defaultValue, parentId: state.editData?.id });
-      }
+    form.resetFields();
+    if (operation === OperationEnum.EDIT) {
+      form.setFieldsValue({ ...sysDept });
+      setDepartmentId(sysDept?.id);
+    } else {
+      // Create mode
+      form.setFieldsValue({ ...defaultValue, parentId: sysDept?.id });
+      setDepartmentId(undefined);
     }
-  }, [state.dialogVisible, state.operation, state.editData?.id]);
+  }, [sysDept, operation, form]);
 
   return (
     <ProForm form={form}
       layout={'horizontal'}
       {...formItemLayout}
-      title={state.dialogTitle}
-      loading={state.loading}
+      title={title}
+      loading={loading}
       onFinish={onFinish}
+      onFinishFailed={(errorInfo) => {
+        console.error('Validate Failed:', errorInfo);
+        message.error('表单校验失败，请检查输入');
+      }}
       onReset={onReset}
       submitter={false}
     >
@@ -106,16 +92,13 @@ function DetailPanel(props: Props) {
       <ProFormDeptSelect label={'上级部门'} name={'parentId'} />
       <ProFormRemoteSearchSelect label={'部门负责人'} name={'managerId'}
         colProps={{ span: 12 }}
+        preload={true}
         fetchOptions={fetchOptionsForDepartmentManager} />
       <ProFormDictSelect label={'状态'} name={'status'} dickey={'status'}
         placeholder={'请选择状态'}
       />
 
-      <ProFormDigit label={'显示排序'} name={'ranking'} min={0} max={1000}
-        rules={[
-          { required: true, message: '请输入排序值' }
-        ]}
-      />
+      <ProFormDigit label={'显示排序'} name={'sortOrder'} min={0} max={1000} />
       <ProFormTextArea label={'部门介绍'}
         name={'description'}
         placeholder={'请输入部门介绍信息'}
@@ -124,7 +107,7 @@ function DetailPanel(props: Props) {
         <Space>
           <Button type={'primary'} htmlType={'submit'}>提交</Button>
           {
-            state.operation === OperationEnum.CREATE &&
+            operation === OperationEnum.CREATE &&
             <Button htmlType={'reset'}>重置</Button>
           }
           <Button onClick={onCancel}>取消</Button>

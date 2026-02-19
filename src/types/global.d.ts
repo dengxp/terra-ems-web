@@ -116,9 +116,10 @@ declare type SysUser = {
     status?: import("@/enums").DataItemStatus;
     lastLoginAt?: string;
     deptId?: number;
+    departmentName?: string;
     dept?: SysDept;
     roles?: number[];       // 用于前端表单提交和接收的 ID 数组
-    positions?: number[];   // 用于前端表单提交和接收的 ID 数组
+    posts?: number[];   // 用于前端表单提交和接收的 ID 数组
     roleList?: SysRole[];   // 原始对象列表 (配合后端 @JsonIgnore，前端通常用不到)
     postList?: SysPost[];   // 原始对象列表 (配合后端 @JsonIgnore，前端通常用不到)
     permissions?: string[];

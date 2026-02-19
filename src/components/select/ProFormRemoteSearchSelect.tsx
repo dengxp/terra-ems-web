@@ -2,7 +2,7 @@ import type { ProFormSelectProps } from '@ant-design/pro-components';
 import { ProFormSelect } from '@ant-design/pro-components';
 import type { SelectProps } from 'antd';
 import { Form, Spin } from 'antd';
-import debounce from 'lodash/debounce';
+import { debounce } from 'lodash';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 export interface RemoteSearchOptions<ValueType = any> {
@@ -22,6 +22,8 @@ export interface ProFormRemoteSearchSelectProps<ValueType = any>
   fieldProps?: Omit<SelectProps<ValueType>, 'options' | 'loading'>;
   /** 初始选项（用于回显等场景） */
   initialOptions?: RemoteSearchOptions<ValueType>[];
+  /** 是否预加载 */
+  preload?: boolean;
 }
 
 const ProFormRemoteSearchSelect = <ValueType extends any = any>(
@@ -32,6 +34,7 @@ const ProFormRemoteSearchSelect = <ValueType extends any = any>(
     debounceTimeout = 800,
     fieldProps = {},
     initialOptions = [],
+    preload = false,
     ...rest
   } = props;
 
@@ -42,13 +45,14 @@ const ProFormRemoteSearchSelect = <ValueType extends any = any>(
   const formRef = Form.useFormInstance();
   const fieldName = rest.name;
 
-  // 新增：处理初始值加载
+  // 新增：处理初始值加载或预加载
   useEffect(() => {
+    if (!fieldName && !preload) return;
 
-    if (!fieldName) return;
+    const initialValue = fieldName ? formRef?.getFieldValue(fieldName) : undefined;
 
-    const initialValue = formRef?.getFieldValue(fieldName);
-    if (initialValue) {
+    // 如果有初始值，或者开启了预加载，则触发查询
+    if (initialValue || preload) {
       const valueToSearch = '';
       fetchRef.current += 1;
       const fetchId = fetchRef.current;
@@ -62,7 +66,7 @@ const ProFormRemoteSearchSelect = <ValueType extends any = any>(
         setFetching(false);
       });
     }
-  }, [fieldName, formRef, fetchOptions]);
+  }, [fieldName, formRef, fetchOptions, preload]);
 
   const debounceFetcher = useMemo(() => {
     const loadOptions = (value: string) => {
@@ -88,16 +92,24 @@ const ProFormRemoteSearchSelect = <ValueType extends any = any>(
     return debounce(loadOptions, debounceTimeout);
   }, [fetchOptions, debounceTimeout]);
 
+  const onFocus = () => {
+    if (options.length === 0) {
+      debounceFetcher('');
+    }
+  };
+
   return (
-    <ProFormSelect<ValueType> showSearch
-                              options={options}
-                              fieldProps={{
-                                filterOption: false,
-                                onSearch: debounceFetcher,
-                                notFoundContent: fetching ? <Spin size="small"/> : null,
-                                ...fieldProps,
-                              }}
-                              {...rest}
+    <ProFormSelect<ValueType>
+      showSearch
+      options={options}
+      fieldProps={{
+        filterOption: false,
+        onSearch: debounceFetcher,
+        onFocus: onFocus,
+        notFoundContent: fetching ? <Spin size="small" /> : null,
+        ...fieldProps,
+      }}
+      {...rest}
     />
   );
 };

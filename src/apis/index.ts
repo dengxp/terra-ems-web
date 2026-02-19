@@ -28,7 +28,7 @@ export {
 } from './role';
 export {
   changeUserStatus, downloadImportResult, exportTemplate,
-  exportUser, fetchCurrentUser, findByUsername, findOptionsForDepartmentManager, findUserById, findUsersWithoutDepartment, getAuthRole, importUser, resetUserPwd, updateAuthRole
+  exportUser, fetchCurrentUser, findByUsername, findOptionsForDepartmentManager, findUserById, findUserPage, getAuthRole, importUser, resetUserPwd, updateAuthRole
 } from './user';
 
 

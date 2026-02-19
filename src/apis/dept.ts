@@ -80,7 +80,10 @@ export async function removeMember(deptId: number, userId: number) {
  * 批量移除部门成员
  */
 export async function removeMembers(deptId: number, userIds: number[]) {
-  return Promise.all(userIds.map(userId => removeMember(deptId, userId)));
+  return request<API.Result<void>>(`${BASE_URL}/${deptId}/members`, {
+    method: 'DELETE',
+    data: userIds,
+  });
 }
 
 /**
@@ -95,10 +98,10 @@ export async function getDeptTreeSelect() {
 /**
  * 移动部门
  */
-export async function moveDepartment(id: number, parentId: number) {
+export async function moveDepartment(data: SysDept) {
   return request<API.Result<SysDept>>(BASE_URL, {
     method: 'POST',
-    data: { id, parentId },
+    data: data,
   });
 }
 

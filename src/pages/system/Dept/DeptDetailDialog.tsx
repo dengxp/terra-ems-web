@@ -1,13 +1,11 @@
-import { findOptionsForDepartmentManager } from "@/apis";
 import { ProModalForm } from "@/components/container";
 import { ProModalFormProps } from "@/components/container/ProModalForm";
-import ProFormDeptSelect from "@/components/select/ProFormDeptSelect";
-import ProFormDictSelect from "@/components/select/ProFormDictSelect";
-import ProFormRemoteSearchSelect from "@/components/select/ProFormRemoteSearchSelect";
 import { DataItemStatus, OperationEnum } from "@/enums";
 import useCrud from "@/hooks/common/useCrud";
-import { ProFormDigit, ProFormText, ProFormTextArea } from "@ant-design/pro-components";
+import { ProFormText } from "@ant-design/pro-components";
 import { useEffect, useState } from 'react';
+import DeptFormFields from "./components/DeptFormFields";
+import { SysDept } from "@/apis/dept";
 
 type Props = ProModalFormProps;
 
@@ -16,11 +14,11 @@ const defaultValue = {
   name: '',
   managerId: undefined,
   status: DataItemStatus.ENABLE,
-  ranking: 0,
+  sortOrder: 0,
 }
 
 const DeptDetailDialog = (props: Props) => {
-  const [departmentId, setDepartmentId] = useState();
+  const [departmentId, setDepartmentId] = useState<number>();
   const {
     form,
     handleSaveOrUpdate,
@@ -39,21 +37,18 @@ const DeptDetailDialog = (props: Props) => {
     await handleSaveOrUpdate(data);
   }
 
-  const fetchOptionsForDepartmentManager = async (value: string) => {
-    const result = await findOptionsForDepartmentManager(departmentId, value);
-    return result.data || [];
-  }
-
   useEffect(() => {
     if (props.open) {
+      form.resetFields();
       if (state.operation === OperationEnum.EDIT) {
         form.setFieldsValue({ ...state.editData });
         setDepartmentId(state.editData?.id);
       } else {
         form.setFieldsValue({ ...defaultValue, parentId: state.editData?.parentId });
+        setDepartmentId(undefined);
       }
     }
-  }, [props.open, state.operation]);
+  }, [props.open, state.operation, state.editData, form]);
 
   return (
     <ProModalForm {...props}
@@ -66,38 +61,10 @@ const DeptDetailDialog = (props: Props) => {
       <ProFormText label={'ID'}
         name={'id'}
         hidden={true} />
-      <ProFormText label={'部门名称'}
-        name={'name'}
-        placeholder={'请输入部门名称'}
-        labelCol={{ span: 3 }}
-        rules={[
-          {
-            required: true,
-            message: '部门名称不能为空'
-          }
-        ]} />
-      <ProFormDeptSelect label={'上级部门'} name={'parentId'}
-        colProps={{ span: 12 }}
-      />
-      <ProFormRemoteSearchSelect label={'部门负责人'} name={'managerId'}
-        colProps={{ span: 12 }}
-        fetchOptions={fetchOptionsForDepartmentManager} />
-      <ProFormDictSelect label={'状态'} name={'status'} dickey={'status'}
-        colProps={{ span: 12 }}
-        placeholder={'请选择状态'}
-      />
-
-      <ProFormDigit label={'显示排序'} name={'ranking'} min={0} max={1000}
-        colProps={{ span: 12 }}
-        rules={[
-          { required: true, message: '请输入排序值' }
-        ]}
-      />
-      <ProFormTextArea label={'部门介绍'}
-        name={'description'}
-        placeholder={'请输入部门介绍信息'}
-        labelCol={{ span: 3 }}
-        wrapperCol={{ span: 21 }}
+      <DeptFormFields
+        departmentId={departmentId}
+        operation={state.operation}
+        isSubDept={state.operation === OperationEnum.CREATE && !!state.editData?.parentId}
       />
     </ProModalForm>
   )

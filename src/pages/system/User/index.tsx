@@ -43,7 +43,7 @@ const Index = () => {
   const [params, setParams] = useState<Record<string, any>>({});
   const [tip] = useState('正在处理中，请稍等...');
   const [searchValue, setSearchValue] = useState('');
-  const [_autoExpandParent, setAutoExpandParent] = useState(true);
+  const [autoExpandParent, setAutoExpandParent] = useState(true);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [selectedRows, setSelectedRows] = useState<any[]>([]);
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -256,7 +256,7 @@ const Index = () => {
 
   const onSelect: TreeProps['onSelect'] = (selectedKeys, _info) => {
     const key = selectedKeys?.[0];
-    if (key === params.deptId) {
+    if (key === params.deptId || !key) {
       setParams(prevState => {
         const { deptId, ...rest } = prevState;
         return rest;
@@ -275,16 +275,20 @@ const Index = () => {
     setSearchValue(value);
     const newExpandedKeys = dataList
       .map((item) => {
-        if (item.title.indexOf(value) > -1) {
+        if (item.title && searchValue && item.title.indexOf(searchValue) > -1) {
           return getParentKey(item.key, deptTree);
         }
         return null;
       })
       .filter((item, i, self): item is React.Key => !!(item && self.indexOf(item) === i));
-    if (newExpandedKeys && newExpandedKeys.length > 0) {
-      setExpandedKeys(newExpandedKeys);
-      setAutoExpandParent(true);
-    }
+
+    setExpandedKeys(newExpandedKeys);
+    setAutoExpandParent(true);
+  };
+
+  const onExpand = (keys: React.Key[]) => {
+    setExpandedKeys(keys);
+    setAutoExpandParent(false);
   };
 
   const toEditSelected = () => {
@@ -369,8 +373,18 @@ const Index = () => {
     findDeptTree()
       .then(res => {
         if (res.success && res.data) {
-          setDeptTree(res.data);
-          const keys = getTreeKeys(res.data);
+          // 预处理数据，确保 key 和 title 存在
+          const processData = (data: any[]): any[] => {
+            return data.map(item => ({
+              ...item,
+              key: item.id,
+              title: item.name,
+              children: item.children ? processData(item.children) : undefined
+            }));
+          };
+          const normalizedData = processData(res.data);
+          setDeptTree(normalizedData);
+          const keys = getTreeKeys(normalizedData);
           setExpandedKeys(keys);
         }
       })
@@ -394,12 +408,13 @@ const Index = () => {
               <Input.Search placeholder={'请输入部门搜索'}
                 onChange={onChange}
               />
-              <Tree defaultExpandAll
-                defaultExpandParent
-                // autoExpandParent={autoExpandParent}
+              <Tree
+                defaultExpandAll
+                autoExpandParent={autoExpandParent}
                 expandedKeys={expandedKeys}
                 className={'mt-2 overflow-y-auto flex-grow'}
                 onSelect={onSelect}
+                onExpand={onExpand}
                 treeData={treeData}
               />
             </Flex>

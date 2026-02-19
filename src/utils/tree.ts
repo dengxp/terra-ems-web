@@ -1,11 +1,11 @@
 import { TreeDataNode } from "antd";
 import React from 'react';
 
-export function getTreeKeys(treeData: any[],): React.Key[] {
+export function getTreeKeys(treeData: any[], keyName: string = 'key'): React.Key[] {
   const keys: React.Key[] = [];
-  function traverse(nodes: TreeDataNode[]) {
+  function traverse(nodes: any[]) {
     nodes.forEach(node => {
-      keys.push(node.key);
+      keys.push(node[keyName]);
       if (node.children) {
         traverse(node.children);
       }
@@ -114,8 +114,8 @@ export const generateNodeList = (treeData: Record<string, any>[]) => {
   return dataList;
 }
 
-export const findNode = (tree: Record<string, any>[], key: number | string) => {
+export const findNode = (tree: Record<string, any>[], key: number | string, keyName: string = 'key') => {
   const dataList = generateNodeList(tree);
-  const nodes = dataList.filter(node => node.key === key);
+  const nodes = dataList.filter(node => node[keyName] == key || node.id == key);
   return nodes?.[0];
 }

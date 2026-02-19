@@ -22,6 +22,16 @@ export async function fetchCurrentUser(options?: { [key: string]: any }) {
 }
 
 /**
+ * 分页查询用户
+ */
+export async function findUserPage(params?: any) {
+  return request<API.Result<API.PageResult<SysUser>>>(BASE_URL, {
+    method: 'GET',
+    params,
+  });
+}
+
+/**
  * 根据用户名查询用户
  */
 export async function findByUsername(username: string) {
@@ -118,15 +128,5 @@ export async function findOptionsForDepartmentManager(departmentId?: number, key
   return request<API.Result<any>>(`${BASE_URL}/options-for-department-manager`, {
     method: 'GET',
     params: { departmentId, keyword },
-  });
-}
-
-/**
- * 查询没有部门的用户
- */
-export async function findUsersWithoutDepartment(params?: Record<string, any>) {
-  return request<API.Result<API.PageResult<SysUser>>>(`${BASE_URL}/no-department`, {
-    method: 'GET',
-    params,
   });
 }
