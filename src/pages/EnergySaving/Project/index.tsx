@@ -1,9 +1,11 @@
 import {
-  EnergySavingProject, getProjectPage, ProjectStatus,
-  projectStatusOptions
+    EnergySavingProject, getProjectPage, ProjectStatus,
+    projectStatusOptions
 } from '@/apis/energySavingProject';
 import { DeleteButton, EditButton } from '@/components/button';
 import { ProPageContainer } from '@/components/container';
+import { Permission } from '@/components';
+import { PERMISSIONS } from '@/config/permissions';
 import useCrud from '@/hooks/common/useCrud';
 import { wrapperResult } from '@/utils';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
@@ -130,8 +132,12 @@ const EnergySavingProjectPage: React.FC = () => {
             width: 120,
             render: (_, record) => (
                 <Space>
-                    <EditButton onClick={() => toEdit(record)} />
-                    <DeleteButton onConfirm={() => toDelete(record.id as number, true)} />
+                    <Permission code={PERMISSIONS.EMS.ENERGY_SAVING_PROJECT.EDIT}>
+                        <EditButton onClick={() => toEdit(record)} />
+                    </Permission>
+                    <Permission code={PERMISSIONS.EMS.ENERGY_SAVING_PROJECT.REMOVE}>
+                        <DeleteButton onConfirm={() => toDelete(record.id as number, true)} />
+                    </Permission>
                 </Space>
             ),
         },
@@ -159,35 +165,15 @@ const EnergySavingProjectPage: React.FC = () => {
                 toolbar={{
                     title: (
                         <Space>
-                            <Button
-                                color={'primary'}
-                                icon={<PlusOutlined />}
-                                variant={'outlined'}
-                                size={'small'}
-                                onClick={toCreate}
-                            >
-                                新建
-                            </Button>
-                            <Button
-                                color={'green'}
-                                icon={<EditOutlined />}
-                                disabled={editDisabled}
-                                size={'small'}
-                                variant={'outlined'}
-                                onClick={toEditSelected}
-                            >
-                                修改
-                            </Button>
-                            <Button
-                                color={'danger'}
-                                icon={<DeleteOutlined />}
-                                disabled={deleteDisabled}
-                                size={'small'}
-                                variant={'outlined'}
-                                onClick={handleBatchDelete}
-                            >
-                                删除
-                            </Button>
+                            <Permission code={PERMISSIONS.EMS.ENERGY_SAVING_PROJECT.EDIT}>
+                                <Button color={'primary'} icon={<PlusOutlined />} variant={'outlined'} size={'small'} onClick={toCreate}>新建</Button>
+                            </Permission>
+                            <Permission code={PERMISSIONS.EMS.ENERGY_SAVING_PROJECT.EDIT} mode={'disable'}>
+                                <Button color={'green'} icon={<EditOutlined />} disabled={editDisabled} size={'small'} variant={'outlined'} onClick={toEditSelected}>修改</Button>
+                            </Permission>
+                            <Permission code={PERMISSIONS.EMS.ENERGY_SAVING_PROJECT.REMOVE} mode={'disable'}>
+                                <Button color={'danger'} icon={<DeleteOutlined />} disabled={deleteDisabled} size={'small'} variant={'outlined'} onClick={handleBatchDelete}>删除</Button>
+                            </Permission>
                         </Space>
                     ),
                 }}

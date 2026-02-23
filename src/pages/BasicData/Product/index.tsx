@@ -1,6 +1,8 @@
 import { Product } from '@/apis/product';
 import { DeleteButton, EditButton } from '@/components/button';
 import { ProPageContainer } from '@/components/container';
+import { Permission } from '@/components';
+import { PERMISSIONS } from '@/config/permissions';
 import StatusIcon from '@/components/icons/StatusIcon';
 import useCrud from '@/hooks/common/useCrud';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
@@ -144,8 +146,12 @@ const ProductPage: React.FC = () => {
             fixed: 'right',
             render: (_, record) => (
                 <Space>
-                    <EditButton onClick={() => toEdit(record)} />
-                    <DeleteButton onConfirm={() => toBatchDelete([record.id])} />
+                    <Permission code={PERMISSIONS.EMS.PRODUCT.EDIT}>
+                        <EditButton onClick={() => toEdit(record)} />
+                    </Permission>
+                    <Permission code={PERMISSIONS.EMS.PRODUCT.EDIT}>
+                        <DeleteButton onConfirm={() => toBatchDelete([record.id])} />
+                    </Permission>
                 </Space>
             ),
         },
@@ -169,35 +175,15 @@ const ProductPage: React.FC = () => {
                     toolbar={{
                         title: (
                             <Space>
-                                <Button
-                                    icon={<PlusOutlined />}
-                                    color="primary"
-                                    variant="outlined"
-                                    size={'small'}
-                                    onClick={toCreate}
-                                >
-                                    新建
-                                </Button>
-                                <Button
-                                    icon={<EditOutlined />}
-                                    color="green"
-                                    variant="outlined"
-                                    disabled={editDisabled}
-                                    size={'small'}
-                                    onClick={toEditSelected}
-                                >
-                                    修改
-                                </Button>
-                                <Button
-                                    icon={<DeleteOutlined />}
-                                    color="danger"
-                                    variant="outlined"
-                                    disabled={deleteDisabled}
-                                    size={'small'}
-                                    onClick={handleBatchDelete}
-                                >
-                                    删除
-                                </Button>
+                                <Permission code={PERMISSIONS.EMS.PRODUCT.EDIT}>
+                                    <Button icon={<PlusOutlined />} color="primary" variant="outlined" size={'small'} onClick={toCreate}>新建</Button>
+                                </Permission>
+                                <Permission code={PERMISSIONS.EMS.PRODUCT.EDIT} mode={'disable'}>
+                                    <Button icon={<EditOutlined />} color="green" variant="outlined" disabled={editDisabled} size={'small'} onClick={toEditSelected}>修改</Button>
+                                </Permission>
+                                <Permission code={PERMISSIONS.EMS.PRODUCT.EDIT} mode={'disable'}>
+                                    <Button icon={<DeleteOutlined />} color="danger" variant="outlined" disabled={deleteDisabled} size={'small'} onClick={handleBatchDelete}>删除</Button>
+                                </Permission>
                             </Space>
                         ),
                     }}

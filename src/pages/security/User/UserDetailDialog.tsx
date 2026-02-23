@@ -62,13 +62,9 @@ const UserDetailDialog = (props: Props) => {
 
       // 2. Logic Branch
       if (state.operation === OperationEnum.EDIT && state.editData?.id) {
-        // Fetch: 编辑模式下异步拉取完整详情
         findUserById(state.editData.id)
           .then(res => {
             const userData = res.data;
-            if (userData?.roles) {
-              setRoleList(userData.roles);
-            }
             form.setFieldsValue(userData);
           })
       } else if (state.operation === OperationEnum.CREATE) {
@@ -175,34 +171,13 @@ const UserDetailDialog = (props: Props) => {
         colProps={{ span: 12 }}
       />
       <ProFormSelect label={'岗位'}
-        name={'posts'}
+        name={'postIds'}
         mode={'multiple'}
         colProps={{ span: 12 }}
         placeholder={'请选择岗位'}
         request={async () => {
           const result = await findPostOptions();
           return result.data;
-        }}
-      />
-      <ProFormSelect label={'角色'}
-        name={'roles'}
-        mode={'multiple'}
-        colProps={{ span: 12 }}
-        placeholder={'请选择角色'}
-        request={async () => {
-          const result = await getRoleOptions();
-          // 需要去重吗？后端一般返回去重列表
-          // 前端之前的代码曾做过去重，这里暂时直接返回
-          // 如果需要去重，可以参考之前的 filter 逻辑
-          // 但 getRoleOptions 应该是返回 Option 列表
-          const data = result.data || [];
-          // 简单去重
-          const seen = new Set();
-          return data.filter((item: any) => {
-            if (seen.has(item.value)) return false;
-            seen.add(item.value);
-            return true;
-          });
         }}
       />
       <ProFormTextArea label={'备注'}

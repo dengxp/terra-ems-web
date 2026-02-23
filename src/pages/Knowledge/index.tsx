@@ -1,8 +1,10 @@
 import {
-  getKnowledgeArticles, getKnowledgeCategories, KnowledgeArticle
+    getKnowledgeArticles, getKnowledgeCategories, KnowledgeArticle
 } from '@/apis/knowledge';
 import { DeleteButton, EditButton, IconButton } from '@/components/button';
 import { ProPageContainer } from '@/components/container';
+import { Permission } from '@/components';
+import { PERMISSIONS } from '@/config/permissions';
 import StatusIcon from '@/components/icons/StatusIcon';
 import { LOGIN_PATH } from "@/config/constants";
 import useCrud from '@/hooks/common/useCrud';
@@ -168,8 +170,12 @@ const Index: React.FC = () => {
                         icon={<EyeFilled />}
                         onClick={() => handleView(record)}
                     />
-                    <EditButton onClick={() => toEdit(record)} />
-                    <DeleteButton onConfirm={() => record.id && toDelete(record.id, true)} />
+                    <Permission code={PERMISSIONS.EMS.KNOWLEDGE.EDIT}>
+                        <EditButton onClick={() => toEdit(record)} />
+                    </Permission>
+                    <Permission code={PERMISSIONS.EMS.KNOWLEDGE.REMOVE}>
+                        <DeleteButton onConfirm={() => record.id && toDelete(record.id, true)} />
+                    </Permission>
                 </Space>
             ),
         },
@@ -201,38 +207,15 @@ const Index: React.FC = () => {
                     toolbar={{
                         title: (
                             <Space>
-                                <Button
-                                    key="add"
-                                    color={'primary'}
-                                    icon={<PlusOutlined />}
-                                    variant={'outlined'}
-                                    size={'small'}
-                                    onClick={toCreate}
-                                >
-                                    新建
-                                </Button>
-                                <Button
-                                    key="edit"
-                                    color={'primary'}
-                                    icon={<EditOutlined />}
-                                    disabled={editDisabled}
-                                    size={'small'}
-                                    variant={'outlined'}
-                                    onClick={toEditSelected}
-                                >
-                                    修改
-                                </Button>
-                                <Button
-                                    key="danger"
-                                    color={'danger'}
-                                    icon={<DeleteOutlined />}
-                                    disabled={deleteDisabled}
-                                    size={'small'}
-                                    variant={'outlined'}
-                                    onClick={handleBatchDelete}
-                                >
-                                    删除
-                                </Button>
+                                <Permission code={PERMISSIONS.EMS.KNOWLEDGE.EDIT}>
+                                    <Button key="add" color={'primary'} icon={<PlusOutlined />} variant={'outlined'} size={'small'} onClick={toCreate}>新建</Button>
+                                </Permission>
+                                <Permission code={PERMISSIONS.EMS.KNOWLEDGE.EDIT} mode={'disable'}>
+                                    <Button key="edit" color={'primary'} icon={<EditOutlined />} disabled={editDisabled} size={'small'} variant={'outlined'} onClick={toEditSelected}>修改</Button>
+                                </Permission>
+                                <Permission code={PERMISSIONS.EMS.KNOWLEDGE.REMOVE} mode={'disable'}>
+                                    <Button key="danger" color={'danger'} icon={<DeleteOutlined />} disabled={deleteDisabled} size={'small'} variant={'outlined'} onClick={handleBatchDelete}>删除</Button>
+                                </Permission>
                             </Space>
                         ),
                         search: {

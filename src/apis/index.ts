@@ -23,12 +23,14 @@ export {
 } from './post';
 // ============ 角色相关 ============
 export {
-  findRoleById, getRole, getRoleOptions,
+  findRoleById, getRole, getRoleOptions, findRoleList,
   getRolePermissions, updateRolePermissions
 } from './role';
+export * from './module';
+export * from './permission';
 export {
   changeUserStatus, downloadImportResult, exportTemplate,
-  exportUser, fetchCurrentUser, findByUsername, findOptionsForDepartmentManager, findUserById, findUserPage, getAuthRole, importUser, resetUserPwd, updateAuthRole
+  exportUser, fetchCurrentUser, findByUsername, findOptionsForDepartmentManager, findUserById, findUserPage, getAuthRole, importUser, resetUserPwd, setSuperAdmin, updateUserRoles
 } from './user';
 
 

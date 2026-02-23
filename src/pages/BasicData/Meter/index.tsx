@@ -1,8 +1,10 @@
 import {
-  getMeters, Meter
+    getMeters, Meter
 } from '@/apis/meter';
 import { DeleteButton, EditButton } from '@/components/button';
 import { ProPageContainer } from '@/components/container';
+import { Permission } from '@/components';
+import { PERMISSIONS } from '@/config/permissions';
 import StatusIcon from '@/components/icons/StatusIcon';
 import useCrud from '@/hooks/common/useCrud';
 import { wrapperResult } from '@/utils';
@@ -157,8 +159,12 @@ const Index: React.FC = () => {
             hideInSearch: true,
             render: (_, record) => (
                 <Space>
-                    <EditButton onClick={() => toEdit(record)} />
-                    <DeleteButton onConfirm={() => toDelete(record.id, true)} />
+                    <Permission code={PERMISSIONS.EMS.METER.EDIT}>
+                        <EditButton onClick={() => toEdit(record)} />
+                    </Permission>
+                    <Permission code={PERMISSIONS.EMS.METER.REMOVE}>
+                        <DeleteButton onConfirm={() => toDelete(record.id, true)} />
+                    </Permission>
                 </Space>
             ),
         },
@@ -191,35 +197,15 @@ const Index: React.FC = () => {
                     toolbar={{
                         title: (
                             <Space>
-                                <Button
-                                    color={'primary'}
-                                    icon={<PlusOutlined />}
-                                    variant={'outlined'}
-                                    size={'small'}
-                                    onClick={toCreate}
-                                >
-                                    新建
-                                </Button>
-                                <Button
-                                    color={'green'}
-                                    icon={<EditOutlined />}
-                                    disabled={editDisabled}
-                                    size={'small'}
-                                    variant={'outlined'}
-                                    onClick={toEditSelected}
-                                >
-                                    修改
-                                </Button>
-                                <Button
-                                    color={'danger'}
-                                    icon={<DeleteOutlined />}
-                                    disabled={deleteDisabled}
-                                    size={'small'}
-                                    variant={'outlined'}
-                                    onClick={handleBatchDelete}
-                                >
-                                    删除
-                                </Button>
+                                <Permission code={PERMISSIONS.EMS.METER.EDIT}>
+                                    <Button color={'primary'} icon={<PlusOutlined />} variant={'outlined'} size={'small'} onClick={toCreate}>新建</Button>
+                                </Permission>
+                                <Permission code={PERMISSIONS.EMS.METER.EDIT} mode={'disable'}>
+                                    <Button color={'green'} icon={<EditOutlined />} disabled={editDisabled} size={'small'} variant={'outlined'} onClick={toEditSelected}>修改</Button>
+                                </Permission>
+                                <Permission code={PERMISSIONS.EMS.METER.REMOVE} mode={'disable'}>
+                                    <Button color={'danger'} icon={<DeleteOutlined />} disabled={deleteDisabled} size={'small'} variant={'outlined'} onClick={handleBatchDelete}>删除</Button>
+                                </Permission>
                             </Space>
                         ),
                     }}

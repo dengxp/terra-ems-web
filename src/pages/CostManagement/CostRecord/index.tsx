@@ -1,9 +1,11 @@
 import {
-  deleteEnergyCostRecord, EnergyCostRecord,
-  getEnergyCostRecordPage
+    deleteEnergyCostRecord, EnergyCostRecord,
+    getEnergyCostRecordPage
 } from '@/apis/energyCostRecord';
 import { DeleteButton, EditButton } from '@/components/button';
 import { ProPageContainer } from '@/components/container';
+import { Permission } from '@/components';
+import { PERMISSIONS } from '@/config/permissions';
 import useCrud from '@/hooks/common/useCrud';
 import { wrapperResult } from '@/utils';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
@@ -127,8 +129,12 @@ const CostRecordPage: React.FC = () => {
             width: 120,
             render: (_, record) => (
                 <Space>
-                    <EditButton onClick={() => toEdit(record)} />
-                    <DeleteButton onConfirm={() => handleDelete(record.id)} />
+                    <Permission code={PERMISSIONS.EMS.ENERGY_COST_RECORD.EDIT}>
+                        <EditButton onClick={() => toEdit(record)} />
+                    </Permission>
+                    <Permission code={PERMISSIONS.EMS.ENERGY_COST_RECORD.REMOVE}>
+                        <DeleteButton onConfirm={() => handleDelete(record.id)} />
+                    </Permission>
                 </Space>
             ),
         },
@@ -157,15 +163,15 @@ const CostRecordPage: React.FC = () => {
                 toolbar={{
                     title: (
                         <Space>
-                            <Button color={'primary'} icon={<PlusOutlined />} variant={'outlined'} size={'small'} onClick={toCreate}>
-                                新建
-                            </Button>
-                            <Button color={'green'} icon={<EditOutlined />} disabled={editDisabled} size={'small'} variant={'outlined'} onClick={toEditSelected}>
-                                修改
-                            </Button>
-                            <Button color={'danger'} icon={<DeleteOutlined />} disabled={deleteDisabled} size={'small'} variant={'outlined'} onClick={handleBatchDelete}>
-                                删除
-                            </Button>
+                            <Permission code={PERMISSIONS.EMS.ENERGY_COST_RECORD.EDIT}>
+                                <Button color={'primary'} icon={<PlusOutlined />} variant={'outlined'} size={'small'} onClick={toCreate}>新建</Button>
+                            </Permission>
+                            <Permission code={PERMISSIONS.EMS.ENERGY_COST_RECORD.EDIT} mode={'disable'}>
+                                <Button color={'green'} icon={<EditOutlined />} disabled={editDisabled} size={'small'} variant={'outlined'} onClick={toEditSelected}>修改</Button>
+                            </Permission>
+                            <Permission code={PERMISSIONS.EMS.ENERGY_COST_RECORD.REMOVE} mode={'disable'}>
+                                <Button color={'danger'} icon={<DeleteOutlined />} disabled={deleteDisabled} size={'small'} variant={'outlined'} onClick={handleBatchDelete}>删除</Button>
+                            </Permission>
                         </Space>
                     ),
                 }}

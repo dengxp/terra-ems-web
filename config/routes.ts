@@ -70,48 +70,64 @@ export default [
     name: '基础数据',
     path: '/basic-data',
     icon: 'database',
+    access: 'canAccess',
+    permissions: ['ems:energy-type:list', 'ems:meter:list', 'ems:energy-unit:list', 'ems:meter-point:list', 'ems:price-policy:list', 'ems:alarm-limit-type:list', 'ems:product:list'],
     routes: [
       {
         title: '能源类型',
         name: '能源类型',
         path: '/basic-data/energy-type',
         component: './BasicData/EnergyType',
+        access: 'canAccess',
+        permissions: ['ems:energy-type:list'],
       },
       {
         title: '计量器具管理',
         name: '计量器具管理',
         path: '/basic-data/meter',
         component: './BasicData/Meter',
+        access: 'canAccess',
+        permissions: ['ems:meter:list'],
       },
       {
         title: '用能单元管理',
         name: '用能单元管理',
         path: '/basic-data/energy-unit',
         component: './BasicData/EnergyUnit',
+        access: 'canAccess',
+        permissions: ['ems:energy-unit:list'],
       },
       {
         title: '采集点位管理',
         name: '采集点位管理',
         path: '/basic-data/meter-point',
         component: './BasicData/MeterPoint',
+        access: 'canAccess',
+        permissions: ['ems:meter-point:list'],
       },
       {
         title: '电价策略',
         name: '电价策略',
         path: '/basic-data/price-policy',
         component: './BasicData/PricePolicy',
+        access: 'canAccess',
+        permissions: ['ems:price-policy:list'],
       },
       {
         title: '报警限值类型',
         name: '报警限值类型',
         path: '/basic-data/alarm-limit-type',
         component: './BasicData/AlarmLimitType',
+        access: 'canAccess',
+        permissions: ['ems:alarm-limit-type:list'],
       },
       {
         title: '产品管理',
         name: '产品管理',
         path: '/basic-data/product',
         component: './BasicData/Product',
+        access: 'canAccess',
+        permissions: ['ems:product:list'],
       },
     ],
   },
@@ -120,18 +136,24 @@ export default [
     name: '报警管理',
     path: '/alarm',
     icon: 'alert',
+    access: 'canAccess',
+    permissions: ['ems:alarm-config:list', 'ems:alarm-record:list'],
     routes: [
       {
         title: '预报警配置',
         name: '预报警配置',
         path: '/alarm/config',
         component: './BasicData/AlarmConfig',
+        access: 'canAccess',
+        permissions: ['ems:alarm-config:list'],
       },
       {
         title: '报警历史记录',
         name: '报警历史记录',
         path: '/alarm/records',
         component: './BasicData/AlarmRecord',
+        access: 'canAccess',
+        permissions: ['ems:alarm-record:list'],
       },
     ],
   },
@@ -140,6 +162,8 @@ export default [
     name: '统计分析',
     path: '/statistics',
     icon: 'lineChart',
+    access: 'canAccess',
+    permissions: ['ems:statistics:list'],
     routes: [
       {
         path: '/statistics',
@@ -206,6 +230,8 @@ export default [
     name: '生产管理',
     path: '/production',
     icon: 'tool',
+    access: 'canAccess',
+    permissions: ['ems:production-record:list'],
     routes: [
       {
         path: '/production',
@@ -216,6 +242,8 @@ export default [
         name: '产品产量管理',
         path: '/production/record',
         component: './Production/Record',
+        access: 'canAccess',
+        permissions: ['ems:production-record:list'],
       },
     ],
   },
@@ -225,12 +253,16 @@ export default [
     path: '/knowledge',
     icon: 'book',
     component: './Knowledge',
+    access: 'canAccess',
+    permissions: ['ems:knowledge:list'],
   },
   {
     title: '节能管理',
     name: '节能管理',
     path: '/energy-saving',
     icon: 'bulb',
+    access: 'canAccess',
+    permissions: ['ems:energy-saving:list', 'ems:policy:list', 'ems:benchmark:list'],
     routes: [
       {
         path: '/energy-saving',
@@ -241,18 +273,24 @@ export default [
         name: '节能项目',
         path: '/energy-saving/project',
         component: './EnergySaving/Project',
+        access: 'canAccess',
+        permissions: ['ems:energy-saving:list'],
       },
       {
         title: '政策法规',
         name: '政策法规',
         path: '/energy-saving/policy',
         component: './EnergySaving/Policy',
+        access: 'canAccess',
+        permissions: ['ems:policy:list'],
       },
       {
         title: '对标管理',
         name: '对标管理',
         path: '/energy-saving/benchmark',
         component: './EnergySaving/Benchmark',
+        access: 'canAccess',
+        permissions: ['ems:benchmark:list'],
       },
     ],
   },
@@ -261,6 +299,8 @@ export default [
     name: '成本管理',
     path: '/cost-management',
     icon: 'dollar',
+    access: 'canAccess',
+    permissions: ['ems:cost-policy-binding:list', 'ems:energy-cost-record:list'],
     routes: [
       {
         path: '/cost-management',
@@ -271,24 +311,32 @@ export default [
         name: '策略绑定',
         path: '/cost-management/policy-binding',
         component: './CostManagement/PolicyBinding',
+        access: 'canAccess',
+        permissions: ['ems:cost-policy-binding:list'],
       },
       {
         title: '成本记录',
         name: '成本记录',
         path: '/cost-management/cost-record',
         component: './CostManagement/CostRecord',
+        access: 'canAccess',
+        permissions: ['ems:energy-cost-record:list'],
       },
       {
         title: '偏差分析',
         name: '偏差分析',
         path: '/cost-management/deviation',
         component: './CostManagement/DeviationAnalysis',
+        access: 'canAccess',
+        permissions: ['ems:energy-cost-record:list'],
       },
       {
         title: '成本趋势',
         name: '成本趋势',
         path: '/cost-management/trend',
         component: './CostManagement/TrendAnalysis',
+        access: 'canAccess',
+        permissions: ['ems:energy-cost-record:list'],
       },
     ],
   },
@@ -315,6 +363,8 @@ export default [
     name: '系统监控',
     path: '/monitor',
     icon: 'monitor',
+    access: 'canAccess',
+    permissions: ['monitor:operlog:list', 'system:log:list', 'monitor:cache:list'],
     routes: [
       {
         path: '/monitor',
@@ -350,32 +400,102 @@ export default [
     ]
   },
   {
-    title: '系统管理',
-    name: '系统管理',
-    path: '/system',
-    icon: 'setting',
+    title: '安全中心',
+    name: '安全中心',
+    path: '/security',
+    icon: 'securityScan',
+    access: 'canAccess',
+    permissions: ['system:user:list', 'system:role:list', 'system:module:list', 'system:permission:list'],
     routes: [
       {
-        path: '/system',
-        redirect: '/system/user'
+        path: '/security',
+        redirect: '/security/user'
       },
       {
         title: '用户管理',
         name: '用户管理',
-        path: '/system/user',
+        path: '/security/user',
         icon: 'user',
-        component: './system/User',
+        component: './security/User',
         access: 'canAccess',
         permissions: ['system:user:list']
       },
       {
         title: '角色管理',
         name: '角色管理',
-        path: '/system/role',
+        path: '/security/role',
         icon: 'team',
-        component: './system/Role',
+        component: './security/Role',
         access: 'canAccess',
         permissions: ['system:role:list']
+      },
+      {
+        title: '业务模块',
+        name: '业务模块',
+        path: '/security/module',
+        icon: 'appstore',
+        component: './security/Module',
+        access: 'canAccess',
+        permissions: ['system:module:list']
+      },
+      {
+        title: '权限管理',
+        name: '权限管理',
+        path: '/security/permission',
+        icon: 'key',
+        component: './security/Permission',
+        access: 'canAccess',
+        permissions: ['system:permission:list']
+      },
+      {
+        title: '角色管理 (Plus)',
+        name: '角色管理 (Plus)',
+        path: '/security/role-plus',
+        icon: 'team',
+        component: './security/RolePlus',
+        access: 'canAccess',
+        permissions: ['system:role:list']
+      },
+      {
+        title: '角色成员管理 (Plus)',
+        name: '角色成员管理 (Plus)',
+        path: '/security/role-plus/members/:roleId',
+        component: './security/RolePlus/RoleMembers',
+        hideInMenu: true,
+        access: 'canAccess',
+        permissions: ['system:role:list']
+      },
+      {
+        title: '角色权限配置 (Plus)',
+        name: '角色权限配置 (Plus)',
+        path: '/security/role-plus/permissions/:roleId',
+        component: './security/RolePlus/RolePermissions',
+        hideInMenu: true,
+        access: 'canAccess',
+        permissions: ['system:role:list']
+      }
+    ]
+  },
+  {
+    title: '系统管理',
+    name: '系统管理',
+    path: '/system',
+    icon: 'setting',
+    access: 'canAccess',
+    permissions: ['system:dept:list', 'system:post:list', 'system:notice:list', 'system:config:list'],
+    routes: [
+      {
+        path: '/system',
+        redirect: '/system/org'
+      },
+      {
+        title: '组织管理',
+        name: '组织管理',
+        path: '/system/org',
+        icon: 'cluster',
+        component: './system/Org',
+        access: 'canAccess',
+        permissions: ['system:dept:list']
       },
       {
         title: '部门管理',
@@ -385,13 +505,6 @@ export default [
         component: './system/Dept',
         access: 'canAccess',
         permissions: ['system:dept:list']
-      },
-      {
-        title: '组织管理',
-        name: '组织管理',
-        path: '/system/org',
-        icon: 'cluster',
-        component: './system/Org'
       },
       {
         title: '岗位管理',
@@ -416,7 +529,9 @@ export default [
         name: '字典管理',
         path: '/system/dict',
         icon: 'book',
-        component: './system/Dict'
+        component: './system/Dict',
+        access: 'canAccess',
+        permissions: ['system:config:list']
       },
       {
         title: '参数配置',
@@ -432,7 +547,9 @@ export default [
         name: '演示数据生成',
         path: '/system/demo-data',
         icon: 'rocket',
-        component: './Developer/DemoData'
+        component: './Developer/DemoData',
+        access: 'canAccess',
+        permissions: ['system:config:list']
       }
     ]
   }

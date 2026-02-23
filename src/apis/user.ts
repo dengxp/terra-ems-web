@@ -72,10 +72,10 @@ export async function getAuthRole(userId: string) {
 /**
  * 更新用户的角色
  */
-export async function updateAuthRole(userId: number, roleIds: string) {
-  return request<API.Result<void>>(`${BASE_URL}/authRole`, {
+export async function updateUserRoles(userId: number | string, roleIds: (number | string)[]) {
+  return request<API.Result<void>>(`${BASE_URL}/${userId}/roles`, {
     method: 'POST',
-    params: { userId, roleIds },
+    data: roleIds,
   });
 }
 
@@ -128,5 +128,15 @@ export async function findOptionsForDepartmentManager(departmentId?: number, key
   return request<API.Result<any>>(`${BASE_URL}/options-for-department-manager`, {
     method: 'GET',
     params: { departmentId, keyword },
+  });
+}
+
+/**
+ * 设置超级管理员状态
+ */
+export async function setSuperAdmin(userId: number | string, isSuper: boolean) {
+  return request<API.Result<void>>(`${BASE_URL}/${userId}/setSuper`, {
+    method: 'POST',
+    data: { isSuper },
   });
 }

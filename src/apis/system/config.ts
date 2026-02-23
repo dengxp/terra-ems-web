@@ -24,6 +24,15 @@ export async function findConfigValue(configKey: string) {
 }
 
 /**
+ * 根据ID查询参数配置详情
+ */
+export async function findConfigById(id: number) {
+    return request<API.Result<SysConfig>>(`/api/system/config/${id}`, {
+        method: 'GET',
+    });
+}
+
+/**
  * 参数配置管理接口 (保留兼容对象，但主要使用 useCrud)
  */
 export const configApi = {

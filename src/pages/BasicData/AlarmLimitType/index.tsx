@@ -1,6 +1,8 @@
 import { AlarmLimitType } from '@/apis/alarm';
 import { DeleteButton, EditButton } from '@/components/button';
 import { ProPageContainer } from '@/components/container';
+import { Permission } from '@/components';
+import { PERMISSIONS } from '@/config/permissions';
 import useCrud from '@/hooks/common/useCrud';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ProColumns, ProTable } from '@ant-design/pro-components';
@@ -114,8 +116,12 @@ const AlarmLimitTypePage: React.FC = () => {
             width: 120,
             render: (_, record) => (
                 <Space>
-                    <EditButton onClick={() => toEdit(record)} />
-                    <DeleteButton onConfirm={() => handleDelete(record.id as number)} />
+                    <Permission code={PERMISSIONS.EMS.ALARM_LIMIT_TYPE.REMOVE}>
+                        <EditButton onClick={() => toEdit(record)} />
+                    </Permission>
+                    <Permission code={PERMISSIONS.EMS.ALARM_LIMIT_TYPE.REMOVE}>
+                        <DeleteButton onConfirm={() => handleDelete(record.id as number)} />
+                    </Permission>
                 </Space>
             ),
         },
@@ -143,35 +149,15 @@ const AlarmLimitTypePage: React.FC = () => {
                 toolbar={{
                     title: (
                         <Space>
-                            <Button
-                                color={'primary'}
-                                icon={<PlusOutlined />}
-                                variant={'outlined'}
-                                size={'small'}
-                                onClick={toCreate}
-                            >
-                                新建
-                            </Button>
-                            <Button
-                                color={'green'}
-                                icon={<EditOutlined />}
-                                disabled={editDisabled}
-                                size={'small'}
-                                variant={'outlined'}
-                                onClick={toEditSelected}
-                            >
-                                修改
-                            </Button>
-                            <Button
-                                color={'danger'}
-                                icon={<DeleteOutlined />}
-                                disabled={deleteDisabled}
-                                size={'small'}
-                                variant={'outlined'}
-                                onClick={handleBatchDelete}
-                            >
-                                删除
-                            </Button>
+                            <Permission code={PERMISSIONS.EMS.ALARM_LIMIT_TYPE.REMOVE}>
+                                <Button color={'primary'} icon={<PlusOutlined />} variant={'outlined'} size={'small'} onClick={toCreate}>新建</Button>
+                            </Permission>
+                            <Permission code={PERMISSIONS.EMS.ALARM_LIMIT_TYPE.REMOVE} mode={'disable'}>
+                                <Button color={'green'} icon={<EditOutlined />} disabled={editDisabled} size={'small'} variant={'outlined'} onClick={toEditSelected}>修改</Button>
+                            </Permission>
+                            <Permission code={PERMISSIONS.EMS.ALARM_LIMIT_TYPE.REMOVE} mode={'disable'}>
+                                <Button color={'danger'} icon={<DeleteOutlined />} disabled={deleteDisabled} size={'small'} variant={'outlined'} onClick={handleBatchDelete}>删除</Button>
+                            </Permission>
                         </Space>
                     ),
                 }}

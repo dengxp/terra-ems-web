@@ -1,10 +1,12 @@
 import {
-  getPolicyPage, Policy,
-  PolicyType,
-  policyTypeOptions
+    getPolicyPage, Policy,
+    PolicyType,
+    policyTypeOptions
 } from '@/apis/policy';
 import { DeleteButton, EditButton } from '@/components/button';
 import { ProPageContainer } from '@/components/container';
+import { Permission } from '@/components';
+import { PERMISSIONS } from '@/config/permissions';
 import useCrud from '@/hooks/common/useCrud';
 import { wrapperResult } from '@/utils';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
@@ -129,8 +131,12 @@ const PolicyPage: React.FC = () => {
             width: 120,
             render: (_, record) => (
                 <Space>
-                    <EditButton onClick={() => toEdit(record)} />
-                    <DeleteButton onConfirm={() => toDelete(record.id as number, true)} />
+                    <Permission code={PERMISSIONS.EMS.POLICY.EDIT}>
+                        <EditButton onClick={() => toEdit(record)} />
+                    </Permission>
+                    <Permission code={PERMISSIONS.EMS.POLICY.EDIT}>
+                        <DeleteButton onConfirm={() => toDelete(record.id as number, true)} />
+                    </Permission>
                 </Space>
             ),
         },
@@ -158,35 +164,15 @@ const PolicyPage: React.FC = () => {
                 toolbar={{
                     title: (
                         <Space>
-                            <Button
-                                color={'primary'}
-                                icon={<PlusOutlined />}
-                                variant={'outlined'}
-                                size={'small'}
-                                onClick={toCreate}
-                            >
-                                新建
-                            </Button>
-                            <Button
-                                color={'green'}
-                                icon={<EditOutlined />}
-                                disabled={editDisabled}
-                                size={'small'}
-                                variant={'outlined'}
-                                onClick={toEditSelected}
-                            >
-                                修改
-                            </Button>
-                            <Button
-                                color={'danger'}
-                                icon={<DeleteOutlined />}
-                                disabled={deleteDisabled}
-                                size={'small'}
-                                variant={'outlined'}
-                                onClick={handleBatchDelete}
-                            >
-                                删除
-                            </Button>
+                            <Permission code={PERMISSIONS.EMS.POLICY.EDIT}>
+                                <Button color={'primary'} icon={<PlusOutlined />} variant={'outlined'} size={'small'} onClick={toCreate}>新建</Button>
+                            </Permission>
+                            <Permission code={PERMISSIONS.EMS.POLICY.EDIT} mode={'disable'}>
+                                <Button color={'green'} icon={<EditOutlined />} disabled={editDisabled} size={'small'} variant={'outlined'} onClick={toEditSelected}>修改</Button>
+                            </Permission>
+                            <Permission code={PERMISSIONS.EMS.POLICY.EDIT} mode={'disable'}>
+                                <Button color={'danger'} icon={<DeleteOutlined />} disabled={deleteDisabled} size={'small'} variant={'outlined'} onClick={handleBatchDelete}>删除</Button>
+                            </Permission>
                         </Space>
                     ),
                 }}

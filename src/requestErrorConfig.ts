@@ -220,25 +220,45 @@ export const errorConfig: RequestConfig = {
     },
   ],
 
-  // 响应拦截器
+  // 响应拦截器 — 使用 [successHandler, errorHandler] 元组
   responseInterceptors: [
-    (response) => {
-      // 拦截响应数据，进行个性化处理
-      const { data } = response as unknown as ResponseStructure;
+    [
+      (response) => {
+        // 拦截响应数据，进行个性化处理
+        const { data } = response as unknown as ResponseStructure;
 
-      // 处理文件下载
-      if (data instanceof Blob) {
+        // 处理文件下载
+        if (data instanceof Blob) {
+          return response;
+        }
+
+        if (!WHITE_LIST.includes(location.pathname) && EXPIRATION_CODE.includes(data.code)) {
+          jumpToLogin();
+          return response;
+        }
+
+        data.success = data.code >= 20000 && data.code < 30000;
+
         return response;
-      }
-
-      if (!WHITE_LIST.includes(location.pathname) && EXPIRATION_CODE.includes(data.code)) {
-        jumpToLogin();
-        return response;
-      }
-
-      data.success = data.code >= 20000 && data.code < 30000;
-
-      return response;
-    },
+      },
+      // 错误处理器：拦截 403 响应，防止 Uncaught Promise Rejection 触发组件树重挂载
+      (error: any) => {
+        if (error?.response?.status === 403) {
+          // 不在此处弹提示，由 errorHandler 的 BizError 流程统一处理
+          // 将 403 转为 resolve，让调用方正常走 .then() 而非 .catch()
+          const fakeResponse = {
+            ...error.response,
+            data: {
+              code: 4003,
+              success: false,
+              message: '您没有权限执行此操作',
+              data: null,
+            },
+          };
+          return Promise.resolve(fakeResponse);
+        }
+        return Promise.reject(error);
+      },
+    ] as any,
   ],
 };

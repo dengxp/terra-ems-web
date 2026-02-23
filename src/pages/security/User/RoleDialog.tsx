@@ -1,4 +1,4 @@
-import { getAuthRole, updateAuthRole } from "@/apis";
+import { findUserById, updateUserRoles, findRoleList } from "@/apis";
 import { ProModalForm } from "@/components/container";
 import { ProModalFormProps } from "@/components/container/ProModalForm";
 import useCrud from "@/hooks/common/useCrud";
@@ -59,16 +59,25 @@ const RoleDialog = (props: Props) => {
       setPageNumber(prevState => (pagination?.current || prevState));
       setPageSize(prevState => (pagination?.pageSize || prevState));
     }
-    getAuthRole(state.editData?.id)
-      .then(res => {
-        const roles = res.data.roles;
-        setDataSource(roles);
-        const selectedKeys = roles
-          .filter((item: Record<string, any>) => item.flag)
-          .map((item: Record<string, any>) => item.id || item.roleId);
-        setSelectedRowKeys(selectedKeys);
+
+    // 1. 获取所有可选角色
+    const fetchRoles = findRoleList();
+    // 2. 获取当前用户已拥有的角色
+    const fetchUser = findUserById(state.editData?.id);
+
+    Promise.all([fetchRoles, fetchUser])
+      .then(([roleRes, userRes]) => {
+        const allRoles = roleRes.data || [];
+        const userRoleIds = userRes.data?.roleIds || [];
+
+        setDataSource(allRoles);
+        setSelectedRowKeys(userRoleIds);
         setLoading(false);
       })
+      .catch(err => {
+        message.error(err.message || '加载失败');
+        setLoading(false);
+      });
   }
 
   const onSelectChange = (keys: React.Key[]) => {
@@ -79,8 +88,8 @@ const RoleDialog = (props: Props) => {
     try {
       setLoading(true);
       const userId = values.id;
-      const roleIds = selectedRowKeys.join(',');
-      const result = await updateAuthRole(userId, roleIds);
+      const roleIds = selectedRowKeys;
+      const result = await updateUserRoles(userId, roleIds as number[]);
       void messageApi.success(result.message || '操作成功');
       props.onOpenChange?.(false);
     } catch (error: any) {

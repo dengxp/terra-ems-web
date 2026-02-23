@@ -1,21 +1,17 @@
-import { changeRoleStatus } from "@/apis/role";
-import { changeUserStatus } from "@/apis";
+import { batchDeleteModules, findModulePage } from "@/apis/module";
 import { DeleteButton, EditButton } from "@/components/button";
 import { ProPageContainer } from "@/components/container";
-import ModalConfirm from "@/components/ModalConfirm";
 import useCrud from "@/hooks/common/useCrud";
-import { useDict } from "@/hooks/common/useDict";
-import RoleDetailDialog from "@/pages/system/Role/RoleDetailDialog";
 import { useAccess } from "@@/exports";
 import {
     DeleteOutlined,
     EditOutlined,
-    ExportOutlined,
     PlusOutlined
 } from "@ant-design/icons";
 import { ProColumns, ProTable } from "@ant-design/pro-components";
-import { Button, message, Space, Switch } from "antd";
+import { Button, Space } from "antd";
 import React, { useEffect, useMemo, useState } from 'react';
+import ModuleDetailDialog from "./ModuleDetailDialog";
 
 const Index = () => {
     const [params] = useState<Record<string, any>>({});
@@ -31,103 +27,72 @@ const Index = () => {
         toEdit,
         toDelete,
         toBatchDelete,
+        fetchPage,
         setDialogVisible,
         setShouldRefresh,
-        fetchPage
-    } = useCrud<SysRole>({
-        entityName: '角色',
-        pathname: '/system/role',
-        baseUrl: '/api/system/role'
+    } = useCrud<SysModule>({
+        entityName: '模块',
+        pathname: '/security/module',
+        baseUrl: '/api/system/module'
     });
 
     const { hasPermission } = useAccess();
-    const dictMap = useDict('sys_normal_disable');
-    const state = getState('/system/role');
+    const state = getState('/security/module');
 
-    const onStatusChange = (record: any) => {
-        const action = record.status === '0' ? '禁用' : '启用';
-        ModalConfirm({
-            title: '启用/禁用',
-            content: `您确定要${action}角色[${record.name}]么？`,
-            onOk() {
-                const status = record.status === '0' ? '1' : '0';
-                changeRoleStatus(record.id, status)
-                    .then(res => {
-                        void message.success(res.message || `${action}角色[${record.name}]成功`);
-                        actionRef.current?.reload();
-                    })
-                    .catch(err => {
-                        void message.error(err.message || `${action}角色[${record.name}]失败`);
-                    });
-            }
-        });
-    }
-
-    const columns: ProColumns[] = [
+    const columns: ProColumns<SysModule>[] = [
         {
-            title: '角色编号',
+            title: '模块ID',
             dataIndex: 'id',
             key: 'id',
-            hideInSearch: true
+            hideInSearch: true,
+            hideInTable: true,
+            width: 80,
         },
         {
-            title: '角色名称',
+            title: '模块名称',
             dataIndex: 'name',
             key: 'name',
             fieldProps: {
-                placeholder: '请输入角色名称'
+                placeholder: '请输入模块名称'
             }
         },
         {
-            title: '权限字符',
+            title: '模块代码',
             dataIndex: 'code',
             key: 'code',
         },
         {
             title: '显示顺序',
-            dataIndex: 'roleSort',
-            key: 'roleSort',
-            hideInSearch: true
-        },
-        {
-            title: '状态',
-            dataIndex: 'status',
-            key: 'status',
-            valueType: 'select',
-            fieldProps: {
-                placeholder: '请选择状态',
-                options: dictMap.sys_normal_disable
-            },
-            render: (_, record) => {
-                const value = record.status === '0';
-                return <Switch size={'small'} value={value} onChange={() => onStatusChange(record)} />
-            }
+            dataIndex: 'sortOrder',
+            key: 'sortOrder',
+            hideInSearch: true,
+            width: 100,
         },
         {
             title: '创建时间',
-            dataIndex: 'createTimeRange',
-            key: 'createTimeRange',
-            valueType: 'dateRange',
-            hideInTable: true
-        },
-        {
-            title: '创建时间',
-            dataIndex: 'createTime',
-            key: 'createTime',
-            hideInSearch: true
+            dataIndex: 'createdAt',
+            key: 'createdAt',
+            valueType: 'dateTime',
+            hideInSearch: true,
+            width: 160,
         },
         {
             title: '操作',
             dataIndex: 'actions',
             key: 'actions',
             hideInSearch: true,
-            render: (_: any, record: any) => {
+            width: 120,
+            render: (_: any, record: SysModule) => {
                 return (
                     <Space>
-                        <EditButton onClick={() => toEdit(record)} />
-                        <DeleteButton onConfirm={async () => {
-                            await toDelete(record.id, true);
-                        }} />
+                        {hasPermission('system:module:edit') &&
+                            <EditButton onClick={() => toEdit(record)} />
+                        }
+                        {hasPermission('system:module:remove') &&
+                            <DeleteButton onConfirm={async () => {
+                                await toDelete(record.id!, true);
+                            }} />
+                        }
                     </Space>
                 );
             }
@@ -137,7 +102,8 @@ const Index = () => {
     const toDeleteBatch = () => {
         if (deleteDisabled) return;
         if (!selectedRowKeys || selectedRowKeys.length === 0) return;
-        void toBatchDelete(selectedRowKeys as (string | number)[], true);
+        // batchDeleteModules expects number[]
+        void toBatchDelete(selectedRowKeys as number[], true);
     }
 
     const editDisabled = useMemo(() => {
@@ -148,19 +114,17 @@ const Index = () => {
         return (!selectedRowKeys || selectedRowKeys.length === 0);
     }, [selectedRowKeys]);
 
-
-
     useEffect(() => {
         if (state.shouldRefresh) {
             actionRef.current?.reload();
-            setShouldRefresh(false); // 重置标志位
+            setShouldRefresh(false);
         }
     }, [state.shouldRefresh]);
 
     return (
         <>
             <ProPageContainer className={'pt-1'}>
-                <ProTable columns={columns}
+                <ProTable<SysModule> columns={columns}
                     rowKey={'id'}
                     formRef={formRef}
                     actionRef={actionRef}
@@ -177,15 +141,15 @@ const Index = () => {
                     form={{ span: 6 }}
                     cardProps={{ variant: 'borderless' } as any}
                     search={{
-                        collapseRender: false, // 完全移除折叠按钮
-                        defaultCollapsed: false // 默认不折叠
+                        collapseRender: false,
+                        defaultCollapsed: false
                     }}
                     loading={{ spinning: state.loading, tip }}
                     toolbar={{
                         title:
                             <Space>
                                 {
-                                    hasPermission('system:role:add') &&
+                                    hasPermission('system:module:add') &&
                                     <Button color={'primary'}
                                         icon={<PlusOutlined />}
                                         variant={'outlined'}
@@ -194,7 +158,7 @@ const Index = () => {
                                     >新建</Button>
                                 }
                                 {
-                                    hasPermission('system:user:edit') &&
+                                    hasPermission('system:module:edit') &&
                                     <Button color={"green"}
                                         icon={<EditOutlined />}
                                         disabled={editDisabled}
@@ -208,6 +172,7 @@ const Index = () => {
                                     >修改</Button>
                                 }
                                 {
+                                    hasPermission('system:module:remove') &&
                                     <Button color={"danger"}
                                         icon={<DeleteOutlined />}
                                         disabled={deleteDisabled}
@@ -216,30 +181,9 @@ const Index = () => {
                                         onClick={toDeleteBatch}
                                     >删除</Button>
                                 }
-                                {
-                                    hasPermission('system:user:export') &&
-                                    <Button color={"orange"}
-                                        icon={<ExportOutlined />}
-                                        size={'small'}
-                                        variant={'outlined'}
-                                    // onClick={toExportUser}
-                                    >导出</Button>
-                                }
-
                             </Space>
                     }}
-                    request={
-                        async (params = {}) => {
-                            const { createTimeRange, ...rest } = params;
-                            if (createTimeRange) {
-                                const [beginTime, endTime] = createTimeRange;
-                                params = { ...rest, params: { beginTime, endTime } };
-                            }
-                            const result = await fetchPage(params);
-                            console.log("result: ", result);
-                            return result;
-                        }
-                    }
+                    request={fetchPage}
                     pagination={{
                         showSizeChanger: true,
                         showQuickJumper: true,
@@ -248,7 +192,10 @@ const Index = () => {
                     }}
                 />
             </ProPageContainer>
-            <RoleDetailDialog title={state?.dialogTitle} open={state?.dialogVisible} onOpenChange={setDialogVisible} />
+            <ModuleDetailDialog
+                open={state?.dialogVisible}
+                onOpenChange={setDialogVisible}
+            />
         </>
     )
 }

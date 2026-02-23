@@ -8,3 +8,12 @@ export async function getMenuTree() {
     }
   )
 }
+
+/**
+ * 根据ID查询菜单详情
+ */
+export async function findMenuById(id: number) {
+  return request<API.Result<any>>(`/api/system/menu/${id}`, {
+    method: 'GET',
+  });
+}

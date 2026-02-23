@@ -1,24 +1,25 @@
+import { findPermissionPage, syncPermissions } from "@/apis/permission";
+import { findModuleOptions } from "@/apis/module";
 import { DeleteButton, EditButton } from "@/components/button";
 import { ProPageContainer } from "@/components/container";
 import useCrud from "@/hooks/common/useCrud";
+import { useAccess } from "@@/exports";
 import {
     DeleteOutlined,
     EditOutlined,
-    PlusOutlined
+    PlusOutlined,
+    SyncOutlined
 } from "@ant-design/icons";
 import { ProColumns, ProTable } from "@ant-design/pro-components";
-import { Button, Space, Tag } from "antd";
+import { Button, message, Space, Tag } from "antd";
 import React, { useEffect, useMemo, useState } from 'react';
-
-import { SysConfig } from "@/apis/system/config";
-import { Permission } from "@/components";
-import { PERMISSIONS } from "@/config/permissions";
-import ConfigDetailDialog from "@/pages/system/Config/ConfigDetailDialog";
+import PermissionDetailDialog from "./PermissionDetailDialog";
 
 const Index = () => {
     const [params] = useState<Record<string, any>>({});
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-    const [selectedRows, setSelectedRows] = useState<SysConfig[]>([]);
+    const [selectedRows, setSelectedRows] = useState<any[]>([]);
+    const [tip] = useState('正在处理中，请稍等...');
 
     const {
         getState,
@@ -28,76 +29,83 @@ const Index = () => {
         toEdit,
         toDelete,
         toBatchDelete,
+        fetchPage,
         setDialogVisible,
         setShouldRefresh,
-        fetchPage
-    } = useCrud<SysConfig>({
-        entityName: '参数配置',
-        pathname: '/system/config',
-        baseUrl: '/api/system/config'
+    } = useCrud<SysPermission>({
+        entityName: '权限',
+        pathname: '/security/permission',
+        baseUrl: '/api/system/permission'
     });
 
-    const state = getState('/system/config');
+    const { hasPermission } = useAccess();
+    const state = getState('/security/permission');
 
-    const toDeleteBatch = () => {
-        if (deleteDisabled) return;
-        if (!selectedRowKeys || selectedRowKeys.length === 0) return;
-        void toBatchDelete(selectedRowKeys as (string | number)[], true);
-    }
+    const handleSync = async () => {
+        try {
+            const hide = message.loading('正在同步权限...', 0);
+            await syncPermissions();
+            hide();
+            message.success('权限同步成功');
+            actionRef.current?.reload();
+        } catch (error) {
+            // Error handled globally
+        }
+    };
 
-    const columns: ProColumns<SysConfig>[] = [
+    const columns: ProColumns<SysPermission>[] = [
         {
-            title: '参数ID',
+            title: '权限ID',
             dataIndex: 'id',
             key: 'id',
             hideInSearch: true,
-            hideInTable: true
+            hideInTable: true,
+            width: 80,
         },
         {
-            title: '参数名称',
-            dataIndex: 'configName',
-            key: 'configName',
-            fieldProps: {
-                placeholder: '请输入参数名称'
-            }
-        },
-        {
-            title: '参数键名',
-            dataIndex: 'configKey',
-            key: 'configKey',
-            fieldProps: {
-                placeholder: '请输入参数键名'
-            }
-        },
-        {
-            title: '参数键值',
-            dataIndex: 'configValue',
-            key: 'configValue',
-            hideInSearch: true,
-            ellipsis: true,
-        },
-        {
-            title: '系统内置',
-            dataIndex: 'configType',
-            key: 'configType',
+            title: '所属模块',
+            dataIndex: 'moduleId',
+            key: 'moduleId',
+            width: 200,
             valueType: 'select',
-            valueEnum: {
-                'Y': { text: '是', status: 'Processing' },
-                'N': { text: '否', status: 'Default' },
+            request: async () => {
+                const res = await findModuleOptions();
+                return res.data || [];
             },
+            render: (_, record) => record.module?.name || '-'
+        },
+        {
+            title: '权限名称',
+            dataIndex: 'name',
+            key: 'name',
+            width: 100,
             fieldProps: {
-                placeholder: '系统内置'
-            },
-            render: (_, record) => {
-                const isSystem = record.configType === 'Y';
-                return <Tag color={isSystem ? 'blue' : 'default'}>{isSystem ? '是' : '否'}</Tag>
+                placeholder: '请输入权限名称'
             }
         },
         {
-            title: '备注',
-            dataIndex: 'remark',
-            key: 'remark',
+            title: '权限代码',
+            dataIndex: 'code',
+            key: 'code',
+            copyable: true,
+            width: 160,
+        },
+        {
+            title: '超级权限',
+            dataIndex: 'superPermission',
+            key: 'superPermission',
+            width: 100,
             hideInSearch: true,
+            render: (dom, record) => {
+                return record.superPermission ? <Tag color="red">是</Tag> : <Tag color="default">否</Tag>;
+            }
+        },
+        {
+            title: '描述',
+            dataIndex: 'description',
+            key: 'description',
+            hideInSearch: true,
+            width: 120,
             ellipsis: true,
         },
         {
@@ -105,36 +113,36 @@ const Index = () => {
             dataIndex: 'createdAt',
             key: 'createdAt',
             valueType: 'dateTime',
-            hideInSearch: true
+            hideInSearch: true,
+            width: 180,
         },
         {
             title: '操作',
             dataIndex: 'actions',
             key: 'actions',
             hideInSearch: true,
-            render: (_: any, row: SysConfig) => {
+            width: 120,
+            render: (_: any, record: SysPermission) => {
                 return (
                     <Space>
-                        <Permission code={PERMISSIONS.SYSTEM.CONFIG.EDIT}>
-                            <EditButton onClick={() => toEdit(row)} />
-                        </Permission>
-                        <Permission code={PERMISSIONS.SYSTEM.CONFIG.REMOVE}>
+                        {hasPermission('system:permission:edit') &&
+                            <EditButton onClick={() => toEdit(record)} />
+                        }
+                        {hasPermission('system:permission:remove') &&
                             <DeleteButton onConfirm={async () => {
-                                if (row.id) {
-                                    await toDelete(row.id, true);
-                                }
+                                await toDelete(record.id!, true);
                             }} />
-                        </Permission>
+                        }
                     </Space>
-                )
+                );
             }
         }
     ];
 
-    const toEditSelected = () => {
-        if (editDisabled) return;
-        if (!selectedRows || selectedRows.length !== 1) return;
-        toEdit(selectedRows[0]);
+    const toDeleteBatch = () => {
+        if (deleteDisabled) return;
+        if (!selectedRowKeys || selectedRowKeys.length === 0) return;
+        void toBatchDelete(selectedRowKeys as number[], true);
     }
 
     const editDisabled = useMemo(() => {
@@ -147,8 +155,6 @@ const Index = () => {
 
     useEffect(() => {
         if (state.shouldRefresh) {
-            setSelectedRowKeys([]);
-            setSelectedRows([]);
             actionRef.current?.reload();
             setShouldRefresh(false);
         }
@@ -157,7 +163,7 @@ const Index = () => {
     return (
         <>
             <ProPageContainer className={'pt-1'}>
-                <ProTable columns={columns}
+                <ProTable<SysPermission> columns={columns}
                     rowKey={'id'}
                     formRef={formRef}
                     actionRef={actionRef}
@@ -177,30 +183,44 @@ const Index = () => {
                         collapseRender: false,
                         defaultCollapsed: false
                     }}
-                    loading={{ spinning: state.loading }}
+                    loading={{ spinning: state.loading, tip }}
                     toolbar={{
                         title:
                             <Space>
-                                <Permission code={PERMISSIONS.SYSTEM.CONFIG.ADD}>
+                                {
+                                    hasPermission('system:permission:add') &&
                                     <Button color={'primary'}
                                         icon={<PlusOutlined />}
                                         variant={'outlined'}
                                         size={'small'}
                                         onClick={toCreate}
                                     >新建</Button>
-                                </Permission>
-
-                                <Permission code={PERMISSIONS.SYSTEM.CONFIG.EDIT} mode={'disable'}>
+                                }
+                                {
+                                    hasPermission('system:permission:sync') &&
+                                    <Button color={"default"}
+                                        icon={<SyncOutlined />}
+                                        size={'small'}
+                                        variant={'outlined'}
+                                        onClick={handleSync}
+                                    >同步权限</Button>
+                                }
+                                {
+                                    hasPermission('system:permission:edit') &&
                                     <Button color={"green"}
                                         icon={<EditOutlined />}
                                         disabled={editDisabled}
                                         size={'small'}
                                         variant={'outlined'}
-                                        onClick={toEditSelected}
+                                        onClick={() => {
+                                            if (selectedRows && selectedRows.length === 1) {
+                                                toEdit(selectedRows[0]);
+                                            }
+                                        }}
                                     >修改</Button>
-                                </Permission>
-
-                                <Permission code={PERMISSIONS.SYSTEM.CONFIG.REMOVE} mode={'disable'}>
+                                }
+                                {
+                                    hasPermission('system:permission:remove') &&
                                     <Button color={"danger"}
                                         icon={<DeleteOutlined />}
                                         disabled={deleteDisabled}
@@ -208,7 +228,7 @@ const Index = () => {
                                         variant={'outlined'}
                                         onClick={toDeleteBatch}
                                     >删除</Button>
-                                </Permission>
+                                }
                             </Space>
                     }}
                     request={fetchPage}
@@ -220,7 +240,10 @@ const Index = () => {
                     }}
                 />
             </ProPageContainer>
-            <ConfigDetailDialog title={state?.dialogTitle} open={state?.dialogVisible} onOpenChange={setDialogVisible} />
+            <PermissionDetailDialog
+                open={state?.dialogVisible}
+                onOpenChange={setDialogVisible}
+            />
         </>
     )
 }

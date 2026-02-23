@@ -21,6 +21,16 @@ export async function getRoleOptions() {
 }
 
 /**
+ * 获取角色列表（不分页）
+ */
+export async function findRoleList(params?: any) {
+  return request<API.Result<SysRole[]>>(`${BASE_URL}/list`, {
+    method: 'GET',
+    params,
+  });
+}
+
+/**
  * 获取角色的权限
  */
 export async function getRolePermissions(roleId: number) {
@@ -46,6 +56,26 @@ export async function changeRoleStatus(roleId: number | string, status: string) 
   return request<API.Result<SysRole>>(`${BASE_URL}/${roleId}/status`, {
     method: 'PATCH',
     params: { status },
+  });
+}
+
+/**
+ * 添加角色成员
+ */
+export async function addRoleMembers(roleId: number, memberIds: number[]) {
+  return request<API.Result<void>>(`${BASE_URL}/${roleId}/members`, {
+    method: 'POST',
+    data: memberIds,
+  });
+}
+
+/**
+ * 移除角色成员
+ */
+export async function removeRoleMembers(roleId: number, memberIds: number[]) {
+  return request<API.Result<void>>(`${BASE_URL}/${roleId}/members`, {
+    method: 'DELETE',
+    data: memberIds,
   });
 }
 

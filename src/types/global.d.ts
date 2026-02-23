@@ -41,9 +41,9 @@ declare namespace API {
     };
 
     /** 通用选项 */
-    type Option = {
+    type Option<T = string | number> = {
         label: string;
-        value: string | number;
+        value: T;
         disabled?: boolean;
         [key: string]: any;
     };
@@ -118,11 +118,14 @@ declare type SysUser = {
     deptId?: number;
     departmentName?: string;
     dept?: SysDept;
-    roles?: number[];       // 用于前端表单提交和接收的 ID 数组
-    posts?: number[];   // 用于前端表单提交和接收的 ID 数组
+    roleIds?: number[];       // 用于前端表单提交和接收的 ID 数组
+    postIds?: number[];   // 用于前端表单提交和接收的 ID 数组
     roleList?: SysRole[];   // 原始对象列表 (配合后端 @JsonIgnore，前端通常用不到)
     postList?: SysPost[];   // 原始对象列表 (配合后端 @JsonIgnore，前端通常用不到)
+    superAdmin?: boolean;
+    roleCodes?: string[];
     permissions?: string[];
+    permissionCodes?: string[];
     createdAt?: string;
     updatedAt?: string;
 }
@@ -152,6 +155,21 @@ declare type SysPermission = {
     code?: string;
     description?: string;
     superPermission?: boolean;
+    moduleId?: number;
+    module?: SysModule;
+    createdAt?: string;
+    updatedAt?: string;
+}
+
+/**
+ * 业务模块 - 与后端 SysModule 对应
+ */
+declare type SysModule = {
+    id?: number;
+    name?: string;
+    code?: string;
+    sortOrder?: number;
+    permissions?: SysPermission[];
     createdAt?: string;
     updatedAt?: string;
 }

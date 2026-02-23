@@ -40,6 +40,16 @@ export async function list(params: any) {
 }
 
 /**
+ * 根据ID查询操作日志详情
+ * @param id
+ */
+export async function findOperationLogById(id: number) {
+    return request<API.Result<OperationLog>>(`/api/monitor/operation-log/${id}`, {
+        method: 'GET',
+    });
+}
+
+/**
  * 删除操作日志
  * @param ids
  */

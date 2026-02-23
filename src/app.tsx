@@ -57,21 +57,14 @@ export async function getInitialState(): Promise<{
       const user = result.data; // SysUser
       let avatar = user.avatar || generateAvatar();
 
-      // 从 user.roles 提取角色代码
-      const roles = user.roles?.map((role: { code?: string }) => role.code || '').filter(Boolean) || ['ROLE_DEFAULT'];
-
-      // 后端 SysUser 暂未返回 permissions，从 user.roles 或特定字段尝试提取，或在此处根据开发需求 Mock
-      const permissions: string[] = user.permissions || [];
-
-      // 开发环境下，如果是 admin 用户，注入超级管理员权限以便调试
-      if (isDev && user.username === 'admin') {
-        permissions.push(PERMISSIONS.SUPER_ADMIN);
-      }
+      // 优先从 roleCodes 提取，兼容旧版 roles 对象列表
+      const roles = user.roleCodes || (user as any).roles?.map((role: any) => typeof role === 'object' ? role.code : role).filter(Boolean) || ['ROLE_DEFAULT'];
+      const permissions = user.permissions || user.permissionCodes || [];
 
       return {
         id: user.id?.toString(),
         name: user.username,
-        nickname: user.nickname,
+        realName: user.realName,
         avatar,
         roles,
         permissions

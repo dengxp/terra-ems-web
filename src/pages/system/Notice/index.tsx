@@ -2,8 +2,8 @@ import { DeleteButton, EditButton, IconButton } from "@/components/button";
 import { ProPageContainer } from "@/components/container";
 import useCrud from "@/hooks/common/useCrud";
 import {
-  DeleteOutlined,
-  EditOutlined, EyeFilled, PlusOutlined
+    DeleteOutlined,
+    EditOutlined, EyeFilled, PlusOutlined
 } from "@ant-design/icons";
 import { ProColumns, ProTable } from "@ant-design/pro-components";
 import { Button, Space, Tag } from "antd";
@@ -127,12 +127,16 @@ const Index = () => {
                             icon={<EyeFilled />}
                             onClick={() => toView(row)}
                         />
-                        <EditButton onClick={() => toEdit(row)} />
-                        <DeleteButton onConfirm={async () => {
-                            if (row.id) {
-                                await toDelete(row.id, true);
-                            }
-                        }} />
+                        <Permission code={PERMISSIONS.SYSTEM.NOTICE.EDIT}>
+                            <EditButton onClick={() => toEdit(row)} />
+                        </Permission>
+                        <Permission code={PERMISSIONS.SYSTEM.NOTICE.REMOVE}>
+                            <DeleteButton onConfirm={async () => {
+                                if (row.id) {
+                                    await toDelete(row.id, true);
+                                }
+                            }} />
+                        </Permission>
                     </Space>
                 )
             }

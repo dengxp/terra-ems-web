@@ -1,19 +1,19 @@
-import { exportUser, findDeptTree } from "@/apis";
+import { exportUser, findDeptTree, setSuperAdmin } from "@/apis";
 import { DeleteButton, EditButton } from "@/components/button";
 import { ProPageContainer } from "@/components/container";
 import useCrud from "@/hooks/common/useCrud";
 import { ReactComponent as RoleIcon } from "@/icons/svg/role.svg";
-import PasswordDialog from "@/pages/system/User/PasswordDialog";
-import RoleDialog from "@/pages/system/User/RoleDialog";
-import UserDetailDialog from "@/pages/system/User/UserDetailDialog";
-import UserImportDialog from "@/pages/system/User/UserImportDialog";
+import PasswordDialog from "@/pages/security/User/PasswordDialog";
+import RoleDialog from "@/pages/security/User/RoleDialog";
+import UserDetailDialog from "@/pages/security/User/UserDetailDialog";
+import UserImportDialog from "@/pages/security/User/UserImportDialog";
 import { downloadFailed, downloadSuccess } from "@/utils/download";
 import { generateList, getParentKey, getTreeKeys } from "@/utils/tree";
 import Icon, {
   DeleteOutlined, EditOutlined, ExportOutlined,
   LockFilled,
   MoreOutlined,
-  PlusOutlined, UploadOutlined
+  PlusOutlined, StarFilled, UploadOutlined
 } from "@ant-design/icons";
 import { ProColumns, ProTable } from "@ant-design/pro-components";
 import { useAccess } from '@umijs/max';
@@ -24,8 +24,10 @@ import {
   Input,
   MenuProps,
   message,
+  Modal,
   Space,
   Splitter,
+  Tag,
   Tree,
   TreeDataNode,
   TreeProps
@@ -86,6 +88,9 @@ const Index = () => {
         break;
       case 'assignRole':
         toAssignRole(user);
+        break;
+      case 'setSuper':
+        handleSetSuper(user);
         break;
       // case 'disable':
       //   toChangeStatus(user?.id, 0);
@@ -167,6 +172,15 @@ const Index = () => {
       hideInSearch: true
     },
     {
+      title: '超级管理员',
+      dataIndex: 'superAdmin',
+      key: 'superAdmin',
+      hideInSearch: true,
+      render: (_, record) => {
+        return record.superAdmin ? <Tag color="gold">是</Tag> : <Tag color="default">否</Tag>
+      }
+    },
+    {
       title: '状态',
       dataIndex: 'status',
       key: 'status',
@@ -227,7 +241,14 @@ const Index = () => {
             key: 'assignRole',
             icon: <Icon component={RoleIcon} />,
             disabled: loading,
-            permission: 'system:user:edit'
+            permission: 'system:user:assignRole'
+          },
+          {
+            label: row.superAdmin ? '取消超级管理员' : '设为超级管理员',
+            key: 'setSuper',
+            icon: <StarFilled style={{ color: row.superAdmin ? '#ccc' : '#faad14' }} />,
+            disabled: loading || row.username === 'admin',
+            permission: 'system:user:setSuper'
           }
         ];
 
@@ -319,6 +340,23 @@ const Index = () => {
 
   const toImportUser = () => {
     setUserImportVisible(true);
+  }
+
+  const handleSetSuper = (user: SysUser) => {
+    const isSuper = !user.superAdmin;
+    Modal.confirm({
+      title: '确认操作',
+      content: `您确定要将用户 [${user.realName || user.username}] ${isSuper ? '设为' : '取消'}超级管理员吗？`,
+      onOk: async () => {
+        try {
+          await setSuperAdmin(user.id!, isSuper);
+          message.success('操作成功');
+          actionRef.current?.reload();
+        } catch (error) {
+          // 错误由全局拦截器处理
+        }
+      }
+    });
   }
 
   const toExportUser = async () => {

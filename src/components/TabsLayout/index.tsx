@@ -7,7 +7,7 @@ import {
   VerticalLeftOutlined,
   VerticalRightOutlined
 } from '@ant-design/icons';
-import { useIntl } from '@umijs/max';
+import { useAccess, useAppData, useIntl, matchRoutes } from '@umijs/max';
 import type { MenuProps, TabPaneProps } from 'antd';
 import { Button, Dropdown, Space, Tabs } from 'antd';
 import React, { useEffect, useState } from 'react';
@@ -36,6 +36,9 @@ export interface TabsLayoutProps {
   tabNameMap: Record<string, number>;
 }
 
+// 模块级标记：防止组件因异常重新挂载后反复恢复标签导致死循环
+let tabsRestoredFlag = false;
+
 const Index: React.FC<TabsLayoutProps> = (props) => {
   const {
     isKeep,
@@ -52,13 +55,16 @@ const Index: React.FC<TabsLayoutProps> = (props) => {
   } = props;
 
   const intl = useIntl();
-  const [restored, setRestored] = useState(false);
+  const { routes } = useAppData();
+  const access = useAccess();
+  const [restored, setRestored] = useState(tabsRestoredFlag);
 
   // 1. 恢复页签逻辑 (增加延时和错开并发，防止 Umi 路由冲突)
   useEffect(() => {
     // 如果未登录，不执行恢复逻辑，防止与 onPageChange 的重定向形成死循环
     if (!isUserLoggedIn()) {
       console.log('[TabsLayout] User not logged in, skipping tab restoration');
+      tabsRestoredFlag = true;
       setRestored(true);
       return;
     }
@@ -69,8 +75,29 @@ const Index: React.FC<TabsLayoutProps> = (props) => {
 
       if (savedTabs) {
         try {
-          const paths = JSON.parse(savedTabs);
+          let paths = JSON.parse(savedTabs);
           if (Array.isArray(paths) && paths.length > 0) {
+            // 校验路径是否存在且用户有权限访问，防止跳转到已删除或无权限的路由导致死循环
+            paths = paths.filter(path => {
+              const pathname = path.split(/[?#]/)[0];
+              const matches = matchRoutes(Object.values(routes), pathname);
+              if (!matches || matches.length === 0) return false;
+
+              // 检查路由权限：如果路由配置了 access: 'canAccess'，则校验用户权限
+              const matchedRoute = matches[matches.length - 1]?.route as any;
+              if (matchedRoute?.access === 'canAccess') {
+                return access.canAccess(matchedRoute);
+              }
+
+              return true;
+            });
+
+            if (paths.length === 0) {
+              tabsRestoredFlag = true;
+              setRestored(true);
+              return;
+            }
+
             console.log('[TabsLayout] Found saved tabs to restore:', paths);
 
             // 错开导航，防止短时间多次 history.push 导致只有最后一个生效
@@ -78,10 +105,11 @@ const Index: React.FC<TabsLayoutProps> = (props) => {
             const timer = setInterval(() => {
               if (index >= paths.length) {
                 clearInterval(timer);
+                tabsRestoredFlag = true;
                 setRestored(true);
 
                 // 恢复完所有标签后，跳转到之前激活的标签
-                if (savedActiveTab && paths.some(p => p.toLowerCase().startsWith(savedActiveTab.toLowerCase()))) {
+                if (savedActiveTab && paths.some((p: string) => p.toLowerCase().startsWith(savedActiveTab.toLowerCase()))) {
                   console.log('[TabsLayout] Restoring active tab:', savedActiveTab);
                   navigate(savedActiveTab);
                 }
@@ -99,13 +127,16 @@ const Index: React.FC<TabsLayoutProps> = (props) => {
               }
             }, 100); // 稍微加快一点速度
           } else {
+            tabsRestoredFlag = true;
             setRestored(true);
           }
         } catch (e) {
           console.error('[TabsLayout] Failed to parse saved tabs:', e);
+          tabsRestoredFlag = true;
           setRestored(true);
         }
       } else {
+        tabsRestoredFlag = true;
         setRestored(true);
       }
     }

@@ -32,7 +32,7 @@ export const logApi = {
     findByPage: (params: any) => request('/api/system/log', { method: 'GET', params }),
 
     // 获取系统日志详细
-    get: (id: number) => request(`/api/system/log/${id}`, { method: 'GET' }),
+    findById: (id: number) => request(`/api/system/log/${id}`, { method: 'GET' }),
 
     // 删除系统日志
     remove: (ids: any) => {

@@ -1,12 +1,14 @@
 import { AlarmConfig, getAlarmConfigsByMeterPoint } from '@/apis/alarm';
 import { getMeterPointsByEnergyUnitId, MeterPoint } from '@/apis/meterPoint';
 import { DeleteButton, EditButton } from '@/components/button';
+import { Permission } from '@/components';
+import { PERMISSIONS } from '@/config/permissions';
 import EnergyUnitTree from '@/components/EnergyUnitTree';
 import ModalConfirm from '@/components/ModalConfirm';
 import useCrud from '@/hooks/common/useCrud';
 import {
-  PlusOutlined, SettingOutlined,
-  ThunderboltOutlined, UnorderedListOutlined
+    PlusOutlined, SettingOutlined,
+    ThunderboltOutlined, UnorderedListOutlined
 } from '@ant-design/icons';
 import { PageContainer, ProColumns, ProTable } from '@ant-design/pro-components';
 import { Button, Card, Empty, List, message, Space, Splitter, Tag, Tooltip } from 'antd';
@@ -124,8 +126,12 @@ const AlarmConfigPage: React.FC = () => {
             width: 100,
             render: (_, record) => (
                 <Space>
-                    <EditButton onClick={() => handleEdit(record)} />
-                    <DeleteButton onConfirm={() => handleDelete(record.id)} />
+                    <Permission code={PERMISSIONS.EMS.ALARM_CONFIG.REMOVE}>
+                        <EditButton onClick={() => handleEdit(record)} />
+                    </Permission>
+                    <Permission code={PERMISSIONS.EMS.ALARM_CONFIG.REMOVE}>
+                        <DeleteButton onConfirm={() => handleDelete(record.id)} />
+                    </Permission>
                 </Space>
             )
         }
@@ -230,16 +236,18 @@ const AlarmConfigPage: React.FC = () => {
                         style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
                         styles={{ body: { flex: 1, overflow: 'auto', padding: 0 } }}
                         extra={
-                            <Button
-                                type="text"
-                                size="small"
-                                icon={<PlusOutlined />}
-                                onClick={handleAdd}
-                                disabled={!selectedPoint}
-                                style={{ color: selectedPoint ? '#1890ff' : undefined }}
-                            >
-                                新增配置
-                            </Button>
+                            <Permission code={PERMISSIONS.EMS.ALARM_CONFIG.REMOVE}>
+                                <Button
+                                    type="text"
+                                    size="small"
+                                    icon={<PlusOutlined />}
+                                    onClick={handleAdd}
+                                    disabled={!selectedPoint}
+                                    style={{ color: selectedPoint ? '#1890ff' : undefined }}
+                                >
+                                    新增配置
+                                </Button>
+                            </Permission>
                         }
                     >
                         {selectedPoint ? (
