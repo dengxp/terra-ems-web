@@ -364,7 +364,7 @@ export default [
     path: '/monitor',
     icon: 'monitor',
     access: 'canAccess',
-    permissions: ['monitor:operlog:list', 'system:log:list', 'monitor:cache:list'],
+    permissions: ['monitor:operlog:list', 'monitor:logininfor:list', 'system:log:list', 'monitor:cache:list'],
     routes: [
       {
         path: '/monitor',
@@ -380,13 +380,13 @@ export default [
         permissions: ['monitor:operlog:list']
       },
       {
-        title: '系统日志',
-        name: '系统日志',
-        path: '/monitor/log',
-        icon: 'read',
-        component: './monitor/Log',
+        title: '登录日志',
+        name: '登录日志',
+        path: '/monitor/login-log',
+        icon: 'login',
+        component: './monitor/loginLog',
         access: 'canAccess',
-        permissions: ['system:log:list']
+        permissions: ['monitor:logininfor:list']
       },
       {
         title: '缓存监控',
