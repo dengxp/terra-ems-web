@@ -17,7 +17,7 @@ const Settings: ProLayoutProps & {
     colorWeak: false,
     title: '泰若能源管理系统',
     pwa: true,
-    logo: 'https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg',
+    logo: '/images/terra-logo-1.png',
     iconfontUrl: '',
     token: {
         // 参见ts声明，demo 见文档，通过token 修改样式

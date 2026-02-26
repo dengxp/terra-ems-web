@@ -170,7 +170,9 @@ const LoginV2Page: React.FC = () => {
             {/* 玻璃拟态容器 */}
             <div className="glass-container">
                 <div className="brand-area">
-                    <div className="logo-icon">🌿</div>
+                    <div className="logo-icon">
+                        <img src="/images/terra-logo-1.png" alt="Terra Logo" style={{ width: 64, height: 64 }} />
+                    </div>
                     <h1>Terra EMS</h1>
                     <p>新一代智慧能源管理系统</p>
                 </div>

@@ -161,7 +161,9 @@ const LoginV3Page: React.FC = () => {
             {/* 左侧视觉区 */}
             <div className="visual-side">
                 <div className="brand-top">
-                    <div className="logo-icon">🌿</div>
+                    <div className="logo-icon">
+                        <img src="/images/terra-logo-1.png" alt="Terra Logo" style={{ width: 42, height: 42 }} />
+                    </div>
                     <span className="brand-name">TERRA<span>EMS</span></span>
                 </div>
 

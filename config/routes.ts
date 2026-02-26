@@ -44,12 +44,16 @@ export default [
     component: './login/LoginV3'
   },
   {
-    title: '首页',
-    name: '首页',
     path: '/dashboard',
     icon: 'home',
     component: './Dashboard',
     closable: false
+  },
+  {
+    path: '/account/settings',
+    name: '个人设置',
+    component: './Account/Settings',
+    hideInMenu: true,
   },
   {
     title: '首页V2',

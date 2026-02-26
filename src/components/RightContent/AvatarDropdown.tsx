@@ -58,7 +58,12 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu, childre
                 void logout();
                 return;
             }
-            history.push(`/personal/${key}`);
+            const tabMap: Record<string, string> = {
+                profile: 'base',
+                security: 'security',
+                avatar: 'base',
+            };
+            history.push(`/account/settings?tab=${tabMap[key] || 'base'}`);
         },
         [setInitialState],
     );
@@ -88,14 +93,19 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu, childre
         ...(menu
             ? [
                 {
-                    key: 'info',
+                    key: 'profile',
                     icon: <UserOutlined />,
-                    label: '个人信息',
+                    label: '个人资料',
                 },
                 {
-                    key: 'change-password',
+                    key: 'avatar',
+                    icon: <UserOutlined />, // Placeholder for avatar icon if needed
+                    label: '修改头像',
+                },
+                {
+                    key: 'security',
                     icon: <LockOutlined />,
-                    label: '修改密码',
+                    label: '安全设置',
                 },
                 {
                     type: 'divider' as const,
@@ -105,7 +115,8 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu, childre
         {
             key: 'logout',
             icon: <LogoutOutlined />,
-            label: '退出登录',
+            label: '退出系统',
+            danger: true,
         },
     ];
 

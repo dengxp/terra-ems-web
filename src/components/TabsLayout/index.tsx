@@ -1,10 +1,8 @@
 import { TAB_STORAGE_KEY } from "@/config/constants";
 import { isUserLoggedIn } from "@/utils/auth";
 import {
-  CaretLeftFilled,
-  CaretRightFilled,
   CloseOutlined,
-  DownOutlined,
+  EllipsisOutlined,
   ReloadOutlined,
   VerticalLeftOutlined,
   VerticalRightOutlined
@@ -60,73 +58,12 @@ const Index: React.FC<TabsLayoutProps> = (props) => {
   const { routes } = useAppData();
   const access = useAccess();
   const [restored, setRestored] = useState(tabsRestoredFlag);
-  const scrollRef = React.useRef<HTMLDivElement>(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(false);
 
-  // Checks if scrolling is possible in either direction
-  const updateScrollArrows = () => {
-    if (scrollRef.current) {
-      const navWrap = scrollRef.current.querySelector('.ant-tabs-nav-wrap');
-      if (navWrap) {
-        const { scrollLeft, scrollWidth, clientWidth } = navWrap;
-        setCanScrollLeft(scrollLeft > 1);
-        setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 1);
-      }
-    }
-  };
-
-  // Sync manual scroll logic
-  const handleScroll = (direction: 'left' | 'right') => {
-    if (scrollRef.current) {
-      const scrollAmount = 300;
-      const navWrap = scrollRef.current.querySelector('.ant-tabs-nav-wrap');
-      if (navWrap) {
-        navWrap.scrollBy({
-          left: direction === 'left' ? -scrollAmount : scrollAmount,
-          behavior: 'smooth'
-        });
-      }
-    }
-  };
-
-  // Effect to attach scroll and wheel listeners
+  // 1. 恢复页签逻辑 (增加延时和错开并发，防止 Umi 路由冲突)
   useEffect(() => {
-    const navWrap = scrollRef.current?.querySelector('.ant-tabs-nav-wrap');
-    if (!navWrap) return;
-
-    const onScroll = () => updateScrollArrows();
-    const onWheel = (e: WheelEvent) => {
-      // Direct wheel/trackpad support
-      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-        navWrap.scrollLeft += e.deltaY;
-      } else {
-        navWrap.scrollLeft += e.deltaX;
-      }
-      e.preventDefault();
-    };
-
-    // Use ResizeObserver to detect when scrollability changes
-    const resizeObserver = new ResizeObserver(() => updateScrollArrows());
-    resizeObserver.observe(navWrap);
-    resizeObserver.observe(scrollRef.current!);
-
-    navWrap.addEventListener('scroll', onScroll, { passive: true });
-    navWrap.addEventListener('wheel', onWheel as any, { passive: false });
-
-    // Initial check
-    updateScrollArrows();
-
-    return () => {
-      navWrap.removeEventListener('scroll', onScroll);
-      navWrap.removeEventListener('wheel', onWheel as any);
-      resizeObserver.disconnect();
-    };
-  }, [restored, Object.keys(keepElements.current).length]);
-
-  // 1. 恢复页签逻辑
-  useEffect(() => {
+    // 如果未登录，不执行恢复逻辑，防止与 onPageChange 的重定向形成死循环
     if (!isUserLoggedIn()) {
+      console.log('[TabsLayout] User not logged in, skipping tab restoration');
       tabsRestoredFlag = true;
       setRestored(true);
       return;
@@ -140,14 +77,18 @@ const Index: React.FC<TabsLayoutProps> = (props) => {
         try {
           let paths = JSON.parse(savedTabs);
           if (Array.isArray(paths) && paths.length > 0) {
+            // 校验路径是否存在且用户有权限访问，防止跳转到已删除或无权限的路由导致死循环
             paths = paths.filter(path => {
               const pathname = path.split(/[?#]/)[0];
               const matches = matchRoutes(Object.values(routes), pathname);
               if (!matches || matches.length === 0) return false;
+
+              // 检查路由权限：如果路由配置了 access: 'canAccess'，则校验用户权限
               const matchedRoute = matches[matches.length - 1]?.route as any;
               if (matchedRoute?.access === 'canAccess') {
                 return access.canAccess(matchedRoute);
               }
+
               return true;
             });
 
@@ -157,28 +98,40 @@ const Index: React.FC<TabsLayoutProps> = (props) => {
               return;
             }
 
+            console.log('[TabsLayout] Found saved tabs to restore:', paths);
+
+            // 错开导航，防止短时间多次 history.push 导致只有最后一个生效
             let index = 0;
             const timer = setInterval(() => {
               if (index >= paths.length) {
                 clearInterval(timer);
                 tabsRestoredFlag = true;
                 setRestored(true);
+
+                // 恢复完所有标签后，跳转到之前激活的标签
                 if (savedActiveTab && paths.some((p: string) => p.toLowerCase().startsWith(savedActiveTab.toLowerCase()))) {
+                  console.log('[TabsLayout] Restoring active tab:', savedActiveTab);
                   navigate(savedActiveTab);
                 }
                 return;
               }
               const path = paths[index++];
               const pathname = path.split(/[?#]/)[0].toLowerCase();
+
+              // 如果页签尚未打开，则进行导航
               if (pathname && !keepElements.current[pathname]) {
+                // 如果当前要恢复的 tab 就是之前激活的 tab，暂时跳过，留到最后再激活 (避免跳来跳去)
+                // 但如果不 navigate，keepElements 里就没有它。必须 navigate。
+                // 只是最后再 navigate 一次 active tab 即可。
                 navigate(path);
               }
-            }, 100);
+            }, 100); // 稍微加快一点速度
           } else {
             tabsRestoredFlag = true;
             setRestored(true);
           }
         } catch (e) {
+          console.error('[TabsLayout] Failed to parse saved tabs:', e);
           tabsRestoredFlag = true;
           setRestored(true);
         }
@@ -189,29 +142,45 @@ const Index: React.FC<TabsLayoutProps> = (props) => {
     }
   }, [isKeep, restored]);
 
-  // 2. 持久化页签逻辑
+  // 2. 持久化页签逻辑 (仅在恢复完成后或正常操作时保存)
   useEffect(() => {
+    // 只有在恢复流程走完（或者确定没有需要恢复的）之后，才允许保存，防止启动时的竞态覆盖
     if (isKeep && restored && keepElements.current) {
+      // 保存当前激活的 Tab
       const currentActiveLocation = keepElements.current[activeKey?.toLowerCase()]?.location;
       if (currentActiveLocation) {
         const activePath = `${currentActiveLocation.pathname}${currentActiveLocation.search || ''}${currentActiveLocation.hash || ''}`;
         localStorage.setItem(TAB_STORAGE_KEY + '_active', activePath);
       }
 
+      // 获取当前所有活跃的 pathname
       const currentPathnames = Object.keys(keepElements.current).map(k => k.toLowerCase());
+
+      // 读取当前的存储顺序（如果存在）
       let orderedByStorage: string[] = [];
       try {
         const saved = localStorage.getItem(TAB_STORAGE_KEY);
-        if (saved) orderedByStorage = JSON.parse(saved);
+        if (saved) {
+          orderedByStorage = JSON.parse(saved);
+        }
       } catch (e) { }
 
+      // 提取存储中的 pathname 用于匹配
       const storedPathnames = orderedByStorage.map(p => p.split(/[?#]/)[0].toLowerCase());
+
+      // 构建新的保存列表：
+      // 1. 按照存储顺序，保留依然存在的 tab
+      // 2. 追加新出现的 tab (storage 中没有但 keepElements 中有的)
       const newPaths: string[] = [];
       const processedPathnames = new Set<string>();
 
+      // 第一步：保留原有顺序
       orderedByStorage.forEach((_fullPath, index) => {
         const pathname = storedPathnames[index];
         if (currentPathnames.includes(pathname)) {
+          // 使用 keepElements 中的最新 location 信息（这就保证了 query param 的更新），但维持 storage 的顺序
+          // 或者是直接用 storage 的 path？
+          // 通常我们希望保留最新的 query params，所以最好从 keepElements 取
           const item = keepElements.current[pathname];
           if (item && item.location) {
             const loc = item.location;
@@ -221,6 +190,7 @@ const Index: React.FC<TabsLayoutProps> = (props) => {
         }
       });
 
+      // 第二步：追加新 Tab
       currentPathnames.forEach(pathname => {
         if (!processedPathnames.has(pathname)) {
           const item = keepElements.current[pathname];
@@ -231,32 +201,75 @@ const Index: React.FC<TabsLayoutProps> = (props) => {
         }
       });
 
+      console.log('[TabsLayout] Synchronizing tabs to localStorage (Sorted):', newPaths);
       localStorage.setItem(TAB_STORAGE_KEY, JSON.stringify(newPaths));
     }
   }, [activeKey, Object.keys(keepElements.current).length, restored]);
 
   const selectAction = ({ key }: { key: string }) => {
     switch (key) {
-      case 'left': dropLeftTabs(activeKey?.toLowerCase()); break;
-      case 'right': dropRightTabs(activeKey?.toLowerCase()); break;
-      case 'others': dropOtherTabs(activeKey?.toLowerCase()); break;
-      case 'refresh': refreshTab(activeKey?.toLowerCase()); break;
-      default: break;
+      case 'left':
+        dropLeftTabs(activeKey?.toLowerCase());
+        break;
+      case 'right':
+        dropRightTabs(activeKey?.toLowerCase());
+        break;
+      case 'others':
+        dropOtherTabs(activeKey?.toLowerCase());
+        break;
+      case 'refresh':
+        refreshTab(activeKey?.toLowerCase());
+        break;
+      default:
+        break;
     }
   };
 
-  const menuItems: MenuProps['items'] = [
-    { label: intl.formatMessage({ id: `tabs.close.left`, defaultMessage: "关闭左侧" }), icon: <VerticalRightOutlined />, key: "left" },
-    { label: intl.formatMessage({ id: `tabs.close.right`, defaultMessage: "关闭侧" }), icon: <VerticalLeftOutlined />, key: "right" },
-    { label: intl.formatMessage({ id: `tabs.close.others`, defaultMessage: "关闭其他" }), icon: <CloseOutlined />, key: "others" },
-    { type: 'divider' },
-    { label: intl.formatMessage({ id: `tabs.refresh`, defaultMessage: "刷新" }), icon: <ReloadOutlined />, key: "refresh" },
+  const items: MenuProps['items'] = [
+    {
+      label: intl.formatMessage({
+        id: `tabs.close.left`,
+        defaultMessage: "关闭左侧",
+      }),
+      icon: <VerticalRightOutlined />,
+      key: "left",
+    },
+    {
+      label: intl.formatMessage({
+        id: `tabs.close.right`,
+        defaultMessage: "关闭右侧",
+      }),
+      icon: <VerticalLeftOutlined />,
+      key: "right",
+    },
+    {
+      label: intl.formatMessage({
+        id: `tabs.close.others`,
+        defaultMessage: "关闭其他",
+      }),
+      icon: <CloseOutlined />,
+      key: "others",
+    },
+    {
+      type: 'divider',
+    },
+    {
+      label: intl.formatMessage({
+        id: `tabs.refresh`,
+        defaultMessage: "刷新",
+      }),
+      icon: <ReloadOutlined />,
+      key: "refresh",
+    },
   ];
 
   if (!isKeep) return null;
 
+  // 计算渲染用的 Tab Items (排序)
   const getSortedItems = () => {
     const entries = Object.entries(keepElements.current);
+
+    // 读取存储顺序
     let storedPathnames: string[] = [];
     try {
       const saved = localStorage.getItem(TAB_STORAGE_KEY);
@@ -266,20 +279,24 @@ const Index: React.FC<TabsLayoutProps> = (props) => {
       }
     } catch (e) { }
 
+    // 排序：如果 pathname 在存储列表中，使用其索引；否则排在最后
     entries.sort((a, b) => {
       const pathA = a[0].toLowerCase();
       const pathB = b[0].toLowerCase();
+
       let indexA = storedPathnames.indexOf(pathA);
       let indexB = storedPathnames.indexOf(pathB);
+
       if (indexA === -1) indexA = 9999;
       if (indexB === -1) indexB = 9999;
+
       return indexA - indexB;
     });
 
     return entries.map(
-      ([pathname, { name, icon, closable, children: _unusedChildren, ...other }]: any) => ({
+      ([pathname, { name, icon, closable, children, ...other }]: any) => ({
         label: (
-          <Dropdown menu={{ items: menuItems, onClick: selectAction }} trigger={['contextMenu']}>
+          <Dropdown menu={{ items, onClick: selectAction }} trigger={['contextMenu']}>
             <Space align={'center'} size={4}>
               {icon}
               {name}
@@ -288,6 +305,7 @@ const Index: React.FC<TabsLayoutProps> = (props) => {
         ),
         key: `${pathname?.toLowerCase()}::${tabNameMap[pathname?.toLowerCase()]}`,
         closable: Object.entries(keepElements.current).length === 1 ? false : closable,
+        style: { paddingTop: '20px' },
         ...other
       })
     );
@@ -296,17 +314,15 @@ const Index: React.FC<TabsLayoutProps> = (props) => {
   return (
     <div
       className="runtime-keep-alive-tabs-layout"
-      style={{
-        position: 'sticky',
-        top: 48, // Header height offset to prevent overlapping
-        zIndex: 1000,
-        background: 'white',
-        width: '100%',
-        boxSizing: 'border-box',
-        marginBottom: '0px'
-      }}
+      style={{ height: '40px', marginBottom: '12px' }}
     >
-      <Tabs
+      <Tabs tabBarExtraContent={
+        <div style={{ position: 'fixed', right: 0, transform: 'translateY(-50%)' }}>
+          <Dropdown menu={{ items, onClick: selectAction }} trigger={['click']}>
+            <Button size="small" icon={<EllipsisOutlined />} style={{ marginRight: 12 }} />
+          </Dropdown>
+        </div>
+      }
         hideAdd
         onChange={(key: string) => {
           const path = key.split('::')[0];
@@ -315,151 +331,20 @@ const Index: React.FC<TabsLayoutProps> = (props) => {
         }}
         renderTabBar={(props, DefaultTabBar) => (
           <div
-            ref={scrollRef}
-            className="tabs-layout-tabbar-container"
             style={{
-              display: 'flex',
-              alignItems: 'center',
+              position: 'fixed',
+              zIndex: 1,
+              padding: 0,
               width: '100%',
-              background: 'white',
-              borderBottom: '1px solid #f0f0f0',
-              padding: '0 8px',
-              flexWrap: 'nowrap',
-              overflow: 'hidden',
-              height: '40px',
-              boxSizing: 'border-box'
+              background: 'white'
             }}
           >
-            <style>
-              {`
-                /* Standardize the nav container for predictable flow */
-                .runtime-keep-alive-tabs-layout .ant-tabs-nav {
-                  margin-bottom: 0 !important;
-                  border: none !important;
-                  display: flex !important;
-                  align-items: center !important;
-                  width: 100% !important;
-                  height: 40px !important;
-                }
-                
-                /* Precise reordering for classic side-buttons layout */
-                /* 1. Far Left: Custom Left Scroll Button */
-                .custom-nav-left { order: 1; flex-shrink: 0; display: flex; align-items: center; justify-content: center; height: 40px; margin-right: 4px; }
-                
-                /* 2. Center: Tabs Scroll Area (Grow to fill) */
-                .runtime-keep-alive-tabs-layout .ant-tabs-nav-wrap {
-                  order: 2 !important;
-                  flex: 1 !important;
-                  flex-wrap: nowrap !important;
-                  white-space: nowrap !important;
-                  overflow: hidden !important;
-                  height: 40px !important;
-                  display: flex !important;
-                  align-items: center !important;
-                }
-                
-                /* 3. After Tabs: Custom Right Scroll Button */
-                .custom-nav-right { order: 3; flex-shrink: 0; display: flex; align-items: center; justify-content: center; height: 40px; margin-left: 4px; }
-                
-                /* 4. Native more tabs menu [...] */
-                .runtime-keep-alive-tabs-layout .ant-tabs-nav-operations {
-                  order: 4 !important;
-                  display: flex !important;
-                  align-items: center !important;
-                  height: 40px !important;
-                  padding: 0 4px !important;
-                  background: white !important;
-                  border-bottom: none !important;
-                }
-                
-                /* 5. Far Right: Custom Action Menu Button */
-                .custom-nav-menu { order: 5; flex-shrink: 0; display: flex; align-items: center; justify-content: center; height: 40px; margin-left: 8px; }
-
-                /* Standardize tab internal height */
-                .runtime-keep-alive-tabs-layout .ant-tabs-nav-list {
-                   flex-wrap: nowrap !important;
-                   display: flex !important;
-                   height: 40px !important;
-                   align-items: flex-end !important;
-                }
-                .runtime-keep-alive-tabs-layout .ant-tabs-nav::before {
-                  display: none !important;
-                }
-                /* Hide only duplicated internal scroll buttons */
-                .runtime-keep-alive-tabs-layout .ant-tabs-nav-btn {
-                  display: none !important;
-                }
-                
-                /* Ensure NO content area is rendered by Tabs component */
-                .runtime-keep-alive-tabs-layout .ant-tabs-content-holder {
-                  display: none !important;
-                }
-              `}
-            </style>
-
-            {/* 1. Left Switcher */}
-            <div className="custom-nav-left">
-              <Button
-                size="small"
-                icon={<CaretLeftFilled />}
-                onClick={() => handleScroll('left')}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  height: 32,
-                  visibility: canScrollLeft ? 'visible' : 'hidden'
-                }}
-              />
-            </div>
-
-            {/* 2. Main Tabs Area */}
             <DefaultTabBar
               {...props}
               style={{
-                marginBottom: 0,
-                flex: 1,
-                minWidth: 0,
-                height: 40
+                marginBottom: 0
               }}
             />
-
-            {/* 3. Right Switcher */}
-            <div className="custom-nav-right">
-              <Button
-                size="small"
-                icon={<CaretRightFilled />}
-                onClick={() => handleScroll('right')}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  height: 32,
-                  visibility: canScrollRight ? 'visible' : 'hidden'
-                }}
-              />
-            </div>
-
-            {/* 5. Custom Functional Menu */}
-            <div className="custom-nav-menu">
-              <Dropdown menu={{ items: menuItems, onClick: selectAction }} trigger={['click']}>
-                <Button
-                  size="small"
-                  type="text"
-                  icon={<DownOutlined style={{ fontSize: '12px', color: 'rgba(0,0,0,0.45)' }} />}
-                  style={{
-                    width: 32,
-                    height: 32,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    border: '1px solid #f0f0f0',
-                    borderRadius: '4px',
-                    background: '#fafafa'
-                  }}
-                />
-              </Dropdown>
-            </div>
           </div>
         )}
         activeKey={`${activeKey?.toLowerCase()}::${tabNameMap[activeKey?.toLowerCase()]}`}

@@ -440,7 +440,7 @@ const Index = () => {
   return (
     <>
       <ProPageContainer className={'pt-1'}>
-        <Splitter style={{ height: 800, boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)' }}>
+        <Splitter style={{ height: 800 }}>
           <Splitter.Panel defaultSize="20%" min="12%" max="40%">
             <Flex vertical className={'p-2 bg-white h-full'}>
               <Input.Search placeholder={'请输入部门搜索'}

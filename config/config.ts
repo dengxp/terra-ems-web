@@ -13,6 +13,7 @@ export default defineConfig({
    * @doc https://umijs.org/docs/api/config#hash
    */
   hash: true,
+  favicons: ['/favicon.png'],
 
   /**
    * 兼容性设置
@@ -157,4 +158,7 @@ export default defineConfig({
   esbuildMinifyIIFE: true,
   requestRecord: {},
   tailwindcss: {},
+  define: {
+    API_URL: process.env.NODE_ENV === 'production' ? 'https://terra-ems-api.onrender.com' : '',
+  },
 });

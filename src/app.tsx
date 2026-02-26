@@ -55,7 +55,7 @@ export async function getInitialState(): Promise<{
         showType: 1,
       });
       const user = result.data; // SysUser
-      let avatar = user.avatar || generateAvatar();
+      let avatar = user.avatar || generateAvatar(user.id?.toString() || user.username);
 
       // 优先从 roleCodes 提取，兼容旧版 roles 对象列表
       const roles = user.roleCodes || (user as any).roles?.map((role: any) => typeof role === 'object' ? role.code : role).filter(Boolean) || ['ROLE_DEFAULT'];
@@ -65,6 +65,9 @@ export async function getInitialState(): Promise<{
         id: user.id?.toString(),
         name: user.username,
         realName: user.realName,
+        email: user.email,
+        phone: user.phone,
+        gender: user.gender,
         avatar,
         roles,
         permissions
@@ -93,7 +96,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
   return {
     actionsRender: () => [<NoticeIcon key="NoticeIcon" />, <Question key="doc" />, <SelectLang key="SelectLang" />],
     avatarProps: {
-      src: initialState?.currentUser?.avatar || generateAvatar(),
+      src: initialState?.currentUser?.avatar || generateAvatar(initialState?.currentUser?.id || initialState?.currentUser?.name),
       title: <AvatarName />,
       render: (_, avatarChildren) => {
         return <AvatarDropdown menu={true}>{avatarChildren}</AvatarDropdown>;

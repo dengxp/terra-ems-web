@@ -6,7 +6,7 @@ import useCrud from "@/hooks/common/useCrud";
 import { ReactComponent as MoveTo } from '@/icons/svg/move-to.svg';
 import { generateList, getParentKey } from "@/utils/tree";
 import Icon, {
-  DeleteOutlined, EditOutlined, PlusOutlined, SettingOutlined
+    DeleteOutlined, EditOutlined, PlusOutlined, SettingOutlined
 } from '@ant-design/icons';
 import { ProDescriptions } from '@ant-design/pro-components';
 import type { TreeDataNode } from 'antd';
@@ -335,7 +335,7 @@ const EnergyUnitPage: React.FC = () => {
             </Dropdown>
             <ProPageContainer className={'pt-1'}>
                 {contextHolder}
-                <Splitter style={{ height: 'calc(100vh - 250px)', minHeight: '500px', boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)' }}>
+                <Splitter style={{ height: 'calc(100vh - 250px)', minHeight: '500px' }}>
                     <Splitter.Panel
                         defaultSize="20%"
                         min="15%"

@@ -267,17 +267,7 @@ const LoginV4Page: React.FC = () => {
             <div className="login-box">
                 <div className="logo-section">
                     <div className="logo-icon">
-                        <svg viewBox="0 0 100 100" className="energy-svg">
-                            <defs>
-                                <linearGradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" stopColor="#00f2fe" />
-                                    <stop offset="100%" stopColor="#4facfe" />
-                                </linearGradient>
-                            </defs>
-                            <circle cx="50" cy="50" r="45" fill="none" stroke="url(#logo-grad)" strokeWidth="2" strokeDasharray="282.7" strokeDashoffset="282.7" className="outer-circle" />
-                            <path d="M50 20 L50 40 M30 50 L45 50 M70 50 L55 50 M50 80 L50 60" stroke="#fff" strokeWidth="4" strokeLinecap="round" opacity="0.5" />
-                            <path d="M40 45 L50 30 L60 45 L50 60 L40 75 L50 60 Z" fill="#52c41a" className="inner-pulse" />
-                        </svg>
+                        <img src="/images/terra-logo-1.png" alt="Terra Logo" style={{ width: 64, height: 64 }} />
                     </div>
                     <div className="logo-text">TERRA<span className="accent">EMS</span></div>
                 </div>

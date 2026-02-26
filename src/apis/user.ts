@@ -140,3 +140,23 @@ export async function setSuperAdmin(userId: number | string, isSuper: boolean) {
     data: { isSuper },
   });
 }
+
+/**
+ * 修改当前用户资料
+ */
+export async function updateUserProfile(data: Partial<SysUser>) {
+  return request<API.Result<void>>(`${BASE_URL}/profile`, {
+    method: 'PUT',
+    data,
+  });
+}
+
+/**
+ * 修改当前用户密码
+ */
+export async function updateUserPassword(data: any) {
+  return request<API.Result<void>>(`${BASE_URL}/updatePwd`, {
+    method: 'PUT',
+    data,
+  });
+}

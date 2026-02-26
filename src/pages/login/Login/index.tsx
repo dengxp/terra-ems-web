@@ -185,7 +185,7 @@ const LoginPage: React.FC = () => {
       <div className="login-left">
         <div className="left-content">
           <div className="brand-section">
-            {/*<img src={terraLogo} alt="Terra Logo" className="logo" />*/}
+            <img src="/images/terra-logo-1.png" alt="Terra Logo" className="logo" style={{ width: 80, height: 80, marginBottom: 16 }} />
             <h1>泰若能源管理系统</h1>
             <p>Terra Energy Management System</p>
           </div>

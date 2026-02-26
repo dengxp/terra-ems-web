@@ -90,8 +90,12 @@ declare type CaptchaResponse = {
 declare type CurrentUser = {
     id?: string;
     name?: string;
+    realName?: string;
     nickname?: string;
+    email?: string;
+    phone?: string;
     avatar?: string;
+    gender?: number;
     roles?: string[];
     permissions?: string[];
     token?: string;
@@ -111,7 +115,7 @@ declare type SysUser = {
     email?: string;
     phone?: string;
     avatar?: string;
-    gender?: 'MALE' | 'FEMALE' | 'UNKNOWN';
+    gender?: number;
     employeeNo?: string;
     status?: import("@/enums").DataItemStatus;
     lastLoginAt?: string;
@@ -138,6 +142,7 @@ declare type SysRole = {
     name?: string;
     code?: string;
     remark?: string;
+    status?: import("@/enums").DataItemStatus;
     permissionCount?: number;
     memberCount?: number;
     permissionIds?: number[];

@@ -1,27 +1,31 @@
-import { findUserById, updateUserRoles, findRoleList } from "@/apis";
+import { findRoleList, findUserById, updateUserRoles } from "@/apis";
 import { ProModalForm } from "@/components/container";
 import { ProModalFormProps } from "@/components/container/ProModalForm";
+import { DataItemStatus } from "@/enums";
 import useCrud from "@/hooks/common/useCrud";
-import { ProFormText } from "@ant-design/pro-components";
-import { message, PaginationProps, Table, TableColumnProps } from "antd";
+import { Badge, Empty, message, Space, Tag, Transfer, Typography } from "antd";
+import type { TransferItem } from "antd/es/transfer";
 import React, { useEffect, useState } from 'react';
 
+const { Text } = Typography;
 
 type Props = ProModalFormProps;
 
+interface RoleTransferItem extends TransferItem {
+  code: string;
+  status: DataItemStatus;
+}
+
 const RoleDialog = (props: Props) => {
   const [loading, setLoading] = useState(false);
-  const [tip] = useState('正在加载数据...');
-  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-  const [dataSource, setDataSource] = useState<any[]>([]);
-  const [total] = useState(0);
-  const [pageNumber, setPageNumber] = useState(1);
-  const [pageSize, setPageSize] = useState(10000);
+  const [targetKeys, setTargetKeys] = useState<string[]>([]);
+  const [dataSource, setDataSource] = useState<RoleTransferItem[]>([]);
+  const [currentUser, setCurrentUser] = useState<SysUser | null>(null);
 
-  const [messageApi, contextHolder] = message.useMessage();
   const {
     form,
-    getState
+    getState,
+    setShouldRefresh
   } = useCrud<SysUser>({
     pathname: '/system/user',
     entityName: '用户',
@@ -30,127 +34,137 @@ const RoleDialog = (props: Props) => {
 
   const state = getState('/system/user');
 
-  const column: TableColumnProps[] = [
-    {
-      title: '角色编号',
-      dataIndex: 'id',
-      key: 'id'
-    },
-    {
-      title: '角色名称',
-      dataIndex: 'roleName',
-      key: 'roleName'
-    },
-    {
-      title: '权限字符',
-      dataIndex: 'roleKey',
-      key: 'roleKey'
-    },
-    {
-      title: '创建时间',
-      dataIndex: 'createTime',
-      key: 'createTime'
-    }
-  ];
-
-  const handleTableChange = (pagination?: PaginationProps) => {
+  const fetchData = async () => {
+    if (!state.editData?.id) return;
     setLoading(true);
-    if (pagination) {
-      setPageNumber(prevState => (pagination?.current || prevState));
-      setPageSize(prevState => (pagination?.pageSize || prevState));
-    }
-
-    // 1. 获取所有可选角色
-    const fetchRoles = findRoleList();
-    // 2. 获取当前用户已拥有的角色
-    const fetchUser = findUserById(state.editData?.id);
-
-    Promise.all([fetchRoles, fetchUser])
-      .then(([roleRes, userRes]) => {
-        const allRoles = roleRes.data || [];
-        const userRoleIds = userRes.data?.roleIds || [];
-
-        setDataSource(allRoles);
-        setSelectedRowKeys(userRoleIds);
-        setLoading(false);
-      })
-      .catch(err => {
-        message.error(err.message || '加载失败');
-        setLoading(false);
-      });
-  }
-
-  const onSelectChange = (keys: React.Key[]) => {
-    setSelectedRowKeys(keys);
-  }
-
-  const onFinish = async (values: Record<string, any>) => {
     try {
-      setLoading(true);
-      const userId = values.id;
-      const roleIds = selectedRowKeys;
-      const result = await updateUserRoles(userId, roleIds as number[]);
-      void messageApi.success(result.message || '操作成功');
-      props.onOpenChange?.(false);
-    } catch (error: any) {
-      void messageApi.error(error.message || '操作失败');
-      console.error(error);
+      const [roleRes, userRes] = await Promise.all([
+        findRoleList(),
+        findUserById(state.editData.id)
+      ]);
+
+      const allRoles = roleRes.data || [];
+      const userRoleIds = userRes.data?.roleIds || [];
+
+      const transferData: RoleTransferItem[] = allRoles.map(role => ({
+        key: String(role.id),
+        title: role.name || '',
+        code: role.code || '',
+        status: role.status as DataItemStatus,
+        description: role.remark,
+        disabled: role.status === DataItemStatus.FORBIDDEN
+      }));
+
+      setDataSource(transferData);
+      setCurrentUser(userRes.data || null);
+      setTargetKeys(userRoleIds.map(id => String(id)));
+    } catch (err: any) {
+      void message.error(err.message || '加载失败');
     } finally {
       setLoading(false);
     }
-  }
+  };
 
-  const rowSelection = {
-    selectedRowKeys,
-    onChange: onSelectChange
-  }
+  const onFinish = async () => {
+    if (!state.editData?.id) return false;
+    try {
+      setLoading(true);
+      const roleIds = targetKeys.map(key => Number(key));
+      await updateUserRoles(state.editData.id, roleIds);
+      void message.success('角色分配成功');
+      setShouldRefresh(true);
+      props.onOpenChange?.(false);
+      return true;
+    } catch (error: any) {
+      void message.error(error.message || '分配失败');
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (props.open) {
-      form.setFieldsValue({ ...state.editData });
-      if (state.editData?.id) {
-        handleTableChange();
-      }
+      fetchData();
     }
-  }, [props.open, state.editData]);
+  }, [props.open, state.editData?.id]);
+
+  /**
+   * 专业化标题设计：分层展示操作目标与关键审计信息
+   */
+  const modalTitle = (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <Space size={8}>
+        <Text strong style={{ fontSize: 18 }}>分配角色</Text>
+        {currentUser && (
+          <>
+            <Text type="secondary" style={{ fontSize: 18, fontWeight: 300 }}>·</Text>
+            <Text strong style={{ fontSize: 18, color: '#1677ff' }}>{currentUser.realName}</Text>
+          </>
+        )}
+      </Space>
+      {currentUser && (
+        <Space split={<Text type="secondary" style={{ opacity: 0.5 }}>|</Text>} style={{ fontSize: 12, opacity: 0.85 }}>
+          <Text type="secondary">账号：<Text>{currentUser.username}</Text></Text>
+          <Text type="secondary">部门：<Tag bordered={false} color="blue" style={{ margin: 0, fontSize: 11, verticalAlign: 'middle', lineHeight: '18px' }}>{currentUser.departmentName || '无'}</Tag></Text>
+        </Space>
+      )}
+    </div>
+  );
 
   return (
-    <ProModalForm {...props}
+    <ProModalForm
+      {...props}
       form={form}
-      title={'分配角色'}
+      title={modalTitle}
       onFinish={onFinish}
+      width={820}
+      modalProps={{
+        destroyOnClose: true,
+        centered: true,
+        bodyStyle: { padding: '24px 32px 32px' }
+      }}
     >
-      {contextHolder}
-      <ProFormText label={'id'} name={'id'} hidden />
-      <ProFormText label={'登录账号'} name={'username'}
-        fieldProps={{ disabled: true }}
-      />
-      <ProFormText label={'用户姓名'} name={'realName'}
-        fieldProps={{ disabled: true }}
-      />
-      <Table columns={column}
-        rowKey={(record) => record.id || record.roleId}
-        rowSelection={rowSelection}
-        dataSource={dataSource}
-        loading={{ spinning: loading, tip }}
-        onChange={handleTableChange}
-        pagination={{
-          current: pageNumber,
-          pageSize,
-          total,
-          onChange: (page, pageSize) => {
-            setPageNumber(page);
-            setPageSize(pageSize);
-          },
-          onShowSizeChange: (current, size) => {
-            setPageSize(size);
-            setPageNumber(current);
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <Transfer
+          dataSource={dataSource}
+          titles={['可分配角色', '已分配角色']}
+          targetKeys={targetKeys}
+          onChange={(nextTargetKeys) => setTargetKeys(nextTargetKeys)}
+          render={(item) => (
+            <Space size={4}>
+              <Text strong={targetKeys.includes(item.key)} style={{ color: targetKeys.includes(item.key) ? '#1677ff' : 'inherit' }}>
+                {item.title}
+              </Text>
+              <Text type="secondary" style={{ fontSize: 11, opacity: 0.6 }}>[{item.code}]</Text>
+              {item.status === DataItemStatus.FORBIDDEN && (
+                <Badge status="error" title="角色已禁用" />
+              )}
+            </Space>
+          )}
+          listStyle={{
+            width: 340,
+            height: 480,
+            borderRadius: 8,
+            border: '1px solid #e5e7eb',
+            boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+            background: '#ffffff'
+          }}
+          operations={['', '']} // 精简箭头模式
+          showSearch
+          filterOption={(inputValue, item) =>
+            (item.title || '').indexOf(inputValue) !== -1 || (item.code || '').indexOf(inputValue) !== -1
           }
-        }}
-      />
+          locale={{
+            itemUnit: '项',
+            itemsUnit: '项',
+            searchPlaceholder: '快速搜索名称/编码',
+            notFoundContent: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无角色数据" />
+          }}
+        />
+      </div>
     </ProModalForm>
-  )
-    ;
-}
+  );
+};
 
 export default RoleDialog;
