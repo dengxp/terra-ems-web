@@ -3,7 +3,7 @@ import { OperationEnum } from '@/enums';
 import { useWebSocket } from '@/hooks/common/useWebSocket';
 import NoticeDetailDialog from '@/pages/system/Notice/NoticeDetailDialog';
 import { BellOutlined } from '@ant-design/icons';
-import { history } from '@umijs/max';
+import { history, useModel } from '@umijs/max';
 import { Badge, List, notification, Popover, Spin, Tabs, Typography } from 'antd';
 import { createStyles } from 'antd-style';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -86,9 +86,14 @@ const NoticeIcon: React.FC = () => {
         }
     }, []);
 
+    const { initialState } = useModel('@@initialState');
+
     useEffect(() => {
-        fetchNotices();
-    }, [fetchNotices]);
+        // 只有且仅当用户登录后才进行拉取，防止在登录页出现 401
+        if (initialState?.currentUser) {
+            fetchNotices();
+        }
+    }, [fetchNotices, initialState?.currentUser]);
 
     // 集成 WebSocket 监听
     useWebSocket({

@@ -3,6 +3,7 @@ import { noticeApi } from '@/apis/system/notice';
 import { OperationEnum } from '@/enums';
 import { useWebSocket } from '@/hooks/common/useWebSocket';
 import NoticeDetailDialog from '@/pages/system/Notice/NoticeDetailDialog';
+import { useModel } from '@umijs/max';
 import { Alert, Carousel } from 'antd';
 import React, { useEffect, useState } from 'react';
 
@@ -41,9 +42,14 @@ const NoticeBanner: React.FC = () => {
         }
     };
 
+    const { initialState } = useModel('@@initialState');
+
     useEffect(() => {
-        fetchNotices();
-    }, []);
+        // 只有且仅当用户登录后才进行拉取，防止在登录页出现 401
+        if (initialState?.currentUser) {
+            fetchNotices();
+        }
+    }, [initialState?.currentUser]);
 
     useWebSocket({
         onMessage: (msg: any) => {
