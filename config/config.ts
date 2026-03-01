@@ -13,6 +13,7 @@ export default defineConfig({
    * @doc https://umijs.org/docs/api/config#hash
    */
   hash: true,
+  devtool: 'source-map',
   favicons: ['/favicon.png'],
 
   /**
@@ -20,9 +21,9 @@ export default defineConfig({
    * @description 设置 ie11 不一定完美兼容，需要检查自己使用的所有依赖
    * @doc https://umijs.org/docs/api/config#targets
    */
-  // targets: {
-  //   ie: 11,
-  // },
+  targets: {
+    chrome: 80,
+  },
   /**
    * 路由的配置，不在路由中引入的文件不会编译
    * @description 只支持 path，component，routes，redirect，wrappers，title 的配置
@@ -155,10 +156,14 @@ export default defineConfig({
   mfsu: {
     strategy: "normal",
   },
+  jsMinifier: 'terser',
   esbuildMinifyIIFE: true,
   requestRecord: {},
   tailwindcss: {},
+  alias: {
+    'lru-cache': '@/utils/lru-cache-shim.ts',
+  },
   define: {
-    API_URL: process.env.NODE_ENV === 'production' ? 'https://terra-ems-api.onrender.com' : '',
+    API_URL: process.env.NODE_ENV === 'production' ? '' : '',
   },
 });
