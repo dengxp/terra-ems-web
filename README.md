@@ -165,9 +165,13 @@ const { getState, actionRef, search, toCreate, toEdit,
 
 ---
 
-## 🤝 贡献
+## 🤝 贡献与反馈
 
-欢迎提交 Issue 和 Pull Request！
+我们非常欢迎通过 [Issues](https://github.com/dengxp/terra-ems-web/issues) 提交 Bug 报告、功能建议或使用咨询。
+
+> [!IMPORTANT]
+> **关于代码提交（PR）**：
+> 为确保前端 UI 规范与逻辑架构的高度一致性，**目前本项目暂不接受外部代码提交（Pull Requests）**。我们鼓励开发者通过 Issue 分享改进想法。
 
 ---
 
