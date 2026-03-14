@@ -1,4 +1,4 @@
-# Terra EMS React — 前端应用
+# Terra EMS Web — 前端应用
 
 <p align="center">
   <strong>🌿 Terra 能源管理系统 — 基于 React + Ant Design 的企业级前端</strong>
@@ -17,9 +17,36 @@
 
 ## 📋 项目简介
 
-Terra EMS React 是 Terra 能源管理系统的前端应用，基于 **Ant Design Pro** 脚手架构建，采用 **UmiJS 4** 企业级前端框架，提供开箱即用的中后台管理界面。本应用包含完整的能源管理业务页面、数据可视化图表、权限控制体系，以及现代化的 UI 交互体验。
+Terra EMS Web 是 Terra 能源管理系统的前端应用，基于 **Ant Design Pro** 脚手架构建，采用 **UmiJS 4** 企业级前端框架，提供开箱即用的中后台管理界面。本应用包含完整的能源管理业务页面、数据可视化图表、权限控制体系，以及现代化的 UI 交互体验。
 
-> 📦 后端仓库：[terra-ems-v3](https://gitee.com/dengxp/terra-ems-v3)
+> 📦 后端仓库：[terra-ems](https://github.com/dengxp/terra-ems)
+
+---
+
+## ✨ 功能模块
+... (中略) ...
+## 📁 项目结构
+
+```
+terra-ems-web/
+├── config/                     # 项目配置 (routes, proxy, settings)
+├── public/                     # 静态资源
+├── src/
+│   ├── apis/                   # API 模块化定义
+│   ├── pages/                  # 业务页面 (EMS 业务 + 系统管理)
+│   ├── components/             # 公共 UI 组件
+│   ├── hooks/                  # 通用 Hooks (含 useCrud)
+│   ├── models/                 # 全局状态
+│   ├── locales/                # 国际化
+│   ├── utils/                  # 工具函数
+│   └── requestErrorConfig.ts   # 请求拦截器
+├── tailwind.config.js          # TailwindCSS 配置
+└── package.json
+```
+... (中略) ...
+## 📜 开源协议
+
+[MIT License](LICENSE) — Copyright © 2024-2026 泰若科技（广州）有限公司
 
 ---
 
