@@ -9,7 +9,7 @@ import MoveDepartmentDialog from "@/pages/system/Org/MoveDepartmentDialog";
 import MemberPanel from "@/pages/system/Org/MemberPanel";
 import { findNode, getTreeKeys } from "@/utils";
 import Icon, { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
-import { Flex, message, Splitter, Tree } from "antd";
+import { ConfigProvider, Flex, Input, message, Splitter, Tree } from "antd";
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from "@umijs/max";
 
@@ -23,8 +23,10 @@ const Index = (_props: Props) => {
   const [expandedKeys, setExpandedKeys] = useState<React.Key[]>([]);
   const [deptTree, setDeptTree] = useState<SysDept[]>([]);
   const [department, setDepartment] = useState<Record<string, any> | undefined>();
+  const [autoExpandParent, setAutoExpandParent] = useState(true);
   const [messageApi, contextHolder] = message.useMessage();
   const [moveVisible, setMoveVisible] = useState(false);
+  const [searchValue, setSearchValue] = useState('');
 
   const {
     getState,
@@ -43,6 +45,62 @@ const Index = (_props: Props) => {
   });
 
   const state = getState('/system/org');
+
+  const filteredTreeData = React.useMemo(() => {
+    if (!searchValue) return deptTree;
+    const filter = (data: SysDept[]): SysDept[] => {
+      const result: SysDept[] = [];
+      data.forEach(item => {
+        const match = item.name?.toLowerCase().includes(searchValue.toLowerCase());
+        const children = item.children ? filter(item.children) : [];
+        if (match || children.length > 0) {
+          result.push({ ...item, children });
+        }
+      });
+      return result;
+    };
+    return filter(deptTree);
+  }, [deptTree, searchValue]);
+
+  const loadDeptTree = () => {
+    return new Promise((resolve, reject) => {
+      findDeptTree()
+        .then(res => {
+          setDeptTree(res.data);
+          const keys = getTreeKeys(res.data, 'id');
+          setExpandedKeys(keys);
+          setAutoExpandParent(true);
+
+          // Priority 1: ID from URL (initialized in state) or current state
+          if (departmentId) {
+            const node = findNode(res.data, departmentId);
+            if (node) {
+              setSelectedKeys([node.id]);
+              setDepartmentId(node.id);
+              setDepartment({ ...node });
+              resolve(undefined);
+              return;
+            }
+          }
+
+          // Priority 2: Default to first node if no ID or ID not found
+          if (res.data && res.data.length > 0) {
+            const firstNode = res.data[0];
+            if (firstNode.id) {
+              setSelectedKeys([firstNode.id as React.Key]);
+              setDepartmentId(firstNode.id);
+              setSearchParams({ id: firstNode.id.toString() });
+              setDepartment({ ...firstNode });
+            }
+          }
+
+          resolve(undefined);
+        })
+        .catch(err => {
+          reject(err);
+        })
+    })
+  }
 
   const handleCreate = () => {
     toCreate({ id: departmentId });
@@ -81,45 +139,6 @@ const Index = (_props: Props) => {
     }
   }
 
-  const loadDeptTree = () => {
-    return new Promise((resolve, reject) => {
-      findDeptTree()
-        .then(res => {
-          setDeptTree(res.data);
-          const keys = getTreeKeys(res.data, 'id');
-          setExpandedKeys(keys);
-
-          // Priority 1: ID from URL (initialized in state) or current state
-          if (departmentId) {
-            const node = findNode(res.data, departmentId);
-            if (node) {
-              setSelectedKeys([node.id]);
-              setDepartmentId(node.id);
-              setDepartment({ ...node });
-              resolve(undefined);
-              return;
-            }
-          }
-
-          // Priority 2: Default to first node if no ID or ID not found
-          if (res.data && res.data.length > 0) {
-            const firstNode = res.data[0];
-            if (firstNode.id) {
-              setSelectedKeys([firstNode.id as React.Key]);
-              setDepartmentId(firstNode.id);
-              setSearchParams({ id: firstNode.id.toString() });
-              setDepartment({ ...firstNode });
-            }
-          }
-
-          resolve(undefined);
-        })
-        .catch(err => {
-          reject(err);
-        })
-    })
-  }
-
   useEffect(() => {
     if (state.shouldRefresh) {
       loadDeptTree()
@@ -135,30 +154,58 @@ const Index = (_props: Props) => {
 
   return (
     <>
-      <ProPageContainer className={'pt-1'}>
+      <ProPageContainer>
         {contextHolder}
-        <Splitter style={{ height: 640 }}>
+        <Splitter style={{
+          height: '100%',
+          backgroundColor: '#fff'
+        }}>
           <Splitter.Panel defaultSize="20%" min="12%" max="40%"
             style={{
-              backgroundColor: '#fff',
               display: 'flex',
-              flexGrow: 1,
               flexDirection: 'column',
-              height: '100%'
+              height: '100%',
+              borderRight: '1px solid #f0f0f0'
             }}>
-            <Tree.DirectoryTree selectedKeys={selectedKeys}
-              expandedKeys={expandedKeys}
-              defaultExpandAll={true} // 默认展开所有
-              autoExpandParent={true}
-              selectable
-              showLine
-              onExpand={(keys) => setExpandedKeys(keys)}
-              treeData={deptTree as any}
-              fieldNames={{ title: 'name', key: 'id', children: 'children' }}
-              onSelect={onSelect}
-              rootClassName={'overflow-y-auto flex-1 p-2'}
-            />
-            <Flex align={'center'} justify={'space-around'} rootClassName={'py-2 border-t bg-gray-100'}>
+            <div style={{ padding: '8px 8px 0 8px' }}>
+              <Input.Search
+                placeholder="搜索部门"
+                allowClear
+                onSearch={setSearchValue}
+                onChange={e => setSearchValue(e.target.value)}
+                size="small"
+              />
+            </div>
+            <div style={{ height: 'calc(100vh - 284px)', overflowY: 'auto', padding: '8px' }}>
+              <ConfigProvider theme={{
+                token: {
+                  colorPrimary: '#1e40af', // 核心主色：采购蓝
+                },
+                components: {
+                  Tree: {
+                    nodeSelectedBg: '#1e40af', // 选中背景色
+                    colorTextLightSolid: '#fff', // 确保反色文字为白色
+                    controlItemBgActive: '#1e40af', // 选中态激活背景
+                  }
+                }
+              }}>
+                <Tree
+                  selectedKeys={selectedKeys}
+                  expandedKeys={expandedKeys}
+                  autoExpandParent={autoExpandParent}
+                  selectable
+                  showLine={{ showLeafIcon: false }}
+                  onExpand={(keys) => {
+                    setExpandedKeys(keys);
+                    setAutoExpandParent(false);
+                  }}
+                  treeData={filteredTreeData as any}
+                  fieldNames={{ title: 'name', key: 'id', children: 'children' }}
+                  onSelect={onSelect}
+                />
+              </ConfigProvider>
+            </div>
+            <Flex align={'center'} justify={'space-around'} style={{ height: 54, borderTop: '1px solid #f0f0f0', background: '#fff' }}>
               <IconButton color={'primary'} variant={'solid'}
                 shape={'circle'} icon={<PlusOutlined />}
                 disabled={state.dialogVisible}
@@ -184,9 +231,9 @@ const Index = (_props: Props) => {
                 tooltip={'删除'} />
             </Flex>
           </Splitter.Panel>
-          <Splitter.Panel style={{ backgroundColor: '#fff' }}>
-            <Flex vertical justify={'center'} rootClassName={'h-full'}>
-              <Flex vertical justify={'center'} rootClassName={'h-full'}>
+          <Splitter.Panel style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+            <div style={{ height: 'calc(100vh - 198px)' }}>
+              <div style={{ flexShrink: 0 }}>
                 {
                   state.dialogVisible ?
                     <DetailPanel
@@ -203,26 +250,27 @@ const Index = (_props: Props) => {
                     /> :
                     <DepartmentPanel department={department as SysDept} />
                 }
-                {/* 底部成员列表区域，非编辑模式显示 */}
-                {!state.dialogVisible && departmentId && (
+              </div>
+              {!state.dialogVisible && departmentId && (
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
                   <MemberPanel departmentId={departmentId}
                     onRefresh={() => {
-                      loadDeptTree(); // 刷新树以更新成员数量
+                      loadDeptTree();
                     }}
                   />
-                )}
-              </Flex>
-            </Flex>
+                </div>
+              )}
+            </div>
           </Splitter.Panel>
         </Splitter>
-      </ProPageContainer>
+      </ProPageContainer >
       {department &&
         <MoveDepartmentDialog department={department as any} treeData={deptTree as any}
           open={moveVisible} onOpenChange={setMoveVisible}
         />
       }
     </>
-  )
+  );
 }
 
 export default Index;
