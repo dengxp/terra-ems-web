@@ -23,7 +23,7 @@ Terra EMS Web 是 Terra 能源管理系统的前端应用，基于 **Ant Design 
 
 ## 🚀 在线演示
 
-*   **演示地址**：[http://8.148.157.219](http://8.148.157.219)
+*   **演示地址**：[http://ems.vipcti.com](http://ems.vipcti.com)
 *   **账号**：`admin`
 *   **密码**：`admin123`
 
