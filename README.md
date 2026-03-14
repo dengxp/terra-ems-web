@@ -24,33 +24,6 @@ Terra EMS Web 是 Terra 能源管理系统的前端应用，基于 **Ant Design 
 ---
 
 ## ✨ 功能模块
-... (中略) ...
-## 📁 项目结构
-
-```
-terra-ems-web/
-├── config/                     # 项目配置 (routes, proxy, settings)
-├── public/                     # 静态资源
-├── src/
-│   ├── apis/                   # API 模块化定义
-│   ├── pages/                  # 业务页面 (EMS 业务 + 系统管理)
-│   ├── components/             # 公共 UI 组件
-│   ├── hooks/                  # 通用 Hooks (含 useCrud)
-│   ├── models/                 # 全局状态
-│   ├── locales/                # 国际化
-│   ├── utils/                  # 工具函数
-│   └── requestErrorConfig.ts   # 请求拦截器
-├── tailwind.config.js          # TailwindCSS 配置
-└── package.json
-```
-... (中略) ...
-## 📜 开源协议
-
-[MIT License](LICENSE) — Copyright © 2024-2026 泰若科技（广州）有限公司
-
----
-
-## ✨ 功能模块
 
 ### 能源管理
 
@@ -112,43 +85,24 @@ terra-ems-web/
 ## 📁 项目结构
 
 ```
-terra-ems-react/
-├── config/                     # 项目配置
-│   ├── config.ts               # UmiJS 主配置
-│   ├── routes.ts               # 路由配置
-│   ├── proxy.ts                # 代理配置
-│   └── defaultSettings.ts      # 默认主题设置
+terra-ems-web/
+├── config/                     # 项目配置 (routes, proxy, settings)
 ├── public/                     # 静态资源
 ├── src/
-│   ├── apis/                   # API 模块化定义（禁止在组件内直接写请求 URL）
+│   ├── apis/                   # API 模块化定义
 │   ├── pages/                  # 业务页面
-│   │   ├── BasicData/          #   基础数据（能源类型/用能单元/计量器具/采集点位）
-│   │   ├── Statistics/         #   统计分析（能耗趋势/同比环比/排名/综合看板）
-│   │   ├── CostManagement/     #   成本管理（电价策略/成本绑定/成本记录）
-│   │   ├── EnergySaving/       #   节能管理（节能项目/政策法规）
-│   │   ├── Knowledge/          #   知识库
-│   │   ├── Production/         #   生产管理（产品/生产记录）
-│   │   ├── Account/            #   个人中心（个人设置/修改密码）
-│   │   ├── system/             #   系统管理（用户/角色/部门/岗位/菜单/字典/配置）
-│   │   ├── security/           #   安全中心（权限/模块管理）
-│   │   ├── monitor/            #   系统监控（登录日志/操作日志）
-│   │   ├── login/              #   登录页
-│   │   ├── DashboardV3.tsx     #   综合仪表盘
-│   │   └── Home.tsx            #   首页
-│   ├── components/             # 公共组件（AddButton/EditButton/DeleteButton/IconButton...）
-│   ├── hooks/                  # 通用 Hooks
-│   │   └── common/useCrud.ts   #   标准 CRUD Hook（强制使用）
-│   ├── models/                 # 全局状态
-│   ├── icons/                  # 自定义图标
-│   ├── locales/                # 国际化（zh-CN）
-│   ├── enums/                  # 枚举定义
+│   │   ├── BasicData/          # 基础数据模块
+│   │   ├── Statistics/         # 统计分析模块
+│   │   ├── CostManagement/     # 成本管理模块
+│   │   ├── system/             # 系统管理模块
+│   │   └── ...                 # 其他业务模块
+│   ├── components/             # 公共 UI 组件 (AddButton, EditButton 等)
+│   ├── hooks/                  # 通用 Hooks (含 useCrud)
+│   ├── models/                 # 全局状态 (DVA)
+│   ├── locales/                # 国际化支持
 │   ├── utils/                  # 工具函数
-│   ├── types/                  # TypeScript 类型定义
-│   ├── access.ts               # 权限定义
-│   ├── app.tsx                 # 应用入口配置
 │   └── requestErrorConfig.ts   # 全局请求拦截与异常处理
 ├── tailwind.config.js          # TailwindCSS 配置
-├── tsconfig.json               # TypeScript 配置
 └── package.json
 ```
 
@@ -167,8 +121,8 @@ terra-ems-react/
 
 ```bash
 # 克隆项目
-git clone https://gitee.com/dengxp/terra-ems-react.git
-cd terra-ems-react
+git clone https://github.com/dengxp/terra-ems-web.git
+cd terra-ems-web
 
 # 安装依赖
 pnpm install
@@ -186,38 +140,9 @@ pnpm run start
 
 开发服务器启动后访问：**http://localhost:8000**
 
-### 3. 代理配置
-
-开发环境下，前端通过代理转发 API 请求到后端服务：
-
-| 前端请求 | 代理目标 |
-|:---|:---|
-| `http://localhost:8000/api/**` | `http://127.0.0.1:8081/api/**` |
-
-代理配置文件：`config/proxy.ts`
-
-> 💡 后端已配置 `context-path: /api`，代理无需 pathRewrite。
-
-### 4. 构建生产版本
-
-```bash
-# 构建
-pnpm run build
-
-# 预览构建结果
-pnpm run preview
-```
-
-构建产物输出至 `dist/` 目录，可直接部署到 Nginx 等 Web 服务器。
-
 ---
 
 ## 🔧 开发约定
-
-### API 层规范
-
-- 所有 API 定义集中在 `src/apis/` 目录，**禁止在组件内直接写请求 URL**
-- 分页接口自动处理 0-indexed 偏移（前端 1-based → 后端 0-based）
 
 ### CRUD 开发规范
 
@@ -235,65 +160,8 @@ const { getState, actionRef, search, toCreate, toEdit,
 ### 组件规范
 
 - 操作按钮使用封装组件：`AddButton` / `EditButton` / `DeleteButton` / `IconButton`
-- `DeleteButton` 内置 `Popconfirm` 二次确认
-- 图标优先使用 `Filled`（实心）系列
-- 自定义组件强制使用 `React.forwardRef`
-
-### 表单布局
-
-- 所有表单开启 `grid={true}`，`rowProps={{ gutter: 0 }}`
-- 半宽字段 `labelCol={{ span: 6 }}`，全宽字段 `labelCol={{ span: 3 }}`
+- 表单布局：所有表单开启 `grid={true}`，`rowProps={{ gutter: 0 }}`
 - ID 等技术字段使用 `ProFormText` + `hidden` 隐式提交
-
----
-
-## 📋 常用命令
-
-| 命令 | 说明 |
-|:---|:---|
-| `pnpm run dev` | 开发模式（连接后端 API） |
-| `pnpm run start` | 开发模式（含 Mock） |
-| `pnpm run build` | 生产构建 |
-| `pnpm run preview` | 预览生产构建 |
-| `pnpm run lint` | 代码检查 |
-| `pnpm run lint:fix` | 自动修复代码问题 |
-| `pnpm run tsc` | TypeScript 类型检查 |
-| `pnpm run test` | 运行测试 |
-
----
-
-## 🌐 部署
-
-### Nginx 配置示例
-
-```nginx
-server {
-    listen 80;
-    server_name your-domain.com;
-    root /path/to/dist;
-
-    # 前端路由 - 所有非文件请求回退到 index.html
-    location / {
-        try_files $uri $uri/ /index.html;
-    }
-
-    # API 代理到后端
-    location /api/ {
-        proxy_pass http://127.0.0.1:8081;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    }
-}
-```
-
-### 环境变量
-
-生产构建时通过环境变量切换 API 地址：
-
-```bash
-REACT_APP_ENV=prod pnpm run build
-```
 
 ---
 
@@ -305,4 +173,4 @@ REACT_APP_ENV=prod pnpm run build
 
 ## 📜 开源协议
 
-[MIT License](LICENSE) — Copyright © 2024 泰若科技（广州）有限公司
+[MIT License](LICENSE) — Copyright © 2024-2026 泰若科技（广州）有限公司
