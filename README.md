@@ -21,6 +21,16 @@ Terra EMS Web 是 Terra 能源管理系统的前端应用，基于 **Ant Design 
 
 > 📦 后端仓库：[terra-ems](https://github.com/dengxp/terra-ems)
 
+## 🚀 在线演示
+
+*   **演示地址**：[http://8.148.157.219](http://8.148.157.219)
+*   **账号**：`admin`
+*   **密码**：`admin123`
+
+> [!TIP]
+> **不仅是 EMS，更是一个完备的 Web 开发基座**：
+> Terra EMS 建立在极度标准化的 React + TypeScript 架构之上，封装了类似 RuoYi (若依) 的权限体系和高度抽象的 `useCrud` 逻辑。它不仅适用于能源管理，也可以作为一个通用的企业级中后台开发基座，帮助您极速开发各类业务管理系统。
+
 ---
 
 ## ✨ 功能模块
