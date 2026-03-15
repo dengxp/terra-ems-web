@@ -25,6 +25,19 @@ graph LR
 
 ---
 
+## 🖼️ 系统截图展示
+
+<p align="center">
+  <img src="./docs/images/dashboard_v3.png" width="45%" alt="Dashboard V3 Pro"/>
+  <img src="./docs/images/branch_analysis.png" width="45%" alt="支路分析"/>
+</p>
+<p align="center">
+  <img src="./docs/images/price_policy.png" width="45%" alt="费率配置"/>
+  <img src="./docs/images/carbon_analysis.png" width="45%" alt="碳排放分析"/>
+</p>
+
+---
+
 ## 📋 项目简介
 
 Terra EMS Web 是 Terra 能源管理系统的前端应用，基于 **Ant Design Pro** 脚手架构建，采用 **UmiJS 4** 企业级前端框架，提供开箱即用的中后台管理界面。本应用包含完整的能源管理业务页面、数据可视化图表、权限控制体系，以及现代化的 UI 交互体验。
