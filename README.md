@@ -44,6 +44,10 @@ graph LR
 
 ## 📋 Introduction
 
+<p align="center">
+  <img src="./docs/images/demo.webp" width="100%" alt="Terra EMS Demo Video"/>
+</p>
+
 Terra EMS Web is the frontend application for the Terra Energy Management System. It is built on the **Ant Design Pro** template and uses the **UmiJS 4** enterprise-grade framework. It provides out-of-the-box management interfaces, comprehensive energy monitoring dashboards, TOU pricing analysis, carbon footprint tracking, and a modern UI experience.
 
 > 📦 Backend Repository: [terra-ems](https://github.com/dengxp/terra-ems)

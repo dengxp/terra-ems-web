@@ -40,6 +40,10 @@ graph LR
 
 ## 📋 项目简介
 
+<p align="center">
+  <img src="./docs/images/demo.webp" width="100%" alt="Terra EMS 演示视频"/>
+</p>
+
 Terra EMS Web 是 Terra 能源管理系统的前端应用，基于 **Ant Design Pro** 脚手架构建，采用 **UmiJS 4** 企业级前端框架，提供开箱即用的中后台管理界面。本应用包含完整的能源管理业务页面、数据可视化图表、权限控制体系，以及现代化的 UI 交互体验。
 
 > 📦 后端仓库：[terra-ems](https://github.com/dengxp/terra-ems)
