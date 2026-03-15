@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2024-2026 Terra Technology (Guangzhou) Co., Ltd.
- * Copyright (c) 2024-2026 泰若科技（广州）有限公司.
+ * Copyright (c) 2025-2026 Terra Technology (Guangzhou) Co., Ltd.
+ * Copyright (c) 2025-2026 泰若科技（广州）有限公司.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal

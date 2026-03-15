@@ -55,6 +55,7 @@ trigger: always_on
 ## 五、 工程化流程
 
 1. **Git 提交**：
+    * Copyright (c) 2025 泰若科技（广州）有限公司. All rights reserved.
     - **语言约定**：Commit Message 必须使用**简体中文**。
     - **格式**：遵循 `type: 描述` (如 `fix: 修复搜索分页失效`)。
 2. **文档同步**：重大交互变更或技术选型变更后，需同步更新 `.agent/rules/` 下的文档。
