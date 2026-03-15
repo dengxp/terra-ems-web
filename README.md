@@ -27,7 +27,7 @@ Terra EMS Web is the frontend application for the Terra Energy Management System
 
 ## 🚀 Online Demo
 
-*   **URL**: [http://ems.vipcti.com](http://ems.vipcti.com)
+*   **URL**: [http://terra-ems.com](http://terra-ems.com)
 *   **Username**: `admin`
 *   **Password**: `admin123`
 
