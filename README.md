@@ -13,6 +13,16 @@
   <img src="https://img.shields.io/badge/License-MIT-blue?style=flat-square" alt="MIT License"/>
 </p>
 
+### 🏗️ Design System & Architecture
+
+```mermaid
+graph LR
+    UI[Ant Design 5.x / Pro Components] --> Hook[useCrud Custom Hook]
+    Hook --> Request[@umijs/max/request]
+    Request --> API[terra-ems API Service]
+    API --> UI
+```
+
 <p align="center">
   <a href="./README.zh-CN.md">中文文档</a> | <span>English</span>
 </p>
@@ -123,4 +133,4 @@ We welcome bug reports and suggestions via [Issues](https://github.com/dengxp/te
 
 ## 📜 License
 
-[MIT License](LICENSE) — Copyright © 2024-2026 Terra Technology (Guangzhou) Co., Ltd.
+[MIT License](LICENSE) — Copyright © 2025-2026 Terra Technology (Guangzhou) Co., Ltd.

@@ -13,6 +13,16 @@
   <img src="https://img.shields.io/badge/License-MIT-blue?style=flat-square" alt="MIT License"/>
 </p>
 
+### 🏗️ 技术架构图
+
+```mermaid
+graph LR
+    UI[Ant Design 5.x / Pro Components] --> Hook[useCrud 通用 Hook]
+    Hook --> Request[@umijs/max/request]
+    Request --> API[terra-ems 后端服务]
+    API --> UI
+```
+
 ---
 
 ## 📋 项目简介
@@ -187,4 +197,4 @@ const { getState, actionRef, search, toCreate, toEdit,
 
 ## 📜 开源协议
 
-[MIT License](LICENSE) — Copyright © 2024-2026 泰若科技（广州）有限公司
+[MIT License](LICENSE) — Copyright © 2025-2026 泰若科技（广州）有限公司
