@@ -57,8 +57,8 @@ const EquipmentForm: React.FC<Props> = ({ visible, onCancel, onSuccess }) => {
                 width: 800,
             }}
             layout="horizontal"
-            labelCol={{ span: 7 }}
-            wrapperCol={{ span: 17 }}
+            labelCol={{ span: 6 }}
+            wrapperCol={{ span: 18 }}
             grid={true}
             colProps={{ span: 12 }}
             rowProps={{
@@ -112,7 +112,7 @@ const EquipmentForm: React.FC<Props> = ({ visible, onCancel, onSuccess }) => {
             />
             <ProFormTreeSelect
                 name="energyUnitId"
-                label="所属用能单元"
+                label="用能单元"
                 request={async () => {
                     const res = await getEnabledEnergyUnitTree();
                     return res.data || [];
@@ -136,9 +136,8 @@ const EquipmentForm: React.FC<Props> = ({ visible, onCancel, onSuccess }) => {
                 name="remark"
                 label="备注"
                 placeholder="请输入备注"
-                colProps={{ span: 24 }}
-                labelCol={{ style: { width: 'calc(7 / 24 * 50% + 8px)' } }}
-                wrapperCol={{ style: { flex: 1 } }}
+                labelCol={{ span: 3 }}
+                wrapperCol={{ span: 21 }}
             />
         </ProModalForm>
     );
