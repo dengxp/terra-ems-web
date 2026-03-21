@@ -126,8 +126,26 @@ export default [
         permissions: ['ems:energy-unit:list'],
       },
       {
-        title: '采集点位管理',
-        name: '采集点位管理',
+        title: '网关管理',
+        name: '网关管理',
+        path: '/basic-data/gateway',
+        component: './BasicData/Gateway',
+      },
+      {
+        title: '数据源管理',
+        name: '数据源管理',
+        path: '/basic-data/data-source',
+        component: './BasicData/DataSource',
+      },
+      {
+        title: '用能设备管理',
+        name: '用能设备管理',
+        path: '/basic-data/equipment',
+        component: './BasicData/Equipment',
+      },
+      {
+        title: '计量点管理',
+        name: '计量点管理',
         path: '/basic-data/meter-point',
         component: './BasicData/MeterPoint',
         access: 'canAccess',
