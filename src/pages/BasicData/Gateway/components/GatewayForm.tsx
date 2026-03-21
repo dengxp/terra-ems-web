@@ -57,8 +57,8 @@ const GatewayForm: React.FC<Props> = ({ visible, onCancel, onSuccess }) => {
                 width: 800,
             }}
             layout="horizontal"
-            labelCol={{ span: 6 }}
-            wrapperCol={{ span: 18 }}
+            labelCol={{ span: 7 }}
+            wrapperCol={{ span: 17 }}
             grid={true}
             colProps={{ span: 12 }}
             rowProps={{
@@ -69,6 +69,7 @@ const GatewayForm: React.FC<Props> = ({ visible, onCancel, onSuccess }) => {
             <ProFormText
                 name="id"
                 hidden
+                colProps={{ span: 0 }}
             />
             <ProFormText
                 name="name"
@@ -130,8 +131,8 @@ const GatewayForm: React.FC<Props> = ({ visible, onCancel, onSuccess }) => {
                 label="备注"
                 placeholder="请输入备注"
                 colProps={{ span: 24 }}
-                labelCol={{ span: 3 }}
-                wrapperCol={{ span: 21 }}
+                labelCol={{ span: 4 }}
+                wrapperCol={{ span: 20 }}
             />
         </ProModalForm>
     );
