@@ -136,9 +136,9 @@ const EquipmentForm: React.FC<Props> = ({ visible, onCancel, onSuccess }) => {
                 name="remark"
                 label="备注"
                 placeholder="请输入备注"
-                
-                
-                
+                colProps={{ span: 24 }}
+                labelCol={{ style: { width: 'calc(7 / 24 * 50% + 8px)' } }}
+                wrapperCol={{ style: { flex: 1 } }}
             />
         </ProModalForm>
     );
