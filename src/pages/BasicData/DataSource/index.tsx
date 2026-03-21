@@ -5,7 +5,7 @@ import StatusIcon from '@/components/icons/StatusIcon';
 import useCrud from '@/hooks/common/useCrud';
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import { ProColumns, ProTable } from '@ant-design/pro-components';
-import { Button, Space, Tag } from 'antd';
+import { Button, Space, Tag, Tooltip } from 'antd';
 import React, { useEffect, useState } from 'react';
 import DataSourceForm from './components/DataSourceForm';
 
@@ -16,6 +16,18 @@ const PROTOCOL_LABELS: Record<string, { label: string; color: string }> = {
     'opc-ua': { label: 'OPC UA', color: 'purple' },
     'dlt645': { label: 'DL/T645', color: 'orange' },
     'http': { label: 'HTTP', color: 'geekblue' },
+    'bacnet-ip': { label: 'BACnet/IP', color: 'magenta' },
+};
+
+/** 格式化 connection JSON 为可读文本 */
+const formatConnection = (conn?: string): string => {
+    if (!conn) return '-';
+    try {
+        const obj = typeof conn === 'string' ? JSON.parse(conn) : conn;
+        return Object.entries(obj).map(([k, v]) => `${k}: ${v}`).join(', ');
+    } catch {
+        return conn;
+    }
 };
 
 const Index: React.FC = () => {
@@ -46,7 +58,7 @@ const Index: React.FC = () => {
         { title: '数据源名称', dataIndex: 'name', width: 180 },
         {
             title: '所属网关', dataIndex: ['gateway', 'name'], width: 150,
-            render: (_, r) => r.gateway?.name || '-',
+            render: (_, r) => r.gateway ? `${r.gateway.name} (${r.gateway.code})` : '-',
         },
         {
             title: '协议', dataIndex: 'protocol', width: 120,
@@ -58,7 +70,10 @@ const Index: React.FC = () => {
         { title: '采集周期(秒)', dataIndex: 'pollIntervalSecs', width: 110 },
         {
             title: '连接参数', dataIndex: 'connection', width: 250, ellipsis: true,
-            render: (_, r) => r.connection || '-',
+            render: (_, r) => {
+                const text = formatConnection(r.connection);
+                return <Tooltip title={text}><span>{text}</span></Tooltip>;
+            },
         },
         { title: '状态', dataIndex: 'status', width: 80, render: (_, r) => <StatusIcon value={r.status} /> },
         {
@@ -66,7 +81,7 @@ const Index: React.FC = () => {
             render: (_, record) => (
                 <Space>
                     <EditButton onClick={() => toEdit(record)} />
-                    <DeleteButton onConfirm={() => { toDelete(record.id, true); loadData(); }} />
+                    <DeleteButton onConfirm={async () => { await toDelete(record.id, true); loadData(); }} />
                 </Space>
             ),
         },
