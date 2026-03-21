@@ -41,7 +41,6 @@ const EquipmentForm: React.FC<Props> = ({ visible, onCancel, onSuccess }) => {
                 return true;
             }}
             modalProps={{ destroyOnHidden: true, maskClosable: false, width: 800 }}
-            layout="horizontal"
             labelCol={{ span: 6 }}
             wrapperCol={{ span: 18 }}
             grid={true}
