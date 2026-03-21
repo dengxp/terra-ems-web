@@ -46,7 +46,6 @@ const DataSourceForm: React.FC<Props> = ({ visible, onCancel, onSuccess }) => {
                         connObj = typeof editData.connection === 'string' ? JSON.parse(editData.connection) : editData.connection;
                     }
                 } catch (e) { /* ignore */ }
-
                 form.setFieldsValue({
                     ...editData,
                     gatewayId: editData.gateway?.id,
@@ -83,72 +82,57 @@ const DataSourceForm: React.FC<Props> = ({ visible, onCancel, onSuccess }) => {
         <ProModalForm
             title={state.dialogTitle}
             open={visible}
-            onOpenChange={(open) => {
-                if (!open) onCancel();
-            }}
+            onOpenChange={(open) => { if (!open) onCancel(); }}
             form={form}
             onFinish={async (values) => {
-                const submitData = {
-                    ...state.editData,
-                    ...values,
-                    connection: buildConnection(values),
-                };
-                // 清理临时字段
+                const submitData = { ...state.editData, ...values, connection: buildConnection(values) };
                 Object.keys(submitData).filter(k => k.startsWith('conn_')).forEach(k => delete submitData[k]);
                 await handleSaveOrUpdate(submitData);
                 onSuccess();
                 return true;
             }}
-            modalProps={{
-                destroyOnHidden: true,
-                maskClosable: false,
-                width: 800,
-            }}
-            layout="horizontal"
-            labelCol={{ span: 6 }}
-            wrapperCol={{ span: 18 }}
+            modalProps={{ destroyOnHidden: true, maskClosable: false, width: 800 }}
             grid={true}
-            colProps={{ span: 12 }}
-            rowProps={{
-                gutter: [16, 0]
-            }}
+            rowProps={{ gutter: 0 }}
+            labelCol={{ span: 6 }}
             loading={state.loading}
         >
+            <ProFormText name="id" hidden={true} />
             <ProFormText
-                name="id"
-                hidden
-                colProps={{ span: 0 }}
-            />
-            <ProFormText
-                name="name"
                 label="名称"
+                name="name"
                 placeholder="请输入数据源名称"
+                labelCol={{ span: 3 }}
                 rules={[{ required: true, message: '请输入名称' }]}
             />
             <ProFormSelect
-                name="gatewayId"
                 label="所属网关"
+                name="gatewayId"
                 placeholder="请选择所属网关"
+                colProps={{ span: 12 }}
                 rules={[{ required: true, message: '请选择网关' }]}
                 options={gateways.map(g => ({ label: `${g.name} (${g.code})`, value: g.id }))}
             />
             <ProFormSelect
-                name="protocol"
                 label="采集协议"
+                name="protocol"
                 placeholder="请选择协议"
+                colProps={{ span: 12 }}
                 rules={[{ required: true, message: '请选择协议' }]}
                 options={PROTOCOL_OPTIONS}
                 fieldProps={{ onChange: (val: string) => setProtocol(val) }}
             />
             <ProFormDigit
-                name="pollIntervalSecs"
                 label="采集周期(秒)"
+                name="pollIntervalSecs"
                 placeholder="采集间隔"
+                colProps={{ span: 12 }}
                 min={1}
             />
             <ProFormSelect
-                name="status"
                 label="状态"
+                name="status"
+                colProps={{ span: 12 }}
                 options={[
                     { label: '启用', value: 0 },
                     { label: '停用', value: 1 },
@@ -156,44 +140,44 @@ const DataSourceForm: React.FC<Props> = ({ visible, onCancel, onSuccess }) => {
                 rules={[{ required: true }]}
             />
 
-            {/* ===== 连接参数分区 ===== */}
+            {/* 连接参数分区 */}
             {protocol && (
-                <Divider
-                    orientation="left"
-                    orientationMargin={0}
-                    style={{ margin: '4px 0 12px', gridColumn: '1 / -1' }}
-                >
+                <Divider orientation="left" orientationMargin={0} style={{ margin: '4px 0 12px' }}>
                     <span style={{ fontSize: 13, color: '#888' }}>连接参数</span>
                 </Divider>
             )}
-
             {(protocol === 'modbus-tcp' || protocol === 'mqtt') && (
                 <ProFormDigit
-                    name="conn_port"
                     label="端口号"
+                    name="conn_port"
                     placeholder={protocol === 'mqtt' ? '如 1883' : '如 502'}
+                    colProps={{ span: 12 }}
                 />
             )}
             {protocol === 'modbus-rtu' && (
                 <>
                     <ProFormDigit
-                        name="conn_baudRate"
                         label="波特率"
+                        name="conn_baudRate"
                         placeholder="如 9600"
+                        colProps={{ span: 12 }}
                     />
                     <ProFormSelect
-                        name="conn_dataBits"
                         label="数据位"
+                        name="conn_dataBits"
+                        colProps={{ span: 12 }}
                         options={[{ label: '7', value: 7 }, { label: '8', value: 8 }]}
                     />
                     <ProFormSelect
-                        name="conn_stopBits"
                         label="停止位"
+                        name="conn_stopBits"
+                        colProps={{ span: 12 }}
                         options={[{ label: '1', value: 1 }, { label: '2', value: 2 }]}
                     />
                     <ProFormSelect
-                        name="conn_parity"
                         label="校验方式"
+                        name="conn_parity"
+                        colProps={{ span: 12 }}
                         options={[
                             { label: '无校验', value: 'NONE' },
                             { label: '奇校验', value: 'ODD' },
@@ -204,8 +188,8 @@ const DataSourceForm: React.FC<Props> = ({ visible, onCancel, onSuccess }) => {
             )}
 
             <ProFormTextArea
-                name="remark"
                 label="备注"
+                name="remark"
                 placeholder="请输入备注"
                 labelCol={{ span: 3 }}
                 wrapperCol={{ span: 21 }}

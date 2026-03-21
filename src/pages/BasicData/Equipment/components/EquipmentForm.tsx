@@ -39,80 +39,70 @@ const EquipmentForm: React.FC<Props> = ({ visible, onCancel, onSuccess }) => {
         <ProModalForm
             title={state.dialogTitle}
             open={visible}
-            onOpenChange={(open) => {
-                if (!open) onCancel();
-            }}
+            onOpenChange={(open) => { if (!open) onCancel(); }}
             form={form}
             onFinish={async (values) => {
-                await handleSaveOrUpdate({
-                    ...state.editData,
-                    ...values,
-                });
+                await handleSaveOrUpdate({ ...state.editData, ...values });
                 onSuccess();
                 return true;
             }}
-            modalProps={{
-                destroyOnHidden: true,
-                maskClosable: false,
-                width: 800,
-            }}
-            layout="horizontal"
-            labelCol={{ span: 6 }}
-            wrapperCol={{ span: 18 }}
+            modalProps={{ destroyOnHidden: true, maskClosable: false, width: 800 }}
             grid={true}
-            colProps={{ span: 12 }}
-            rowProps={{
-                gutter: [16, 0]
-            }}
+            rowProps={{ gutter: 0 }}
+            labelCol={{ span: 6 }}
             loading={state.loading}
         >
+            <ProFormText name="id" hidden={true} />
             <ProFormText
-                name="id"
-                hidden
-                colProps={{ span: 0 }}
-            />
-            <ProFormText
-                name="name"
                 label="设备名称"
+                name="name"
                 placeholder="请输入设备名称"
+                labelCol={{ span: 3 }}
                 rules={[{ required: true, message: '请输入设备名称' }]}
             />
             <ProFormText
-                name="code"
                 label="设备编码"
+                name="code"
                 placeholder="请输入设备编码"
+                colProps={{ span: 12 }}
                 rules={[{ required: true, message: '请输入设备编码' }]}
                 disabled={state.operation === OperationEnum.EDIT}
             />
             <ProFormText
-                name="type"
                 label="设备类型"
+                name="type"
                 placeholder="请输入设备类型"
+                colProps={{ span: 12 }}
             />
             <ProFormText
-                name="modelNumber"
                 label="规格型号"
+                name="modelNumber"
                 placeholder="请输入规格型号"
+                colProps={{ span: 12 }}
             />
             <ProFormText
-                name="manufacturer"
                 label="生产厂商"
+                name="manufacturer"
                 placeholder="请输入生产厂商"
+                colProps={{ span: 12 }}
             />
             <ProFormDigit
-                name="ratedPower"
                 label="额定功率(kW)"
+                name="ratedPower"
                 placeholder="请输入额定功率"
+                colProps={{ span: 12 }}
                 fieldProps={{ precision: 2 }}
             />
             <ProFormText
-                name="location"
                 label="安装位置"
+                name="location"
                 placeholder="请输入安装位置"
+                colProps={{ span: 12 }}
             />
             <ProFormTreeSelect
-                name="energyUnitId"
                 label="用能单元"
+                name="energyUnitId"
+                colProps={{ span: 12 }}
                 request={async () => {
                     const res = await getEnabledEnergyUnitTree();
                     return res.data || [];
@@ -120,12 +110,13 @@ const EquipmentForm: React.FC<Props> = ({ visible, onCancel, onSuccess }) => {
                 fieldProps={{
                     fieldNames: { label: 'name', value: 'id', children: 'children' },
                     allowClear: true,
-                    placeholder: '请选择所属用能单元',
+                    placeholder: '请选择',
                 }}
             />
             <ProFormSelect
-                name="status"
                 label="状态"
+                name="status"
+                colProps={{ span: 12 }}
                 options={[
                     { label: '启用', value: 0 },
                     { label: '停用', value: 1 },
@@ -133,8 +124,8 @@ const EquipmentForm: React.FC<Props> = ({ visible, onCancel, onSuccess }) => {
                 rules={[{ required: true }]}
             />
             <ProFormTextArea
-                name="remark"
                 label="备注"
+                name="remark"
                 placeholder="请输入备注"
                 labelCol={{ span: 3 }}
                 wrapperCol={{ span: 21 }}
