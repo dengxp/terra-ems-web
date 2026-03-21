@@ -7,7 +7,11 @@ import { ProFormDigit, ProFormSelect, ProFormText, ProFormTextArea } from '@ant-
 import { Divider } from 'antd';
 import React, { useEffect, useState } from 'react';
 
-interface Props { visible: boolean; onCancel: () => void; onSuccess: () => void; }
+interface Props {
+    visible: boolean;
+    onCancel: () => void;
+    onSuccess: () => void;
+}
 
 const PROTOCOL_OPTIONS = [
     { label: 'Modbus TCP', value: 'modbus-tcp' },
@@ -24,7 +28,9 @@ const DataSourceForm: React.FC<Props> = ({ visible, onCancel, onSuccess }) => {
     const [protocol, setProtocol] = useState<string>('');
 
     const { form, handleSaveOrUpdate, getState } = useCrud<DataSource>({
-        pathname: '/basic-data/data-source', entityName: '数据源', baseUrl: '/api/data-sources',
+        pathname: '/basic-data/data-source',
+        entityName: '数据源',
+        baseUrl: '/api/data-sources',
         onOpenChange: (open) => { if (!open) onCancel(); }
     });
     const state = getState('/basic-data/data-source');
@@ -57,7 +63,7 @@ const DataSourceForm: React.FC<Props> = ({ visible, onCancel, onSuccess }) => {
                 setProtocol('');
             }
         }
-    }, [visible, state.operation, state.editData]);
+    }, [visible, state.operation, state.editData, form]);
 
     const buildConnection = (values: any): string | undefined => {
         const proto = values.protocol;
@@ -75,68 +81,135 @@ const DataSourceForm: React.FC<Props> = ({ visible, onCancel, onSuccess }) => {
 
     return (
         <ProModalForm
-            title={state.operation === OperationEnum.EDIT ? '编辑数据源' : '新增数据源'}
+            title={state.dialogTitle}
             open={visible}
-            onOpenChange={(open) => { if (!open) onCancel(); }}
+            onOpenChange={(open) => {
+                if (!open) onCancel();
+            }}
             form={form}
             onFinish={async (values) => {
-                const submitData = { ...values, connection: buildConnection(values) };
+                const submitData = {
+                    ...state.editData,
+                    ...values,
+                    connection: buildConnection(values),
+                };
+                // 清理临时字段
                 Object.keys(submitData).filter(k => k.startsWith('conn_')).forEach(k => delete submitData[k]);
                 await handleSaveOrUpdate(submitData);
                 onSuccess();
                 return true;
             }}
-            modalProps={{ destroyOnHidden: true, maskClosable: false, width: 800 }}
+            modalProps={{
+                destroyOnHidden: true,
+                maskClosable: false,
+                width: 800,
+            }}
+            layout="horizontal"
             labelCol={{ span: 6 }}
             wrapperCol={{ span: 18 }}
             grid={true}
             colProps={{ span: 12 }}
-            rowProps={{ gutter: [16, 0] }}
+            rowProps={{
+                gutter: [16, 0]
+            }}
             loading={state.loading}
         >
-            <ProFormText name="id" hidden />
-
-            <ProFormText name="name" label="数据源名称" placeholder="请输入数据源名称"
-                rules={[{ required: true, message: '请输入名称' }]} />
-            <ProFormSelect name="gatewayId" label="所属网关" placeholder="请选择所属网关"
+            <ProFormText
+                name="id"
+                hidden
+            />
+            <ProFormText
+                name="name"
+                label="数据源名称"
+                placeholder="请输入数据源名称"
+                rules={[{ required: true, message: '请输入名称' }]}
+            />
+            <ProFormSelect
+                name="gatewayId"
+                label="所属网关"
+                placeholder="请选择所属网关"
                 rules={[{ required: true, message: '请选择网关' }]}
-                options={gateways.map(g => ({ label: `${g.name} (${g.code})`, value: g.id }))} />
-            <ProFormSelect name="protocol" label="采集协议" placeholder="请选择协议"
+                options={gateways.map(g => ({ label: `${g.name} (${g.code})`, value: g.id }))}
+            />
+            <ProFormSelect
+                name="protocol"
+                label="采集协议"
+                placeholder="请选择协议"
                 rules={[{ required: true, message: '请选择协议' }]}
                 options={PROTOCOL_OPTIONS}
-                fieldProps={{ onChange: (val: string) => setProtocol(val) }} />
-            <ProFormDigit name="pollIntervalSecs" label="采集周期(秒)" placeholder="采集间隔" min={1} />
-            <ProFormSelect name="status" label="状态"
-                options={[{ label: '启用', value: 0 }, { label: '停用', value: 1 }]}
-                rules={[{ required: true }]} />
+                fieldProps={{ onChange: (val: string) => setProtocol(val) }}
+            />
+            <ProFormDigit
+                name="pollIntervalSecs"
+                label="采集周期(秒)"
+                placeholder="采集间隔"
+                min={1}
+            />
+            <ProFormSelect
+                name="status"
+                label="状态"
+                options={[
+                    { label: '启用', value: 0 },
+                    { label: '停用', value: 1 },
+                ]}
+                rules={[{ required: true }]}
+            />
 
-            {/* ===== 连接参数（根据协议动态显示）===== */}
+            {/* ===== 连接参数分区 ===== */}
             {protocol && (
-                <div style={{ gridColumn: '1 / -1' }}>
-                    <Divider style={{ margin: '4px 0 16px' }} orientation="left" orientationMargin={0}>
-                        <span style={{ fontSize: 13, color: '#666' }}>连接参数</span>
-                    </Divider>
-                </div>
+                <Divider
+                    orientation="left"
+                    orientationMargin={0}
+                    style={{ margin: '4px 0 12px', gridColumn: '1 / -1' }}
+                >
+                    <span style={{ fontSize: 13, color: '#888' }}>连接参数</span>
+                </Divider>
             )}
 
             {(protocol === 'modbus-tcp' || protocol === 'mqtt') && (
-                <ProFormDigit name="conn_port" label="端口号"
-                    placeholder={protocol === 'mqtt' ? '如 1883' : '如 502'} />
+                <ProFormDigit
+                    name="conn_port"
+                    label="端口号"
+                    placeholder={protocol === 'mqtt' ? '如 1883' : '如 502'}
+                />
             )}
             {protocol === 'modbus-rtu' && (
                 <>
-                    <ProFormDigit name="conn_baudRate" label="波特率" placeholder="如 9600" />
-                    <ProFormSelect name="conn_dataBits" label="数据位"
-                        options={[{ label: '7', value: 7 }, { label: '8', value: 8 }]} />
-                    <ProFormSelect name="conn_stopBits" label="停止位"
-                        options={[{ label: '1', value: 1 }, { label: '2', value: 2 }]} />
-                    <ProFormSelect name="conn_parity" label="校验方式"
-                        options={[{ label: '无校验', value: 'NONE' }, { label: '奇校验', value: 'ODD' }, { label: '偶校验', value: 'EVEN' }]} />
+                    <ProFormDigit
+                        name="conn_baudRate"
+                        label="波特率"
+                        placeholder="如 9600"
+                    />
+                    <ProFormSelect
+                        name="conn_dataBits"
+                        label="数据位"
+                        options={[{ label: '7', value: 7 }, { label: '8', value: 8 }]}
+                    />
+                    <ProFormSelect
+                        name="conn_stopBits"
+                        label="停止位"
+                        options={[{ label: '1', value: 1 }, { label: '2', value: 2 }]}
+                    />
+                    <ProFormSelect
+                        name="conn_parity"
+                        label="校验方式"
+                        options={[
+                            { label: '无校验', value: 'NONE' },
+                            { label: '奇校验', value: 'ODD' },
+                            { label: '偶校验', value: 'EVEN' },
+                        ]}
+                    />
                 </>
             )}
 
-            <ProFormTextArea name="remark" label="备注" placeholder="请输入备注"
-                colProps={{ span: 24 }} labelCol={{ span: 3 }} wrapperCol={{ span: 21 }} />
+            <ProFormTextArea
+                name="remark"
+                label="备注"
+                placeholder="请输入备注"
+                colProps={{ span: 24 }}
+                labelCol={{ span: 3 }}
+                wrapperCol={{ span: 21 }}
+            />
         </ProModalForm>
     );
 };
