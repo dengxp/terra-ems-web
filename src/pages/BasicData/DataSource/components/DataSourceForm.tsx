@@ -207,9 +207,9 @@ const DataSourceForm: React.FC<Props> = ({ visible, onCancel, onSuccess }) => {
                 name="remark"
                 label="备注"
                 placeholder="请输入备注"
-                colProps={{ span: 24 }}
-                labelCol={{ span: 4 }}
-                wrapperCol={{ span: 20 }}
+                
+                
+                
             />
         </ProModalForm>
     );
