@@ -168,9 +168,12 @@ const TopologyPage: React.FC = () => {
                     return {
                         size: [nodeWidth, nodeHeight],
                         radius: 0,
-                        fill: 'transparent',
-                        stroke: 'transparent',
+                        fill: 'rgba(0,0,0,0)',
+                        fillOpacity: 0,
+                        stroke: 'rgba(0,0,0,0)',
+                        strokeOpacity: 0,
                         lineWidth: 0,
+                        opacity: 1,
                         cursor: 'pointer',
                         // 标签：图标 + 名称
                         labelText: `${config.legendIcon}  ${d.data?.name || d.id}`,
