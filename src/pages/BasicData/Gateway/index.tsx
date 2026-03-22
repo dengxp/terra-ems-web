@@ -7,7 +7,7 @@ import useCrud from '@/hooks/common/useCrud';
 import { wrapperResult } from '@/utils';
 import { DatabaseOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import { ProColumns, ProTable } from '@ant-design/pro-components';
-import { Button, Descriptions, Drawer, List, Space, Tag } from 'antd';
+import { Button, Card, Drawer, Empty, Flex, Space, Spin, Tag, Typography } from 'antd';
 import React, { useEffect, useState } from 'react';
 import GatewayForm from './components/GatewayForm';
 
@@ -137,34 +137,46 @@ const Index: React.FC = () => {
                 title={`数据源 — ${drawerGateway?.name || ''}`}
                 open={drawerVisible}
                 onClose={() => setDrawerVisible(false)}
-                width={500}
+                width={460}
             >
-                <List
-                    loading={dsLoading}
-                    dataSource={dataSources}
-                    locale={{ emptyText: '该网关下暂无数据源' }}
-                    renderItem={(item) => {
-                        const connParams = parseConnection(item.connection);
-                        return (
-                            <List.Item style={{ display: 'block', padding: '12px 0' }}>
-                                <Space style={{ marginBottom: 8 }}>
-                                    <span style={{ fontWeight: 500 }}>{item.name}</span>
-                                    <Tag color={PROTOCOL_LABELS[item.protocol]?.color || 'default'}>
-                                        {PROTOCOL_LABELS[item.protocol]?.label || item.protocol}
-                                    </Tag>
-                                </Space>
-                                <Descriptions size="small" column={2} bordered style={{ marginTop: 4 }}>
-                                    <Descriptions.Item label="采集周期">{item.pollIntervalSecs || '-'} 秒</Descriptions.Item>
-                                    {Object.entries(connParams).map(([key, val]) => (
-                                        <Descriptions.Item key={key} label={CONN_PARAM_LABELS[key] || key}>
-                                            {String(val)}
-                                        </Descriptions.Item>
-                                    ))}
-                                </Descriptions>
-                            </List.Item>
-                        );
-                    }}
-                />
+                {dsLoading ? (
+                    <Flex justify="center" align="center" style={{ height: 200 }}><Spin /></Flex>
+                ) : dataSources.length === 0 ? (
+                    <Empty description="该网关下暂无数据源" />
+                ) : (
+                    <Flex vertical gap={12}>
+                        {dataSources.map((item) => {
+                            const connParams = parseConnection(item.connection);
+                            const proto = PROTOCOL_LABELS[item.protocol] || { label: item.protocol, color: 'default' };
+                            return (
+                                <Card
+                                    key={item.id}
+                                    size="small"
+                                    title={
+                                        <Flex justify="space-between" align="center">
+                                            <span>{item.name}</span>
+                                            <Tag color={proto.color} style={{ marginRight: 0 }}>{proto.label}</Tag>
+                                        </Flex>
+                                    }
+                                    styles={{ body: { padding: '8px 16px' } }}
+                                >
+                                    <Flex vertical gap={4}>
+                                        <Flex justify="space-between">
+                                            <Typography.Text type="secondary">采集周期</Typography.Text>
+                                            <span>{item.pollIntervalSecs || '-'} 秒</span>
+                                        </Flex>
+                                        {Object.entries(connParams).map(([key, val]) => (
+                                            <Flex key={key} justify="space-between">
+                                                <Typography.Text type="secondary">{CONN_PARAM_LABELS[key] || key}</Typography.Text>
+                                                <span>{String(val)}</span>
+                                            </Flex>
+                                        ))}
+                                    </Flex>
+                                </Card>
+                            );
+                        })}
+                    </Flex>
+                )}
             </Drawer>
         </>
     );
