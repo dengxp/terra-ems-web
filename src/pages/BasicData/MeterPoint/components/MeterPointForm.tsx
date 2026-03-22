@@ -131,7 +131,7 @@ const MeterPointForm: React.FC<MeterPointFormProps> = ({
                     ...state.editData,
                     meterId: state.editData?.meter?.id,
                     energyTypeId: state.editData?.energyType?.id,
-                    energyUnitIds: state.editData?.energyUnits?.map((u: any) => u.id) || [],
+                    energyUnitIds: state.editData?.energyUnits?.map((u: any) => ({ value: u.id, label: u.name })) || [],
                 });
             }
 
@@ -175,7 +175,9 @@ const MeterPointForm: React.FC<MeterPointFormProps> = ({
 
                     // 保存成功后关联用能单元
                     if (res.success && res.data?.id && energyUnitIds !== undefined) {
-                        await assignEnergyUnits(res.data.id, energyUnitIds);
+                        // treeCheckStrictly 模式下值为 [{value, label}]，提取 id
+                        const unitIds = energyUnitIds.map((item: any) => item.value ?? item);
+                        await assignEnergyUnits(res.data.id, unitIds);
                     }
 
                     onSuccess();
@@ -254,7 +256,8 @@ const MeterPointForm: React.FC<MeterPointFormProps> = ({
                 fieldProps={{
                     treeData: energyUnitTreeData,
                     treeCheckable: true,
-                    showCheckedStrategy: 'SHOW_CHILD',
+                    treeCheckStrictly: true,
+                    showCheckedStrategy: 'SHOW_ALL',
                     treeDefaultExpandAll: true,
                     maxTagCount: 3,
                     allowClear: true,
