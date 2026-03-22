@@ -22,7 +22,7 @@
  *
  */
 
-import { getMeterPointPage, MeterPoint } from '@/apis/meterPoint';
+import { getMeterPointPage, getMeterPointLatestValues, MeterPoint, PointLatestValue } from '@/apis/meterPoint';
 import { DeleteButton, EditButton } from '@/components/button';
 import { ProPageContainer } from '@/components/container';
 import { Permission } from '@/components';
@@ -32,8 +32,8 @@ import useCrud from '@/hooks/common/useCrud';
 import { wrapperResult } from '@/utils';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ProColumns, ProTable } from '@ant-design/pro-components';
-import { Button, Space } from 'antd';
-import React, { useEffect, useMemo, useState } from 'react';
+import { Button, Space, Tag, Typography } from 'antd';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import MeterPointForm from './components/MeterPointForm';
 
 /**
@@ -42,6 +42,21 @@ import MeterPointForm from './components/MeterPointForm';
 const MeterPointPage: React.FC = () => {
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     const [selectedRows, setSelectedRows] = useState<MeterPoint[]>([]);
+    const [latestValues, setLatestValues] = useState<Record<string, PointLatestValue>>({});
+    const timerRef = useRef<ReturnType<typeof setInterval>>();
+
+    const fetchLatestValues = useCallback(async () => {
+        try {
+            const res = await getMeterPointLatestValues();
+            if (res.success) setLatestValues(res.data || {});
+        } catch {}
+    }, []);
+
+    useEffect(() => {
+        fetchLatestValues();
+        timerRef.current = setInterval(fetchLatestValues, 30000);
+        return () => { if (timerRef.current) clearInterval(timerRef.current); };
+    }, [fetchLatestValues]);
 
     const {
         getState,
@@ -170,6 +185,29 @@ const MeterPointPage: React.FC = () => {
             key: 'unit',
             width: 80,
             hideInSearch: true,
+        },
+        {
+            title: '最新值',
+            dataIndex: 'latestValue',
+            width: 120,
+            hideInSearch: true,
+            render: (_, r) => {
+                const info = latestValues[r.code];
+                if (!info) return <Typography.Text type="secondary">-</Typography.Text>;
+                const color = info.quality === 0 ? undefined : info.quality === 1 ? 'orange' : 'red';
+                return <Tag color={color}>{info.value}</Tag>;
+            },
+        },
+        {
+            title: '采集时间',
+            dataIndex: 'latestTime',
+            width: 170,
+            hideInSearch: true,
+            render: (_, r) => {
+                const info = latestValues[r.code];
+                if (!info?.timestamp) return <Typography.Text type="secondary">-</Typography.Text>;
+                return info.timestamp.replace('T', ' ').substring(0, 19);
+            },
         },
         {
             title: '排序',

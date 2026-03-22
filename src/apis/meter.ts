@@ -130,3 +130,12 @@ export async function deleteMetersBatch(ids: (number | string)[]) {
         data: ids,
     });
 }
+
+export interface DeviceOnlineInfo {
+    online: boolean;
+    lastHeartbeat?: string;
+}
+
+export async function getMeterOnlineStatus() {
+    return request<API.Result<Record<string, DeviceOnlineInfo>>>('/api/meters/online-status', { method: 'GET' });
+}

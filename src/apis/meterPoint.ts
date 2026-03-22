@@ -188,3 +188,13 @@ export async function getAllMeterPoints() {
         method: 'GET',
     });
 }
+
+export interface PointLatestValue {
+    value: number;
+    timestamp: string;
+    quality: number;
+}
+
+export async function getMeterPointLatestValues() {
+    return request<API.Result<Record<string, PointLatestValue>>>('/api/meter-points/latest-values', { method: 'GET' });
+}

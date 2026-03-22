@@ -23,7 +23,7 @@
  */
 
 import {
-    getMeters, Meter
+    getMeters, getMeterOnlineStatus, Meter, DeviceOnlineInfo
 } from '@/apis/meter';
 import { getMeterPointsByMeterId, MeterPoint } from '@/apis/meterPoint';
 import { DeleteButton, EditButton, IconButton } from '@/components/button';
@@ -36,7 +36,7 @@ import { wrapperResult } from '@/utils';
 import { DeleteOutlined, EditOutlined, UnorderedListOutlined, PlusOutlined } from '@ant-design/icons';
 import { ProColumns, ProTable } from '@ant-design/pro-components';
 import { Button, Card, Drawer, Empty, Flex, Space, Spin, Tag, Typography } from 'antd';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import MeterForm from './components/MeterForm';
 
 /**
@@ -49,6 +49,21 @@ const Index: React.FC = () => {
     const [drawerMeter, setDrawerMeter] = useState<Meter | null>(null);
     const [meterPoints, setMeterPoints] = useState<MeterPoint[]>([]);
     const [mpLoading, setMpLoading] = useState(false);
+    const [onlineStatus, setOnlineStatus] = useState<Record<string, DeviceOnlineInfo>>({});
+    const timerRef = useRef<ReturnType<typeof setInterval>>();
+
+    const fetchOnlineStatus = useCallback(async () => {
+        try {
+            const res = await getMeterOnlineStatus();
+            if (res.success) setOnlineStatus(res.data || {});
+        } catch {}
+    }, []);
+
+    useEffect(() => {
+        fetchOnlineStatus();
+        timerRef.current = setInterval(fetchOnlineStatus, 30000);
+        return () => { if (timerRef.current) clearInterval(timerRef.current); };
+    }, [fetchOnlineStatus]);
 
     const {
         getState,
@@ -156,6 +171,17 @@ const Index: React.FC = () => {
             width: 200,
             hideInSearch: true,
             ellipsis: true,
+        },
+        {
+            title: '运行状态',
+            dataIndex: 'onlineStatus',
+            width: 100,
+            hideInSearch: true,
+            render: (_, r) => {
+                const info = onlineStatus[r.code];
+                const isOnline = info?.online === true;
+                return <Tag color={isOnline ? 'green' : 'default'}>{isOnline ? '在线' : '离线'}</Tag>;
+            },
         },
         {
             title: '状态',
