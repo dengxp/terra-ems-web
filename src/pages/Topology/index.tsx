@@ -1,15 +1,16 @@
 import { getTopologyData } from '@/apis/topology';
-import { Graph, treeToGraphData, register, ExtensionCategory } from '@antv/g6';
+import { Graph, treeToGraphData } from '@antv/g6';
 import { Spin } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
+import { ICON_FACTORY, ICON_BUILDING, ICON_GATEWAY, ICON_EQUIPMENT, ICON_METER } from './icons';
 
 /** 实体类型 → 节点样式配置 */
-const NODE_STYLES: Record<string, { color: string; icon: string; glowColor: string }> = {
-    root: { color: '#13C2C2', icon: '🏭', glowColor: 'rgba(19,194,194,0.4)' },
-    unit: { color: '#1890FF', icon: '🏗️', glowColor: 'rgba(24,144,255,0.3)' },
-    gateway: { color: '#52C41A', icon: '📡', glowColor: 'rgba(82,196,26,0.4)' },
-    equipment: { color: '#FA8C16', icon: '⚙️', glowColor: 'rgba(250,140,22,0.3)' },
-    meter: { color: '#722ED1', icon: '📊', glowColor: 'rgba(114,46,209,0.3)' },
+const NODE_STYLES: Record<string, { color: string; iconSrc: string; glowColor: string; legendIcon: string }> = {
+    root: { color: '#13C2C2', iconSrc: ICON_FACTORY, glowColor: 'rgba(19,194,194,0.4)', legendIcon: '🏭' },
+    unit: { color: '#1890FF', iconSrc: ICON_BUILDING, glowColor: 'rgba(24,144,255,0.3)', legendIcon: '🏗️' },
+    gateway: { color: '#52C41A', iconSrc: ICON_GATEWAY, glowColor: 'rgba(82,196,26,0.4)', legendIcon: '📡' },
+    equipment: { color: '#FA8C16', iconSrc: ICON_EQUIPMENT, glowColor: 'rgba(250,140,22,0.3)', legendIcon: '⚙️' },
+    meter: { color: '#722ED1', iconSrc: ICON_METER, glowColor: 'rgba(114,46,209,0.3)', legendIcon: '📊' },
 };
 
 /**
@@ -162,8 +163,8 @@ const TopologyPage: React.FC = () => {
                     const entityType = d.data?.entityType || 'unit';
                     const config = NODE_STYLES[entityType] || NODE_STYLES.unit;
                     const isRoot = entityType === 'root';
-                    const nodeWidth = isRoot ? 160 : 140;
-                    const nodeHeight = isRoot ? 50 : 38;
+                    const nodeWidth = isRoot ? 180 : 160;
+                    const nodeHeight = isRoot ? 52 : 40;
 
                     return {
                         size: [nodeWidth, nodeHeight],
@@ -174,12 +175,17 @@ const TopologyPage: React.FC = () => {
                         shadowColor: config.glowColor,
                         shadowBlur: isRoot ? 20 : 8,
                         cursor: 'pointer',
+                        // 图标
+                        iconSrc: config.iconSrc,
+                        iconWidth: isRoot ? 28 : 22,
+                        iconHeight: isRoot ? 28 : 22,
                         // 标签
-                        labelText: `${config.icon} ${d.data?.name || d.id}`,
+                        labelText: d.data?.name || d.id,
                         labelFill: isRoot ? '#13C2C2' : '#d0d0d0',
                         labelFontSize: isRoot ? 14 : 11,
                         labelFontWeight: isRoot ? 'bold' : 'normal',
-                        labelPlacement: 'center',
+                        labelPlacement: 'right',
+                        labelOffsetX: 4,
                         // 状态徽标（网关显示在线状态）
                         ...(entityType === 'gateway' ? {
                             badgeFill: d.data?.status === 'ONLINE' ? '#52C41A' : '#ff4d4f',
@@ -291,10 +297,10 @@ const TopologyPage: React.FC = () => {
                     ⚡ 系统拓扑总览
                 </span>
                 <div style={{ display: 'flex', gap: 20, fontSize: 12 }}>
-                    <StatBadge icon="🏗️" label="用能单元" count={stats.units} color="#1890FF" />
-                    <StatBadge icon="📡" label="网关" count={stats.gateways} color="#52C41A" />
-                    <StatBadge icon="⚙️" label="用能设备" count={stats.equipments} color="#FA8C16" />
-                    <StatBadge icon="📊" label="计量器具" count={stats.meters} color="#722ED1" />
+                    <StatBadge icon={NODE_STYLES.unit.legendIcon} label="用能单元" count={stats.units} color="#1890FF" />
+                    <StatBadge icon={NODE_STYLES.gateway.legendIcon} label="网关" count={stats.gateways} color="#52C41A" />
+                    <StatBadge icon={NODE_STYLES.equipment.legendIcon} label="用能设备" count={stats.equipments} color="#FA8C16" />
+                    <StatBadge icon={NODE_STYLES.meter.legendIcon} label="计量器具" count={stats.meters} color="#722ED1" />
                 </div>
             </div>
 
