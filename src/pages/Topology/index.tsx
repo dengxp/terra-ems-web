@@ -154,8 +154,7 @@ const TopologyPage: React.FC = () => {
             container,
             width,
             height,
-            autoFit: 'view',
-            padding: [20, 80, 20, 80],
+            autoFit: 'center',
             data: graphData,
             node: {
                 type: 'rect',
