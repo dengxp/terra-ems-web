@@ -94,6 +94,13 @@ export default [
     component: './DashboardV3',
   },
   {
+    title: '系统拓扑',
+    name: '系统拓扑',
+    path: '/topology',
+    icon: 'cluster',
+    component: './Topology',
+  },
+  {
     title: '基础数据',
     name: '基础数据',
     path: '/basic-data',

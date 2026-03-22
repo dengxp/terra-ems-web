@@ -49,6 +49,7 @@
     "@ant-design/icons": "^6.1.0",
     "@ant-design/plots": "^2.6.8",
     "@ant-design/pro-components": "^2.8.10",
+    "@antv/g6": "5",
     "@umijs/route-utils": "^2.2.2",
     "antd": "^5.29.3",
     "antd-img-crop": "^4.29.0",
