@@ -7,7 +7,7 @@ import useCrud from '@/hooks/common/useCrud';
 import { wrapperResult } from '@/utils';
 import { DatabaseOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import { ProColumns, ProTable } from '@ant-design/pro-components';
-import { Button, Drawer, List, Space, Tag } from 'antd';
+import { Button, Descriptions, Drawer, List, Space, Tag } from 'antd';
 import React, { useEffect, useState } from 'react';
 import GatewayForm from './components/GatewayForm';
 
@@ -21,12 +21,23 @@ const PROTOCOL_LABELS: Record<string, { label: string; color: string }> = {
     'bacnet-ip': { label: 'BACnet/IP', color: 'magenta' },
 };
 
-const formatConnection = (conn?: string): string => {
-    if (!conn) return '';
+const CONN_PARAM_LABELS: Record<string, string> = {
+    port: '端口号',
+    baudRate: '波特率',
+    dataBits: '数据位',
+    stopBits: '停止位',
+    parity: '校验方式',
+    host: '主机地址',
+    topic: '主题',
+    qos: 'QoS',
+    url: '地址',
+};
+
+const parseConnection = (conn?: string): Record<string, any> => {
+    if (!conn) return {};
     try {
-        const obj = typeof conn === 'string' ? JSON.parse(conn) : conn;
-        return Object.entries(obj).map(([k, v]) => `${k}: ${v}`).join(', ');
-    } catch { return conn; }
+        return typeof conn === 'string' ? JSON.parse(conn) : conn;
+    } catch { return {}; }
 };
 
 const Index: React.FC = () => {
@@ -132,26 +143,27 @@ const Index: React.FC = () => {
                     loading={dsLoading}
                     dataSource={dataSources}
                     locale={{ emptyText: '该网关下暂无数据源' }}
-                    renderItem={(item) => (
-                        <List.Item>
-                            <List.Item.Meta
-                                title={
-                                    <Space>
-                                        <span>{item.name}</span>
-                                        <Tag color={PROTOCOL_LABELS[item.protocol]?.color || 'default'}>
-                                            {PROTOCOL_LABELS[item.protocol]?.label || item.protocol}
-                                        </Tag>
-                                    </Space>
-                                }
-                                description={
-                                    <Space direction="vertical" size={2}>
-                                        {item.pollIntervalSecs && <span>采集周期: {item.pollIntervalSecs}秒</span>}
-                                        {item.connection && <span>连接参数: {formatConnection(item.connection)}</span>}
-                                    </Space>
-                                }
-                            />
-                        </List.Item>
-                    )}
+                    renderItem={(item) => {
+                        const connParams = parseConnection(item.connection);
+                        return (
+                            <List.Item style={{ display: 'block', padding: '12px 0' }}>
+                                <Space style={{ marginBottom: 8 }}>
+                                    <span style={{ fontWeight: 500 }}>{item.name}</span>
+                                    <Tag color={PROTOCOL_LABELS[item.protocol]?.color || 'default'}>
+                                        {PROTOCOL_LABELS[item.protocol]?.label || item.protocol}
+                                    </Tag>
+                                </Space>
+                                <Descriptions size="small" column={2} bordered style={{ marginTop: 4 }}>
+                                    <Descriptions.Item label="采集周期">{item.pollIntervalSecs || '-'} 秒</Descriptions.Item>
+                                    {Object.entries(connParams).map(([key, val]) => (
+                                        <Descriptions.Item key={key} label={CONN_PARAM_LABELS[key] || key}>
+                                            {String(val)}
+                                        </Descriptions.Item>
+                                    ))}
+                                </Descriptions>
+                            </List.Item>
+                        );
+                    }}
                 />
             </Drawer>
         </>
