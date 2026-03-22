@@ -25,16 +25,17 @@
 import {
     getMeters, Meter
 } from '@/apis/meter';
-import { DeleteButton, EditButton } from '@/components/button';
+import { getMeterPointsByMeterId, MeterPoint } from '@/apis/meterPoint';
+import { DeleteButton, EditButton, IconButton } from '@/components/button';
 import { ProPageContainer } from '@/components/container';
 import { Permission } from '@/components';
 import { PERMISSIONS } from '@/config/permissions';
 import StatusIcon from '@/components/icons/StatusIcon';
 import useCrud from '@/hooks/common/useCrud';
 import { wrapperResult } from '@/utils';
-import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, UnorderedListOutlined, PlusOutlined } from '@ant-design/icons';
 import { ProColumns, ProTable } from '@ant-design/pro-components';
-import { Button, Space, Tag } from 'antd';
+import { Button, Card, Drawer, Empty, Flex, Space, Spin, Tag, Typography } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import MeterForm from './components/MeterForm';
 
@@ -44,6 +45,10 @@ import MeterForm from './components/MeterForm';
 const Index: React.FC = () => {
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     const [selectedRows, setSelectedRows] = useState<Meter[]>([]);
+    const [drawerVisible, setDrawerVisible] = useState(false);
+    const [drawerMeter, setDrawerMeter] = useState<Meter | null>(null);
+    const [meterPoints, setMeterPoints] = useState<MeterPoint[]>([]);
+    const [mpLoading, setMpLoading] = useState(false);
 
     const {
         getState,
@@ -63,14 +68,12 @@ const Index: React.FC = () => {
 
     const state = getState('/basic-data/meter');
 
-    // 编辑选中项
     const toEditSelected = () => {
         if (editDisabled) return;
         if (!selectedRows || selectedRows.length !== 1) return;
         toEdit(selectedRows[0]);
     };
 
-    // 批量删除
     const handleBatchDelete = async () => {
         if (deleteDisabled) return;
         try {
@@ -82,7 +85,6 @@ const Index: React.FC = () => {
         }
     };
 
-    // 表单提交成功
     const handleFormSuccess = () => {
         setDialogVisible(false);
         actionRef.current?.reload();
@@ -103,7 +105,16 @@ const Index: React.FC = () => {
         }
     }, [state?.shouldRefresh]);
 
-    // 表格列定义
+    const handleViewMeterPoints = async (meter: Meter) => {
+        setDrawerMeter(meter);
+        setDrawerVisible(true);
+        setMpLoading(true);
+        try {
+            const res = await getMeterPointsByMeterId(meter.id);
+            if (res.success) setMeterPoints(res.data || []);
+        } finally { setMpLoading(false); }
+    };
+
     const columns: ProColumns<Meter>[] = [
         {
             title: '器具名称',
@@ -161,28 +172,18 @@ const Index: React.FC = () => {
             render: (_, record) => <StatusIcon value={record.status} />,
         },
         {
-            title: '负责人',
-            dataIndex: 'personCharge',
-            key: 'personCharge',
-            width: 100,
-            hideInSearch: true,
-        },
-        {
-            title: '备注',
-            dataIndex: 'remark',
-            key: 'remark',
-            width: 150,
-            hideInSearch: true,
-            ellipsis: true,
-        },
-        {
             title: '操作',
             dataIndex: 'actions',
             key: 'actions',
-            width: 120,
+            width: 140,
             hideInSearch: true,
             render: (_, record) => (
                 <Space>
+                    <IconButton
+                        icon={<UnorderedListOutlined />}
+                        tooltip="计量点"
+                        onClick={() => handleViewMeterPoints(record)}
+                    />
                     <Permission code={PERMISSIONS.EMS.METER.EDIT}>
                         <EditButton onClick={() => toEdit(record)} />
                     </Permission>
@@ -256,6 +257,55 @@ const Index: React.FC = () => {
                 onCancel={() => setDialogVisible(false)}
                 onSuccess={handleFormSuccess}
             />
+
+            {/* 计量点抽屉 */}
+            <Drawer
+                title={`计量点 — ${drawerMeter?.name || ''}`}
+                open={drawerVisible}
+                onClose={() => setDrawerVisible(false)}
+                width={460}
+            >
+                {mpLoading ? (
+                    <Flex justify="center" align="center" style={{ height: 200 }}><Spin /></Flex>
+                ) : meterPoints.length === 0 ? (
+                    <Empty description="该计量器具下暂无计量点" />
+                ) : (
+                    <Flex vertical gap={10}>
+                        {meterPoints.map((point) => (
+                            <Card key={point.id} size="small"
+                                title={
+                                    <Flex justify="space-between" align="center">
+                                        <span>{point.name}</span>
+                                        <Tag color="blue" style={{ marginRight: 0 }}>{point.code}</Tag>
+                                    </Flex>
+                                }
+                                styles={{ body: { padding: '8px 16px' } }}
+                            >
+                                <Flex vertical gap={4}>
+                                    <Flex justify="space-between">
+                                        <Typography.Text type="secondary">点位类型</Typography.Text>
+                                        <span>{point.pointType === 'COLLECT' ? '采集类' : point.pointType === 'CALC' ? '计算类' : point.pointType || '-'}</span>
+                                    </Flex>
+                                    <Flex justify="space-between">
+                                        <Typography.Text type="secondary">计量单位</Typography.Text>
+                                        <span>{point.unit || '-'}</span>
+                                    </Flex>
+                                    {point.energyType && (
+                                        <Flex justify="space-between">
+                                            <Typography.Text type="secondary">能源类型</Typography.Text>
+                                            <Tag color="green" style={{ marginRight: 0 }}>{point.energyType.name}</Tag>
+                                        </Flex>
+                                    )}
+                                    <Flex justify="space-between">
+                                        <Typography.Text type="secondary">状态</Typography.Text>
+                                        <StatusIcon value={point.status} />
+                                    </Flex>
+                                </Flex>
+                            </Card>
+                        ))}
+                    </Flex>
+                )}
+            </Drawer>
         </>
     );
 };
