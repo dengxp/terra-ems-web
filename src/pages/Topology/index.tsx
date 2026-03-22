@@ -163,27 +163,30 @@ const TopologyPage: React.FC = () => {
                     const entityType = d.data?.entityType || 'unit';
                     const config = NODE_STYLES[entityType] || NODE_STYLES.unit;
                     const isRoot = entityType === 'root';
-                    const nodeWidth = isRoot ? 180 : 150;
-                    const nodeHeight = isRoot ? 44 : 34;
+                    const name = d.data?.name || d.id;
+                    const nodeWidth = isRoot ? Math.max(name.length * 16 + 30, 120) : Math.max(name.length * 14 + 24, 100);
+                    const nodeHeight = isRoot ? 36 : 28;
 
                     return {
                         size: [nodeWidth, nodeHeight],
-                        radius: 0,
-                        fill: 'rgba(0,0,0,0)',
-                        fillOpacity: 0,
-                        stroke: 'rgba(0,0,0,0)',
-                        strokeOpacity: 0,
-                        lineWidth: 0,
-                        opacity: 1,
+                        radius: nodeHeight / 2,
+                        fill: `${config.color}15`,
+                        stroke: `${config.color}40`,
+                        lineWidth: 1,
                         cursor: 'pointer',
-                        // 标签：符号 + 名称
-                        labelText: `${config.tag} ${d.data?.name || d.id}`,
+                        // 文字
+                        labelText: name,
                         labelFill: config.color,
-                        labelFontSize: isRoot ? 15 : 12,
+                        labelFontSize: isRoot ? 14 : 12,
                         labelFontWeight: isRoot ? 'bold' : 'normal',
                         labelPlacement: 'center',
-                        labelShadowColor: config.glowColor,
-                        labelShadowBlur: isRoot ? 12 : 6,
+                        labelOffsetX: 6,
+                        // 左侧彩色圆点标记
+                        badgeFill: config.color,
+                        badgeText: ' ',
+                        badgePlacement: 'left',
+                        badgePadding: [3, 3],
+                        badgeFontSize: 1,
                         // 状态徽标（网关显示在线状态）
                         ...(entityType === 'gateway' ? {
                             badgeFill: d.data?.status === 'ONLINE' ? '#52C41A' : '#ff4d4f',
@@ -204,19 +207,13 @@ const TopologyPage: React.FC = () => {
             },
             edge: {
                 type: 'cubic-horizontal',
-                style: (d: any) => {
-                    // 根据源节点类型设置边的颜色
-                    const sourceNode = graphData.nodes?.find((n: any) => n.id === d.source);
-                    const entityType = sourceNode?.data?.entityType || 'unit';
-                    const config = NODE_STYLES[entityType] || NODE_STYLES.unit;
-
-                    return {
-                        stroke: `${config.color}66`,
-                        lineWidth: 1.5,
-                        endArrow: true,
-                        endArrowSize: 4,
-                        endArrowFill: `${config.color}66`,
-                    };
+                style: {
+                    stroke: '#1890FF33',
+                    lineWidth: 1,
+                    endArrow: true,
+                    endArrowSize: 3,
+                    endArrowFill: '#1890FF55',
+                    lineDash: [4, 4],
                 },
                 animation: {
                     enter: 'fade-in',
