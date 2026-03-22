@@ -1,18 +1,41 @@
 import { getGateways, Gateway } from '@/apis/gateway';
-import { DeleteButton, EditButton } from '@/components/button';
+import { getDataSourcesByGatewayId, DataSource } from '@/apis/dataSource';
+import { DeleteButton, EditButton, IconButton } from '@/components/button';
 import { ProPageContainer } from '@/components/container';
 import StatusIcon from '@/components/icons/StatusIcon';
 import useCrud from '@/hooks/common/useCrud';
 import { wrapperResult } from '@/utils';
-import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
+import { DatabaseOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import { ProColumns, ProTable } from '@ant-design/pro-components';
-import { Button, Space, Tag } from 'antd';
-import React, { useEffect, useMemo, useState } from 'react';
+import { Button, Drawer, List, Space, Tag } from 'antd';
+import React, { useEffect, useState } from 'react';
 import GatewayForm from './components/GatewayForm';
+
+const PROTOCOL_LABELS: Record<string, { label: string; color: string }> = {
+    'modbus-tcp': { label: 'Modbus TCP', color: 'blue' },
+    'modbus-rtu': { label: 'Modbus RTU', color: 'cyan' },
+    'mqtt': { label: 'MQTT', color: 'green' },
+    'opc-ua': { label: 'OPC UA', color: 'purple' },
+    'dlt645': { label: 'DL/T645', color: 'orange' },
+    'http': { label: 'HTTP', color: 'geekblue' },
+    'bacnet-ip': { label: 'BACnet/IP', color: 'magenta' },
+};
+
+const formatConnection = (conn?: string): string => {
+    if (!conn) return '';
+    try {
+        const obj = typeof conn === 'string' ? JSON.parse(conn) : conn;
+        return Object.entries(obj).map(([k, v]) => `${k}: ${v}`).join(', ');
+    } catch { return conn; }
+};
 
 const Index: React.FC = () => {
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     const [selectedRows, setSelectedRows] = useState<Gateway[]>([]);
+    const [drawerVisible, setDrawerVisible] = useState(false);
+    const [drawerGateway, setDrawerGateway] = useState<Gateway | null>(null);
+    const [dataSources, setDataSources] = useState<DataSource[]>([]);
+    const [dsLoading, setDsLoading] = useState(false);
 
     const {
         getState, formRef, actionRef, toCreate, toEdit, toDelete, toBatchDelete, setDialogVisible, setShouldRefresh,
@@ -23,6 +46,16 @@ const Index: React.FC = () => {
     useEffect(() => {
         if (state?.shouldRefresh) { actionRef.current?.reload(); setShouldRefresh(false); }
     }, [state?.shouldRefresh]);
+
+    const handleViewDataSources = async (gateway: Gateway) => {
+        setDrawerGateway(gateway);
+        setDrawerVisible(true);
+        setDsLoading(true);
+        try {
+            const res = await getDataSourcesByGatewayId(gateway.id);
+            if (res.success) setDataSources(res.data || []);
+        } finally { setDsLoading(false); }
+    };
 
     const columns: ProColumns<Gateway>[] = [
         { title: '网关名称', dataIndex: 'name', width: 150 },
@@ -44,9 +77,14 @@ const Index: React.FC = () => {
         },
         { title: '状态', dataIndex: 'status', width: 80, hideInSearch: true, render: (_, r) => <StatusIcon value={r.status} /> },
         {
-            title: '操作', width: 100, hideInSearch: true,
+            title: '操作', width: 130, hideInSearch: true,
             render: (_, record) => (
                 <Space>
+                    <IconButton
+                        icon={<DatabaseOutlined />}
+                        tooltip="数据源"
+                        onClick={() => handleViewDataSources(record)}
+                    />
                     <EditButton onClick={() => toEdit(record)} />
                     <DeleteButton onConfirm={() => toDelete(record.id, true)} />
                 </Space>
@@ -79,8 +117,43 @@ const Index: React.FC = () => {
                     pagination={{ showSizeChanger: true, defaultPageSize: 20 }}
                 />
             </ProPageContainer>
+
             <GatewayForm visible={state?.dialogVisible || false} onCancel={() => setDialogVisible(false)}
                 onSuccess={() => { setDialogVisible(false); actionRef.current?.reload(); }} />
+
+            {/* 数据源抽屉 */}
+            <Drawer
+                title={`数据源 — ${drawerGateway?.name || ''}`}
+                open={drawerVisible}
+                onClose={() => setDrawerVisible(false)}
+                width={500}
+            >
+                <List
+                    loading={dsLoading}
+                    dataSource={dataSources}
+                    locale={{ emptyText: '该网关下暂无数据源' }}
+                    renderItem={(item) => (
+                        <List.Item>
+                            <List.Item.Meta
+                                title={
+                                    <Space>
+                                        <span>{item.name}</span>
+                                        <Tag color={PROTOCOL_LABELS[item.protocol]?.color || 'default'}>
+                                            {PROTOCOL_LABELS[item.protocol]?.label || item.protocol}
+                                        </Tag>
+                                    </Space>
+                                }
+                                description={
+                                    <Space direction="vertical" size={2}>
+                                        {item.pollIntervalSecs && <span>采集周期: {item.pollIntervalSecs}秒</span>}
+                                        {item.connection && <span>连接参数: {formatConnection(item.connection)}</span>}
+                                    </Space>
+                                }
+                            />
+                        </List.Item>
+                    )}
+                />
+            </Drawer>
         </>
     );
 };
