@@ -2,32 +2,12 @@ import { getTopologyData } from '@/apis/topology';
 import { Graph, treeToGraphData } from '@antv/g6';
 import { Spin } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
-/** 生成 SVG 图标 data URI — 使用最简单的基础形状确保渲染 */
-const makeIcon = (svgContent: string) =>
-    `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">${svgContent}</svg>`)}`;
-
 /** 实体类型 → 节点样式配置 */
-const NODE_STYLES: Record<string, { color: string; icon: string; label: string }> = {
-    unit: {
-        color: '#40A9FF',
-        icon: makeIcon('<polygon points="16,3 28,9 28,23 16,29 4,23 4,9" fill="%2340A9FF"/>'),
-        label: '用能单元',
-    },
-    gateway: {
-        color: '#73D13D',
-        icon: makeIcon('<circle cx="16" cy="16" r="13" fill="%23237804"/><circle cx="16" cy="16" r="9" fill="%23389E0D"/><circle cx="16" cy="16" r="5" fill="%2373D13D"/>'),
-        label: '网关',
-    },
-    equipment: {
-        color: '#FFA940',
-        icon: makeIcon('<rect x="4" y="4" width="24" height="24" rx="5" fill="%23FFA940"/>'),
-        label: '用能设备',
-    },
-    meter: {
-        color: '#B37FEB',
-        icon: makeIcon('<polygon points="16,2 26,7 26,17 16,22 6,17 6,7" fill="none" stroke="%23B37FEB" stroke-width="3"/><circle cx="16" cy="12" r="4" fill="%23B37FEB"/>'),
-        label: '计量器具',
-    },
+const NODE_STYLES: Record<string, { color: string; shape: string; label: string }> = {
+    unit:      { color: '#40A9FF', shape: 'diamond',  label: '用能单元' },
+    gateway:   { color: '#73D13D', shape: 'circle',   label: '网关' },
+    equipment: { color: '#FFA940', shape: 'rect',     label: '用能设备' },
+    meter:     { color: '#B37FEB', shape: 'triangle', label: '计量器具' },
 };
 
 /**
@@ -174,20 +154,26 @@ const TopologyPage: React.FC = () => {
             autoFit: 'center',
             data: graphData,
             node: {
-                type: 'image',
+                type: (d: any) => {
+                    const entityType = d.data?.entityType || 'unit';
+                    return NODE_STYLES[entityType]?.shape || 'circle';
+                },
                 style: (d: any) => {
                     const entityType = d.data?.entityType || 'unit';
                     const config = NODE_STYLES[entityType] || NODE_STYLES.unit;
                     return {
-                        src: config.icon,
-                        size: 26,
+                        size: 18,
+                        fill: config.color,
+                        stroke: config.color,
+                        lineWidth: 1,
+                        shadowColor: `${config.color}88`,
+                        shadowBlur: 10,
                         cursor: 'pointer',
                         labelText: d.data?.name || d.id,
                         labelFill: config.color,
                         labelFontSize: 12,
-                        labelFontWeight: 'normal',
                         labelPlacement: 'right',
-                        labelOffsetX: 6,
+                        labelOffsetX: 8,
                     };
                 },
                 animation: {
