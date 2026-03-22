@@ -135,7 +135,16 @@ const Index: React.FC = () => {
             title: '器具名称',
             dataIndex: 'name',
             key: 'name',
-            width: 150,
+            width: 170,
+            render: (_, r) => {
+                const isOnline = onlineStatus[r.code]?.online === true;
+                return (
+                    <Space size={6}>
+                        <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', backgroundColor: isOnline ? '#52c41a' : '#d9d9d9' }} />
+                        {r.name}
+                    </Space>
+                );
+            },
         },
         {
             title: '器具编码',
@@ -171,17 +180,6 @@ const Index: React.FC = () => {
             width: 200,
             hideInSearch: true,
             ellipsis: true,
-        },
-        {
-            title: '运行状态',
-            dataIndex: 'onlineStatus',
-            width: 100,
-            hideInSearch: true,
-            render: (_, r) => {
-                const info = onlineStatus[r.code];
-                const isOnline = info?.online === true;
-                return <Tag color={isOnline ? 'green' : 'default'}>{isOnline ? '在线' : '离线'}</Tag>;
-            },
         },
         {
             title: '状态',

@@ -84,7 +84,18 @@ const Index: React.FC = () => {
     };
 
     const columns: ProColumns<Gateway>[] = [
-        { title: '网关名称', dataIndex: 'name', width: 150 },
+        {
+            title: '网关名称', dataIndex: 'name', width: 170,
+            render: (_, r) => {
+                const isOnline = onlineStatus[r.code]?.online === true;
+                return (
+                    <Space size={6}>
+                        <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', backgroundColor: isOnline ? '#52c41a' : '#d9d9d9' }} />
+                        {r.name}
+                    </Space>
+                );
+            },
+        },
         { title: '网关编码', dataIndex: 'code', width: 120 },
         { title: '规格型号', dataIndex: 'model', width: 120, hideInSearch: true },
         { title: 'IP 地址', dataIndex: 'ipAddress', width: 130, hideInSearch: true },
@@ -92,14 +103,6 @@ const Index: React.FC = () => {
         {
             title: '所属用能单元', dataIndex: ['energyUnit', 'name'], width: 130, hideInSearch: true,
             render: (_, r) => r.energyUnit?.name || '-',
-        },
-        {
-            title: '运行状态', dataIndex: 'runStatus', width: 100, hideInSearch: true,
-            render: (_, r) => {
-                const info = onlineStatus[r.code];
-                const isOnline = info?.online === true;
-                return <Tag color={isOnline ? 'green' : 'default'}>{isOnline ? '在线' : '离线'}</Tag>;
-            },
         },
         { title: '状态', dataIndex: 'status', width: 80, hideInSearch: true, render: (_, r) => <StatusIcon value={r.status} /> },
         {
