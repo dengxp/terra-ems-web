@@ -1,4 +1,4 @@
-import { getGateways, Gateway } from '@/apis/gateway';
+import { getGateways, getGatewayOnlineStatus, Gateway, GatewayOnlineInfo } from '@/apis/gateway';
 import { getDataSourcesByGatewayId, DataSource } from '@/apis/dataSource';
 import { DeleteButton, EditButton, IconButton } from '@/components/button';
 import { ProPageContainer } from '@/components/container';
@@ -8,7 +8,7 @@ import { wrapperResult } from '@/utils';
 import { DatabaseOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import { ProColumns, ProTable } from '@ant-design/pro-components';
 import { Button, Card, Drawer, Empty, Flex, Space, Spin, Tag, Typography } from 'antd';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import GatewayForm from './components/GatewayForm';
 
 const PROTOCOL_LABELS: Record<string, { label: string; color: string }> = {
@@ -47,6 +47,21 @@ const Index: React.FC = () => {
     const [drawerGateway, setDrawerGateway] = useState<Gateway | null>(null);
     const [dataSources, setDataSources] = useState<DataSource[]>([]);
     const [dsLoading, setDsLoading] = useState(false);
+    const [onlineStatus, setOnlineStatus] = useState<Record<string, GatewayOnlineInfo>>({});
+    const timerRef = useRef<ReturnType<typeof setInterval>>();
+
+    const fetchOnlineStatus = useCallback(async () => {
+        try {
+            const res = await getGatewayOnlineStatus();
+            if (res.success) setOnlineStatus(res.data || {});
+        } catch {}
+    }, []);
+
+    useEffect(() => {
+        fetchOnlineStatus();
+        timerRef.current = setInterval(fetchOnlineStatus, 30000);
+        return () => { if (timerRef.current) clearInterval(timerRef.current); };
+    }, [fetchOnlineStatus]);
 
     const {
         getState, formRef, actionRef, toCreate, toEdit, toDelete, toBatchDelete, setDialogVisible, setShouldRefresh,
@@ -81,9 +96,9 @@ const Index: React.FC = () => {
         {
             title: '运行状态', dataIndex: 'runStatus', width: 100, hideInSearch: true,
             render: (_, r) => {
-                const color = r.runStatus === 'ONLINE' ? 'green' : r.runStatus === 'OFFLINE' ? 'red' : 'default';
-                const text = r.runStatus === 'ONLINE' ? '在线' : r.runStatus === 'OFFLINE' ? '离线' : '未知';
-                return <Tag color={color}>{text}</Tag>;
+                const info = onlineStatus[r.code];
+                const isOnline = info?.online === true;
+                return <Tag color={isOnline ? 'green' : 'default'}>{isOnline ? '在线' : '离线'}</Tag>;
             },
         },
         { title: '状态', dataIndex: 'status', width: 80, hideInSearch: true, render: (_, r) => <StatusIcon value={r.status} /> },

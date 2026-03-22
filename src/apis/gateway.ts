@@ -43,3 +43,12 @@ export async function deleteGateway(id: number) {
 export async function deleteGatewaysBatch(ids: (number | string)[]) {
     return request<API.Result<void>>('/api/gateways', { method: 'DELETE', data: ids });
 }
+
+export interface GatewayOnlineInfo {
+    online: boolean;
+    lastHeartbeat?: string;
+}
+
+export async function getGatewayOnlineStatus() {
+    return request<API.Result<Record<string, GatewayOnlineInfo>>>('/api/gateways/online-status', { method: 'GET' });
+}
