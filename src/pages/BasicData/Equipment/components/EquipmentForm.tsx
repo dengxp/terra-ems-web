@@ -46,10 +46,11 @@ const EquipmentForm: React.FC<Props> = ({ visible, onCancel, onSuccess }) => {
                 onSuccess();
                 return true;
             }}
-            modalProps={{ destroyOnHidden: true, maskClosable: false, width: 900 }}
+            modalProps={{ destroyOnHidden: true, maskClosable: false, width: 780 }}
             grid={true}
             rowProps={{ gutter: 0 }}
-            labelCol={{ span: 6 }}
+            labelCol={{ span: 8 }}
+            wrapperCol={{ span: 16 }}
             loading={state.loading}
         >
             <ProFormText name="id" hidden={true} />
@@ -127,8 +128,8 @@ const EquipmentForm: React.FC<Props> = ({ visible, onCancel, onSuccess }) => {
                 label="备注"
                 name="remark"
                 placeholder="请输入备注"
-                labelCol={{ span: 3 }}
-                wrapperCol={{ span: 21 }}
+                labelCol={{ span: 4 }}
+                wrapperCol={{ span: 20 }}
             />
         </ProModalForm>
     );
