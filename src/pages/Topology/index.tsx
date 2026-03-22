@@ -162,29 +162,24 @@ const TopologyPage: React.FC = () => {
                     const entityType = d.data?.entityType || 'unit';
                     const config = NODE_STYLES[entityType] || NODE_STYLES.unit;
                     const isRoot = entityType === 'root';
-                    const nodeWidth = isRoot ? 180 : 160;
-                    const nodeHeight = isRoot ? 52 : 40;
+                    const nodeWidth = isRoot ? 180 : 150;
+                    const nodeHeight = isRoot ? 44 : 34;
 
                     return {
                         size: [nodeWidth, nodeHeight],
-                        radius: isRoot ? 12 : 6,
-                        fill: isRoot ? 'rgba(19,194,194,0.1)' : 'rgba(13,27,42,0.9)',
-                        stroke: config.color,
-                        lineWidth: isRoot ? 2 : 1,
+                        radius: isRoot ? 22 : 17,
+                        fill: `${config.color}18`,
+                        stroke: 'transparent',
+                        lineWidth: 0,
                         shadowColor: config.glowColor,
-                        shadowBlur: isRoot ? 20 : 8,
+                        shadowBlur: isRoot ? 25 : 12,
                         cursor: 'pointer',
-                        // 图标
-                        iconSrc: config.iconSrc,
-                        iconWidth: isRoot ? 28 : 22,
-                        iconHeight: isRoot ? 28 : 22,
-                        // 标签
-                        labelText: d.data?.name || d.id,
-                        labelFill: isRoot ? '#13C2C2' : '#d0d0d0',
-                        labelFontSize: isRoot ? 14 : 11,
+                        // 标签：图标 + 名称
+                        labelText: `${config.legendIcon}  ${d.data?.name || d.id}`,
+                        labelFill: isRoot ? config.color : '#d0d0d0',
+                        labelFontSize: isRoot ? 14 : 12,
                         labelFontWeight: isRoot ? 'bold' : 'normal',
-                        labelPlacement: 'right',
-                        labelOffsetX: 4,
+                        labelPlacement: 'center',
                         // 状态徽标（网关显示在线状态）
                         ...(entityType === 'gateway' ? {
                             badgeFill: d.data?.status === 'ONLINE' ? '#52C41A' : '#ff4d4f',
