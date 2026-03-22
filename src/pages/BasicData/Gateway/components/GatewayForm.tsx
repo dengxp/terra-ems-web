@@ -46,7 +46,7 @@ const GatewayForm: React.FC<Props> = ({ visible, onCancel, onSuccess }) => {
                 onSuccess();
                 return true;
             }}
-            modalProps={{ destroyOnHidden: true, maskClosable: false, width: 800 }}
+            modalProps={{ destroyOnHidden: true, maskClosable: false, width: 900 }}
             grid={true}
             rowProps={{ gutter: 0 }}
             labelCol={{ span: 6 }}
@@ -57,7 +57,7 @@ const GatewayForm: React.FC<Props> = ({ visible, onCancel, onSuccess }) => {
                 label="网关名称"
                 name="name"
                 placeholder="请输入网关名称"
-                labelCol={{ span: 3 }}
+                colProps={{ span: 12 }}
                 rules={[{ required: true, message: '请输入网关名称' }]}
             />
             <ProFormText
