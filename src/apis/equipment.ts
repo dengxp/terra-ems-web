@@ -28,6 +28,10 @@ export async function getEquipments(params: any) {
     });
 }
 
+export async function getEquipmentsByEnergyUnitId(energyUnitId: number) {
+    return request<API.Result<Equipment[]>>(`/api/equipments/energy-unit/${energyUnitId}`, { method: 'GET' });
+}
+
 export async function getAllEquipments() {
     return request<API.Result<Equipment[]>>('/api/equipments/all', { method: 'GET' });
 }

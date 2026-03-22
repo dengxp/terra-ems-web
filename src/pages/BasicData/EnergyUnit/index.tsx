@@ -23,6 +23,7 @@
  */
 
 import { EnergyUnit, getEnergyUnitTree } from '@/apis/energyUnit';
+import { Equipment, getEquipmentsByEnergyUnitId } from '@/apis/equipment';
 import { assignEnergyUnits, getMeterPointsByEnergyUnitId, MeterPoint } from '@/apis/meterPoint';
 import { DeleteButton, IconButton } from '@/components/button';
 import { ProPageContainer } from '@/components/container';
@@ -34,7 +35,7 @@ import Icon, {
 } from '@ant-design/icons';
 import { ProDescriptions } from '@ant-design/pro-components';
 import type { TreeDataNode } from 'antd';
-import { Button, Dropdown, Empty, Flex, Input, List, message, Space, Splitter, Tag, Tree } from 'antd';
+import { Button, Dropdown, Empty, Flex, Input, List, message, Space, Splitter, Tabs, Tag, Tree } from 'antd';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import EnergyUnitForm from './components/EnergyUnitForm';
 import MeterPointsManageDialog from './components/MeterPointsManageDialog';
@@ -61,6 +62,9 @@ const EnergyUnitPage: React.FC = () => {
     const [meterPoints, setMeterPoints] = useState<MeterPoint[]>([]);
     const [meterPointsLoading, setMeterPointsLoading] = useState(false);
     const [manageDialogVisible, setManageDialogVisible] = useState(false);
+    // 用能设备相关
+    const [equipments, setEquipments] = useState<Equipment[]>([]);
+    const [equipmentsLoading, setEquipmentsLoading] = useState(false);
 
     const {
         getState,
@@ -163,17 +167,34 @@ const EnergyUnitPage: React.FC = () => {
         }
     }, []);
 
+    // 加载选中节点的用能设备
+    const loadEquipments = useCallback(async (unitId: number) => {
+        setEquipmentsLoading(true);
+        try {
+            const res = await getEquipmentsByEnergyUnitId(unitId);
+            if (res.success) {
+                setEquipments(res.data || []);
+            }
+        } catch (error) {
+            console.error('加载用能设备失败', error);
+        } finally {
+            setEquipmentsLoading(false);
+        }
+    }, []);
+
     // 选中节点
     const handleSelect = (keys: React.Key[], info: any) => {
         setSelectedKeys(keys);
         if (keys.length > 0 && info.node) {
             const node = (info.node as any).rawData as EnergyUnit;
             setSelectedNode(node);
-            // 加载该节点关联的计量点
+            // 加载该节点关联的计量点和用能设备
             loadMeterPoints(node.id);
+            loadEquipments(node.id);
         } else {
             setSelectedNode(null);
             setMeterPoints([]);
+            setEquipments([]);
         }
     };
 
@@ -485,71 +506,92 @@ const EnergyUnitPage: React.FC = () => {
                                         </ProDescriptions.Item>
                                     </ProDescriptions>
 
-                                    {/* 计量点列表 */}
-                                    <div className={'px-2 py-4'}>
-                                        <Flex justify={'space-between'} align={'center'} className={'pb-2 border-b mb-3'}>
-                                            <span style={{ fontSize: 16, fontWeight: 500 }}>
-                                                计量点 ({meterPoints.length})
-                                            </span>
-                                            <Button
-                                                type="link"
-                                                size="small"
-                                                icon={<SettingOutlined />}
-                                                onClick={() => setManageDialogVisible(true)}
-                                                style={{ padding: 0 }}
-                                            >
-                                                管理
-                                            </Button>
-                                        </Flex>
-                                        {meterPoints.length > 0 ? (
-                                            <List
-                                                size="small"
-                                                loading={meterPointsLoading}
-                                                dataSource={meterPoints.slice(0, 5)}
-                                                renderItem={(item) => (
-                                                    <List.Item
-                                                        className="hover:bg-gray-50 rounded px-2 cursor-pointer transition-colors"
-                                                        style={{ padding: '8px 8px', margin: '2px 0' }}
-                                                        actions={[
-                                                            <DeleteButton
-                                                                key="remove"
-                                                                tooltip="移除关联"
-                                                                onClick={() => handleRemoveMeterPoint(item)}
-                                                            />
-                                                        ]}
-                                                    >
-                                                        <Space>
-                                                            <Tag color="blue" style={{ margin: 0 }}>
-                                                                {item.energyType?.name || '未知'}
-                                                            </Tag>
-                                                            <span>{item.name}</span>
-                                                            <span style={{ color: '#999', fontSize: 12 }}>
-                                                                ({item.code})
-                                                            </span>
-                                                        </Space>
-                                                    </List.Item>
-                                                )}
-                                                footer={
-                                                    meterPoints.length > 5 ? (
-                                                        <div style={{ textAlign: 'center' }}>
-                                                            <Button
-                                                                type="link"
-                                                                size="small"
-                                                                onClick={() => setManageDialogVisible(true)}
-                                                            >
-                                                                查看全部 {meterPoints.length} 个点位
-                                                            </Button>
-                                                        </div>
-                                                    ) : null
-                                                }
-                                            />
-                                        ) : (
-                                            <Empty
-                                                image={Empty.PRESENTED_IMAGE_SIMPLE}
-                                                description="暂无关联的计量点"
-                                                style={{ margin: '20px 0' }}
-                                            />
-                                        )}
+                                    {/* 计量点 & 用能设备 Tabs */}
+                                    <div className={'px-2 py-2'}>
+                                        <Tabs
+                                            defaultActiveKey="meterPoints"
+                                            size="small"
+                                            tabBarExtraContent={
+                                                <Button
+                                                    type="link"
+                                                    size="small"
+                                                    icon={<SettingOutlined />}
+                                                    onClick={() => setManageDialogVisible(true)}
+                                                    style={{ padding: 0 }}
+                                                >
+                                                    管理
+                                                </Button>
+                                            }
+                                            items={[
+                                                {
+                                                    key: 'meterPoints',
+                                                    label: `计量点 (${meterPoints.length})`,
+                                                    children: meterPoints.length > 0 ? (
+                                                        <List
+                                                            size="small"
+                                                            loading={meterPointsLoading}
+                                                            dataSource={meterPoints}
+                                                            renderItem={(item) => (
+                                                                <List.Item
+                                                                    className="hover:bg-gray-50 rounded px-2 transition-colors"
+                                                                    style={{ padding: '6px 8px', margin: '1px 0' }}
+                                                                    actions={[
+                                                                        <DeleteButton
+                                                                            key="remove"
+                                                                            tooltip="移除关联"
+                                                                            onClick={() => handleRemoveMeterPoint(item)}
+                                                                        />
+                                                                    ]}
+                                                                >
+                                                                    <Space>
+                                                                        <Tag color="blue" style={{ margin: 0 }}>
+                                                                            {item.energyType?.name || '未知'}
+                                                                        </Tag>
+                                                                        <span>{item.name}</span>
+                                                                        <span style={{ color: '#999', fontSize: 12 }}>
+                                                                            ({item.code})
+                                                                        </span>
+                                                                    </Space>
+                                                                </List.Item>
+                                                            )}
+                                                        />
+                                                    ) : (
+                                                        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无关联的计量点" style={{ margin: '20px 0' }} />
+                                                    ),
+                                                },
+                                                {
+                                                    key: 'equipments',
+                                                    label: `用能设备 (${equipments.length})`,
+                                                    children: equipments.length > 0 ? (
+                                                        <List
+                                                            size="small"
+                                                            loading={equipmentsLoading}
+                                                            dataSource={equipments}
+                                                            renderItem={(item) => (
+                                                                <List.Item
+                                                                    className="hover:bg-gray-50 rounded px-2 transition-colors"
+                                                                    style={{ padding: '6px 8px', margin: '1px 0' }}
+                                                                >
+                                                                    <Space>
+                                                                        <Tag color="orange" style={{ margin: 0 }}>
+                                                                            {item.type || '设备'}
+                                                                        </Tag>
+                                                                        <span>{item.name}</span>
+                                                                        {item.ratedPower && (
+                                                                            <span style={{ color: '#999', fontSize: 12 }}>
+                                                                                ({item.ratedPower}kW)
+                                                                            </span>
+                                                                        )}
+                                                                    </Space>
+                                                                </List.Item>
+                                                            )}
+                                                        />
+                                                    ) : (
+                                                        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无用能设备" style={{ margin: '20px 0' }} />
+                                                    ),
+                                                },
+                                            ]}
+                                        />
                                     </div>
                                 </div>
                             ) : (
