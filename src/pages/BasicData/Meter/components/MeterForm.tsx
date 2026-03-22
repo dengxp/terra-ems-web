@@ -112,30 +112,27 @@ const MeterForm: React.FC<MeterFormProps> = ({ visible, onCancel, onSuccess }) =
                 maskClosable: false,
                 width: 800,
             }}
-            layout="horizontal"
-            labelCol={{ span: 6 }}
-            wrapperCol={{ span: 18 }}
             grid={true}
-            colProps={{ span: 12 }}
-            rowProps={{
-                gutter: [16, 0]
-            }}
+            rowProps={{ gutter: 0 }}
+            labelCol={{ span: 6 }}
             loading={state.loading}
         >
             <ProFormText
                 name="id"
-                hidden
+                hidden={true}
             />
             <ProFormText
                 name="name"
                 label="器具名称"
                 placeholder="请输入器具名称"
+                labelCol={{ span: 3 }}
                 rules={[{ required: true, message: '请输入器具名称' }]}
             />
             <ProFormText
                 name="code"
                 label="器具编码"
                 placeholder="请输入器具编码"
+                colProps={{ span: 12 }}
                 rules={[{ required: true, message: '请输入器具编码' }]}
                 disabled={state.operation === OperationEnum.EDIT}
             />
@@ -143,6 +140,7 @@ const MeterForm: React.FC<MeterFormProps> = ({ visible, onCancel, onSuccess }) =
                 name="energyTypeId"
                 label="能源类型"
                 placeholder="请选择能源类型"
+                colProps={{ span: 12 }}
                 rules={[{ required: true, message: '请选择能源类型' }]}
                 options={energyTypes.map(item => ({
                     label: item.name,
@@ -153,6 +151,7 @@ const MeterForm: React.FC<MeterFormProps> = ({ visible, onCancel, onSuccess }) =
                 name="type"
                 label="器具类型"
                 placeholder="请选择器具类型"
+                colProps={{ span: 12 }}
                 rules={[{ required: true, message: '请选择器具类型' }]}
                 options={[
                     { label: '电表', value: 'ELECTRIC_METER' },
@@ -165,48 +164,58 @@ const MeterForm: React.FC<MeterFormProps> = ({ visible, onCancel, onSuccess }) =
                 name="modelNumber"
                 label="规格型号"
                 placeholder="请输入规格型号"
+                colProps={{ span: 12 }}
             />
             <ProFormText
                 name="measureRange"
                 label="测量范围"
                 placeholder="请输入测量范围"
+                colProps={{ span: 12 }}
             />
             <ProFormText
                 name="manufacturer"
                 label="生产厂商"
                 placeholder="请输入生产厂商"
+                colProps={{ span: 12 }}
             />
             <ProFormText
                 name="personCharge"
                 label="负责人"
                 placeholder="请输入负责人"
+                colProps={{ span: 12 }}
             />
             <ProFormText
                 name="location"
                 label="安装位置"
                 placeholder="请输入安装位置"
+                colProps={{ span: 12 }}
             />
             <ProFormDatePicker
                 name="startTime"
                 label="起始时间"
+                colProps={{ span: 12 }}
             />
             <ProFormDatePicker
                 name="putrunTime"
                 label="投运时间"
+                colProps={{ span: 12 }}
             />
             <ProFormDigit
                 name="checkCycle"
                 label="检定周期(天)"
                 placeholder="请输入检定周期"
+                colProps={{ span: 12 }}
             />
             <ProFormDigit
                 name="reminderCycle"
                 label="提醒周期(天)"
                 placeholder="请输入提醒周期"
+                colProps={{ span: 12 }}
             />
             <ProFormSelect
                 name="status"
                 label="状态"
+                colProps={{ span: 12 }}
                 options={[
                     { label: '启用', value: 0 },
                     { label: '停用', value: 1 },
@@ -217,7 +226,6 @@ const MeterForm: React.FC<MeterFormProps> = ({ visible, onCancel, onSuccess }) =
                 name="remark"
                 label="备注"
                 placeholder="请输入备注"
-                colProps={{ span: 24 }}
                 labelCol={{ span: 3 }}
                 wrapperCol={{ span: 21 }}
             />
