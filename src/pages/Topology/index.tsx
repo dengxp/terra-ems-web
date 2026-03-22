@@ -2,16 +2,25 @@ import { getTopologyData } from '@/apis/topology';
 import { Graph, treeToGraphData } from '@antv/g6';
 import { Spin } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
-// SVG 图标暂未使用，后续第三步美化时启用
-// import { ICON_FACTORY, ICON_BUILDING, ICON_GATEWAY, ICON_EQUIPMENT, ICON_METER } from './icons';
+/** 生成简单几何 SVG 图标 data URI */
+const makeIcon = (shape: string, color: string) => {
+    const svg = {
+        diamond: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="12,2 22,12 12,22 2,12" fill="${color}" opacity="0.9"/></svg>`,
+        hexagon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="12,2 21,7 21,17 12,22 3,17 3,7" fill="${color}" opacity="0.85"/></svg>`,
+        circle: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="${color}" opacity="0.85"/><circle cx="12" cy="12" r="5" fill="${color}"/></svg>`,
+        gear: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2l1.5 3.5 3.5.5-2.5 2.5.5 3.5L12 10.5 8.5 12l.5-3.5L6.5 6l3.5-.5z" fill="${color}" opacity="0.9"/><circle cx="12" cy="12" r="3" fill="${color}"/><path d="M12 14l1.5 3.5 3.5.5-2.5 2.5.5 3.5L12 22.5 8.5 24l.5-3.5L6.5 18l3.5-.5z" fill="${color}" opacity="0.6"/></svg>`,
+        gauge: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2" fill="${color}" opacity="0.3"/><path d="M6 16a6 6 0 0 1 12 0" stroke="${color}" stroke-width="2" fill="none"/><line x1="12" y1="16" x2="15" y2="11" stroke="${color}" stroke-width="1.5"/><circle cx="12" cy="16" r="1.5" fill="${color}"/></svg>`,
+    }[shape] || `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="${color}"/></svg>`;
+    return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+};
 
 /** 实体类型 → 节点样式配置 */
-const NODE_STYLES: Record<string, { color: string; glowColor: string; tag: string; label: string }> = {
-    root: { color: '#13C2C2', glowColor: 'rgba(19,194,194,0.4)', tag: '◆', label: '企业' },
-    unit: { color: '#1890FF', glowColor: 'rgba(24,144,255,0.3)', tag: '■', label: '单元' },
-    gateway: { color: '#52C41A', glowColor: 'rgba(82,196,26,0.4)', tag: '◎', label: '网关' },
-    equipment: { color: '#FA8C16', glowColor: 'rgba(250,140,22,0.3)', tag: '●', label: '设备' },
-    meter: { color: '#722ED1', glowColor: 'rgba(114,46,209,0.3)', tag: '▣', label: '仪表' },
+const NODE_STYLES: Record<string, { color: string; icon: string; label: string }> = {
+    root:      { color: '#13C2C2', icon: makeIcon('diamond', '#13C2C2'), label: '企业' },
+    unit:      { color: '#1890FF', icon: makeIcon('hexagon', '#1890FF'), label: '单元' },
+    gateway:   { color: '#52C41A', icon: makeIcon('circle', '#52C41A'),  label: '网关' },
+    equipment: { color: '#FA8C16', icon: makeIcon('gear', '#FA8C16'),    label: '设备' },
+    meter:     { color: '#722ED1', icon: makeIcon('gauge', '#722ED1'),   label: '仪表' },
 };
 
 /**
@@ -158,47 +167,23 @@ const TopologyPage: React.FC = () => {
             autoFit: 'center',
             data: graphData,
             node: {
-                type: 'rect',
+                type: 'image',
                 style: (d: any) => {
                     const entityType = d.data?.entityType || 'unit';
                     const config = NODE_STYLES[entityType] || NODE_STYLES.unit;
                     const isRoot = entityType === 'root';
-                    const name = d.data?.name || d.id;
-                    const nodeWidth = isRoot ? Math.max(name.length * 16 + 30, 120) : Math.max(name.length * 14 + 24, 100);
-                    const nodeHeight = isRoot ? 36 : 28;
 
                     return {
-                        size: [nodeWidth, nodeHeight],
-                        radius: nodeHeight / 2,
-                        fill: `${config.color}15`,
-                        stroke: `${config.color}40`,
-                        lineWidth: 1,
+                        src: config.icon,
+                        size: isRoot ? 28 : 20,
                         cursor: 'pointer',
-                        // 文字
-                        labelText: name,
+                        // 文字在图标右侧
+                        labelText: d.data?.name || d.id,
                         labelFill: config.color,
                         labelFontSize: isRoot ? 14 : 12,
                         labelFontWeight: isRoot ? 'bold' : 'normal',
-                        labelPlacement: 'center',
+                        labelPlacement: 'right',
                         labelOffsetX: 6,
-                        // 左侧彩色圆点标记
-                        badgeFill: config.color,
-                        badgeText: ' ',
-                        badgePlacement: 'left',
-                        badgePadding: [3, 3],
-                        badgeFontSize: 1,
-                        // 状态徽标（网关显示在线状态）
-                        ...(entityType === 'gateway' ? {
-                            badgeFill: d.data?.status === 'ONLINE' ? '#52C41A' : '#ff4d4f',
-                            badgeText: '',
-                            badgePlacement: 'right-top',
-                            badgePadding: [2, 2],
-                        } : {}),
-                        // 呼吸灯光晕 — 所有节点都有微弱的光晕
-                        halo: true,
-                        haloFill: config.glowColor,
-                        haloStroke: 'transparent',
-                        haloLineWidth: 0,
                     };
                 },
                 animation: {
@@ -292,10 +277,11 @@ const TopologyPage: React.FC = () => {
                     ⚡ 系统拓扑总览
                 </span>
                 <div style={{ display: 'flex', gap: 20, fontSize: 12 }}>
-                    <StatBadge icon={NODE_STYLES.unit.tag} label="用能单元" count={stats.units} color="#1890FF" />
-                    <StatBadge icon={NODE_STYLES.gateway.tag} label="网关" count={stats.gateways} color="#52C41A" />
-                    <StatBadge icon={NODE_STYLES.equipment.tag} label="用能设备" count={stats.equipments} color="#FA8C16" />
-                    <StatBadge icon={NODE_STYLES.meter.tag} label="计量器具" count={stats.meters} color="#722ED1" />
+                    <StatBadge icon="◆" label="企业" count={1} color="#13C2C2" />
+                    <StatBadge icon="⬡" label="用能单元" count={stats.units} color="#1890FF" />
+                    <StatBadge icon="◉" label="网关" count={stats.gateways} color="#52C41A" />
+                    <StatBadge icon="⚙" label="用能设备" count={stats.equipments} color="#FA8C16" />
+                    <StatBadge icon="◫" label="计量器具" count={stats.meters} color="#722ED1" />
                 </div>
             </div>
 
