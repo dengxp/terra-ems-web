@@ -110,7 +110,7 @@ const MeterForm: React.FC<MeterFormProps> = ({ visible, onCancel, onSuccess }) =
             modalProps={{
                 destroyOnHidden: true,
                 maskClosable: false,
-                width: 800,
+                width: 900,
             }}
             grid={true}
             rowProps={{ gutter: 0 }}
@@ -125,7 +125,7 @@ const MeterForm: React.FC<MeterFormProps> = ({ visible, onCancel, onSuccess }) =
                 name="name"
                 label="器具名称"
                 placeholder="请输入器具名称"
-                labelCol={{ span: 3 }}
+                colProps={{ span: 12 }}
                 rules={[{ required: true, message: '请输入器具名称' }]}
             />
             <ProFormText
@@ -202,13 +202,13 @@ const MeterForm: React.FC<MeterFormProps> = ({ visible, onCancel, onSuccess }) =
             />
             <ProFormDigit
                 name="checkCycle"
-                label="检定周期(天)"
+                label="检定周期"
                 placeholder="请输入检定周期"
                 colProps={{ span: 12 }}
             />
             <ProFormDigit
                 name="reminderCycle"
-                label="提醒周期(天)"
+                label="提醒周期"
                 placeholder="请输入提醒周期"
                 colProps={{ span: 12 }}
             />
