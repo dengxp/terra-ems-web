@@ -46,7 +46,7 @@ const GatewayForm: React.FC<Props> = ({ visible, onCancel, onSuccess }) => {
                 onSuccess();
                 return true;
             }}
-            modalProps={{ destroyOnHidden: true, maskClosable: false, width: 700 }}
+            modalProps={{ destroyOnHidden: true, maskClosable: false, width: 780 }}
             grid={true}
             rowProps={{ gutter: 0 }}
             labelCol={{ span: 8 }}
