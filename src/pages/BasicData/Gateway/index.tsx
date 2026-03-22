@@ -86,6 +86,14 @@ const Index: React.FC = () => {
     const columns: ProColumns<Gateway>[] = [
         {
             title: '网关名称', dataIndex: 'name', width: 170,
+            filters: [
+                { text: '在线', value: 'online' },
+                { text: '离线', value: 'offline' },
+            ],
+            onFilter: (value, r) => {
+                const isOnline = onlineStatus[r.code]?.online === true;
+                return value === 'online' ? isOnline : !isOnline;
+            },
             render: (_, r) => {
                 const isOnline = onlineStatus[r.code]?.online === true;
                 return (
