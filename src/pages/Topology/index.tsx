@@ -167,19 +167,19 @@ const TopologyPage: React.FC = () => {
 
                     return {
                         size: [nodeWidth, nodeHeight],
-                        radius: isRoot ? 22 : 17,
-                        fill: `${config.color}18`,
+                        radius: 0,
+                        fill: 'transparent',
                         stroke: 'transparent',
                         lineWidth: 0,
-                        shadowColor: config.glowColor,
-                        shadowBlur: isRoot ? 25 : 12,
                         cursor: 'pointer',
                         // 标签：图标 + 名称
                         labelText: `${config.legendIcon}  ${d.data?.name || d.id}`,
-                        labelFill: isRoot ? config.color : '#d0d0d0',
-                        labelFontSize: isRoot ? 14 : 12,
+                        labelFill: isRoot ? config.color : '#c0c8d0',
+                        labelFontSize: isRoot ? 15 : 12,
                         labelFontWeight: isRoot ? 'bold' : 'normal',
                         labelPlacement: 'center',
+                        labelShadowColor: config.glowColor,
+                        labelShadowBlur: isRoot ? 12 : 6,
                         // 状态徽标（网关显示在线状态）
                         ...(entityType === 'gateway' ? {
                             badgeFill: d.data?.status === 'ONLINE' ? '#52C41A' : '#ff4d4f',
