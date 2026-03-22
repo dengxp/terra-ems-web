@@ -4,6 +4,7 @@ import { ProModalForm } from "@/components/container";
 import { OperationEnum } from '@/enums';
 import useCrud from '@/hooks/common/useCrud';
 import { ProFormDigit, ProFormSelect, ProFormText, ProFormTextArea } from '@ant-design/pro-components';
+import { Col } from 'antd';
 import { Divider } from 'antd';
 import React, { useEffect, useState } from 'react';
 
@@ -142,9 +143,11 @@ const DataSourceForm: React.FC<Props> = ({ visible, onCancel, onSuccess }) => {
 
             {/* 连接参数分区 */}
             {protocol && (
-                <Divider orientation="left" orientationMargin={0} style={{ margin: '4px 0 12px' }}>
-                    <span style={{ fontSize: 13, color: '#888' }}>连接参数</span>
-                </Divider>
+                <Col span={24}>
+                    <Divider orientation="left" orientationMargin={0} style={{ margin: '4px 0 12px' }}>
+                        <span style={{ fontSize: 13, color: '#888' }}>连接参数</span>
+                    </Divider>
+                </Col>
             )}
             {(protocol === 'modbus-tcp' || protocol === 'mqtt') && (
                 <ProFormDigit
