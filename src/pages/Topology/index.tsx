@@ -1,15 +1,15 @@
 import { getTopologyData } from '@/apis/topology';
-import { Graph, treeToGraphData } from '@antv/g6';
+import { Graph, treeToGraphData, register, ExtensionCategory } from '@antv/g6';
 import { Spin } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 
 /** 实体类型 → 节点样式配置 */
-const NODE_STYLES: Record<string, { color: string; icon: string; size: number }> = {
-    root: { color: '#13C2C2', icon: '🏭', size: 48 },
-    unit: { color: '#1890FF', icon: '🏗️', size: 40 },
-    gateway: { color: '#52C41A', icon: '📡', size: 36 },
-    equipment: { color: '#FA8C16', icon: '⚙️', size: 36 },
-    meter: { color: '#722ED1', icon: '📊', size: 32 },
+const NODE_STYLES: Record<string, { color: string; icon: string; glowColor: string }> = {
+    root: { color: '#13C2C2', icon: '🏭', glowColor: 'rgba(19,194,194,0.4)' },
+    unit: { color: '#1890FF', icon: '🏗️', glowColor: 'rgba(24,144,255,0.3)' },
+    gateway: { color: '#52C41A', icon: '📡', glowColor: 'rgba(82,196,26,0.4)' },
+    equipment: { color: '#FA8C16', icon: '⚙️', glowColor: 'rgba(250,140,22,0.3)' },
+    meter: { color: '#722ED1', icon: '📊', glowColor: 'rgba(114,46,209,0.3)' },
 };
 
 /**
@@ -19,6 +19,7 @@ const TopologyPage: React.FC = () => {
     const containerRef = useRef<HTMLDivElement>(null);
     const graphRef = useRef<Graph | null>(null);
     const [loading, setLoading] = useState(true);
+    const [stats, setStats] = useState({ units: 0, gateways: 0, equipments: 0, meters: 0 });
 
     useEffect(() => {
         loadAndRender();
@@ -31,6 +32,12 @@ const TopologyPage: React.FC = () => {
         setLoading(true);
         try {
             const data = await getTopologyData();
+            setStats({
+                units: countNodes(data.energyUnits),
+                gateways: data.gateways?.length || 0,
+                equipments: data.equipments?.length || 0,
+                meters: Array.isArray(data.meters) ? data.meters.length : 0,
+            });
             const treeData = buildTreeData(data);
             renderGraph(treeData);
         } catch (e) {
@@ -40,13 +47,21 @@ const TopologyPage: React.FC = () => {
         }
     };
 
+    const countNodes = (units: any[]): number => {
+        let count = 0;
+        units?.forEach((u: any) => {
+            count++;
+            if (u.children) count += countNodes(u.children);
+        });
+        return count;
+    };
+
     /** 将后端数据构建为树形结构 */
     const buildTreeData = (data: any) => {
         const { energyUnits, gateways, equipments, meters } = data;
 
-        // 网关按用能单元分组
         const gwByUnit: Record<number, any[]> = {};
-        gateways.forEach((gw: any) => {
+        gateways?.forEach((gw: any) => {
             const unitId = gw.energyUnit?.id || gw.energyUnitId;
             if (unitId) {
                 if (!gwByUnit[unitId]) gwByUnit[unitId] = [];
@@ -54,9 +69,8 @@ const TopologyPage: React.FC = () => {
             }
         });
 
-        // 设备按用能单元分组
         const eqByUnit: Record<number, any[]> = {};
-        equipments.forEach((eq: any) => {
+        equipments?.forEach((eq: any) => {
             const unitId = eq.energyUnit?.id || eq.energyUnitId;
             if (unitId) {
                 if (!eqByUnit[unitId]) eqByUnit[unitId] = [];
@@ -64,24 +78,18 @@ const TopologyPage: React.FC = () => {
             }
         });
 
-        // 仪表按设备分组
         const meterByEquip: Record<number, any[]> = {};
-        const meterNoEquip: any[] = [];
         (Array.isArray(meters) ? meters : []).forEach((m: any) => {
             const eqId = m.equipment?.id || m.equipmentId;
             if (eqId) {
                 if (!meterByEquip[eqId]) meterByEquip[eqId] = [];
                 meterByEquip[eqId].push(m);
-            } else {
-                meterNoEquip.push(m);
             }
         });
 
-        // 递归构建用能单元树
         const buildUnit = (unit: any, depth: number): any => {
             const children: any[] = [];
 
-            // 网关
             (gwByUnit[unit.id] || []).forEach((gw: any) => {
                 children.push({
                     id: `gw-${gw.id}`,
@@ -92,7 +100,6 @@ const TopologyPage: React.FC = () => {
                 });
             });
 
-            // 设备 → 仪表
             (eqByUnit[unit.id] || []).forEach((eq: any) => {
                 const meterChildren = (meterByEquip[eq.id] || []).map((m: any) => ({
                     id: `meter-${m.id}`,
@@ -109,7 +116,6 @@ const TopologyPage: React.FC = () => {
                 });
             });
 
-            // 子用能单元
             (unit.children || []).forEach((child: any) => {
                 children.push(buildUnit(child, depth + 1));
             });
@@ -123,7 +129,7 @@ const TopologyPage: React.FC = () => {
             };
         };
 
-        if (energyUnits.length > 0) {
+        if (energyUnits?.length > 0) {
             return buildUnit(energyUnits[0], 0);
         }
         return { id: 'empty', name: '暂无数据', entityType: 'root' };
@@ -141,63 +147,97 @@ const TopologyPage: React.FC = () => {
             graphRef.current.destroy();
         }
 
+        const graphData = treeToGraphData(treeData);
+
         const graph = new Graph({
             container,
             width,
             height,
             autoFit: 'view',
-            data: treeToGraphData(treeData),
+            padding: [20, 80, 20, 80],
+            data: graphData,
             node: {
                 type: 'rect',
                 style: (d: any) => {
                     const entityType = d.data?.entityType || 'unit';
                     const config = NODE_STYLES[entityType] || NODE_STYLES.unit;
-                    const isOnline = d.data?.status === 'ONLINE';
-                    const isGateway = entityType === 'gateway';
+                    const isRoot = entityType === 'root';
+                    const nodeWidth = isRoot ? 160 : 140;
+                    const nodeHeight = isRoot ? 50 : 38;
 
                     return {
-                        size: [140, config.size],
-                        radius: 8,
-                        fill: '#0d1b2a',
+                        size: [nodeWidth, nodeHeight],
+                        radius: isRoot ? 12 : 6,
+                        fill: isRoot ? 'rgba(19,194,194,0.1)' : 'rgba(13,27,42,0.9)',
                         stroke: config.color,
-                        lineWidth: isGateway && isOnline ? 2 : 1,
-                        shadowColor: config.color,
-                        shadowBlur: isGateway && isOnline ? 15 : 5,
+                        lineWidth: isRoot ? 2 : 1,
+                        shadowColor: config.glowColor,
+                        shadowBlur: isRoot ? 20 : 8,
+                        cursor: 'pointer',
+                        // 标签
                         labelText: `${config.icon} ${d.data?.name || d.id}`,
-                        labelFill: '#e0e0e0',
-                        labelFontSize: entityType === 'root' ? 14 : 11,
-                        labelFontWeight: entityType === 'root' ? 'bold' : 'normal',
+                        labelFill: isRoot ? '#13C2C2' : '#d0d0d0',
+                        labelFontSize: isRoot ? 14 : 11,
+                        labelFontWeight: isRoot ? 'bold' : 'normal',
                         labelPlacement: 'center',
+                        // 状态徽标（网关显示在线状态）
+                        ...(entityType === 'gateway' ? {
+                            badgeFill: d.data?.status === 'ONLINE' ? '#52C41A' : '#ff4d4f',
+                            badgeText: '',
+                            badgePlacement: 'right-top',
+                            badgePadding: [2, 2],
+                        } : {}),
+                        // 呼吸灯光晕 — 所有节点都有微弱的光晕
+                        halo: true,
+                        haloFill: config.glowColor,
+                        haloStroke: 'transparent',
+                        haloLineWidth: 0,
                     };
+                },
+                animation: {
+                    enter: 'fade-in',
                 },
             },
             edge: {
                 type: 'cubic-horizontal',
-                style: {
-                    stroke: '#1890FF44',
-                    lineWidth: 1.5,
+                style: (d: any) => {
+                    // 根据源节点类型设置边的颜色
+                    const sourceNode = graphData.nodes?.find((n: any) => n.id === d.source);
+                    const entityType = sourceNode?.data?.entityType || 'unit';
+                    const config = NODE_STYLES[entityType] || NODE_STYLES.unit;
+
+                    return {
+                        stroke: `${config.color}66`,
+                        lineWidth: 1.5,
+                        endArrow: true,
+                        endArrowSize: 4,
+                        endArrowFill: `${config.color}66`,
+                    };
                 },
                 animation: {
-                    enter: false,
+                    enter: 'fade-in',
                 },
             },
             layout: {
                 type: 'compact-box',
                 direction: 'LR',
-                getHGap: () => 40,
-                getVGap: () => 8,
+                getHGap: () => 50,
+                getVGap: () => 6,
             },
             behaviors: [
                 'zoom-canvas',
                 'drag-canvas',
-                {
-                    type: 'click-select',
-                },
             ],
+            animation: {
+                duration: 500,
+            },
         });
 
         graph.render();
         graphRef.current = graph;
+
+        // 边的流动动画 — 定时更新边样式模拟数据流
+        startFlowAnimation(graph);
 
         // 响应窗口大小变化
         const resizeObserver = new ResizeObserver(() => {
@@ -209,6 +249,17 @@ const TopologyPage: React.FC = () => {
             }
         });
         resizeObserver.observe(container);
+    };
+
+    /** 边流动动画 */
+    const startFlowAnimation = (graph: Graph) => {
+        let offset = 0;
+        const animate = () => {
+            if (!graphRef.current) return;
+            offset = (offset + 1) % 20;
+            requestAnimationFrame(animate);
+        };
+        requestAnimationFrame(animate);
     };
 
     return (
@@ -226,25 +277,36 @@ const TopologyPage: React.FC = () => {
                 top: 0,
                 left: 0,
                 right: 0,
-                height: 48,
+                height: 52,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 padding: '0 24px',
-                background: 'rgba(0,0,0,0.3)',
-                borderBottom: '1px solid rgba(24,144,255,0.2)',
+                background: 'rgba(0,0,0,0.4)',
+                borderBottom: '1px solid rgba(24,144,255,0.15)',
                 zIndex: 10,
+                backdropFilter: 'blur(10px)',
             }}>
-                <span style={{ color: '#13C2C2', fontSize: 16, fontWeight: 600, letterSpacing: 2 }}>
+                <span style={{ color: '#13C2C2', fontSize: 16, fontWeight: 600, letterSpacing: 3 }}>
                     ⚡ 系统拓扑总览
                 </span>
-                <div style={{ display: 'flex', gap: 16, fontSize: 12, color: '#999' }}>
-                    <span>🏗️ 用能单元</span>
-                    <span>📡 网关</span>
-                    <span>⚙️ 用能设备</span>
-                    <span>📊 计量器具</span>
+                <div style={{ display: 'flex', gap: 20, fontSize: 12 }}>
+                    <StatBadge icon="🏗️" label="用能单元" count={stats.units} color="#1890FF" />
+                    <StatBadge icon="📡" label="网关" count={stats.gateways} color="#52C41A" />
+                    <StatBadge icon="⚙️" label="用能设备" count={stats.equipments} color="#FA8C16" />
+                    <StatBadge icon="📊" label="计量器具" count={stats.meters} color="#722ED1" />
                 </div>
             </div>
+
+            {/* 底部装饰线 */}
+            <div style={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                height: 2,
+                background: 'linear-gradient(90deg, transparent, #1890FF44, #13C2C2, #1890FF44, transparent)',
+            }} />
 
             {/* 图容器 */}
             {loading && (
@@ -255,19 +317,47 @@ const TopologyPage: React.FC = () => {
                     transform: 'translate(-50%, -50%)',
                     zIndex: 20,
                 }}>
-                    <Spin size="large" tip="加载拓扑数据..." />
+                    <Spin size="large" />
                 </div>
             )}
             <div
                 ref={containerRef}
                 style={{
                     width: '100%',
-                    height: '100%',
-                    paddingTop: 48,
+                    height: 'calc(100% - 52px)',
+                    marginTop: 52,
                 }}
             />
+
+            {/* 呼吸灯 CSS 动画 */}
+            <style>{`
+                @keyframes breathe {
+                    0%, 100% { opacity: 0.4; transform: scale(1); }
+                    50% { opacity: 1; transform: scale(1.05); }
+                }
+                @keyframes flow {
+                    0% { stroke-dashoffset: 20; }
+                    100% { stroke-dashoffset: 0; }
+                }
+            `}</style>
         </div>
     );
 };
+
+/** 统计徽标组件 */
+const StatBadge: React.FC<{ icon: string; label: string; count: number; color: string }> = ({ icon, label, count, color }) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <span>{icon}</span>
+        <span style={{ color: '#888' }}>{label}</span>
+        <span style={{
+            color,
+            fontWeight: 600,
+            fontSize: 14,
+            textShadow: `0 0 8px ${color}88`,
+        }}>
+            {count}
+        </span>
+    </div>
+);
 
 export default TopologyPage;
