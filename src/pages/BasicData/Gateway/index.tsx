@@ -96,7 +96,7 @@ const Index: React.FC = () => {
             },
             render: (_, r) => {
                 const isOnline = onlineStatus[r.code]?.online === true;
-                return <Badge color={isOnline ? 'green' : 'grey'} status={isOnline ? 'processing' : 'default'} text={r.name} />;
+                return <Badge color={isOnline ? '#52c41a' : '#d9d9d9'} status={isOnline ? 'processing' : 'default'} text={r.name} />;
             },
         },
         { title: '网关编码', dataIndex: 'code', width: 120 },
