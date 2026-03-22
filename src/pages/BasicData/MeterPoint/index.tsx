@@ -139,8 +139,8 @@ const MeterPointPage: React.FC = () => {
                 placeholder: '请选择类型',
             },
             valueEnum: {
-                COLLECT: { text: '采集类' },
-                CALC: { text: '计算类' },
+                COLLECT: { text: '采集类', status: 'Processing' },
+                CALC: { text: '计算类', status: 'Warning' },
             },
         },
         {

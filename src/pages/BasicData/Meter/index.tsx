@@ -35,7 +35,7 @@ import useCrud from '@/hooks/common/useCrud';
 import { wrapperResult } from '@/utils';
 import { DeleteOutlined, EditOutlined, UnorderedListOutlined, PlusOutlined } from '@ant-design/icons';
 import { ProColumns, ProTable } from '@ant-design/pro-components';
-import { Button, Card, Drawer, Empty, Flex, Space, Spin, Tag, Typography } from 'antd';
+import { Badge, Button, Card, Drawer, Empty, Flex, Space, Spin, Tag, Typography } from 'antd';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import MeterForm from './components/MeterForm';
 
@@ -146,12 +146,7 @@ const Index: React.FC = () => {
             },
             render: (_, r) => {
                 const isOnline = onlineStatus[r.code]?.online === true;
-                return (
-                    <Space size={6}>
-                        <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', backgroundColor: isOnline ? '#52c41a' : '#d9d9d9' }} />
-                        {r.name}
-                    </Space>
-                );
+                return <Badge status={isOnline ? 'processing' : 'default'} text={r.name} />;
             },
         },
         {
