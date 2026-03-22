@@ -25,7 +25,7 @@
 import { request } from '@umijs/max';
 
 /**
- * 采集点位 API
+ * 计量点 API
  */
 
 export interface MeterPoint {
@@ -79,7 +79,7 @@ export interface MeterPointPageParams {
 }
 
 /**
- * 分页查询采集点位
+ * 分页查询计量点
  */
 export async function getMeterPointPage(params: MeterPointPageParams) {
     const { current, pageNumber, pageSize, sortField, sortOrder, ...queryParams } = params;
@@ -96,7 +96,7 @@ export async function getMeterPointPage(params: MeterPointPageParams) {
 }
 
 /**
- * 根据ID查询采集点位
+ * 根据ID查询计量点
  */
 export async function getMeterPointById(id: number) {
     return request<API.Result<MeterPoint>>(`/api/meter-points/${id}`, {
@@ -105,7 +105,7 @@ export async function getMeterPointById(id: number) {
 }
 
 /**
- * 根据编码查询采集点位
+ * 根据编码查询计量点
  */
 export async function getMeterPointByCode(code: string) {
     return request<API.Result<MeterPoint>>(`/api/meter-points/code/${code}`, {
@@ -114,7 +114,7 @@ export async function getMeterPointByCode(code: string) {
 }
 
 /**
- * 根据计量器具ID查询采集点位
+ * 根据计量器具ID查询计量点
  */
 export async function getMeterPointsByMeterId(meterId: number) {
     return request<API.Result<MeterPoint[]>>(`/api/meter-points/meter/${meterId}`, {
@@ -123,7 +123,7 @@ export async function getMeterPointsByMeterId(meterId: number) {
 }
 
 /**
- * 根据能源类型ID查询采集点位
+ * 根据能源类型ID查询计量点
  */
 export async function getMeterPointsByEnergyTypeId(energyTypeId: number) {
     return request<API.Result<MeterPoint[]>>(`/api/meter-points/energy-type/${energyTypeId}`, {
@@ -132,7 +132,7 @@ export async function getMeterPointsByEnergyTypeId(energyTypeId: number) {
 }
 
 /**
- * 根据用能单元ID查询关联的采集点位
+ * 根据用能单元ID查询关联的计量点
  */
 export async function getMeterPointsByEnergyUnitId(energyUnitId: number) {
     return request<API.Result<MeterPoint[]>>(`/api/meter-points/energy-unit/${energyUnitId}`, {
@@ -141,7 +141,7 @@ export async function getMeterPointsByEnergyUnitId(energyUnitId: number) {
 }
 
 /**
- * 保存采集点位（新增或更新）
+ * 保存计量点（新增或更新）
  * 使用数据映射模式：直接在 data 中传递 meterId 和 energyTypeId
  */
 export async function saveMeterPoint(data: Partial<MeterPoint> & { meterId?: number; energyTypeId?: number }) {
@@ -152,7 +152,7 @@ export async function saveMeterPoint(data: Partial<MeterPoint> & { meterId?: num
 }
 
 /**
- * 删除采集点位
+ * 删除计量点
  */
 export async function deleteMeterPoint(id: number) {
     return request<API.Result<void>>(`/api/meter-points/${id}`, {
@@ -161,7 +161,7 @@ export async function deleteMeterPoint(id: number) {
 }
 
 /**
- * 修改采集点位状态
+ * 修改计量点状态
  */
 export async function updateMeterPointStatus(id: number, status: number) {
     return request<API.Result<MeterPoint>>(`/api/meter-points/${id}/status`, {
@@ -181,7 +181,7 @@ export async function assignEnergyUnits(id: number, energyUnitIds: number[]) {
 }
 
 /**
- * 获取所有采集点位
+ * 获取所有计量点
  */
 export async function getAllMeterPoints() {
     return request<API.Result<MeterPoint[]>>('/api/meter-points/all', {

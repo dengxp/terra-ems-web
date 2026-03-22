@@ -37,7 +37,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import MeterPointForm from './components/MeterPointForm';
 
 /**
- * 采集点位管理页面
+ * 计量点管理页面
  */
 const MeterPointPage: React.FC = () => {
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
@@ -55,7 +55,7 @@ const MeterPointPage: React.FC = () => {
         setShouldRefresh,
     } = useCrud<MeterPoint>({
         pathname: '/basic-data/meter-point',
-        entityName: '采集点位',
+        entityName: '计量点',
         baseUrl: '/api/meter-points',
     });
 

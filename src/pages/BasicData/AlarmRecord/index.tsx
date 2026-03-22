@@ -45,7 +45,7 @@ const AlarmRecordPage: React.FC = () => {
 
     const columns: ProColumns<AlarmRecord>[] = [
         {
-            title: '采集点位',
+            title: '计量点',
             dataIndex: ['alarmConfig', 'meterPoint', 'name'],
             key: 'meterPointId',
             request: async () => {
@@ -251,7 +251,7 @@ const AlarmRecordPage: React.FC = () => {
             >
                 {currentRecord && (
                     <Descriptions column={1} bordered size="small">
-                        <Descriptions.Item label="采集点位">
+                        <Descriptions.Item label="计量点">
                             {currentRecord.alarmConfig?.meterPoint?.name}
                             <Text type="secondary" style={{ marginLeft: 8 }}>
                                 ({currentRecord.alarmConfig?.meterPoint?.code})

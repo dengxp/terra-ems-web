@@ -72,7 +72,7 @@ const AlarmConfigPage: React.FC = () => {
 
     const handleAdd = () => {
         if (!selectedPoint) {
-            message.warning('请先选择采集点位');
+            message.warning('请先选择计量点');
             return;
         }
         toCreate();
@@ -179,10 +179,10 @@ const AlarmConfigPage: React.FC = () => {
                     />
                 </Splitter.Panel>
 
-                {/* 中间采集点列表 */}
+                {/* 中间计量点列表 */}
                 <Splitter.Panel defaultSize="40%" min="20%" style={{ overflow: 'hidden', paddingLeft: '16px' }}>
                     <Card
-                        title={<CardTitle icon={<UnorderedListOutlined />} title="采集点位列表" />}
+                        title={<CardTitle icon={<UnorderedListOutlined />} title="计量点列表" />}
                         size="small"
                         style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
                         styles={{ body: { flex: 1, overflow: 'auto', padding: 0 } }}
@@ -232,7 +232,7 @@ const AlarmConfigPage: React.FC = () => {
                                     image={Empty.PRESENTED_IMAGE_SIMPLE}
                                     description={
                                         <span style={{ color: 'rgba(0,0,0,0.45)' }}>
-                                            {selectedUnitId ? "该单元下暂无采集点位" : "请先选择用能单元"}
+                                            {selectedUnitId ? "该单元下暂无计量点" : "请先选择用能单元"}
                                         </span>
                                     }
                                 />
@@ -294,7 +294,7 @@ const AlarmConfigPage: React.FC = () => {
                         ) : (
                             <div style={{ padding: '60px 0', textAlign: 'center' }}>
                                 <ThunderboltOutlined style={{ fontSize: 48, color: '#d9d9d9', marginBottom: 16 }} />
-                                <div style={{ color: 'rgba(0,0,0,0.45)' }}>请从左侧选择一个采集点位开始配置</div>
+                                <div style={{ color: 'rgba(0,0,0,0.45)' }}>请从左侧选择一个计量点开始配置</div>
                             </div>
                         )}
                     </Card>

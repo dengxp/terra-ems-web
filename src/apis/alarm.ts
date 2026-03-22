@@ -118,7 +118,7 @@ export interface AlarmConfig {
 }
 
 /**
- * 根据采集点位查询报警配置
+ * 根据计量点查询报警配置
  */
 export async function getAlarmConfigsByMeterPoint(meterPointId: number) {
     return request<API.Result<AlarmConfig[]>>(`/api/alarm/configs/meter-point/${meterPointId}`, {

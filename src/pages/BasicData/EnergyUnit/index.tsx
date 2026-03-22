@@ -57,7 +57,7 @@ const EnergyUnitPage: React.FC = () => {
     const [contextMenuVisible, setContextMenuVisible] = useState(false);
     const [contextMenuPos, setContextMenuPos] = useState({ x: 0, y: 0 });
     const [contextMenuNode, setContextMenuNode] = useState<EnergyUnit | null>(null);
-    // 采集点位相关
+    // 计量点相关
     const [meterPoints, setMeterPoints] = useState<MeterPoint[]>([]);
     const [meterPointsLoading, setMeterPointsLoading] = useState(false);
     const [manageDialogVisible, setManageDialogVisible] = useState(false);
@@ -148,7 +148,7 @@ const EnergyUnitPage: React.FC = () => {
         loadTree();
     }, []);
 
-    // 加载选中节点的采集点位
+    // 加载选中节点的计量点
     const loadMeterPoints = useCallback(async (unitId: number) => {
         setMeterPointsLoading(true);
         try {
@@ -157,7 +157,7 @@ const EnergyUnitPage: React.FC = () => {
                 setMeterPoints(res.data || []);
             }
         } catch (error) {
-            console.error('加载采集点位失败', error);
+            console.error('加载计量点失败', error);
         } finally {
             setMeterPointsLoading(false);
         }
@@ -169,7 +169,7 @@ const EnergyUnitPage: React.FC = () => {
         if (keys.length > 0 && info.node) {
             const node = (info.node as any).rawData as EnergyUnit;
             setSelectedNode(node);
-            // 加载该节点关联的采集点位
+            // 加载该节点关联的计量点
             loadMeterPoints(node.id);
         } else {
             setSelectedNode(null);
@@ -177,7 +177,7 @@ const EnergyUnitPage: React.FC = () => {
         }
     };
 
-    // 移除采集点位关联
+    // 移除计量点关联
     const handleRemoveMeterPoint = async (point: MeterPoint) => {
         if (!selectedNode) return;
         try {
@@ -485,11 +485,11 @@ const EnergyUnitPage: React.FC = () => {
                                         </ProDescriptions.Item>
                                     </ProDescriptions>
 
-                                    {/* 采集点位列表 */}
+                                    {/* 计量点列表 */}
                                     <div className={'px-2 py-4'}>
                                         <Flex justify={'space-between'} align={'center'} className={'pb-2 border-b mb-3'}>
                                             <span style={{ fontSize: 16, fontWeight: 500 }}>
-                                                采集点位 ({meterPoints.length})
+                                                计量点 ({meterPoints.length})
                                             </span>
                                             <Button
                                                 type="link"
@@ -546,7 +546,7 @@ const EnergyUnitPage: React.FC = () => {
                                         ) : (
                                             <Empty
                                                 image={Empty.PRESENTED_IMAGE_SIMPLE}
-                                                description="暂无关联的采集点位"
+                                                description="暂无关联的计量点"
                                                 style={{ margin: '20px 0' }}
                                             />
                                         )}

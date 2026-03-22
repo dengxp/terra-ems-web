@@ -45,7 +45,7 @@ interface TransferItem {
 }
 
 /**
- * 为用能单元批量更新关联的采集点位
+ * 为用能单元批量更新关联的计量点
  * 注意：这个接口会遍历所有相关点位，分别更新它们的关联
  */
 async function updateEnergyUnitMeterPoints(
@@ -93,8 +93,8 @@ async function updateEnergyUnitMeterPoints(
 }
 
 /**
- * 采集点位管理对话框
- * 使用穿梭框批量管理用能单元关联的采集点位
+ * 计量点管理对话框
+ * 使用穿梭框批量管理用能单元关联的计量点
  */
 const MeterPointsManageDialog: React.FC<MeterPointsManageDialogProps> = ({
     open,
@@ -108,7 +108,7 @@ const MeterPointsManageDialog: React.FC<MeterPointsManageDialogProps> = ({
     const [loading, setLoading] = useState(false);
     const [submitting, setSubmitting] = useState(false);
 
-    // 加载所有采集点位
+    // 加载所有计量点
     useEffect(() => {
         if (open) {
             setLoading(true);
@@ -159,7 +159,7 @@ const MeterPointsManageDialog: React.FC<MeterPointsManageDialogProps> = ({
 
     return (
         <Modal
-            title={`管理采集点位 - ${energyUnit.name}`}
+            title={`管理计量点 - ${energyUnit.name}`}
             open={open}
             onCancel={() => onOpenChange(false)}
             onOk={handleSubmit}
@@ -170,7 +170,7 @@ const MeterPointsManageDialog: React.FC<MeterPointsManageDialogProps> = ({
             destroyOnHidden
         >
             <Alert
-                message="选择要关联到此用能单元的采集点位"
+                message="选择要关联到此用能单元的计量点"
                 type="info"
                 showIcon
                 style={{ marginBottom: 16 }}

@@ -79,7 +79,7 @@ const MeterPointForm: React.FC<MeterPointFormProps> = ({
         getState
     } = useCrud<MeterPoint>({
         pathname: '/basic-data/meter-point',
-        entityName: '采集点位',
+        entityName: '计量点',
         baseUrl: '/api/meter-points',
         onOpenChange: onVisibleChange
     });
