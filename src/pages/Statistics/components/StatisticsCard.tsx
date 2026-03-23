@@ -35,7 +35,7 @@ interface StatisticsCardProps {
     precision?: number;
     compareValue?: number;
     compareLabel?: string;
-    changeRate?: number;
+    changeRate?: number | null;
     loading?: boolean;
     style?: React.CSSProperties;
     icon?: React.ReactNode;
@@ -157,9 +157,15 @@ const StatisticsCard: React.FC<StatisticsCardProps> = ({
                             </Text>
                         )}
                         {changeRate !== undefined && (
-                            <Text style={{ color: getRateColor(changeRate), fontSize: 13 }}>
-                                {getRateIcon(changeRate)} {Math.abs(changeRate).toFixed(2)}%
-                            </Text>
+                            changeRate === null ? (
+                                <Text style={{ color: '#999', fontSize: 13 }}>
+                                    <MinusOutlined /> N/A
+                                </Text>
+                            ) : (
+                                <Text style={{ color: getRateColor(changeRate), fontSize: 13 }}>
+                                    {getRateIcon(changeRate)} {Math.abs(changeRate).toFixed(2)}%
+                                </Text>
+                            )
                         )}
                     </Space>
                 )}

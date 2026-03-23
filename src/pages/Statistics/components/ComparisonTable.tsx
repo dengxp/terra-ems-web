@@ -39,7 +39,14 @@ const ComparisonTable: React.FC<ComparisonTableProps> = ({
     type,
     loading = false,
 }) => {
-    const getChangeTag = (rate: number) => {
+    const getChangeTag = (rate: number | null | undefined) => {
+        if (rate === null || rate === undefined) {
+            return (
+                <Tag color="default">
+                    N/A
+                </Tag>
+            );
+        }
         if (rate > 0) {
             return (
                 <Tag color="error" icon={<ArrowUpOutlined />}>
@@ -105,7 +112,7 @@ const ComparisonTable: React.FC<ComparisonTableProps> = ({
             key: 'changeRate',
             width: 100,
             align: 'center',
-            render: (val) => getChangeTag(val || 0),
+            render: (val) => getChangeTag(val),
         },
     ];
 

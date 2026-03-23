@@ -48,8 +48,8 @@ export interface EnergyStatisticsSummary {
     currentTotal: number;
     lastYearTotal: number;
     lastPeriodTotal: number;
-    yoyRate: number;
-    momRate: number;
+    yoyRate: number | null;
+    momRate: number | null;
     energyTypeDistribution: EnergyTypeDistribution[];
     trendData: TrendDataItem[];
 }
@@ -61,7 +61,7 @@ export interface ComparisonAnalysis {
     currentValue: number;
     comparisonValue: number;
     difference: number;
-    changeRate: number;
+    changeRate: number | null;
     unit: string;
 }
 
@@ -142,9 +142,9 @@ export interface UnitConsumption {
     energyUnit: string;
     unitConsumption: number;
     lastYearUnitConsumption: number;
-    yoyRate: number;
+    yoyRate: number | null;
     lastPeriodUnitConsumption: number;
-    momRate: number;
+    momRate: number | null;
     trendData: UnitConsumptionTrendItem[];
 }
 
