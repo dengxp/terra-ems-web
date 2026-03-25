@@ -48,7 +48,7 @@ graph LR
   <img src="./docs/images/demo.webp" width="100%" alt="Terra EMS Demo Video"/>
 </p>
 
-Terra EMS Web is the frontend application for the Terra Energy Management System. It is built on the **Ant Design Pro** template and uses the **UmiJS 4** enterprise-grade framework. It provides out-of-the-box management interfaces, comprehensive energy monitoring dashboards, TOU pricing analysis, carbon footprint tracking, and a modern UI experience.
+Terra EMS Web is the frontend application for the Terra Energy Management System, built on **Ant Design Pro** and **UmiJS 4**. It provides an industrial-grade management interface optimized for **IoT scenarios**, supporting one-click site deployment via **YAML configuration**, real-time energy dashboards, carbon footprint tracking, and a modern UI experience.
 
 > 📦 Backend Repository: [terra-ems](https://github.com/dengxp/terra-ems)
 
@@ -59,8 +59,8 @@ Terra EMS Web is the frontend application for the Terra Energy Management System
 *   **Password**: `admin123`
 
 > [!TIP]
-> **Beyond EMS - A Versatile Web Base**:
-> Terra EMS Web is built on a highly standardized React + TypeScript architecture, featuring a robust permission system and abstract `useCrud` hooks. It is not limited to energy management but serves as a general-purpose enterprise-grade boilerplate for rapid application development.
+> **Frontend Innovation: Zero-Code Initialization**:
+> In sync with the backend's "Code-as-Config" philosophy, the frontend now supports full-site YAML import. Engineers can skip tedious manual configurations and simply drag-and-drop a file to initialize complex multi-level site hierarchies instantly.
 
 ---
 
@@ -68,6 +68,7 @@ Terra EMS Web is the frontend application for the Terra Energy Management System
 
 ### Energy Management
 *   🔋 **Base Data**: Energy types, units, meters, sampling points.
+*   🚀 **Fast Deploy**: **One-click YAML Site Import**, Auto-initialization.
 *   📊 **Analytics**: Consumption trends, YoY/MoM analysis, rankings, dashboards.
 *   ⚡ **Peak & Valley**: Price configuration and TOU analysis charts.
 *   🌍 **Carbon**: Emission calc and footprint visualization.
