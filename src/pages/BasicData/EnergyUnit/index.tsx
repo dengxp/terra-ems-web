@@ -24,22 +24,149 @@
 
 import { EnergyUnit, getEnergyUnitTree } from '@/apis/energyUnit';
 import { Equipment, getEquipmentsByEnergyUnitId } from '@/apis/equipment';
-import { assignEnergyUnits, getMeterPointsByEnergyUnitId, MeterPoint } from '@/apis/meterPoint';
+import { getMeters, updateMeter, Meter } from '@/apis/meter';
+import { getMeterPointsByMeterId, MeterPoint } from '@/apis/meterPoint';
 import { DeleteButton, IconButton } from '@/components/button';
 import { ProPageContainer } from '@/components/container';
 import useCrud from "@/hooks/common/useCrud";
 import { ReactComponent as MoveTo } from '@/icons/svg/move-to.svg';
 import { generateList, getParentKey } from "@/utils/tree";
 import Icon, {
-    DeleteOutlined, EditOutlined, PlusOutlined, SettingOutlined
+    DeleteOutlined, EditOutlined, PlusOutlined, SettingOutlined,
+    DownOutlined, RightOutlined
 } from '@ant-design/icons';
 import { ProDescriptions } from '@ant-design/pro-components';
 import type { TreeDataNode } from 'antd';
-import { Button, Dropdown, Empty, Flex, Input, List, message, Space, Splitter, Tabs, Tag, Tree } from 'antd';
+import { Button, Dropdown, Empty, Flex, Input, List, message, Space, Splitter, Tabs, Tag, Tree, Spin } from 'antd';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import EnergyUnitForm from './components/EnergyUnitForm';
-import MeterPointsManageDialog from './components/MeterPointsManageDialog';
+import MeterPointChartDialog from './components/MeterPointChartDialog';
 import MoveEnergyUnitDialog from './components/MoveEnergyUnitDialog';
+
+const MeterListItem: React.FC<{ meter: Meter; onRemove: () => void }> = ({ meter, onRemove }) => {
+    const [expanded, setExpanded] = useState(false);
+    const [points, setPoints] = useState<MeterPoint[]>([]);
+    const [loading, setLoading] = useState(false);
+    
+    // 历史数据弹窗状态
+    const [chartOpen, setChartOpen] = useState(false);
+    const [activePoint, setActivePoint] = useState<MeterPoint | null>(null);
+
+    const toggleExpand = async () => {
+        if (!expanded && points.length === 0) {
+            setLoading(true);
+            try {
+                const res = await getMeterPointsByMeterId(meter.id);
+                if (res.success) setPoints(res.data || []);
+            } finally {
+                setLoading(false);
+            }
+        }
+        setExpanded(!expanded);
+    };
+
+    return (
+        <List.Item
+            className="rounded transition-all duration-300 flex flex-col items-start bg-white hover:shadow-sm"
+            style={{ padding: '8px 12px', margin: '6px 0', border: '1px solid #e8e8e8', borderColor: expanded ? '#1677ff40' : '#e8e8e8' }}
+        >
+            <div 
+                className="flex justify-between w-full items-center cursor-pointer select-none"
+                onClick={toggleExpand}
+            >
+                <Space>
+                    <span style={{ display: 'inline-block', width: 14, textAlign: 'center', transition: 'transform 0.3s', transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)' }}>
+                        <RightOutlined style={{ fontSize: 12, color: '#aaa' }} />
+                    </span>
+                    <Tag color={meter.energyType?.color || 'blue'} style={{ margin: 0 }}>
+                        {meter.energyType?.name || '未知'}
+                    </Tag>
+                    <span style={{ fontWeight: expanded ? 500 : 400, color: expanded ? '#1677ff' : '#333', transition: 'color 0.3s' }}>{meter.name}</span>
+                    <span style={{ color: '#999', fontSize: 12 }}>({meter.code})</span>
+                </Space>
+                <div onClick={(e) => e.stopPropagation()}>
+                    <DeleteButton tooltip="移除关联" onClick={onRemove} />
+                </div>
+            </div>
+            
+            {expanded && (
+                <div className="w-full mt-3 pl-4 relative">
+                    {/* 竖线装饰 */}
+                    <div style={{ position: 'absolute', left: 4, top: 0, bottom: 0, width: 2, backgroundColor: '#f0f0f0' }}></div>
+
+                    {loading ? (
+                        <div className="py-4 text-center">
+                            <Spin size="small" /> <span style={{ color: '#999', fontSize: 12, marginLeft: 8 }}>加载点位中...</span>
+                        </div>
+                    ) : points.length > 0 ? (
+                        <List
+                            size="small"
+                            dataSource={points}
+                            style={{ backgroundColor: '#fafafa', borderRadius: 4, padding: '4px 8px' }}
+                            renderItem={(p) => (
+                                <List.Item style={{ padding: '6px 0', borderBottom: '1px dashed #e8e8e8' }}>
+                                    <Space className="w-full flex justify-between">
+                                        <Space>
+                                            <span style={{ color: '#555', fontSize: 13 }}>{p.name}</span>
+                                            <span style={{ color: '#999', fontSize: 12 }}>({p.code})</span>
+                                        </Space>
+                                        {(() => {
+                                            let color = 'cyan';
+                                            let text = p.pointType;
+                                            if (p.pointType === 'COLLECT') {
+                                                color = 'blue';
+                                                text = '采集点';
+                                            } else if (p.pointType === 'CALCULATE' || p.pointType === 'CALC') {
+                                                color = 'purple';
+                                                text = '计算点';
+                                            } else if (p.pointType === 'MANUAL') {
+                                                color = 'orange';
+                                                text = '手工点';
+                                            } else if (p.pointType === 'VIRTUAL') {
+                                                color = 'default';
+                                                text = '虚拟点';
+                                            }
+
+                                            return (
+                                                <Space>
+                                                    <Tag color={color} bordered={false} style={{ fontSize: 12, margin: 0, lineHeight: '20px' }}>
+                                                        {text}
+                                                    </Tag>
+                                                    <Button 
+                                                        type="link" 
+                                                        size="small" 
+                                                        onClick={() => {
+                                                            setActivePoint(p);
+                                                            setChartOpen(true);
+                                                        }}
+                                                        style={{ padding: 0, fontSize: 12 }}
+                                                    >
+                                                        历史数据
+                                                    </Button>
+                                                </Space>
+                                            );
+                                        })()}
+                                    </Space>
+                                </List.Item>
+                            )}
+                        />
+                    ) : (
+                        <div className="py-3 text-center" style={{ backgroundColor: '#fafafa', borderRadius: 4 }}>
+                            <span style={{ color: '#bfbfbf', fontSize: 12 }}>没有查找到关联的计量点</span>
+                        </div>
+                    )}
+                </div>
+            )}
+            
+            {/* 历史数据弹窗 */}
+            <MeterPointChartDialog 
+                open={chartOpen}
+                onOpenChange={setChartOpen}
+                point={activePoint}
+            />
+        </List.Item>
+    );
+};
 
 /**
  * 用能单元管理页面
@@ -58,10 +185,9 @@ const EnergyUnitPage: React.FC = () => {
     const [contextMenuVisible, setContextMenuVisible] = useState(false);
     const [contextMenuPos, setContextMenuPos] = useState({ x: 0, y: 0 });
     const [contextMenuNode, setContextMenuNode] = useState<EnergyUnit | null>(null);
-    // 计量点相关
-    const [meterPoints, setMeterPoints] = useState<MeterPoint[]>([]);
-    const [meterPointsLoading, setMeterPointsLoading] = useState(false);
-    const [manageDialogVisible, setManageDialogVisible] = useState(false);
+    // 计量器具相关
+    const [meters, setMeters] = useState<Meter[]>([]);
+    const [metersLoading, setMetersLoading] = useState(false);
     // 用能设备相关
     const [equipments, setEquipments] = useState<Equipment[]>([]);
     const [equipmentsLoading, setEquipmentsLoading] = useState(false);
@@ -152,18 +278,18 @@ const EnergyUnitPage: React.FC = () => {
         loadTree();
     }, []);
 
-    // 加载选中节点的计量点
-    const loadMeterPoints = useCallback(async (unitId: number) => {
-        setMeterPointsLoading(true);
+    // 加载选中节点的计量器具
+    const loadMeters = useCallback(async (unitId: number) => {
+        setMetersLoading(true);
         try {
-            const res = await getMeterPointsByEnergyUnitId(unitId);
+            const res = await getMeters({ current: 1, pageSize: 1000, energyUnitId: unitId });
             if (res.success) {
-                setMeterPoints(res.data || []);
+                setMeters(res.data?.content || []);
             }
         } catch (error) {
-            console.error('加载计量点失败', error);
+            console.error('加载计量器具失败', error);
         } finally {
-            setMeterPointsLoading(false);
+            setMetersLoading(false);
         }
     }, []);
 
@@ -188,27 +314,24 @@ const EnergyUnitPage: React.FC = () => {
         if (keys.length > 0 && info.node) {
             const node = (info.node as any).rawData as EnergyUnit;
             setSelectedNode(node);
-            // 加载该节点关联的计量点和用能设备
-            loadMeterPoints(node.id);
+            // 加载该节点关联的计量器具和用能设备
+            loadMeters(node.id);
             loadEquipments(node.id);
         } else {
             setSelectedNode(null);
-            setMeterPoints([]);
+            setMeters([]);
             setEquipments([]);
         }
     };
 
-    // 移除计量点关联
-    const handleRemoveMeterPoint = async (point: MeterPoint) => {
+    // 移除计量器具关联
+    const handleRemoveMeter = async (meter: Meter) => {
         if (!selectedNode) return;
         try {
-            // 获取该点位当前关联的所有用能单元，移除当前单元
-            const currentUnitIds = point.energyUnits?.map((u) => u.id) || [];
-            const newUnitIds = currentUnitIds.filter((id) => id !== selectedNode.id);
-            await assignEnergyUnits(point.id, newUnitIds);
+            // 将计量器具的 energyUnit 置空
+            await updateMeter(meter.id, { ...meter, energyUnit: null });
             messageApi.success('已移除关联');
-            // 刷新列表
-            loadMeterPoints(selectedNode.id);
+            loadMeters(selectedNode.id);
         } catch (error) {
             messageApi.error('操作失败');
         }
@@ -509,54 +632,27 @@ const EnergyUnitPage: React.FC = () => {
                                     {/* 计量点 & 用能设备 Tabs */}
                                     <div className={'px-2 py-2'}>
                                         <Tabs
-                                            defaultActiveKey="meterPoints"
+                                            defaultActiveKey="meters"
                                             size="small"
-                                            tabBarExtraContent={
-                                                <Button
-                                                    type="link"
-                                                    size="small"
-                                                    icon={<SettingOutlined />}
-                                                    onClick={() => setManageDialogVisible(true)}
-                                                    style={{ padding: 0 }}
-                                                >
-                                                    管理
-                                                </Button>
-                                            }
                                             items={[
                                                 {
-                                                    key: 'meterPoints',
-                                                    label: `计量点 (${meterPoints.length})`,
-                                                    children: meterPoints.length > 0 ? (
+                                                    key: 'meters',
+                                                    label: `计量器具 (${meters.length})`,
+                                                    children: meters.length > 0 ? (
                                                         <List
                                                             size="small"
-                                                            loading={meterPointsLoading}
-                                                            dataSource={meterPoints}
+                                                            loading={metersLoading}
+                                                            dataSource={meters}
                                                             renderItem={(item) => (
-                                                                <List.Item
-                                                                    className="hover:bg-gray-50 rounded px-2 transition-colors"
-                                                                    style={{ padding: '6px 8px', margin: '1px 0' }}
-                                                                    actions={[
-                                                                        <DeleteButton
-                                                                            key="remove"
-                                                                            tooltip="移除关联"
-                                                                            onClick={() => handleRemoveMeterPoint(item)}
-                                                                        />
-                                                                    ]}
-                                                                >
-                                                                    <Space>
-                                                                        <Tag color="blue" style={{ margin: 0 }}>
-                                                                            {item.energyType?.name || '未知'}
-                                                                        </Tag>
-                                                                        <span>{item.name}</span>
-                                                                        <span style={{ color: '#999', fontSize: 12 }}>
-                                                                            ({item.code})
-                                                                        </span>
-                                                                    </Space>
-                                                                </List.Item>
+                                                                <MeterListItem
+                                                                    key={item.id}
+                                                                    meter={item}
+                                                                    onRemove={() => handleRemoveMeter(item)}
+                                                                />
                                                             )}
                                                         />
                                                     ) : (
-                                                        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无关联的计量点" style={{ margin: '20px 0' }} />
+                                                        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无关联的计量器具" style={{ margin: '20px 0' }} />
                                                     ),
                                                 },
                                                 {
@@ -622,15 +718,7 @@ const EnergyUnitPage: React.FC = () => {
                 />
             )}
 
-            {selectedNode && (
-                <MeterPointsManageDialog
-                    open={manageDialogVisible}
-                    onOpenChange={setManageDialogVisible}
-                    energyUnit={selectedNode}
-                    currentPoints={meterPoints}
-                    onSuccess={() => loadMeterPoints(selectedNode.id)}
-                />
-            )}
+
         </>
     );
 };

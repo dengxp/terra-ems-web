@@ -25,6 +25,7 @@
 import {
     getMeters, getMeterOnlineStatus, Meter, DeviceOnlineInfo
 } from '@/apis/meter';
+import { getEnabledEnergyUnitTree } from '@/apis/energyUnit';
 import { getMeterPointsByMeterId, MeterPoint } from '@/apis/meterPoint';
 import { DeleteButton, EditButton, IconButton } from '@/components/button';
 import { ProPageContainer } from '@/components/container';
@@ -33,11 +34,12 @@ import { PERMISSIONS } from '@/config/permissions';
 import StatusIcon from '@/components/icons/StatusIcon';
 import useCrud from '@/hooks/common/useCrud';
 import { wrapperResult } from '@/utils';
-import { DeleteOutlined, EditOutlined, UnorderedListOutlined, PlusOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, UnorderedListOutlined, PlusOutlined, LineChartOutlined } from '@ant-design/icons';
 import { ProColumns, ProTable } from '@ant-design/pro-components';
 import { Badge, Button, Card, Drawer, Empty, Flex, Space, Spin, Tag, Typography } from 'antd';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import MeterForm from './components/MeterForm';
+import MeterPointChartDialog from '../EnergyUnit/components/MeterPointChartDialog';
 
 /**
  * 计量器具管理页面
@@ -49,6 +51,8 @@ const Index: React.FC = () => {
     const [drawerMeter, setDrawerMeter] = useState<Meter | null>(null);
     const [meterPoints, setMeterPoints] = useState<MeterPoint[]>([]);
     const [mpLoading, setMpLoading] = useState(false);
+    const [chartOpen, setChartOpen] = useState(false);
+    const [activeMeter, setActiveMeter] = useState<Meter | null>(null);
     const [onlineStatus, setOnlineStatus] = useState<Record<string, DeviceOnlineInfo>>({});
     const timerRef = useRef<ReturnType<typeof setInterval>>();
 
@@ -177,12 +181,26 @@ const Index: React.FC = () => {
             hideInSearch: true,
         },
         {
-            title: '安装位置',
-            dataIndex: 'location',
-            key: 'location',
-            width: 200,
-            hideInSearch: true,
-            ellipsis: true,
+            title: '用能单元',
+            dataIndex: 'energyUnitId',
+            key: 'energyUnitId',
+            width: 150,
+            valueType: 'treeSelect',
+            fieldProps: {
+                fieldNames: { label: 'name', value: 'id', children: 'children' },
+                treeDefaultExpandAll: true,
+                placeholder: '请选择用能单元',
+            },
+            request: async () => {
+                const res = await getEnabledEnergyUnitTree();
+                return res.data || [];
+            },
+            render: (_, record) => {
+                if (!record.energyUnit) return <Typography.Text type="secondary">—</Typography.Text>;
+                const colors = ['cyan', 'blue', 'green', 'purple', 'magenta', 'orange', 'gold', 'volcano', 'geekblue', 'lime'];
+                const color = colors[(record.energyUnit.id ?? 0) % colors.length];
+                return <Tag color={color}>{record.energyUnit.name}</Tag>;
+            },
         },
         {
             title: '状态',
@@ -210,6 +228,14 @@ const Index: React.FC = () => {
                         icon={<UnorderedListOutlined />}
                         tooltip="计量点"
                         onClick={() => handleViewMeterPoints(record)}
+                    />
+                    <IconButton
+                        icon={<LineChartOutlined />}
+                        tooltip="历史数据"
+                        onClick={() => {
+                            setActiveMeter(record);
+                            setChartOpen(true);
+                        }}
                     />
                     <Permission code={PERMISSIONS.EMS.METER.EDIT}>
                         <EditButton onClick={() => toEdit(record)} />
@@ -333,6 +359,12 @@ const Index: React.FC = () => {
                     </Flex>
                 )}
             </Drawer>
+
+            <MeterPointChartDialog 
+                open={chartOpen}
+                onOpenChange={setChartOpen}
+                meter={activeMeter}
+            />
         </>
     );
 };

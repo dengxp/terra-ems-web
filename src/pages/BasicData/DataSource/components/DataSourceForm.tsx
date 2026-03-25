@@ -70,7 +70,7 @@ const DataSourceForm: React.FC<Props> = ({ visible, onCancel, onSuccess }) => {
         const conn: any = {};
         if (proto === 'modbus-tcp' || proto === 'mqtt') {
             if (values.conn_port) conn.port = values.conn_port;
-        } else if (proto === 'modbus-rtu') {
+        } else if (proto === 'modbus-rtu' || proto === 'dlt645') {
             if (values.conn_baudRate) conn.baudRate = values.conn_baudRate;
             if (values.conn_dataBits) conn.dataBits = values.conn_dataBits;
             if (values.conn_stopBits) conn.stopBits = values.conn_stopBits;
@@ -155,36 +155,55 @@ const DataSourceForm: React.FC<Props> = ({ visible, onCancel, onSuccess }) => {
                     name="conn_port"
                     placeholder={protocol === 'mqtt' ? '如 1883' : '如 502'}
                     colProps={{ span: 12 }}
+                    rules={[{ required: true, message: '请输入端口号' }]}
+                    min={1}
+                    max={65535}
                 />
             )}
-            {protocol === 'modbus-rtu' && (
+            {(protocol === 'modbus-rtu' || protocol === 'dlt645') && (
                 <>
-                    <ProFormDigit
+                    <ProFormSelect
                         label="波特率"
                         name="conn_baudRate"
-                        placeholder="如 9600"
+                        placeholder="请选择波特率"
                         colProps={{ span: 12 }}
+                        rules={[{ required: true, message: '请选择波特率' }]}
+                        options={[
+                            { label: '1200', value: 1200 },
+                            { label: '2400', value: 2400 },
+                            { label: '4800', value: 4800 },
+                            { label: '9600', value: 9600 },
+                            { label: '19200', value: 19200 },
+                            { label: '38400', value: 38400 },
+                            { label: '115200', value: 115200 },
+                        ]}
                     />
                     <ProFormSelect
                         label="数据位"
                         name="conn_dataBits"
                         colProps={{ span: 12 }}
+                        rules={[{ required: true }]}
+                        initialValue={8}
                         options={[{ label: '7', value: 7 }, { label: '8', value: 8 }]}
                     />
                     <ProFormSelect
                         label="停止位"
                         name="conn_stopBits"
                         colProps={{ span: 12 }}
+                        rules={[{ required: true }]}
+                        initialValue={1}
                         options={[{ label: '1', value: 1 }, { label: '2', value: 2 }]}
                     />
                     <ProFormSelect
                         label="校验方式"
                         name="conn_parity"
                         colProps={{ span: 12 }}
+                        rules={[{ required: true }]}
+                        initialValue="NONE"
                         options={[
-                            { label: '无校验', value: 'NONE' },
-                            { label: '奇校验', value: 'ODD' },
-                            { label: '偶校验', value: 'EVEN' },
+                            { label: '无校验 (NONE)', value: 'NONE' },
+                            { label: '奇校验 (ODD)', value: 'ODD' },
+                            { label: '偶校验 (EVEN)', value: 'EVEN' },
                         ]}
                     />
                 </>

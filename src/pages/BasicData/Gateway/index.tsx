@@ -7,7 +7,7 @@ import useCrud from '@/hooks/common/useCrud';
 import { wrapperResult } from '@/utils';
 import { DatabaseOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import { ProColumns, ProTable } from '@ant-design/pro-components';
-import { Badge, Button, Card, Drawer, Empty, Flex, Space, Spin, Tag, Typography } from 'antd';
+import { Badge, Button, Card, Drawer, Empty, Flex, Progress, Space, Spin, Tag, Typography } from 'antd';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import GatewayForm from './components/GatewayForm';
 
@@ -106,6 +106,22 @@ const Index: React.FC = () => {
         {
             title: '所属用能单元', dataIndex: ['energyUnit', 'name'], width: 130, hideInSearch: true,
             render: (_, r) => r.energyUnit?.name || '-',
+        },
+        {
+            title: 'CPU 使用率', dataIndex: 'cpuUsage', width: 150, hideInSearch: true,
+            render: (_, r) => {
+                const cpu = onlineStatus[r.code]?.cpuUsage ?? (r as any).cpuUsage;
+                if (cpu === undefined || cpu === null) return '-';
+                return <Progress percent={Math.round(cpu)} size="small" status={cpu > 80 ? 'exception' : 'normal'} />;
+            },
+        },
+        {
+            title: '内存使用率', dataIndex: 'memUsage', width: 150, hideInSearch: true,
+            render: (_, r) => {
+                const mem = onlineStatus[r.code]?.memUsage ?? (r as any).memUsage;
+                if (mem === undefined || mem === null) return '-';
+                return <Progress percent={Math.round(mem)} size="small" status={mem > 80 ? 'exception' : 'normal'} />;
+            },
         },
         { title: '状态', dataIndex: 'status', width: 80, hideInSearch: true, render: (_, r) => <StatusIcon value={r.status} /> },
         {

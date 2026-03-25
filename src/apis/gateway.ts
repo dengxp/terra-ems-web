@@ -16,6 +16,8 @@ export interface Gateway {
     energyUnit?: any;
     runStatus?: string;
     lastHeartbeat?: string;
+    cpuUsage?: number;
+    memUsage?: number;
     status: number;
     remark?: string;
 }
@@ -47,6 +49,8 @@ export async function deleteGatewaysBatch(ids: (number | string)[]) {
 export interface GatewayOnlineInfo {
     online: boolean;
     lastHeartbeat?: string;
+    cpuUsage?: number;
+    memUsage?: number;
 }
 
 export async function getGatewayOnlineStatus() {

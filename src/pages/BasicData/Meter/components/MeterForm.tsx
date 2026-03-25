@@ -28,6 +28,7 @@ import { ProModalForm } from "@/components/container";
 import { OperationEnum } from '@/enums';
 import useCrud from '@/hooks/common/useCrud';
 import { ProFormDatePicker, ProFormDigit, ProFormSelect, ProFormText, ProFormTextArea } from '@ant-design/pro-components';
+import { Divider } from 'antd';
 import React, { useEffect, useState } from 'react';
 
 interface MeterFormProps {
@@ -70,10 +71,19 @@ const MeterForm: React.FC<MeterFormProps> = ({ visible, onCancel, onSuccess }) =
 
     useEffect(() => {
         if (visible) {
-            if (state.operation === OperationEnum.EDIT) {
+            if (state.operation === OperationEnum.EDIT && state.editData) {
+                let commObj: any = {};
+                try {
+                    if (state.editData.commParams) {
+                        commObj = typeof state.editData.commParams === 'string' ? JSON.parse(state.editData.commParams) : state.editData.commParams;
+                    }
+                } catch (e) { /* ignore */ }
+                
                 form.setFieldsValue({
                     ...state.editData,
-                    energyTypeId: state.editData?.energyType?.id
+                    energyTypeId: state.editData?.energyType?.id,
+                    comm_slaveId: commObj.slaveId,
+                    comm_meterAddr: commObj.meterAddr,
                 });
             } else {
                 form.resetFields();
@@ -95,13 +105,19 @@ const MeterForm: React.FC<MeterFormProps> = ({ visible, onCancel, onSuccess }) =
             }}
             form={form}
             onFinish={async (values) => {
+                const commParams: any = {};
+                if (values.comm_slaveId) commParams.slaveId = values.comm_slaveId;
+                if (values.comm_meterAddr) commParams.meterAddr = values.comm_meterAddr;
+
                 // 构造传给后端的对象，后端实体要求 EnergyType 对象
                 const submitData = {
                     ...state.editData,
                     ...values,
-                    energyType: { id: values.energyTypeId }
+                    energyType: { id: values.energyTypeId },
+                    commParams: Object.keys(commParams).length > 0 ? JSON.stringify(commParams) : undefined
                 };
                 delete (submitData as any).energyTypeId;
+                Object.keys(submitData).filter(k => k.startsWith('comm_')).forEach(k => delete (submitData as any)[k]);
 
                 await handleSaveOrUpdate(submitData);
                 onSuccess();
@@ -211,6 +227,27 @@ const MeterForm: React.FC<MeterFormProps> = ({ visible, onCancel, onSuccess }) =
                 label="提醒周期"
                 placeholder="请输入提醒周期"
                 colProps={{ span: 12 }}
+            />
+            <Divider orientation="left" orientationMargin={0} style={{ margin: '4px 0 12px' }}>
+                <span style={{ fontSize: 13, color: '#888' }}>通信参数</span>
+            </Divider>
+            <ProFormDigit
+                name="comm_slaveId"
+                label="从站地址"
+                placeholder="Modbus Slave ID (1-247)"
+                colProps={{ span: 12 }}
+                min={1}
+                max={247}
+                rules={[{ type: 'number', min: 1, max: 247, message: 'ID 必须在 1-247 之间' }]}
+            />
+            <ProFormText
+                name="comm_meterAddr"
+                label="表地址"
+                placeholder="DL/T645 地址 (12位)"
+                colProps={{ span: 12 }}
+                rules={[
+                    { pattern: /^[0-9A-Fa-f]{12}$/, message: '请输入12位 16 进制字符' }
+                ]}
             />
             <ProFormSelect
                 name="status"

@@ -198,3 +198,25 @@ export interface PointLatestValue {
 export async function getMeterPointLatestValues() {
     return request<API.Result<Record<string, PointLatestValue>>>('/api/meter-points/latest-values', { method: 'GET' });
 }
+
+export interface EnergyData {
+    id: number;
+    dataTime: string;
+    timeType: string;
+    value: number;
+}
+
+/**
+ * 查询点位历史能耗数据
+ */
+export async function getMeterPointEnergyData(
+    meterPointId: number,
+    timeType: string,
+    startTime: string,
+    endTime: string
+) {
+    return request<API.Result<EnergyData[]>>(`/api/energy-data/point/${meterPointId}`, {
+        method: 'GET',
+        params: { timeType, startTime, endTime },
+    });
+}

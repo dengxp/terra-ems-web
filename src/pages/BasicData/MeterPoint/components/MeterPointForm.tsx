@@ -23,16 +23,15 @@
  */
 
 import { getEnabledEnergyTypes } from '@/apis/energyType';
-import { EnergyUnit, getEnabledEnergyUnitTree } from '@/apis/energyUnit';
 import { getMeters, Meter } from '@/apis/meter';
-import { assignEnergyUnits, getMeterPointById, MeterPoint, saveMeterPoint } from '@/apis/meterPoint';
+import { getMeterPointById, MeterPoint, saveMeterPoint } from '@/apis/meterPoint';
 import { ProModalForm } from '@/components/container';
 import { OperationEnum } from '@/enums';
 import useCrud from '@/hooks/common/useCrud';
 import { getToken } from '@/utils/auth';
 import {
     ProFormDigit,
-    ProFormRadio, ProFormSelect, ProFormText, ProFormTextArea, ProFormTreeSelect
+    ProFormRadio, ProFormSelect, ProFormText, ProFormTextArea
 } from '@ant-design/pro-components';
 import React, { useEffect, useState } from 'react';
 
@@ -55,15 +54,6 @@ const categoryOptions = [
     { label: '其他', value: 'OTHER' },
 ];
 
-// 转换用能单元数据为 TreeSelect 数据格式
-const convertToTreeSelectData = (nodes: EnergyUnit[]): any[] => {
-    return nodes.map((node) => ({
-        title: node.name,
-        value: node.id,
-        key: node.id,
-        children: node.children ? convertToTreeSelectData(node.children) : undefined,
-    }));
-};
 
 const MeterPointForm: React.FC<MeterPointFormProps> = ({
     visible,
@@ -72,7 +62,6 @@ const MeterPointForm: React.FC<MeterPointFormProps> = ({
 }) => {
     const [meterOptions, setMeterOptions] = useState<{ label: string; value: number }[]>([]);
     const [energyTypeOptions, setEnergyTypeOptions] = useState<{ label: string; value: number }[]>([]);
-    const [energyUnitTreeData, setEnergyUnitTreeData] = useState<any[]>([]);
 
     const {
         form,
@@ -111,13 +100,6 @@ const MeterPointForm: React.FC<MeterPointFormProps> = ({
                     );
                 }
             });
-
-            // 加载用能单元树
-            getEnabledEnergyUnitTree().then((res) => {
-                if (res.success && res.data) {
-                    setEnergyUnitTreeData(convertToTreeSelectData(res.data));
-                }
-            });
         }
     }, [visible]);
 
@@ -131,11 +113,10 @@ const MeterPointForm: React.FC<MeterPointFormProps> = ({
                     ...state.editData,
                     meterId: state.editData?.meter?.id,
                     energyTypeId: state.editData?.energyType?.id,
-                    energyUnitIds: state.editData?.energyUnits?.map((u: any) => ({ value: u.id, label: u.name })) || [],
                 });
             }
 
-            // 2. 深度加载：如果是编辑模式，拉取完整的详情数据（包含关联的用能单元等）
+            // 2. 深度加载：如果是编辑模式，拉取完整的详情数据
             if (state.operation === OperationEnum.EDIT && state.editData?.id) {
                 getMeterPointById(state.editData.id).then((res: any) => {
                     if (res.success && res.data) {
@@ -144,12 +125,11 @@ const MeterPointForm: React.FC<MeterPointFormProps> = ({
                             ...fullData,
                             meterId: fullData?.meter?.id,
                             energyTypeId: fullData?.energyType?.id,
-                            energyUnitIds: fullData?.energyUnits?.map((u: any) => u.id) || [],
                         });
                     }
                 });
             } else if (state.operation === OperationEnum.CREATE) {
-                form.setFieldsValue({ status: 0, sortOrder: 0, pointType: 'COLLECT', category: 'ENERGY', energyUnitIds: [] });
+                form.setFieldsValue({ status: 0, sortOrder: 0, pointType: 'COLLECT', category: 'ENERGY' });
             }
         }
     }, [visible, state.operation, state.editData?.id]);
@@ -165,20 +145,12 @@ const MeterPointForm: React.FC<MeterPointFormProps> = ({
             labelCol={{ span: 6 }}
             onFinish={async (values) => {
                 try {
-                    const { energyUnitIds, ...restValues } = values;
                     // 使用数据映射模式：直接提交包含 meterId 和 energyTypeId 的扁平数据
                     const submitData = {
                         ...state.editData,
-                        ...restValues,
+                        ...values,
                     };
-                    const res = await saveMeterPoint(submitData);
-
-                    // 保存成功后关联用能单元
-                    if (res.success && res.data?.id && energyUnitIds !== undefined) {
-                        // treeCheckStrictly 模式下值为 [{value, label}]，提取 id
-                        const unitIds = energyUnitIds.map((item: any) => item.value ?? item);
-                        await assignEnergyUnits(res.data.id, unitIds);
-                    }
+                    await saveMeterPoint(submitData);
 
                     onSuccess();
                     return true;
@@ -247,23 +219,6 @@ const MeterPointForm: React.FC<MeterPointFormProps> = ({
                 colProps={{ span: 12 }}
                 options={energyTypeOptions}
                 placeholder="请选择能源类型"
-            />
-            <ProFormTreeSelect
-                name="energyUnitIds"
-                label="用能单元"
-                colProps={{ span: 12 }}
-                placeholder="请选择关联的用能单元"
-                fieldProps={{
-                    treeData: energyUnitTreeData,
-                    treeCheckable: true,
-                    treeCheckStrictly: true,
-                    showCheckedStrategy: 'SHOW_ALL',
-                    treeDefaultExpandAll: true,
-                    maxTagCount: 3,
-                    allowClear: true,
-                    filterTreeNode: (input, node) =>
-                        (node?.title as string)?.toLowerCase().includes(input.toLowerCase()),
-                }}
             />
             <ProFormText
                 name="unit"

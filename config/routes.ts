@@ -182,6 +182,14 @@ export default [
         access: 'canAccess',
         permissions: ['ems:product:list'],
       },
+      {
+        title: '场站配置导入',
+        name: '场站配置导入',
+        path: '/basic-data/site-import',
+        component: './BasicData/SiteImport',
+        access: 'canAccess',
+        permissions: ['ems:energy-type:list'],
+      },
     ],
   },
   {

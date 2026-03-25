@@ -24,6 +24,7 @@
 
 import { request } from '@umijs/max';
 import { EnergyType } from './energyType';
+import { EnergyUnit } from './energyUnit';
 
 /**
  * 计量器具 API
@@ -35,6 +36,7 @@ export interface Meter {
     name: string;
     type: string;
     energyType: EnergyType;
+    energyUnit?: EnergyUnit;
     modelNumber?: string;
     measureRange?: string;
     manufacturer?: string;
@@ -65,6 +67,7 @@ export async function getMeters(params: {
     current?: number;
     pageNumber?: number;
     pageSize?: number;
+    energyUnitId?: number;
 }) {
     const { current, pageNumber, pageSize, ...rest } = params;
     return request<API.Result<API.PageResult<Meter>>>('/api/meters', {
