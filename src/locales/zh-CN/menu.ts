@@ -83,5 +83,6 @@ export default {
   'menu.knowledge': '知识库',
   'menu.basic-data.product': '产品管理',
   'menu.statistics.process-energy': '工序能耗分析',
-  'menu.statistics.unit-consumption': '单耗分析'
+  'menu.statistics.unit-consumption': '单耗分析',
+  'menu.basic-data.site-import': '场站配置导入',
 };

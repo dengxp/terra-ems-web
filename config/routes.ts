@@ -184,7 +184,7 @@ export default [
       },
       {
         title: '场站配置导入',
-        name: '场站配置导入',
+        name: 'site-import',
         path: '/basic-data/site-import',
         component: './BasicData/SiteImport',
         access: 'canAccess',
