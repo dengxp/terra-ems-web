@@ -1,7 +1,7 @@
 # Terra EMS Web — 前端应用
 
 <h3 align="center">
-  <img src="public/images/terra-logo-1.png" height="20" style="vertical-align: -4px;" /> Terra 能源管理系统 — 基于 React + Ant Design 的企业级前端
+  <img src="./public/images/terra-logo-1.png" height="20" style="vertical-align: -4px;" /> Terra 能源管理系统 — 基于 React + Ant Design 的企业级前端
 </h3>
 
 <p align="center">
