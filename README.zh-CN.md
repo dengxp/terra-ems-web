@@ -15,13 +15,9 @@
 
 ### 🏗️ 技术架构图
 
-```mermaid
-graph LR
-    UI[Ant Design 5.x / Pro Components] --> Hook[useCrud 通用 Hook]
-    Hook --> Request[@umijs/max/request]
-    Request --> API[terra-ems 后端服务]
-    API --> UI
-```
+<p align="center">
+  <img src="./public/images/web-architecture.png" width="100%" alt="Terra EMS Web Architecture" />
+</p>
 
 ---
 

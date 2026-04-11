@@ -15,13 +15,9 @@
 
 ### 🏗️ Design System & Architecture
 
-```mermaid
-graph LR
-    UI[Ant Design 5.x / Pro Components] --> Hook[useCrud Custom Hook]
-    Hook --> Request[@umijs/max/request]
-    Request --> API[terra-ems API Service]
-    API --> UI
-```
+<p align="center">
+  <img src="./public/images/web-architecture.png" width="100%" alt="Terra EMS Web Architecture" />
+</p>
 
 <p align="center">
   <a href="./README.zh-CN.md">中文文档</a> | <span>English</span>
