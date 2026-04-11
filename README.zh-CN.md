@@ -1,8 +1,8 @@
 # Terra EMS Web — 前端应用
 
-<p align="center">
-  <strong>🌿 Terra 能源管理系统 — 基于 React + Ant Design 的企业级前端</strong>
-</p>
+<h3 align="center">
+  <img src="public/images/terra-logo-1.png" height="20" style="vertical-align: text-bottom;" /> Terra 能源管理系统 — 基于 React + Ant Design 的企业级前端
+</h3>
 
 <p align="center">
   <img src="https://img.shields.io/badge/React-18-blue?style=flat-square&logo=react" alt="React 18"/>

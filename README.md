@@ -1,8 +1,8 @@
 # Terra EMS Web — Frontend Application
 
-<p align="center">
-  <strong>🌿 Terra Energy Management System — Enterprise frontend based on React + Ant Design</strong>
-</p>
+<h3 align="center">
+  <img src="public/images/terra-logo-1.png" height="20" style="vertical-align: text-bottom;" /> Terra Energy Management System — Enterprise frontend based on React + Ant Design
+</h3>
 
 <p align="center">
   <img src="https://img.shields.io/badge/React-18-blue?style=flat-square&logo=react" alt="React 18"/>
