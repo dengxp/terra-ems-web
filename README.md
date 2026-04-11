@@ -1,7 +1,7 @@
 # Terra EMS Web — Frontend Application
 
 <h3 align="center">
-  <img src="./public/images/terra-logo-1.png" height="20" style="vertical-align: -4px;" /> Terra Energy Management System — Enterprise frontend based on React + Ant Design
+  <img src="./public/images/terra-logo-1.png" height="24" align="absmiddle" /> Terra Energy Management System — Enterprise frontend based on React + Ant Design
 </h3>
 
 <p align="center">
