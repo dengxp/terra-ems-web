@@ -16,7 +16,7 @@
 ### 🏗️ Design System & Architecture
 
 <p align="center">
-  <img src="./public/images/web-architecture.png" width="100%" alt="Terra EMS Web Architecture" />
+  <img src="./public/images/web-architecture.svg" alt="Terra EMS Web Architecture" />
 </p>
 
 <p align="center">
