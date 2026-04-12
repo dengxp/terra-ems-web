@@ -1,4 +1,4 @@
-{$SITE_DOMAIN::80} {
+{$SITE_DOMAIN} {
     # 1. 设置前端产物的根目录
     root * /srv
 
