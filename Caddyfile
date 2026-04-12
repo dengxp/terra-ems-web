@@ -1,0 +1,22 @@
+{$SITE_DOMAIN::80} {
+    # 1. 设置前端产物的根目录
+    root * /srv
+
+    # 2. 静态资源开启浏览器长缓存
+    @static {
+        file
+        path *.js *.css *.png *.jpg *.jpeg *.gif *.ico *.svg *.woff *.woff2 *.ttf *.eot
+    }
+    header @static Cache-Control "public, max-age=604800, immutable"
+
+    # 3. 反向代理到 Java 后端服务器 (Caddy 会自动处理 WebSocket/Header 等设置)
+    handle /api/* {
+        reverse_proxy terra-ems-server:8081
+    }
+
+    # 4. 其他前端资源与 React 单页应用 SPA 路由：未找到文件时由 index.html 接管
+    handle {
+        try_files {path} {path}/ /index.html
+        file_server
+    }
+}
